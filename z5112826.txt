@@ -1,0 +1,17 @@
+Week 1
+======
+Formed group. Shortlisted Stock Portfolio, e-Commerce app for project with Skills Portfolio as backup. 
+Researched recommendation engines for e-Commerce app. 
+Team eventually decided on Stock Portfolio concept. 
+
+Week 2
+======
+Worked on proposal. Shortlisted features and wrote corresponding user stories, had these checked with tutor. Decided on basic tech stack: React + Typescript frontend, Python + Tensorflow/Keras + Flask/Django backend, PostgreSQL data layer and one third-party API (AlphaVantage for stock information). 
+
+Architecture to be refined next week. 
+
+Week 3 
+======
+Worked on proposal. Decided on additional third party APIs for news and refinements to tech stack. Conducted basic sprint planning and agreed on sprint start/end dates. Also wrote preliminary architecture/implementation plans. 
+
+Expect to begin implementation by weekend. 
