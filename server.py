@@ -2,14 +2,28 @@
 #   Server Module   #
 #####################
 
+
+from backend.src.user import USER_ROUTES
 import sys
 from json import dumps
 
 from flask import Flask, request
 from flask_cors import CORS
+from forum import FORUM_ROUTES
+from portfolio import PORTFOLIO_ROUTES
+from screener import SCREENER_ROUTES
+from stock import STOCK_ROUTES
+from user import USER_ROUTES
+from watchlist import WATCHLIST_ROUTES
 
 APP = Flask(__name__)
 CORS(APP)
+
+
+###################################
+# Please leave all functions here #
+###################################
+
 
 def default_handler(err):
     '''
@@ -25,9 +39,22 @@ def default_handler(err):
     response.content_type = 'application/json'
     return response
 
+
 ####################################
 # Please leave all blueprints here #
 ####################################
+
+APP.register_blueprint(FORUM_ROUTES)
+APP.register_blueprint(PORTFOLIO_ROUTES)
+APP.register_blueprint(SCREENER_ROUTES)
+APP.register_blueprint(STOCK_ROUTES)
+APP.register_blueprint(USER_ROUTES)
+APP.register_blueprint(WATCHLIST_ROUTES)
+
+#############################
+# Flask App setup and start #
+#############################
+
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.config['TEMPLATES_AUTO_RELOAD'] = True
