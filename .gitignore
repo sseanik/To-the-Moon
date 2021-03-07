@@ -1,0 +1,4 @@
+.vscode
+settings.json
+
+./backend/src/_pycache_
