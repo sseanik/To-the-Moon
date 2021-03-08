@@ -6,7 +6,7 @@ import HomeScreen from "./screens/HomeScreen";
 function App() {
     return (
         <BrowserRouter>
-            <Container fliud className="app-container justify-content-center">
+            <Container fluid className="app-container justify-content-center">
                 <Route path="/" component={HomeScreen} exact />
             </Container>
         </BrowserRouter>

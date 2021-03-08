@@ -2,7 +2,7 @@ import { Container, Row, Image } from "react-bootstrap";
 
 export default function HomeScreen() {
     return (
-        <Container className="justify-content-center">
+        <Container>
             <Row className="justify-content-center">
                 <Image src="shuttle.png" />
             </Row>
