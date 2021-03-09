@@ -27,6 +27,8 @@ class AlphaVantageAPI:
         response = requests.get(url, proxies=proxies, headers=proxies)
         return response.json()
 
+
+class JSONLoader: 
     @staticmethod
     def save_json(company_name, data, label="generic"):
         with open(f'./{company_name}_{label}_{date.today().strftime("%Y%m%d")}.json', 'w') as outfile:
