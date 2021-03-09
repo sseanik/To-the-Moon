@@ -44,6 +44,8 @@ const Header: React.FC<Props> = (props) => {
   const publicNav = () => (
     <Nav className="mr-auto">
       <Nav.Link href="/about-us">About us</Nav.Link>
+      <Nav.Link href="/login">Login</Nav.Link>
+      <Nav.Link href="/register">Sign up</Nav.Link>
     </Nav>
   );
 
