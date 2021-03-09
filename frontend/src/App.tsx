@@ -1,5 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
+import configureStore from './redux/configureStore';
+import { Provider } from 'react-redux';
 import Container from "react-bootstrap/Container";
 import {
   LandingPage,
@@ -16,6 +18,7 @@ const initialState = {
 function App() {
   return (
     <div className="App">
+      <Provider store={configureStore(initialState)}>
         <Header />
         <BrowserRouter>
           <Container fluid className="app-container justify-content-center">
@@ -25,6 +28,7 @@ function App() {
             </Switch>
           </Container>
         </BrowserRouter>
+      </Provider>
     </div>
   );
 }
