@@ -37,8 +37,8 @@ class JSONLoader:
     @staticmethod
     def load_json(filename):
         with open(filename, 'r') as infile:
-            data = json.load(infile)
-            return data
+            data, metadata = json.load(infile)
+            return data, metadata
 
     pass
 

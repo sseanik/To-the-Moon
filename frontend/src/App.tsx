@@ -26,7 +26,7 @@ function App() {
             <Switch>
               <Route path="/" component={LandingPage} exact />
               <Route path="/signup" component={SignupPage} />
-              <Route path="/stock" component={StockPage} />
+              <Route path="/stock/" component={StockPage} />
             </Switch>
           </Container>
         </BrowserRouter>

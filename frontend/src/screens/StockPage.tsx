@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter, Switch, Link, Route, useParams, useRouteMatch } from "react-router-dom";
 import { Container, Row, Image } from "react-bootstrap";
 
 // import { render } from 'react-dom';
@@ -12,6 +13,24 @@ interface Props {
 }
 
 const StockPage: React.FC<Props> = () => {
+  var { url } = useRouteMatch();
+  console.log(url);
+
+  return (
+    <BrowserRouter>
+      <Container fluid className="app-container justify-content-center">
+        <Switch>
+          <Route path={`${url}/:symbol`} component={StockDisp} />
+          <Route path={`${url}`} component={StockDisp} />
+        </Switch>
+      </Container>
+    </BrowserRouter>
+  );
+}
+
+const StockDisp: React.FC<Props> = (props) => {
+  var { symbol } = useParams();
+
   const [graphOptions, setGraphOptions] = useState({
     title: {
       text: "<Default Title>"
@@ -27,7 +46,9 @@ const StockPage: React.FC<Props> = () => {
 
   useEffect(() => {
     async function fetchStock() {
-      var stockdata = await getStockData("AMZN");
+      var stockdata = symbol ? await getStockData(symbol)
+        : await getStockData("");
+      console.log(symbol);
       console.log(Object.entries(stockdata.data));
       var seriesList = [];
 
