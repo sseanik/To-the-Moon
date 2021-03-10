@@ -25,6 +25,13 @@ def createPortfolioTable():
     conn.commit()
     conn.close()
 
+def createUserTable():
+    conn = createDBConnection()
+    cur = conn.cursor()
+    cur.execute(open("tables/User.sql", "r").read())
+    conn.commit()
+    conn.close()
+
 # def insertGarbage():
 #     conn = createDBConnection()
 #     cur = conn.cursor()
