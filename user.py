@@ -18,12 +18,12 @@ USER_ROUTES = Blueprint('user', __name__)
 
 def register_user(first_name, last_name, email, username, password):
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password, salt)
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
 
     insert_query = 'insert into User(first_name, last_name, email, username, password) values (%s, %s, %s, %s, %s)'
     conn = createDBConnection()
     cur = conn.cursor()
-    cur.execute(insert_query, (first_name, last_name, email, username, hashed_password))
+    cur.execute(insert_query, (first_name, last_name, email, username, [hashed_password]))
     conn.commit()
     conn.close()
 
