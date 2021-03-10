@@ -39,6 +39,21 @@ def createUserTable():
 #     cur.execute(insertQuery, ("Austin", 4))
 #     conn.commit()
 #     conn.close()
+def insertExample():
+    conn = createDBConnection()
+    cur = conn.cursor()
+    insertQuery = "INSERT INTO Portfolio (portfolioname, userid) VALUES (%s, %s)"
+    cur.execute(insertQuery, ("Austin", 4))
+    conn.commit()
+    conn.close()
 
-#if __name__ == "__main__":
-    #createPortfolioTable()
+def selectExample():
+    conn = createDBConnection()
+    cur = conn.cursor()
+    cur.execute("""SELECT now()""")
+    query_results = cur.fetchall()
+    print(query_results)
+    conn.close()
+
+if __name__ == "_main_":
+    selectExample()
