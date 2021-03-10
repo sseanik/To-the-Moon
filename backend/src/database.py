@@ -18,3 +18,20 @@ def createDBConnection():
     except Exception as e:
         print("Database connection failed due to {}".format(e))
 
+def createPortfolioTable():
+    conn = createDBConnection()
+    cur = conn.cursor()
+    cur.execute(open("tables/Portfolio.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+# def insertGarbage():
+#     conn = createDBConnection()
+#     cur = conn.cursor()
+#     insertQuery = "INSERT INTO Portfolio (portfolioname, userid) VALUES (%s, %s)"
+#     cur.execute(insertQuery, ("Austin", 4))
+#     conn.commit()
+#     conn.close()
+
+#if __name__ == "__main__":
+    #createPortfolioTable()
