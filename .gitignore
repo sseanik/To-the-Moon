@@ -4,3 +4,4 @@
 settings.json
 
 backend/src/__pycache__/
+backend/src/.env
