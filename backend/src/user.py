@@ -20,10 +20,10 @@ def register_user(first_name, last_name, email, username, password):
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
 
-    insert_query = 'insert into User(first_name, last_name, email, username, password) values (%s, %s, %s, %s, %s)'
+    insert_query = "INSERT INTO Users (username, first_name, last_name, email, password) VALUES (%s, %s, %s, %s, %s)"
     conn = createDBConnection()
     cur = conn.cursor()
-    cur.execute(insert_query, (first_name, last_name, email, username, [hashed_password]))
+    cur.execute(insert_query, (username, first_name, last_name, email, [hashed_password]))
     conn.commit()
     conn.close()
 
