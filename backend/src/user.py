@@ -17,20 +17,43 @@ USER_ROUTES = Blueprint('user', __name__)
 ###################################
 
 def register_user(first_name, last_name, email, username, password):
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-
-    insert_query = "INSERT INTO Users (username, first_name, last_name, email, password) VALUES (%s, %s, %s, %s, %s)"
+    # open database connection
     conn = createDBConnection()
     cur = conn.cursor()
+
+    # encode password
+    print(f'Unencoded password: {password}')
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    print(f'Encoded password: {hashed_password}')
+
+
+    # check if user with current email already exists
+    user_query = f"select id from users where email='{email}'"
+    cur.execute(user_query, (email))
+    if (len(cur.fetchall()) != 0):
+        return {
+            'status': 'failure',
+            'error': 'There is already a user registered with this email'
+        }
+
+    # insert user into database
+    insert_query = "insert into Users (username, first_name, last_name, email, password) values (%s, %s, %s, %s, %s)"
     cur.execute(insert_query, (username, first_name, last_name, email, [hashed_password]))
+
+
+    # get that user's id
+    cur.execute(user_query, (email))
+    user_id = cur.fetchone()[0]
+
+    # close database connection
     conn.commit()
+    cur.close()
     conn.close()
 
-    token = jwt.encode(username, 'secret', algorithm='HS256')
     return {
-        'userID': 1,
-        'token': token
+        'userID': user_id,
+        'token': jwt.encode({"id": user_id}, 'secret', algorithm='HS256')
     }
 
 
