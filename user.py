@@ -2,13 +2,16 @@
 #   User Module   #
 ###################
 
-
+import os
 import bcrypt
 import jwt
 from json import dumps
 from flask import Blueprint, request
 from database import createDBConnection
+from dotenv import load_dotenv
 
+load_dotenv()
+JWT_SECRET = os.getenv("JWT_SECRET")
 USER_ROUTES = Blueprint('user', __name__)
 
 
@@ -53,7 +56,7 @@ def register_user(first_name, last_name, email, username, password):
 
     return {
         'userID': user_id,
-        'token': jwt.encode({"id": user_id}, 'secret', algorithm='HS256')
+        'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256')
     }
 
 
