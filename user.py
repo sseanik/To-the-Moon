@@ -32,23 +32,21 @@ def register_user(first_name, last_name, email, username, password):
     cur = conn.cursor()
 
     # encode password
-    print(f'Unencoded password: {password}')
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    print(f'Encoded password: {hashed_password}')
 
     # check if user with current email already exists
     user_query = f"select id from users where email='{email}'"
     cur.execute(user_query, (email))
     user_id = cur.fetchone()[0]
-    if not user_id:
+    if user_id:
         return {
-            'status': 'failure',
-            'error': 'There is already a user registered with this email'
+            'status': 'error',
+            'message': 'There is already a user registered with this email'
         }
 
     # insert user into database
-    insert_query = "insert into Users (username, first_name, last_name, email, password) values (%s, %s, %s, %s, %s)"
+    insert_query = f"insert into Users ({username}, {first_name}, {last_name}, {email}, {[hashed_password]}"
     cur.execute(insert_query, (username, first_name, last_name, email, [hashed_password]))
 
     # close database connection
@@ -69,9 +67,30 @@ def login_user(email, password):
     cur = conn.cursor()
 
     # check if user with current email already exists
-    user_query = f"select id from users where email='{email}'"
+    user_query = f"select id, password from users where email='{email}'"
     cur.execute(user_query, (email))
-        
+    user_id, hashed_password = cur.fetchone()
+    print(user_id, password)
+
+    # check if there is an existing user with this email
+    if not user_id:
+        return {
+            'status': 'error',
+            'message': 'There is no user registered with this email'
+        }
+
+    # check if the password is correct
+    if not bcrypt.checkpw(password, hashed_password):
+        return {
+            'status': 'error',
+            'message': 'Incorrect password'
+        }
+
+    return {
+        'status': 'success',
+        'userID': user_id,
+        'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256')
+    }
 
     # close database connection
     conn.commit()
