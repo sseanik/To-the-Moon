@@ -37,17 +37,20 @@ def register_user(first_name, last_name, email, username, password):
 
     # check if user with current email already exists
     user_query = f"select id from users where email='{email}'"
-    cur.execute(user_query, (email))
-    user_id = cur.fetchone()[0]
-    if user_id:
+    cur.execute(user_query)
+    if cur.fetchone():
         return {
             'status': 'error',
             'message': 'There is already a user registered with this email'
         }
 
     # insert user into database
-    insert_query = f"insert into Users ({username}, {first_name}, {last_name}, {email}, {[hashed_password]}"
+    insert_query = "insert into Users (username, first_name, last_name, email, password) values (%s, %s, %s, %s, %s)"
     cur.execute(insert_query, (username, first_name, last_name, email, [hashed_password]))
+
+    # extract user id
+    cur.execute(user_query)
+    user_id = cur.fetchone()[0]
 
     # close database connection
     conn.commit()
