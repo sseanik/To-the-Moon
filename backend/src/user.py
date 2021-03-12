@@ -55,6 +55,7 @@ def register_user(first_name, last_name, email, username, password):
     conn.close()
 
     return {
+        'status': 'success',
         'userID': user_id,
         'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256')
     }
