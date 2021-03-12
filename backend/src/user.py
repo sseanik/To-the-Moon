@@ -56,6 +56,7 @@ def register_user(first_name, last_name, email, username, password):
     cur.close()
     conn.close()
 
+    # successful return
     return {
         'status': 'success',
         'userID': user_id,
@@ -90,6 +91,7 @@ def login_user(email, password):
             'message': '<p>Incorrect password</p>'
         }
 
+    # successful return
     return {
         'status': 'success',
         'userID': user_id,
