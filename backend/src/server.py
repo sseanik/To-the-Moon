@@ -3,7 +3,6 @@
 #####################
 
 
-from backend.src.user import USER_ROUTES
 import sys
 from json import dumps
 
