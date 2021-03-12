@@ -3,7 +3,8 @@
 ########################
 
 
-from flask import Blueprint
+from flask import Blueprint, request
+from json import dumps
 from database import createDBConnection
 
 PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
@@ -18,7 +19,7 @@ PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
 # Create portfolio object in the database
 def createPortfolio(UserID, portfolioName):
     if len(portfolioName) >= 30:
-        return 'Name must be less than 30 characters'
+        return 'The portfolio name must be less than 30 characters.'
 
     conn = createDBConnection()
     cur = conn.cursor()
@@ -26,14 +27,15 @@ def createPortfolio(UserID, portfolioName):
     cur.execute(insertQuery)
     query_results = cur.fetchall()
     if not query_results:
-        # If portfolio name is unique, insert it.
+        # If the user has no portfolios called portfolioName, create a portfolio with that name.
         insertQuery = "INSERT INTO Portfolio (portfolioname, userid) VALUES (%s, %s)"
         cur.execute(insertQuery, (portfolioName, UserID))
         conn.commit()
         conn.close()
+        return 'Portfolio called ' + portfolioName + ' has been created.'
     else:
         conn.close()
-        return 'That name is already used.'
+        return 'That name is already in use.'
 
 
 
@@ -49,6 +51,7 @@ def editPortfolio(UserID, oldPortfolioName, newPortfolioName):
     cur.execute(insertQuery)
     conn.commit()
     conn.close()
+    return oldPortfolioName + " has been changed to " + newPortfolioName + "."
 
 
 # Delete portfolio object from the database
@@ -63,6 +66,7 @@ def deletePortfolio(UserID, portfolioName):
     cur.execute(insertQuery)
     conn.commit()
     conn.close()
+    return portfolioName + " has been deleted."
 
 # Add investments to portfolio object in database
 def addInvestment():
@@ -77,7 +81,7 @@ def viewInvestment():
     pass
 
 # Tests
-#createPortfolio(4, 'Austin')
+createPortfolio(4, 'Austin')
 #createPortfolio(4, 'Austi')
 #editPortfolio(4, 'Austin', 'Austi')
 #deletePortfolio(4, 'Austi')
@@ -85,3 +89,9 @@ def viewInvestment():
 ################################
 # Please leave all routes here #
 ################################
+@PORTFOLIO_ROUTES.route('/portfolio/createPortfolio', methods=['GET'])
+def createUsersPortolio():
+    userID = request.args.get('userID')
+    portfolioName = request.args.get('portfolioName')
+    response = createPortfolio(userID, portfolioName)
+    return dumps({'backend response': response})
