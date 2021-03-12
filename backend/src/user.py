@@ -32,8 +32,7 @@ def register_user(first_name, last_name, email, username, password):
     cur = conn.cursor()
 
     # encode password
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     # check if user with current email already exists
     user_query = f"select id from users where email='{email}'"
@@ -41,12 +40,12 @@ def register_user(first_name, last_name, email, username, password):
     if cur.fetchone():
         return {
             'status': 'error',
-            'message': 'There is already a user registered with this email'
+            'message': '<p>There is already a user registered with this email</p>'
         }
 
     # insert user into database
     insert_query = "insert into Users (username, first_name, last_name, email, password) values (%s, %s, %s, %s, %s)"
-    cur.execute(insert_query, (username, first_name, last_name, email, [hashed_password]))
+    cur.execute(insert_query, (username, first_name, last_name, email, hashed_password))
 
     # extract user id
     cur.execute(user_query)
@@ -60,7 +59,8 @@ def register_user(first_name, last_name, email, username, password):
     return {
         'status': 'success',
         'userID': user_id,
-        'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256')
+        'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256'),
+        'message': '<p>Successfully registered!</p>'
     }
 
 
@@ -72,27 +72,29 @@ def login_user(email, password):
     # check if user with current email already exists
     user_query = f"select id, password from users where email='{email}'"
     cur.execute(user_query, (email))
-    user_id, hashed_password = cur.fetchone()
-    print(user_id, password)
+    user_info = cur.fetchone()
 
     # check if there is an existing user with this email
-    if not user_id:
+    if not user_info:
         return {
             'status': 'error',
-            'message': 'There is no user registered with this email'
+            'message': '<p>There is no user registered with this email</p>'
         }
 
+    user_id, hashed_password = user_info
+
     # check if the password is correct
-    if not bcrypt.checkpw(password, hashed_password):
+    if not bcrypt.checkpw(password.encode('utf-8'), bytes(hashed_password)):
         return {
             'status': 'error',
-            'message': 'Incorrect password'
+            'message': '<p>Incorrect password</p>'
         }
 
     return {
         'status': 'success',
         'userID': user_id,
-        'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256')
+        'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256'),
+        'message': '<p>Successfully logged in!</p>'
     }
 
     # close database connection
