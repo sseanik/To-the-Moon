@@ -76,12 +76,12 @@ def deleteInvestment():
 def viewInvestment():
     pass
 
-# Test
+# Tests
 #createPortfolio(4, 'Austin')
 #createPortfolio(4, 'Austi')
+#editPortfolio(4, 'Austin', 'Austi')
+#deletePortfolio(4, 'Austi')
 
-editPortfolio(4, 'Austin', 'Austi')
-deletePortfolio(4, 'Austi')
 ################################
 # Please leave all routes here #
 ################################
