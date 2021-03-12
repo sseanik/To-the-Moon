@@ -5,5 +5,5 @@ create table if not exists Users (
     first_name varchar(30) not null,
     last_name varchar(30) not null,
     email varchar(50) not null,
-    password varchar(1000) not null
+    password bytea not null
 );
