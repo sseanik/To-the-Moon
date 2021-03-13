@@ -38,7 +38,7 @@ function App() {
               <Route path="/" component={LandingPage} exact />
               <Route path="/login" component={LoginPage} />
               <Route path="/signup" component={SignupPage} />
-              <Route path="/stock/" component={StockPage} />
+              <Route path="/stock/:symbol" component={StockPage} />
             </Switch>
           </Container>
         </BrowserRouter>

@@ -24,24 +24,9 @@ interface graphOptionsT {
   series: Array<{ name: string, data: Array<Array<number>> }>;
 }
 
-const StockPage: React.FC<Props> = () => {
-  var { url } = useRouteMatch();
-  console.log(url);
-
-  return (
-    <BrowserRouter>
-      <Container fluid className="app-container justify-content-center">
-        <Switch>
-          <Route path={`${url}/:symbol`} component={StockDisp} />
-          <Route path={`${url}`} component={StockDisp} />
-        </Switch>
-      </Container>
-    </BrowserRouter>
-  );
-}
-
-const StockDisp: React.FC<Props> = (props) => {
-  var { symbol } = useParams<{ symbol: string }>();
+const StockPage: React.FC<Props> = (props) => {
+  var routeMatch = useRouteMatch();
+  var symbol = routeMatch.params.symbol;
 
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
     title: {
