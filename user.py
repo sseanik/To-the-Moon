@@ -101,7 +101,7 @@ def login_user(email, password):
 
     # check if user with current email already exists
     user_query = f"select id, password from users where email='{email}'"
-    cur.execute(user_query, (email))
+    cur.execute(user_query)
     user_info = cur.fetchone()
 
     # check if there is an existing user with this email
