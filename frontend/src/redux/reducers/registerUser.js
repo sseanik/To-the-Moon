@@ -9,7 +9,7 @@ const initialState = {
 }
 
 const registerUser = (state = initialState, action) => {
-  switch(action.type) {
+  switch (action.type) {
     case Types.REGISTER_USER_PENDING:
       return {
         ...state,
@@ -25,7 +25,7 @@ const registerUser = (state = initialState, action) => {
           ...state.registerUser,
           loading: false,
           error: null,
-          token: action.payload,
+          token: action.response.token,
         }
       };
     case Types.REGISTER_USER_FAILURE:
@@ -34,7 +34,7 @@ const registerUser = (state = initialState, action) => {
         registerUser: {
           ...state.registerUser,
           loading: false,
-          error: action.payload,
+          error: action.error,
         }
       };
     default:

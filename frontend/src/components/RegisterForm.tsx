@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import Actions from '../redux/actions/user';
 import ClipLoader from 'react-spinners/ClipLoader';
+import { useHistory } from 'react-router-dom';
 
 interface IObjectKeys {
   [key: string]: string | number;
@@ -35,12 +36,18 @@ interface DispatchProps {
 
 const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
   const { registerForm, isLoading, token, error, submitForm, registerUser } = props;
-
+  const history = useHistory();
   const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (token) {
+      history.push('/');
+    }
+  })
 
   const onSubmit = (e: any) => {
     e.preventDefault();
