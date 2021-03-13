@@ -3,6 +3,7 @@
 ###################
 
 import os
+import re
 import bcrypt
 import jwt
 from json import dumps
@@ -31,8 +32,33 @@ def register_user(first_name, last_name, email, username, password):
     conn = createDBConnection()
     cur = conn.cursor()
 
-    # encode password
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    # validate email format
+    if not re.search(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+        return {
+            'status': 'error',
+            'message': 'That is not a valid email format'
+        }
+
+    # limit length of username
+    if len(username) > 30:
+        return {
+            'status': 'error',
+            'message': 'Username cannot exceed 30 characters'
+        }
+
+    # limit length of first name
+    if len(first_name) > 30:
+        return {
+            'status': 'error',
+            'message': 'First name cannot exceed 30 characters'
+        }
+
+    # limit length of last name
+    if len(last_name) > 30:
+        return {
+            'status': 'error',
+            'message': 'Last name cannot exceed 30 characters'
+        }
 
     # check if user with current email already exists
     user_query = f"select id from users where email='{email}'"
@@ -40,8 +66,11 @@ def register_user(first_name, last_name, email, username, password):
     if cur.fetchone():
         return {
             'status': 'error',
-            'message': '<p>There is already a user registered with this email</p>'
+            'message': 'There is already a user registered with this email'
         }
+
+    # encode password
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     # insert user into database
     insert_query = "insert into Users (username, first_name, last_name, email, password) values (%s, %s, %s, %s, %s)"
@@ -61,7 +90,7 @@ def register_user(first_name, last_name, email, username, password):
         'status': 'success',
         'userID': user_id,
         'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256'),
-        'message': '<p>Successfully registered!</p>'
+        'message': 'Successfully registered!'
     }
 
 
@@ -79,7 +108,7 @@ def login_user(email, password):
     if not user_info:
         return {
             'status': 'error',
-            'message': '<p>There is no user registered with this email</p>'
+            'message': 'There is no user registered with this email'
         }
 
     user_id, hashed_password = user_info
@@ -88,21 +117,22 @@ def login_user(email, password):
     if not bcrypt.checkpw(password.encode('utf-8'), bytes(hashed_password)):
         return {
             'status': 'error',
-            'message': '<p>Incorrect password</p>'
+            'message': 'Incorrect password'
         }
+        
+    # close database connection
+    conn.commit()
+    cur.close()
+    conn.close()
 
     # successful return
     return {
         'status': 'success',
         'userID': user_id,
         'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256'),
-        'message': '<p>Successfully logged in!</p>'
+        'message': 'Successfully logged in!'
     }
 
-    # close database connection
-    conn.commit()
-    cur.close()
-    conn.close()
 
 
 
