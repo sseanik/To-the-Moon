@@ -24,7 +24,7 @@ function App() {
           <Container fluid className="app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />
-              <Route path="/signup" component={SignupPage} />
+              <Route path="/register" component={SignupPage} />
             </Switch>
           </Container>
         </BrowserRouter>

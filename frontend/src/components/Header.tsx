@@ -45,7 +45,7 @@ const Header: React.FC<Props> = (props) => {
     <Nav className="mr-auto">
       <Nav.Link href="/about-us">About us</Nav.Link>
       <Nav.Link href="/login">Login</Nav.Link>
-      <Nav.Link href="/register">Sign up</Nav.Link>
+      <Nav.Link href="/register">Register</Nav.Link>
     </Nav>
   );
 
