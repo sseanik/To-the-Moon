@@ -5,7 +5,8 @@ import { Provider } from 'react-redux';
 import Container from "react-bootstrap/Container";
 import {
   LandingPage,
-  SignupPage
+  SignupPage,
+  PortfolioPage
 } from "./screens";
 import {
   Header
@@ -25,6 +26,7 @@ function App() {
             <Switch>
               <Route path="/" component={LandingPage} exact />
               <Route path="/register" component={SignupPage} />
+              <Route path="/portfolio/:id" component={PortfolioPage} />
             </Switch>
           </Container>
         </BrowserRouter>
