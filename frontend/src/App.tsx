@@ -6,14 +6,14 @@ import Container from "react-bootstrap/Container";
 import { ToastContainer } from 'react-toastify';
 import {
   LandingPage,
-  SignupPage
+  SignupPage,
+  LoginPage
 } from "./screens";
 import {
   Header
 } from "./components";
 
 const initialState = {
-  auth: false,
 };
 
 function App() {
@@ -35,6 +35,7 @@ function App() {
           <Container fluid className="app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />
+              <Route path="/login" component={LoginPage} />
               <Route path="/signup" component={SignupPage} />
             </Switch>
           </Container>

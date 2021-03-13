@@ -163,7 +163,7 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
         variant="primary"
         type="submit"
       >
-        Submit
+        Sign up
       </Button>
     </Form>
   );
@@ -171,9 +171,8 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
   const loadingSpinnerComponent = (
     <div>
       <ClipLoader color={'green'} loading={isLoading} />
-      <h5>Preparing rocket fuel...</h5>
+      <h5>Onboarding astronauts...</h5>
     </div>
-    
   );
 
   return (

@@ -1,18 +1,18 @@
 import React from "react";
 import { Container, Row } from "react-bootstrap";
-import { RegisterForm } from "../components";
+import { LoginForm } from "../components";
 
-const SignupPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   return (
     <Container>
       <Row className="justify-content-center">
-        <h2>Sign up 🚀</h2>
+        <h2>Login 🚀</h2>
       </Row>
       <Row className="justify-content-center">
-        <RegisterForm />
+        <LoginForm />
       </Row>
     </Container>
   );
 }
 
-export default SignupPage;
+export default LoginPage;
