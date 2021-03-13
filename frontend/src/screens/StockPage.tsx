@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter, Switch, Link, Route, useParams, useRouteMatch } from "react-router-dom";
 import {  Container,
           Row,
-          Image,
-          Table
+          Col,
+          Tabs,
+          Tab
         } from "react-bootstrap";
+
+import DataSummary, { summaryDataT } from "./DataSummary";
 
 // import { render } from 'react-dom';
 import Highcharts from "highcharts/highstock";
@@ -19,17 +22,6 @@ interface Props {
 interface graphOptionsT {
   title: { text: string };
   series: Array<{ name: string, data: Array<Array<number>> }>;
-}
-
-interface summaryDataT {
-    previous_close: number;
-    open: number;
-    day_min: number;
-    day_max: number;
-    year_min: number;
-    year_max: number;
-    volume: number;
-    average_volume: number;
 }
 
 const StockPage: React.FC<Props> = () => {
@@ -92,7 +84,7 @@ const StockDisp: React.FC<Props> = (props) => {
     }
 
     fetchStock();
-  }, []);
+  }, [graphOptions, symbol]);
 
   return (
     <Container>
@@ -104,47 +96,34 @@ const StockDisp: React.FC<Props> = (props) => {
       </Row>
 
       <Row className="justify-content-center">
-        <div>
-          <HighchartsReact
-            highcharts={Highcharts}
-            constructorType={'stockChart'}
-            options={graphOptions}
-          />
-        </div>
-      </Row>
-
-      <Row className="justify-content-center mt-2">
-        <Table striped>
-          <tbody>
-            <tr>
-              <th>Previous Close</th>
-              <td>{summaryData.previous_close ? summaryData.previous_close : "N/A"}</td>
-            </tr>
-            <tr>
-              <th>Open</th>
-              <td>{summaryData.open ? summaryData.open : "N/A"}</td>
-            </tr>
-            <tr>
-              <th>Day Range</th>
-              <td>{summaryData.day_min ? summaryData.day_min : "N/A"}
-              - {summaryData.day_max ? summaryData.day_max : "N/A"}</td>
-            </tr>
-            <tr>
-              <th>52 Week Range</th>
-              <td>{summaryData.year_min ? summaryData.year_min : "N/A"}
-              - {summaryData.year_max ? summaryData.year_max : "N/A"}</td>
-            </tr>
-            <tr>
-              <th>Volume</th>
-              <td>{summaryData.volume ? summaryData.volume : "N/A"}</td>
-            </tr>
-            <tr>
-              <th>Average Volume</th>
-              <td>{summaryData.average_volume
-                  ? summaryData.average_volume.toFixed(0) : "N/A"}</td>
-            </tr>
-          </tbody>
-        </Table>
+        <Col>
+          <div>
+            <HighchartsReact
+              highcharts={Highcharts}
+              constructorType={'stockChart'}
+              options={graphOptions}
+            />
+          </div>
+        </Col>
+        <Col>
+          <Container>
+            <Tabs
+              className="justify-content-center mt-2"
+              defaultActiveKey="summary"
+              id="sec-view-info-selector"
+            >
+              <Tab eventKey="summary" title="Home">
+                <DataSummary summaryData={summaryData} />
+              </Tab>
+              <Tab eventKey="statistics" title="Statistics">
+                <h1> Statistics Table </h1>
+              </Tab>
+              <Tab eventKey="financials" title="Financials">
+                <h1> Financials Table </h1>
+              </Tab>
+            </Tabs>
+          </Container>
+        </Col>
       </Row>
     </Container>
   );
