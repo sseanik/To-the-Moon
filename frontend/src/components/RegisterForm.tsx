@@ -148,7 +148,7 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
           {registerForm.errors.password}
         </Form.Control.Feedback>
         <Form.Text className="text-muted">
-          Passwords must be between 4 and 16 characters long.
+          Passwords must be between 8 and 16 characters long.
         </Form.Text>
       </Form.Group>
 
