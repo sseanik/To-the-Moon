@@ -97,7 +97,7 @@ const StockPage: React.FC<Props> = (props) => {
               defaultActiveKey="summary"
               id="sec-view-info-selector"
             >
-              <Tab eventKey="summary" title="Home">
+              <Tab eventKey="summary" title="Summary">
                 <DataSummary summaryData={summaryData} />
               </Tab>
               <Tab eventKey="statistics" title="Statistics">
