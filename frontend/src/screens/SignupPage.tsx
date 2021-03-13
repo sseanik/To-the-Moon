@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Row, Image } from "react-bootstrap";
+import { RegisterForm } from "../components";
 import logo from "../resources/shuttle.png";
 
 interface Props {
@@ -10,10 +11,10 @@ const SignupPage: React.FC<Props> = () => {
   return (
     <Container>
       <Row className="justify-content-center">
-        <Image src={logo} />
+        <h2>Sign up 🚀</h2>
       </Row>
-      <Row className="justify-content-center mt-2">
-        <h1>Welcome To The Moon!</h1>
+      <Row className="justify-content-center">
+        <RegisterForm />
       </Row>
     </Container>
   );
