@@ -4,5 +4,7 @@ settings.json
 *.pyc
 
 backend/src/__pycache__/
+
 venv/*
 *.json
+backend/src/.env
