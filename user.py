@@ -60,6 +60,13 @@ def register_user(first_name, last_name, email, username, password):
             'message': 'Last name cannot exceed 30 characters'
         }
 
+    # restrict length of password
+    if len(password) < 8 or len(password) > 16:
+        return {
+            'status': 'error',
+            'message': 'Password must be between 8 and 16 characters'
+        }
+
     # check if user with current email already exists
     user_query = f"select id from users where email='{email}'"
     cur.execute(user_query)
