@@ -13,7 +13,7 @@ import DataSummary, { summaryDataT } from "./DataSummary";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 
-import { getStockData } from "../redux/actions/userActions";
+import { getStockData } from "../redux/actions/stock";
 
 interface Props {
   // declare props types here
@@ -84,7 +84,7 @@ const StockDisp: React.FC<Props> = (props) => {
     }
 
     fetchStock();
-  }, [graphOptions, symbol]);
+  }, []);
 
   return (
     <Container>
