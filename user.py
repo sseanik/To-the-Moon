@@ -35,35 +35,35 @@ def register_user(first_name, last_name, email, username, password):
     # validate email format
     if not re.search(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
         return {
-            'status': 'error',
+            'status': 400,
             'message': 'That is not a valid email format'
         }
 
     # limit length of username
     if len(username) > 30:
         return {
-            'status': 'error',
+            'status': 400,
             'message': 'Username cannot exceed 30 characters'
         }
 
     # limit length of first name
     if len(first_name) > 30:
         return {
-            'status': 'error',
+            'status': 400,
             'message': 'First name cannot exceed 30 characters'
         }
 
     # limit length of last name
     if len(last_name) > 30:
         return {
-            'status': 'error',
+            'status': 400,
             'message': 'Last name cannot exceed 30 characters'
         }
 
     # restrict length of password
     if len(password) < 8 or len(password) > 16:
         return {
-            'status': 'error',
+            'status': 400,
             'message': 'Password must be between 8 and 16 characters'
         }
 
@@ -72,7 +72,7 @@ def register_user(first_name, last_name, email, username, password):
     cur.execute(user_query)
     if cur.fetchone():
         return {
-            'status': 'error',
+            'status': 400,
             'message': 'There is already a user registered with this email'
         }
 
@@ -94,7 +94,7 @@ def register_user(first_name, last_name, email, username, password):
 
     # successful return
     return {
-        'status': 'success',
+        'status': 200,
         'userID': user_id,
         'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256'),
         'message': 'Successfully registered!'
@@ -114,7 +114,7 @@ def login_user(email, password):
     # check if there is an existing user with this email
     if not user_info:
         return {
-            'status': 'error',
+            'status': 400,
             'message': 'There is no user registered with this email'
         }
 
@@ -123,7 +123,7 @@ def login_user(email, password):
     # check if the password is correct
     if not bcrypt.checkpw(password.encode('utf-8'), bytes(hashed_password)):
         return {
-            'status': 'error',
+            'status': 400,
             'message': 'Incorrect password'
         }
         
@@ -134,7 +134,7 @@ def login_user(email, password):
 
     # successful return
     return {
-        'status': 'success',
+        'status': 200,
         'userID': user_id,
         'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256'),
         'message': 'Successfully logged in!'
