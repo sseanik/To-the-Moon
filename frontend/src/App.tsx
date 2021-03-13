@@ -1,16 +1,10 @@
 import "./App.css";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import configureStore from './redux/configureStore';
-import { Provider } from 'react-redux';
+import configureStore from "./redux/configureStore";
+import { Provider } from "react-redux";
 import Container from "react-bootstrap/Container";
-import {
-  LandingPage,
-  SignupPage,
-  PortfolioPage
-} from "./screens";
-import {
-  Header
-} from "./components";
+import { LandingPage, SignupPage, PortfolioPage } from "./screens";
+import { Header } from "./components";
 
 const initialState = {
   auth: false,

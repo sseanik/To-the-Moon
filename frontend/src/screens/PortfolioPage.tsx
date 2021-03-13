@@ -3,7 +3,6 @@ import { Container, Row, Image } from "react-bootstrap";
 import logo from "../resources/shuttle.png";
 
 interface Props {
-  // declare props types here
   productID: string;
 }
 
