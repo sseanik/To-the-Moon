@@ -25,7 +25,8 @@ const Actions = {
     return async (dispatch) => {
       dispatch(Actions.registerUserPending());
       try {
-        const res = await AuthAPI.register(...payload);
+        const { username, firstName, lastName, email, password } = payload;
+        const res = await AuthAPI.register(username, firstName, lastName, email, password);
         // To test loading spinner
         setTimeout(() => {
           dispatch(Actions.registerUserSuccess(res));

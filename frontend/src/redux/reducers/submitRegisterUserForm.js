@@ -54,8 +54,8 @@ const validateRegister = (payload) => {
 
   if (!password && password.length === 0) {
     errors.password = "Password is required";
-  } else if (password.length < 4) {
-    errors.password = "Password must have at least 4 characters";
+  } else if (password.length < 8) {
+    errors.password = "Password must have at least 8 characters";
   } else if (password.length > 16) {
     errors.password = "Password must have 16 characters or less";
   }
