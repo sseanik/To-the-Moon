@@ -35,7 +35,7 @@ const StockPage: React.FC<Props> = (props) => {
       text: ""
     },
     rangeSelector: {
-        allButtonsEnabled: true, 
+        allButtonsEnabled: true,
         selected: undefined,
         buttons: [
         {
@@ -141,20 +141,23 @@ const StockPage: React.FC<Props> = (props) => {
       var stockdata = symbol ? await getStockData(symbol)
         : await getStockData("");
       // console.log(symbol);
-      // console.log(stockdata);
+      console.log(stockdata);
       if (!stockdata) { return; }
       var seriesDailyList = [];
       var seriesIntraList = [];
 
-      for (let [key, value] of Object.entries(stockdata.data)) {
-        seriesDailyList.push({name: key, data: value});
+      if (stockdata.data) {
+          for (let [key, value] of Object.entries(stockdata.data)) {
+            seriesDailyList.push({name: key, data: value});
+          }
+          setTimeSeriesDaily(seriesDailyList);
       }
-      for (let [key, value] of Object.entries(stockdata.data_intraday)) {
-        seriesIntraList.push({name: key, data: value});
+      if (stockdata.data_intraday) {
+          for (let [key, value] of Object.entries(stockdata.data_intraday)) {
+            seriesIntraList.push({name: key, data: value});
+          }
+          setTimeSeriesIntra(seriesIntraList);
       }
-      setTimeSeriesDaily(seriesDailyList);
-      setTimeSeriesIntra(seriesIntraList);
-      // setGraphOptions({ ... graphOptions, series: seriesDailyList });
       setSummaryData(stockdata.summary);
       setFundamentalData(stockdata.fundamentals);
       console.log(stockdata.fundamentals);
