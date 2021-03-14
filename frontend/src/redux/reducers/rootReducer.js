@@ -1,5 +1,9 @@
 import { combineReducers } from 'redux';
-import userExampleReducer from './userReducer';
+import submitRegisterUserForm from './submitRegisterUserForm';
+import registerUser from './registerUser';
+import loginUser from './loginUser';
 export default combineReducers({
-  userExampleReducer
+  submitRegisterUserForm,
+  registerUser,
+  loginUser,
 });

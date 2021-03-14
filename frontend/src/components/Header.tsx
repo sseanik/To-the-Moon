@@ -1,15 +1,5 @@
 import { Navbar, Nav, NavDropdown, Form, FormControl, Button } from "react-bootstrap";
-import logo from "../resources/shuttle.png";
 import { connect, MapStateToPropsParam } from "react-redux";
-
-const headerStyles = {
-  height: "100px"
-};
-
-const logoStyles = {
-  height: "100%",
-  width: "auto"
-};
 
 const dropdownNavLinks = [
   { href: "portfolio", name: "My Portfolios"},
@@ -21,13 +11,8 @@ const dropdownNavLinks = [
   { href: "logout", name: "Logout"},
 ];
 
-interface Props {
-  authenticated: boolean;
-}
-
-const Header: React.FC<Props> = (props) => {
-  const { authenticated } = props;
-
+// TODO: Make this connected to Redux so it updates automatically instead of every render
+const Header: React.FC = () => {
   const privateNav = () => (
     <Nav className="mr-auto">
       <Nav.Link href="/home">Home</Nav.Link>
@@ -45,7 +30,7 @@ const Header: React.FC<Props> = (props) => {
     <Nav className="mr-auto">
       <Nav.Link href="/about-us">About us</Nav.Link>
       <Nav.Link href="/login">Login</Nav.Link>
-      <Nav.Link href="/register">Sign up</Nav.Link>
+      <Nav.Link href="/signup">Sign up</Nav.Link>
     </Nav>
   );
 
@@ -54,7 +39,7 @@ const Header: React.FC<Props> = (props) => {
       <Navbar.Brand href="/">To The Moon</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
-        { authenticated 
+        { window.localStorage.getItem("Token") 
           ? privateNav()
           : publicNav()
         }
@@ -67,9 +52,4 @@ const Header: React.FC<Props> = (props) => {
   );
 }
 
-const mapStateToProps = (state: any) => {
-  const { auth } = state;
-  return { authenticated: auth }
-}
-
-export default connect(mapStateToProps)(Header)
+export default Header;
