@@ -9,9 +9,19 @@ from json import dumps
 import pandas as pd
 import os
 
+from psycopg2.extras import DictCursor
+import psycopg2.extensions
+
+from database import createDBConnection
 from helpers import JSONLoader, AlphaVantageInfo
 
 STOCK_ROUTES = Blueprint('stock', __name__)
+
+DEC2FLOAT = psycopg2.extensions.new_type(
+    psycopg2.extensions.DECIMAL.values,
+    'DEC2FLOAT',
+    lambda value, curs: float(value) if value is not None else None)
+psycopg2.extensions.register_type(DEC2FLOAT)
 
 ###################################
 # Please leave all functions here #
@@ -29,26 +39,31 @@ def get_stock_value(symbol):
     return result, stockmetadata
 
 def get_fundamentals(symbol):
-    result = {}
-    fundamentals = JSONLoader.load_json(symbol)[0]
-    result['company_name'] = fundamentals['Name']
-    result['exchange'] = fundamentals['Exchange']
-    result['currency'] = fundamentals['Currency']
+    conn = createDBConnection()
+    cur = conn.cursor(cursor_factory=DictCursor)
 
-    result['year_high'] = float(fundamentals['52WeekHigh'])
-    result['year_low'] = float(fundamentals['52WeekLow'])
+    selectQuery = f"SELECT * FROM securitiesoverview \
+        WHERE stockticker='{symbol}'"
+    cur.execute(selectQuery)
+    query_result = cur.fetchone()
+    result = dict(query_result) if query_result else None
 
-    result['market_cap'] = float(fundamentals['MarketCapitalization'])
-    result['beta'] = float(fundamentals['Beta'])
-    result['pe_ratio'] = float(fundamentals['PERatio'])
-    result['eps'] = float(fundamentals['EPS'])
-    result['dividend_yield'] = float(fundamentals['DividendYield'])
-
+    conn.close()
     return result
 
-def get_income_statement(symbol):
-    income = JSONLoader.load_json(symbol)
-    return income
+def get_income_statement(symbol, num_entries=3):
+    conn = createDBConnection()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    selectQuery = f"SELECT * FROM incomestatements \
+        WHERE stockticker='{symbol}' \
+        ORDER BY fiscaldateending DESC LIMIT {num_entries}"
+    cur.execute(selectQuery)
+    query_results = cur.fetchall()
+    result = [dict(record) for record in query_results]
+
+    conn.close()
+    return result
 
 def convert_to_opairs(df, label='4. close'):
     series = df[label].reset_index()
@@ -61,9 +76,7 @@ def calculate_summary(df):
     if type(df) == pd.core.frame.DataFrame and df.shape[0] > 0:
         result['previous_close'] = df.iloc[-2]['4. close'] \
             if df.shape[0] >= 2 else 0
-        result['open'] = df.iloc[-1]['1. open'] # get this from the summary/quote endpoint
-        # result['bid'] = 0 # Not available
-        # result['ask'] = 0 # Not available
+        result['open'] = df.iloc[-1]['1. open']
         result['day_min'] = df.iloc[-1]['3. low']
         result['day_max'] = df.iloc[-1]['2. high']
         result['year_min'] = df.last("365D")['4. close'].min()
@@ -71,16 +84,8 @@ def calculate_summary(df):
         result['volume'] = df.iloc[-1]['6. volume']
         result['average_volume'] = df.last("365D")['6. volume'].mean()
     else:
-        result['previous_close'] = 0
-        result['open'] = 0 # get this from the summary/quote endpoint
-        # result['bid'] = 0 # Not available
-        # result['ask'] = 0 # Not available
-        result['day_min'] = 0
-        result['day_max'] = 0
-        result['year_min'] = 0
-        result['year_max'] = 0
-        result['volume'] = 0
-        result['average_volume'] = 0
+        for field in ['previous_close', 'open', 'day_min', 'day_max',  'year_min', 'year_max', 'volume', 'average_volume']:
+            result[field] = 0
 
     return result
 
@@ -94,28 +99,32 @@ def get_stock_data():
     # an echo route just for testing
     symbol = request.args.get('symbol')
     data = {'name': "", 'data': ""}
-    filename = "demo/" + symbol + ".json" if symbol else ""
-    intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
-    fund_filename = "demo/" + symbol + "_fundamentals.json" if symbol else ""
-    # incm_filename = "demo/" + symbol + "_income_statement.json" if symbol else ""
-    # baln_filename = "demo/" + symbol + "_balance_sheet.json" if symbol else ""
-    # cash_filename = "demo/" + symbol + "_cash_flow.json" if symbol else ""
-    if symbol and os.path.isfile(filename):
-        sample_df, sample_metadata = get_stock_value(filename)
-        summary = calculate_summary(sample_df)
-        funds = {}
-        if os.path.isfile(fund_filename):
-            funds = get_fundamentals(fund_filename)
+
+
+    funds = get_fundamentals(symbol)
+
+    if funds:
+        filename = "demo/" + symbol + ".json" if symbol else ""
+        intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
+
+        sample_df = {}
+        sample_metadata = {}
+        summary = {}
+        if os.path.isfile(filename):
+            sample_df, sample_metadata = get_stock_value(filename)
+            summary = calculate_summary(sample_df)
+
         intraday = {}
         if os.path.isfile(intr_filename):
             intraday, _ = get_stock_value(intr_filename)
-        # sample_df = sample_df.reindex(index=sample_df.index[::-1])
+
+        income_statement = get_income_statement(symbol)
         sample_data_close = convert_to_opairs(sample_df, label="4. close")
         sample_data_high = convert_to_opairs(sample_df, label="2. high")
         sample_data_low = convert_to_opairs(sample_df, label="3. low")
 
         intr_data_close = convert_to_opairs(intraday, label="4. close")
-        stock_name = sample_metadata['2. Symbol']
+        stock_name = funds['stockname']
 
         data = dumps({
             'name': stock_name,
@@ -127,6 +136,7 @@ def get_stock_data():
             'data_intraday': {
                 '4. close': intr_data_close,
             },
+            'income_statement': income_statement,
             'summary': summary,
             'fundamentals': funds
         })
