@@ -9,18 +9,20 @@ import {
   SignupPage,
   LoginPage
 } from "./screens";
-import {
-  Header
-} from "./components";
+import { Header } from "./components";
 
 const initialState = {
+  loginUser: {
+    loginUser: {
+      token: ""
+    }
+  }
 };
 
 function App() {
   return (
     <div className="App">
       <Provider store={configureStore(initialState)}>
-        <Header />
         <ToastContainer
             position="top-center"
             autoClose={7000}
@@ -31,6 +33,7 @@ function App() {
             draggable
             pauseOnHover
         />
+        <Header />
         <BrowserRouter>
           <Container fluid className="app-container justify-content-center">
             <Switch>

@@ -1,5 +1,6 @@
 import { Navbar, Nav, NavDropdown, Form, FormControl, Button } from "react-bootstrap";
-import { connect, MapStateToPropsParam } from "react-redux";
+import { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 
 const dropdownNavLinks = [
   { href: "portfolio", name: "My Portfolios"},
@@ -11,13 +12,28 @@ const dropdownNavLinks = [
   { href: "logout", name: "Logout"},
 ];
 
-// TODO: Make this connected to Redux so it updates automatically instead of every render
-const Header: React.FC = () => {
+interface Props {
+  token?: string;
+}
+
+const Header: React.FC<Props> = (props) => {
+  const { token } = props;
+
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    if (token !== "" || window.localStorage.getItem("Token")) {
+      setAuthenticated(true);
+    } else {
+      setAuthenticated(false);
+    }
+  }, [token])
+
   const privateNav = () => (
     <Nav className="mr-auto">
       <Nav.Link href="/home">Home</Nav.Link>
       <Nav.Link href="/dashboard">Dashboard</Nav.Link>
-      <NavDropdown title="Dropdown" id="basic-nav-dropdown">
+      <NavDropdown title="More" id="basic-nav-dropdown">
         {dropdownNavLinks.map((link) => (
             <NavDropdown.Item href={link.href}>{link.name}</NavDropdown.Item>
           ))
@@ -39,7 +55,7 @@ const Header: React.FC = () => {
       <Navbar.Brand href="/">To The Moon</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
-        { window.localStorage.getItem("Token") 
+        { authenticated
           ? privateNav()
           : publicNav()
         }
@@ -52,4 +68,8 @@ const Header: React.FC = () => {
   );
 }
 
-export default Header;
+const mapStateToProps = (state: any) => ({
+  token: state.loginUser.loginUser.token,
+});
+
+export default connect(mapStateToProps, null)(Header);
