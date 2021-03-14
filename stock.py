@@ -9,7 +9,7 @@ from json import dumps
 import pandas as pd
 import os
 
-from backend.src.AlphaVantageWrapper.AlphaVantageAPI import JSONLoader
+from helpers import JSONLoader, AlphaVantageInfo
 
 STOCK_ROUTES = Blueprint('stock', __name__)
 
