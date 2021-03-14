@@ -28,6 +28,24 @@ def get_stock_value(symbol):
     result.index = pd.to_datetime(result.index)
     return result, stockmetadata
 
+def get_fundamentals(symbol):
+    result = {}
+    fundamentals = JSONLoader.load_json(symbol)[0]
+    result['company_name'] = fundamentals['Name']
+    result['exchange'] = fundamentals['Exchange']
+    result['currency'] = fundamentals['Currency']
+
+    result['year_high'] = float(fundamentals['52WeekHigh'])
+    result['year_low'] = float(fundamentals['52WeekLow'])
+
+    result['market_cap'] = float(fundamentals['MarketCapitalization'])
+    result['beta'] = float(fundamentals['Beta'])
+    result['pe_ratio'] = float(fundamentals['PERatio'])
+    result['eps'] = float(fundamentals['EPS'])
+    result['dividend_yield'] = float(fundamentals['DividendYield'])
+
+    return result
+
 def convert_to_opairs(df, label='4. close'):
     series = df[label].reset_index()
     series['index'] = (pd.to_datetime(series['index']) \
@@ -73,9 +91,13 @@ def get_stock_data():
     symbol = request.args.get('symbol')
     data = {'name': "", 'data': ""}
     filename = "demo/" + symbol + ".json" if symbol else ""
+    fund_filename = "demo/" + symbol + "_fundamentals.json" if symbol else ""
     if symbol and os.path.isfile(filename):
         sample_df, sample_metadata = get_stock_value(filename)
         summary = calculate_summary(sample_df)
+        funds = {}
+        if os.path.isfile(fund_filename):
+            funds = get_fundamentals(fund_filename)
         # sample_df = sample_df.reindex(index=sample_df.index[::-1])
         sample_data_close = convert_to_opairs(sample_df, label="4. close")
         sample_data_high = convert_to_opairs(sample_df, label="2. high")
@@ -89,7 +111,8 @@ def get_stock_data():
                 '2. high': sample_data_high,
                 '3. low': sample_data_low
             },
-            'summary': summary
+            'summary': summary,
+            'fundamentals': funds
         })
     else:
         data = dumps({
