@@ -7,7 +7,8 @@ import { ToastContainer } from 'react-toastify';
 import {
   LandingPage,
   SignupPage,
-  LoginPage
+  LoginPage,
+  AboutUsPage,
 } from "./screens";
 import { Header } from "./components";
 
@@ -38,6 +39,7 @@ function App() {
           <Container fluid className="app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />
+              <Route path="/about-us" component={AboutUsPage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/signup" component={SignupPage} />
             </Switch>
