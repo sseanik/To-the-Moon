@@ -46,6 +46,10 @@ def get_fundamentals(symbol):
 
     return result
 
+def get_income_statement(symbol):
+    income = JSONLoader.load_json(symbol)
+    return income
+
 def convert_to_opairs(df, label='4. close'):
     series = df[label].reset_index()
     series['index'] = (pd.to_datetime(series['index']) \
@@ -91,17 +95,26 @@ def get_stock_data():
     symbol = request.args.get('symbol')
     data = {'name': "", 'data': ""}
     filename = "demo/" + symbol + ".json" if symbol else ""
+    intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
     fund_filename = "demo/" + symbol + "_fundamentals.json" if symbol else ""
+    # incm_filename = "demo/" + symbol + "_income_statement.json" if symbol else ""
+    # baln_filename = "demo/" + symbol + "_balance_sheet.json" if symbol else ""
+    # cash_filename = "demo/" + symbol + "_cash_flow.json" if symbol else ""
     if symbol and os.path.isfile(filename):
         sample_df, sample_metadata = get_stock_value(filename)
         summary = calculate_summary(sample_df)
         funds = {}
         if os.path.isfile(fund_filename):
             funds = get_fundamentals(fund_filename)
+        intraday = {}
+        if os.path.isfile(intr_filename):
+            intraday, _ = get_stock_value(intr_filename)
         # sample_df = sample_df.reindex(index=sample_df.index[::-1])
         sample_data_close = convert_to_opairs(sample_df, label="4. close")
         sample_data_high = convert_to_opairs(sample_df, label="2. high")
         sample_data_low = convert_to_opairs(sample_df, label="3. low")
+
+        intr_data_close = convert_to_opairs(intraday, label="4. close")
         stock_name = sample_metadata['2. Symbol']
 
         data = dumps({
@@ -110,6 +123,9 @@ def get_stock_data():
                 '4. close': sample_data_close,
                 '2. high': sample_data_high,
                 '3. low': sample_data_low
+            },
+            'data_intraday': {
+                '4. close': intr_data_close,
             },
             'summary': summary,
             'fundamentals': funds

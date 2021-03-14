@@ -29,9 +29,99 @@ const StockPage: React.FC<Props> = (props) => {
   var routeMatch = useRouteMatch();
   var symbol = routeMatch.params.symbol;
 
+  const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
     title: {
       text: ""
+    },
+    rangeSelector: {
+        allButtonsEnabled: true, 
+        selected: undefined,
+        buttons: [
+        {
+            type: 'day',
+            count: 1,
+            text: '1d',
+            title: 'View 1 day',
+            events: {
+                click: function () {
+                    setDisplayIntra(true);
+                }
+            }
+        }, {
+            type: 'week',
+            count: 1,
+            text: '1w',
+            title: 'View 1 week',
+            events: {
+                click: function () {
+                    setDisplayIntra(true);
+                }
+            }
+        }, {
+            type: 'month',
+            count: 1,
+            text: '1m',
+            title: 'View 1 month',
+            events: {
+                click: function () {
+                    setDisplayIntra(false);
+                }
+            }
+        }, {
+            type: 'month',
+            count: 3,
+            text: '3m',
+            title: 'View 3 months',
+            events: {
+                click: function () {
+                    setDisplayIntra(false);
+                }
+            }
+        }, {
+            type: 'month',
+            count: 6,
+            text: '6m',
+            title: 'View 6 months',
+            events: {
+                click: function () {
+                    setDisplayIntra(false);
+                }
+            }
+        }, {
+            type: 'ytd',
+            text: 'YTD',
+            title: 'View year to date',
+            events: {
+                click: function () {
+                    setDisplayIntra(false);
+                }
+            }
+        }, {
+            type: 'year',
+            count: 1,
+            text: '1y',
+            title: 'View 1 year',
+            events: {
+                click: function () {
+                    setDisplayIntra(false);
+                }
+            }
+        }, {
+            type: 'year',
+            count: 5,
+            text: '5y',
+            title: 'View 5 year',
+            events: {
+                click: function () {
+                    setDisplayIntra(false);
+                }
+            }
+        }, {
+            type: 'all',
+            text: 'All',
+            title: 'View all'
+        }]
     },
     series: [
       {
@@ -42,8 +132,9 @@ const StockPage: React.FC<Props> = (props) => {
     ]
   });
   const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
-
   const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
+  const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
+  const [timeSeriesIntra, setTimeSeriesIntra] = useState<any>([]);
 
   useEffect(() => {
     async function fetchStock() {
@@ -52,12 +143,18 @@ const StockPage: React.FC<Props> = (props) => {
       // console.log(symbol);
       // console.log(stockdata);
       if (!stockdata) { return; }
-      var seriesList = [];
+      var seriesDailyList = [];
+      var seriesIntraList = [];
 
       for (let [key, value] of Object.entries(stockdata.data)) {
-        seriesList.push({name: key, data: value});
+        seriesDailyList.push({name: key, data: value});
       }
-      setGraphOptions({ ... graphOptions, series: seriesList });
+      for (let [key, value] of Object.entries(stockdata.data_intraday)) {
+        seriesIntraList.push({name: key, data: value});
+      }
+      setTimeSeriesDaily(seriesDailyList);
+      setTimeSeriesIntra(seriesIntraList);
+      // setGraphOptions({ ... graphOptions, series: seriesDailyList });
       setSummaryData(stockdata.summary);
       setFundamentalData(stockdata.fundamentals);
       console.log(stockdata.fundamentals);
@@ -65,6 +162,14 @@ const StockPage: React.FC<Props> = (props) => {
 
     fetchStock();
   }, []);
+
+  useEffect(() => {
+      if (displayIntra == true) {
+          setGraphOptions({ ... graphOptions, series: timeSeriesIntra });
+      } else {
+          setGraphOptions({ ... graphOptions, series: timeSeriesDaily });
+      }
+  }, [displayIntra, timeSeriesDaily, timeSeriesIntra]);
 
   return (
     <Container>
