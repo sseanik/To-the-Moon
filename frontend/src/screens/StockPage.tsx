@@ -9,6 +9,7 @@ import {  Container,
 
 import DataSummary, { summaryDataT, defaultSummaryData } from "./DataSummary";
 import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "./DataFundamentals";
+import DataIncomeStatement from "./DataIncomeStatement";
 
 // import { render } from 'react-dom';
 import Highcharts from "highcharts/highstock";
@@ -131,6 +132,7 @@ const StockPage: React.FC<Props> = (props) => {
       }
     ]
   });
+  const [incomeStatement, setIncomeStatement] = useState<any>([])
   const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
   const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
   const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
@@ -158,9 +160,9 @@ const StockPage: React.FC<Props> = (props) => {
           }
           setTimeSeriesIntra(seriesIntraList);
       }
-      setSummaryData(stockdata.summary);
-      setFundamentalData(stockdata.fundamentals);
-      console.log(stockdata.fundamentals);
+      if (stockdata.summary) setSummaryData(stockdata.summary);
+      if (stockdata.fundamentals) setFundamentalData(stockdata.fundamentals);
+      if (stockdata.income_statement) setIncomeStatement(stockdata.income_statement[0]);
     }
 
     fetchStock();
@@ -206,8 +208,17 @@ const StockPage: React.FC<Props> = (props) => {
               <Tab eventKey="statistics" title="Statistics">
                 <DataFundamentals fundamentalData={fundamentalData} />
               </Tab>
+
               <Tab eventKey="financials" title="Financials">
-                <h1> Financials Table </h1>
+                  <Tabs
+                    className="justify-content-center mt-2"
+                    defaultActiveKey="incomestatement"
+                    id="sec-view-financials"
+                  >
+                      <Tab eventKey="incomestatement" title="Income Statement">
+                        <DataIncomeStatement incomeStatement={incomeStatement} />
+                      </Tab>
+                  </Tabs>
               </Tab>
             </Tabs>
           </Container>

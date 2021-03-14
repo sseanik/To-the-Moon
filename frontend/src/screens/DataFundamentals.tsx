@@ -44,7 +44,7 @@ const DataFundamentals: React.FC<Props> = (props) => {
         <tbody>
           <tr>
             <th>Company Name</th>
-            <td>{fundamentalData.company_name ? fundamentalData.company_name : "N/A"}</td>
+            <td>{fundamentalData.stockname ? fundamentalData.stockname : "N/A"}</td>
           </tr>
           <tr>
             <th>Exchange</th>
@@ -56,15 +56,15 @@ const DataFundamentals: React.FC<Props> = (props) => {
           </tr>
           <tr>
             <th>Year Low</th>
-            <td>{fundamentalData.year_low ? fundamentalData.year_low : "N/A"}</td>
+            <td>{fundamentalData.yearlylow ? fundamentalData.yearlylow : "N/A"}</td>
           </tr>
           <tr>
             <th>Year High</th>
-            <td>{fundamentalData.year_high ? fundamentalData.year_high : "N/A"}</td>
+            <td>{fundamentalData.yearlyhigh ? fundamentalData.yearlyhigh : "N/A"}</td>
           </tr>
           <tr>
             <th>Market Cap</th>
-            <td>{fundamentalData.market_cap ? fundamentalData.market_cap : "N/A"}</td>
+            <td>{fundamentalData.marketcap ? fundamentalData.marketcap : "N/A"}</td>
           </tr>
           <tr>
             <th>Beta</th>
@@ -72,7 +72,7 @@ const DataFundamentals: React.FC<Props> = (props) => {
           </tr>
           <tr>
             <th>PE Ratio</th>
-            <td>{fundamentalData.pe_ratio ? fundamentalData.pe_ratio : "N/A"}</td>
+            <td>{fundamentalData.peratio ? fundamentalData.peratio : "N/A"}</td>
           </tr>
           <tr>
             <th>EPS</th>
@@ -80,7 +80,7 @@ const DataFundamentals: React.FC<Props> = (props) => {
           </tr>
           <tr>
             <th>Dividend Yield</th>
-            <td>{fundamentalData.dividend_yield ? fundamentalData.dividend_yield : "N/A"}</td>
+            <td>{fundamentalData.dividendyield ? fundamentalData.dividendyield : "N/A"}</td>
           </tr>
         </tbody>
       </Table>
