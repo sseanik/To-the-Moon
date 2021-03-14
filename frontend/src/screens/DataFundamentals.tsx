@@ -18,6 +18,19 @@ export interface fundamentalDataT {
     dividend_yield: number;
 }
 
+export const defaultFundamentalData = {
+  company_name: "",
+  exchange: "",
+  currency: "",
+  year_high: 0,
+  year_low: 0,
+  market_cap: 0,
+  beta: 0,
+  pe_ratio: 0,
+  eps: 0,
+  dividend_yield: 0,
+}
+
 interface Props {
   fundamentalData: fundamentalDataT;
 }

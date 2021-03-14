@@ -7,8 +7,8 @@ import {  Container,
           Tab
         } from "react-bootstrap";
 
-import DataSummary, { summaryDataT } from "./DataSummary";
-import DataFundamentals, { fundamentalDataT } from "./DataFundamentals";
+import DataSummary, { summaryDataT, defaultSummaryData } from "./DataSummary";
+import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "./DataFundamentals";
 
 // import { render } from 'react-dom';
 import Highcharts from "highcharts/highstock";
@@ -41,29 +41,9 @@ const StockPage: React.FC<Props> = (props) => {
       }
     ]
   });
-  const [summaryData, setSummaryData] = useState<summaryDataT>({
-    previous_close: 0,
-    open: 0,
-    day_min: 0,
-    day_max: 0,
-    year_min: 0,
-    year_max: 0,
-    volume: 0,
-    average_volume: 0,
-  });
+  const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
 
-  const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>({
-    company_name: "",
-    exchange: "",
-    currency: "",
-    year_high: 0,
-    year_low: 0,
-    market_cap: 0,
-    beta: 0,
-    pe_ratio: 0,
-    eps: 0,
-    dividend_yield: 0,
-  });
+  const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
 
   useEffect(() => {
     async function fetchStock() {

@@ -17,6 +17,17 @@ export interface summaryDataT {
     average_volume: number;
 }
 
+export const defaultSummaryData = {
+  previous_close: 0,
+  open: 0,
+  day_min: 0,
+  day_max: 0,
+  year_min: 0,
+  year_max: 0,
+  volume: 0,
+  average_volume: 0,
+}
+
 interface Props {
   summaryData: summaryDataT;
 }
