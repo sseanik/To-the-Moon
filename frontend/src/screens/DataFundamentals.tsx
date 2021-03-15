@@ -2,7 +2,9 @@ import React from "react";
 
 import {
           Container,
-          Table
+          Table,
+          Row,
+          Col
         } from "react-bootstrap";
 
 export interface fundamentalDataT {
@@ -35,55 +37,45 @@ interface Props {
   fundamentalData: fundamentalDataT;
 }
 
+var formatMap = new Map();
+formatMap.set('stockname', {name: "Company Name"});
+formatMap.set('exchange', {name: "Exchange"});
+formatMap.set('currency', {name: "Currency"});
+formatMap.set('yearlylow', {name: "Year Low"});
+formatMap.set('yearlyhigh', {name: "Year High"});
+formatMap.set('marketcap', {name: "Market Capitalisation"});
+formatMap.set('beta', {name: "Beta"});
+formatMap.set('peratio', {name: "PE Ratio"});
+formatMap.set('eps', {name: "EPS"});
+formatMap.set('dividendyield', {name: "Dividend Yield"});
+
 const DataFundamentals: React.FC<Props> = (props) => {
   var { fundamentalData } = props;
-
+  console.log(fundamentalData);
   return (
     <Container>
-      <Table className="text-left" responsive="sm">
-        <tbody>
-          <tr>
-            <th>Company Name</th>
-            <td>{fundamentalData.stockname ? fundamentalData.stockname : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>Exchange</th>
-            <td>{fundamentalData.exchange ? fundamentalData.exchange : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>Currency</th>
-            <td>{fundamentalData.currency ? fundamentalData.currency : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>Year Low</th>
-            <td>{fundamentalData.yearlylow ? fundamentalData.yearlylow : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>Year High</th>
-            <td>{fundamentalData.yearlyhigh ? fundamentalData.yearlyhigh : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>Market Cap</th>
-            <td>{fundamentalData.marketcap ? fundamentalData.marketcap : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>Beta</th>
-            <td>{fundamentalData.beta ? fundamentalData.beta : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>PE Ratio</th>
-            <td>{fundamentalData.peratio ? fundamentalData.peratio : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>EPS</th>
-            <td>{fundamentalData.eps ? fundamentalData.eps : "N/A"}</td>
-          </tr>
-          <tr>
-            <th>Dividend Yield</th>
-            <td>{fundamentalData.dividendyield ? fundamentalData.dividendyield : "N/A"}</td>
-          </tr>
-        </tbody>
-      </Table>
+    <Row>
+      <Col>
+        <hr />
+        {Object.entries(fundamentalData).map(([field, value]) => (
+          <div>
+            <Row lg={6}>
+              <Col className="text-left" lg={6}>
+                <span>
+                  <b>{formatMap.get(field) ? formatMap.get(field).name : field}</b>
+                </span>
+              </Col>
+              <Col className="text-right" lg={6}>
+                <span>
+                  {value}
+                </span>
+              </Col>
+            </Row>
+            <hr />
+          </div>
+        ))}
+      </Col>
+    </Row>
     </Container>
   );
 }
