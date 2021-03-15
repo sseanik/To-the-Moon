@@ -10,6 +10,7 @@ import {
   LoginPage,
   AboutUsPage,
   PortfolioPage,
+  CreatePortfolioPage,
 } from "./screens";
 import { Header } from "./components";
 
@@ -40,6 +41,7 @@ function App() {
           <Container fluid className="app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />
+              <Route path="/create_portfolio" component={CreatePortfolioPage} />
               <Route path="/portfolio/:name" component={PortfolioPage} />
               <Route path="/about-us" component={AboutUsPage} />
               <Route path="/login" component={LoginPage} />
