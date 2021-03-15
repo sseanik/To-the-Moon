@@ -55,7 +55,7 @@ def get_fundamentals(symbol):
     conn.close()
     return result
 
-def get_income_statement(symbol, num_entries=3):
+def get_income_statement(symbol, num_entries=1):
     conn = createDBConnection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
@@ -103,7 +103,7 @@ def get_balance_sheet(symbol, num_entries=1):
 
     return result
 
-def get_cash_flow(symbol, num_entries=3):
+def get_cash_flow(symbol, num_entries=1):
     conn = createDBConnection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
