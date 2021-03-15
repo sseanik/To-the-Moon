@@ -17,8 +17,8 @@ class JSONLoader:
     @staticmethod
     def save_json(company_name, data, label=""):
         # with open(f'./{company_name}_{label}_{date.today().strftime("%Y%m%d")}.json', 'w') as outfile:
-        filename = f'./{company_name}_{label}.json' if label \
-            else f'./{company_name}.json'
+        filename = f'./demo/{company_name}_{label}.json' if label \
+            else f'./demo/{company_name}.json'
         with open(filename, 'w') as outfile:
             json.dump(data, outfile)
 
