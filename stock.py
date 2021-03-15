@@ -8,6 +8,7 @@ from flask import Blueprint, request
 from json import dumps
 import pandas as pd
 import os
+from collections import OrderedDict
 
 from psycopg2.extras import DictCursor
 import psycopg2.extensions
@@ -42,11 +43,11 @@ def get_fundamentals(symbol):
     conn = createDBConnection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM securitiesoverview \
+    selectQuery = f"SELECT * FROM securitiesoverviews \
         WHERE stockticker='{symbol}'"
     cur.execute(selectQuery)
     query_result = cur.fetchone()
-    result = dict(query_result) if query_result else None
+    result = OrderedDict(query_result) if query_result else None
 
     conn.close()
     return result
@@ -60,10 +61,46 @@ def get_income_statement(symbol, num_entries=3):
         ORDER BY fiscaldateending DESC LIMIT {num_entries}"
     cur.execute(selectQuery)
     query_results = cur.fetchall()
-    result = [dict(record) for record in query_results]
+    result = [OrderedDict(record) for record in query_results]
 
     conn.close()
     return result
+
+revised_bs_order = ['stockticker', 'fiscaldateending', 'total_assets', 'total_curr_assets', 'cashandshortterminvestments', 'currentnetreceivables', 'inventory', 'othercurrentassets', 'total_ncurr_assets', 'propertyplantequipment', 'goodwill', 'intangibleassets', 'longterminvestments', 'othernoncurrentassets', 'total_liabilities', 'total_curr_liabilities', 'currentaccountspayable', 'shorttermdebt', 'othercurrentliabilities', 'total_ncurr_liabilities', 'longtermdebt', 'othernoncurrentliabilities', 'total_equity', 'retainedearnings', 'totalshareholderequity']
+
+def get_balance_sheet(symbol, num_entries=3):
+    conn = createDBConnection()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    selectQuery = f"SELECT * FROM balancesheets \
+        WHERE stockticker='{symbol}' \
+        ORDER BY fiscaldateending DESC LIMIT {num_entries}"
+    cur.execute(selectQuery)
+    query_results = cur.fetchall()
+    # result = [dict(record) for record in query_results]
+    result = []
+    for entry in query_results:
+        record = OrderedDict(entry)
+
+        import pdb; pdb.set_trace()
+        record['total_curr_assets'] = sum([float(record[x]) for x in ['cashandshortterminvestments', 'currentnetreceivables', 'inventory', 'othercurrentassets']])
+        record['total_ncurr_assets'] = sum([float(record[x]) for x in ['propertyplantequipment', 'goodwill', 'intangibleassets', 'longterminvestments', 'othernoncurrentassets']]) # last one is a typo
+        record['total_assets'] = record['total_curr_assets'] + record['total_ncurr_assets']
+
+        record['total_curr_liabilities'] = sum([float(record[x]) for x in  ['currentaccountspayable', 'shorttermdebt', 'othercurrentliabilities']])
+        record['total_ncurr_liabilities'] = sum([float(record[x]) for x in ['longtermdebt', 'othernoncurrentliabilities']])
+        record['total_liabilities'] = record['total_curr_liabilities'] + record['total_ncurr_liabilities']
+
+        record['total_equity'] = sum([float(record[x]) for x in ['retainedearnings', 'totalshareholderequity']])
+
+        record = OrderedDict((k, record[k]) for k in revised_bs_order)
+        result.append(record)
+
+    return result
+
+
+def get_cash_flow(symbol, num_entries=3):
+    pass
 
 def convert_to_opairs(df, label='4. close'):
     series = df[label].reset_index()
@@ -145,11 +182,8 @@ def get_stock_data():
         })
     return data
 
-@STOCK_ROUTES.route('/stock/income_statement', methods=['GET'])
-def get_income_statement_data():
-    symbol = request.args.get('symbol')
-    data = {}
-    income_statement = get_income_statement(symbol)
+def get_financials_data(symbol, func):
+    income_statement = func(symbol)
     if symbol and income_statement:
         data = dumps({
             'name': symbol,
@@ -162,3 +196,13 @@ def get_income_statement_data():
             'error': "Income statement not found"
         })
     return data
+
+@STOCK_ROUTES.route('/stock/income_statement', methods=['GET'])
+def get_income_statement_data():
+    symbol = request.args.get('symbol')
+    return get_financials_data(symbol, get_income_statement)
+
+@STOCK_ROUTES.route('/stock/balance_sheet', methods=['GET'])
+def get_balance_sheet_data():
+    symbol = request.args.get('symbol')
+    return get_financials_data(symbol, get_balance_sheet)
