@@ -96,7 +96,6 @@ def calculate_summary(df):
 ################################
 @STOCK_ROUTES.route('/stock', methods=['GET'])
 def get_stock_data():
-    # an echo route just for testing
     symbol = request.args.get('symbol')
     data = {'name': "", 'data': ""}
 
@@ -104,21 +103,20 @@ def get_stock_data():
     funds = get_fundamentals(symbol)
 
     if funds:
-        filename = "demo/" + symbol + ".json" if symbol else ""
-        intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
-
         sample_df = {}
         sample_metadata = {}
         summary = {}
+
+        filename = "demo/" + symbol + ".json" if symbol else ""
         if os.path.isfile(filename):
             sample_df, sample_metadata = get_stock_value(filename)
             summary = calculate_summary(sample_df)
 
+        intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
         intraday = {}
         if os.path.isfile(intr_filename):
             intraday, _ = get_stock_value(intr_filename)
 
-        income_statement = get_income_statement(symbol)
         sample_data_close = convert_to_opairs(sample_df, label="4. close")
         sample_data_high = convert_to_opairs(sample_df, label="2. high")
         sample_data_low = convert_to_opairs(sample_df, label="3. low")
@@ -136,7 +134,6 @@ def get_stock_data():
             'data_intraday': {
                 '4. close': intr_data_close,
             },
-            'income_statement': income_statement,
             'summary': summary,
             'fundamentals': funds
         })
@@ -145,5 +142,23 @@ def get_stock_data():
             'name': "",
             'data': {},
             'error': "Symbol not found"
+        })
+    return data
+
+@STOCK_ROUTES.route('/stock/income_statement', methods=['GET'])
+def get_income_statement_data():
+    symbol = request.args.get('symbol')
+    data = {}
+    income_statement = get_income_statement(symbol)
+    if symbol and income_statement:
+        data = dumps({
+            'name': symbol,
+            'data': income_statement
+        })
+    else:
+        data = dumps({
+            'name': str(symbol),
+            'data': None,
+            'error': "Income statement not found"
         })
     return data

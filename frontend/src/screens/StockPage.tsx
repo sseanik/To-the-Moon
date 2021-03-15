@@ -15,7 +15,7 @@ import DataIncomeStatement from "./DataIncomeStatement";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 
-import { getStockData } from "../redux/actions/stock";
+import Actions from "../redux/actions/stock";
 
 interface Props {
   // declare props types here
@@ -29,6 +29,9 @@ interface graphOptionsT {
 const StockPage: React.FC<Props> = (props) => {
   var routeMatch = useRouteMatch();
   var symbol = routeMatch.params.symbol;
+
+  const [genkey, setGenkey] = useState('summary');
+  const [finkey, setFinkey] = useState('incomestatement');
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
@@ -132,7 +135,7 @@ const StockPage: React.FC<Props> = (props) => {
       }
     ]
   });
-  const [incomeStatement, setIncomeStatement] = useState<any>([])
+  const [incomeStatement, setIncomeStatement] = useState<any>({})
   const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
   const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
   const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
@@ -140,10 +143,9 @@ const StockPage: React.FC<Props> = (props) => {
 
   useEffect(() => {
     async function fetchStock() {
-      var stockdata = symbol ? await getStockData(symbol)
-        : await getStockData("");
+      var stockdata = symbol ? await Actions.getStockData(symbol) : {};
       // console.log(symbol);
-      console.log(stockdata);
+      // console.log(stockdata);
       if (!stockdata) { return; }
       var seriesDailyList = [];
       var seriesIntraList = [];
@@ -162,7 +164,6 @@ const StockPage: React.FC<Props> = (props) => {
       }
       if (stockdata.summary) setSummaryData(stockdata.summary);
       if (stockdata.fundamentals) setFundamentalData(stockdata.fundamentals);
-      if (stockdata.income_statement) setIncomeStatement(stockdata.income_statement[0]);
     }
 
     fetchStock();
@@ -175,6 +176,27 @@ const StockPage: React.FC<Props> = (props) => {
           setGraphOptions({ ... graphOptions, series: timeSeriesDaily });
       }
   }, [displayIntra, timeSeriesDaily, timeSeriesIntra]);
+
+  useEffect(() => {
+      if (genkey === "financials") {
+        if ((finkey === "incomestatement")
+            && (Object.keys(incomeStatement).length === 0)
+            ) {
+            fetchIncomeStatement();
+        }
+      }
+  }, [genkey, finkey]);
+
+  const fetchIncomeStatement = () => {
+    async function fetchIncome() {
+      var incomedata = symbol ? await Actions.getIncomeStatement(symbol) : {};
+      if (incomedata.data) {
+          setIncomeStatement(incomedata.data[0]);
+      }
+  }
+
+    fetchIncome();
+  }
 
   return (
     <Container>
@@ -201,6 +223,8 @@ const StockPage: React.FC<Props> = (props) => {
               className="justify-content-center mt-2"
               defaultActiveKey="summary"
               id="sec-view-info-selector"
+              activeKey={genkey}
+              onSelect={(k) => { setGenkey(k); }}
             >
               <Tab eventKey="summary" title="Summary">
                 <DataSummary summaryData={summaryData} />
@@ -214,9 +238,11 @@ const StockPage: React.FC<Props> = (props) => {
                     className="justify-content-center mt-2"
                     defaultActiveKey="incomestatement"
                     id="sec-view-financials"
+                    activeKey={finkey}
+                    onSelect={(k) => { setFinkey(k); }}
                   >
                       <Tab eventKey="incomestatement" title="Income Statement">
-                        <DataIncomeStatement incomeStatement={incomeStatement} />
+                        <DataIncomeStatement incomeStatement={incomeStatement}/>
                       </Tab>
                   </Tabs>
               </Tab>

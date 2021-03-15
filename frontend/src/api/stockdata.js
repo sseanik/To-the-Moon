@@ -1,10 +1,19 @@
+import Utils from './utils';
+const url = 'http://127.0.0.1:5000';
 
-const url = 'http://127.0.0.1:5000/stock';
+const StockActions = {
+  fetch_basic: (symbol, ignoreError = false) => {
+      const endpoint = `/stock?symbol=${symbol}`;
+      const options = {method: 'GET'};
 
-const StockData = {
-  fetch: (symbol, ignoreError = false) => fetch(url + `?symbol=${symbol}`)
-    .then((res) => (res.ok && !ignoreError ? res.json() : console.log(res)))
-    .catch((err) => console.warn(`API_ERROR: ${err}`)),
+      return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  fetch_income: (symbol, ignoreError = false) => {
+      const endpoint = `/stock/income_statement?symbol=${symbol}`;
+      const options = {method: 'GET'};
+
+      return Utils.getJSON(`${url}${endpoint}`, options);
+  },
 };
 
-export default StockData;
+export default StockActions;
