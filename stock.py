@@ -95,12 +95,23 @@ def get_balance_sheet(symbol, num_entries=3):
 
         record = OrderedDict((k, record[k]) for k in revised_bs_order)
         result.append(record)
+    conn.close()
 
     return result
 
-
 def get_cash_flow(symbol, num_entries=3):
-    pass
+    conn = createDBConnection()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    selectQuery = f"SELECT * FROM cashflowstatements \
+        WHERE stockticker='{symbol}' \
+        ORDER BY fiscaldateending DESC LIMIT {num_entries}"
+    cur.execute(selectQuery)
+    query_results = cur.fetchall()
+    result = [OrderedDict(record) for record in query_results]
+
+    conn.close()
+    return result
 
 def convert_to_opairs(df, label='4. close'):
     series = df[label].reset_index()
@@ -206,3 +217,8 @@ def get_income_statement_data():
 def get_balance_sheet_data():
     symbol = request.args.get('symbol')
     return get_financials_data(symbol, get_balance_sheet)
+
+@STOCK_ROUTES.route('/stock/cash_flow_statement', methods=['GET'])
+def get_cash_flow_data():
+    symbol = request.args.get('symbol')
+    return get_financials_data(symbol, get_cash_flow)
