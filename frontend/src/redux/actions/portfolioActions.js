@@ -24,7 +24,7 @@ const portfolioActions = {
         const { name, userID } = payload;
         const res = await portfolioAPI.createPortfolio(name, userID);
         setTimeout(() => {
-          dispatch(portfolioConstants.createPortfolioSuccess(res));
+          dispatch(portfolioActions.createPortfolioSuccess(res));
         }, 2500);
 
         const { token } = res;

@@ -64,7 +64,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
       <Form.Group controlId="formBasicName">
         <Form.Label>Name</Form.Label>
         <Form.Control
-          type="name"
+          type="text"
           placeholder="Enter name"
           isInvalid={createPortfolioForm.errors.name.length > 0}
           isValid={
@@ -101,7 +101,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
 const mapStateToProps = (state: any) => ({
   createPortfolioForm: state.submitCreatePortfolioForm.createPortfolioForm,
   isLoading: state.createPortfolio.createPortfolio.loading,
-  token: state.createPortfolio.createPortolio.token,
+  token: state.createPortfolio.createPortfolio.token,
   error: state.createPortfolio.createPortfolio.error,
 });
 
