@@ -2,8 +2,8 @@ import portfolioConstants from "../constants/portfolioConstants";
 import portfolioAPI from "../../api/portfolioAPI";
 
 const portfolioActions = {
-  createPortfolioRequest: (user) => ({
-    type: portfolioConstants.CREATE_PORTFOLIO_REQUEST,
+  submitCreatePortfolioForm: (user) => ({
+    type: portfolioConstants.SUBMIT_CREATE_PORTFOLIO_FORM,
     payload: user,
   }),
   createPortfolioPending: () => ({

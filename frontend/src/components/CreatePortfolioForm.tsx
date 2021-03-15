@@ -36,11 +36,12 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
     createPortfolioForm,
     isLoading,
     token,
+    error,
     submitForm,
     createPortfolio,
   } = props;
-  const userID = "b1c88e2c-82fb-11eb-aa00-0a4e2d6dea13";
   const history = useHistory();
+  const userID = "b1c88e2c-82fb-11eb-aa00-0a4e2d6dea13";
   const [name, setName] = useState("");
 
   useEffect(() => {
@@ -61,20 +62,20 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
   const formComponent = (
     <Form onSubmit={(e) => onSubmit(e)}>
       <Form.Group controlId="formBasicName">
-        <Form.Label>Email</Form.Label>
+        <Form.Label>Name</Form.Label>
         <Form.Control
           type="name"
           placeholder="Enter name"
           isInvalid={createPortfolioForm.errors.name.length > 0}
           isValid={
-            !!createPortfolioForm.values.username &&
+            !!createPortfolioForm.values.name &&
             createPortfolioForm.errors.name.length === 0
           }
           onChange={(e) => setName(e.target.value)}
           onBlur={onBlur}
         />
         <Form.Control.Feedback type="invalid">
-          {createPortfolioForm.errors.username}
+          {createPortfolioForm.errors.name}
         </Form.Control.Feedback>
         <Form.Text className="text-muted">
           Choose a unique portfolio name.
@@ -98,13 +99,16 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
 };
 
 const mapStateToProps = (state: any) => ({
-  createPortfolioForm: state,
+  createPortfolioForm: state.submitCreatePortfolioForm.createPortfolioForm,
+  isLoading: state.createPortfolio.createPortfolio.loading,
+  token: state.createPortfolio.createPortolio.token,
+  error: state.createPortfolio.createPortfolio.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     submitForm: (formPayload: any) => {
-      dispatch(portfolioActions.createPortfolioRequest(formPayload));
+      dispatch(portfolioActions.submitCreatePortfolioForm(formPayload));
     },
     createPortfolio: (formPayload: any) => {
       dispatch(portfolioActions.createPortfolio(formPayload));

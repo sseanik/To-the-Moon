@@ -19,6 +19,8 @@ const validateName = (payload) => {
   } else if (name.length > 30) {
     errors.name = "Name must be less than 30 characters";
   }
+
+  return errors;
 };
 
 const createPortfolio = (state = initialState, action) => {
@@ -55,7 +57,7 @@ const createPortfolio = (state = initialState, action) => {
         ...state,
         createPortfolio: {
           values: action.payload,
-          errors: validateName(payload),
+          errors: validateName(action.payload),
         },
       };
     default:
@@ -63,4 +65,4 @@ const createPortfolio = (state = initialState, action) => {
   }
 };
 
-export default portfolioReducer;
+export default createPortfolio;
