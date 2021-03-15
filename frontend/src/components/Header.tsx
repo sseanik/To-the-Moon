@@ -42,7 +42,9 @@ const Header: React.FC<Props> = (props) => {
       <Nav.Link href="/dashboard">Dashboard</Nav.Link>
       <NavDropdown title="More" id="basic-nav-dropdown">
         {dropdownNavLinks.map((link) => (
-          <NavDropdown.Item href={link.href}>{link.name}</NavDropdown.Item>
+          <NavDropdown.Item key={link.toString()} href={link.href}>
+            {link.name}
+          </NavDropdown.Item>
         ))}
       </NavDropdown>
     </Nav>
