@@ -39,6 +39,8 @@ def get_stock_value(symbol):
     result.index = pd.to_datetime(result.index)
     return result, stockmetadata
 
+revised_fs_fields = ['stockname', 'exchange', 'currency', 'yearlylow', 'yearlyhigh', 'marketcap', 'beta', 'peratio', 'eps', 'dividendyield']
+
 def get_fundamentals(symbol):
     conn = createDBConnection()
     cur = conn.cursor(cursor_factory=DictCursor)
@@ -48,6 +50,7 @@ def get_fundamentals(symbol):
     cur.execute(selectQuery)
     query_result = cur.fetchone()
     result = OrderedDict(query_result) if query_result else None
+    result = OrderedDict((k, result[k]) for k in revised_fs_fields)
 
     conn.close()
     return result
