@@ -69,9 +69,7 @@ def get_income_statement(symbol, num_entries=1):
     conn.close()
     return result
 
-# revised_bs_order = ['stockticker', 'fiscaldateending', 'total_assets', 'total_curr_assets', 'cashandshortterminvestments', 'currentnetreceivables', 'inventory', 'othercurrentassets', 'total_ncurr_assets', 'propertyplantequipment', 'goodwill', 'intangibleassets', 'longterminvestments', 'othernoncurrentassets', 'total_liabilities', 'total_curr_liabilities', 'currentaccountspayable', 'shorttermdebt', 'othercurrentliabilities', 'total_ncurr_liabilities', 'longtermdebt', 'othernoncurrentliabilities', 'total_equity', 'retainedearnings', 'totalshareholderequity']
 revised_bs_order = ['fiscaldateending', 'total_assets', 'total_curr_assets', 'total_ncurr_assets', 'total_liabilities', 'total_curr_liabilities', 'total_ncurr_liabilities', 'total_equity']
-# bs_category_names = ['Stock Ticker', 'Fiscal Date Ending', 'Total Assets', 'Total Current Assets', 'Cash and Short Term Investments', 'Net Receivables', 'Inventory', 'Other', 'Total Non-Current Assets', 'Property Plant and Equipment', 'Goodwill', 'Intangible Assets', 'Long Term Investments', 'Other', 'Total Liabilities', 'Total Current Liabilities', 'Current Accounts Payable', 'Short Term Debt', 'Other', 'Total Non-Current Liabilities', 'Long Term Debt', 'Other', 'Total Equity', 'Retained Earnings', 'Total Shareholder Equity']
 
 def get_balance_sheet(symbol, num_entries=1):
     conn = createDBConnection()
@@ -134,7 +132,7 @@ def calculate_summary(df):
         result['year_min'] = df.last("365D")['4. close'].min()
         result['year_max'] = df.last("365D")['4. close'].max()
         result['volume'] = df.iloc[-1]['6. volume']
-        result['average_volume'] = df.last("365D")['6. volume'].mean()
+        result['average_volume'] = round(df.last("365D")['6. volume'].mean(), 0)
     else:
         for field in ['previous_close', 'open', 'day_min', 'day_max',  'year_min', 'year_max', 'volume', 'average_volume']:
             result[field] = 0
