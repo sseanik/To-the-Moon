@@ -4,14 +4,14 @@ import Utils from "./utils";
 const backend_url = `http://localhost:${config.BACKEND_PORT}`;
 
 const portfolioAPI = {
-  createPortfolio: (name, userID) => {
+  createPortfolio: (name, token) => {
     const endpoint = "/create_portfolio";
     const options = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: name,
-        userID: userID,
+        token: token,
       }),
     };
 
@@ -34,11 +34,28 @@ const portfolioAPI = {
       ],
     };
   },
-  getPortfolio: (name) => {
-    const endpoint = "/get_portfolio";
-    const options = {};
-    // get token from utils.js
-    // make call to backend
+  getPortfolios: () => {
+    // subject to Austin endpoint naming
+    const endpoint = "/getPortfolios";
+    const options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: {
+        token: Utils.getToken(),
+      },
+    };
+  },
+  getStocks: (portfolio_name) => {
+    // subject to Austin endpoint naming
+    const endpoint = "/getStocks";
+    const options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: {
+        portfolio_name: portfolio_name,
+        token: Utils.getToken(),
+      },
+    };
   },
 };
 
