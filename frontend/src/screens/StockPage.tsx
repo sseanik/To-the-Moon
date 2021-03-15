@@ -11,6 +11,7 @@ import DataSummary, { summaryDataT, defaultSummaryData } from "./DataSummary";
 import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "./DataFundamentals";
 import DataIncomeStatement from "./DataIncomeStatement";
 import DataBalanceSheet from "./DataBalanceSheet";
+import DataCashFlow from "./DataCashFlow";
 
 // import { render } from 'react-dom';
 import Highcharts from "highcharts/highstock";
@@ -182,13 +183,12 @@ const StockPage: React.FC<Props> = (props) => {
 
   useEffect(() => {
       if (genkey === "financials") {
-        if ((finkey === "incomestatement")
-          && (incomeStatement.length === 0)
-        ) {
+        if ((finkey === "incomestatement") && (incomeStatement.length === 0)) {
           fetchIncomeStatement();
-        } else if ((finkey === "balancesheet")
-          && (balanceSheet.length === 0)) {
+        } else if ((finkey === "balancesheet") && (balanceSheet.length === 0)) {
           fetchBalanceSheet();
+        } else if ((finkey === "cashflow") && (cashFlow.length === 0)) {
+          fetchCashFlow();
         }
       }
   }, [genkey, finkey]);
@@ -271,6 +271,9 @@ const StockPage: React.FC<Props> = (props) => {
                       </Tab>
                       <Tab eventKey="balancesheet" title="Balance Sheet">
                         <DataBalanceSheet balanceSheet={balanceSheet}/>
+                      </Tab>
+                      <Tab eventKey="cashflow" title="Cash Flow Statement">
+                        <DataCashFlow cashFlow={cashFlow}/>
                       </Tab>
                   </Tabs>
               </Tab>
