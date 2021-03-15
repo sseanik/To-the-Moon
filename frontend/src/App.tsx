@@ -40,7 +40,7 @@ function App() {
           <Container fluid className="app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />
-              <Route path="/portfolio/:id" component={PortfolioPage} />
+              <Route path="/portfolio/:name" component={PortfolioPage} />
               <Route path="/about-us" component={AboutUsPage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/signup" component={SignupPage} />
