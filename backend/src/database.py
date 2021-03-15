@@ -41,6 +41,13 @@ def createHoldingsTable():
     conn.commit()
     conn.close()
 
+def createUserTable():
+    conn = createDBConnection()
+    cur = conn.cursor()
+    cur.execute(open("tables/User.sql", "r").read())
+    conn.commit()
+    conn.close()
+
 def createSecuritiesOverviewTable():
     conn = createDBConnection()
     cur = conn.cursor()
@@ -261,3 +268,4 @@ if __name__ == "__main__":
     #fillCashflowStatements('IBM')
 
     fillOverviewAndFinancialTables('IBM')
+
