@@ -2,11 +2,7 @@ import React from "react";
 import { Container, Row, Image } from "react-bootstrap";
 import logo from "../resources/shuttle.png";
 
-interface Props {
-  // declare props types here
-}
-
-const LandingPage: React.FC<Props> = () => {
+const LandingPage: React.FC = () => {
   return (
     <Container>
       <Row className="justify-content-center">

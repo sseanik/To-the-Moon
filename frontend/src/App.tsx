@@ -7,20 +7,23 @@ import { ToastContainer } from 'react-toastify';
 import {
   LandingPage,
   SignupPage,
-  LoginPage
+  LoginPage,
+  AboutUsPage,
 } from "./screens";
-import {
-  Header
-} from "./components";
+import { Header } from "./components";
 
 const initialState = {
+  loginUser: {
+    loginUser: {
+      token: ""
+    }
+  }
 };
 
 function App() {
   return (
     <div className="App">
       <Provider store={configureStore(initialState)}>
-        <Header />
         <ToastContainer
             position="top-center"
             autoClose={7000}
@@ -31,10 +34,12 @@ function App() {
             draggable
             pauseOnHover
         />
+        <Header />
         <BrowserRouter>
           <Container fluid className="app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />
+              <Route path="/about-us" component={AboutUsPage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/signup" component={SignupPage} />
             </Switch>
