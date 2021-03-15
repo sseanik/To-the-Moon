@@ -52,14 +52,6 @@ const createPortfolio = (state = initialState, action) => {
           error: action.payload.error,
         },
       };
-    case portfolioConstants.CREATE_PORTFOLIO_REQUEST:
-      return {
-        ...state,
-        createPortfolio: {
-          values: action.payload,
-          errors: validateName(action.payload),
-        },
-      };
     default:
       return state;
   }
