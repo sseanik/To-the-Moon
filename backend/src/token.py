@@ -5,9 +5,10 @@
 
 import os
 import jwt
+# comment this line out for local solution
 from dotenv import load_dotenv
 
-
+# comment this line out for local solution
 load_dotenv()
 
 
