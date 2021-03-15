@@ -26,6 +26,16 @@ const Actions = {
       return error;
     }
   },
+  getBalanceSheet: async (symbol: string) => {
+      try {
+        const data = await StockActions.fetch_balance(symbol);
+
+        return data;
+      } catch (error) {
+        console.log("UA Err: ", error);
+        return error;
+      }
+    }
 }
 
 export default Actions;

@@ -14,6 +14,13 @@ const StockActions = {
 
       return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  fetch_balance: (symbol, ignoreError = false) => {
+      const endpoint = `/stock/balance_sheet?symbol=${symbol}`;
+      const options = {method: 'GET'};
+
+      return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+
 };
 
 export default StockActions;
