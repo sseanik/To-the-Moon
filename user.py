@@ -8,7 +8,7 @@ import bcrypt
 import jwt
 from json import dumps
 from flask import Blueprint, request
-from database import USER, createDBConnection
+from database import createDBConnection
 from dotenv import load_dotenv
 
 
