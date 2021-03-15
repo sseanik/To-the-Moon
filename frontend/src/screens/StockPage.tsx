@@ -137,6 +137,7 @@ const StockPage: React.FC<Props> = (props) => {
   });
   const [incomeStatement, setIncomeStatement] = useState<any>({});
   const [balanceSheet, setBalanceSheet] = useState<any>([]);
+  const [cashFlow, setCashFlow] = useState<any>([]);
   const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
   const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
   const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
@@ -206,6 +207,15 @@ const StockPage: React.FC<Props> = (props) => {
       var balancedata = symbol ? await Actions.getBalanceSheet(symbol) : {};
       if (balancedata.data) {
         setBalanceSheet(balancedata.data);
+      }
+    }
+  }
+
+  const fetchCashFlow = () => {
+    async function fetchCash() {
+      var cashdata = symbol ? await Actions.getCashFlow(symbol) : {};
+      if (cashdata.data) {
+        setCashFlow(cashdata.data);
       }
     }
   }

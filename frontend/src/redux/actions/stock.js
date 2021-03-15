@@ -35,7 +35,17 @@ const Actions = {
         console.log("UA Err: ", error);
         return error;
       }
-    }
+  },
+  getCashFlow: async (symbol: string) => {
+      try {
+        const data = await StockActions.fetch_cash_flow(symbol);
+
+        return data;
+      } catch (error) {
+        console.log("UA Err: ", error);
+        return error;
+      }
+  },
 }
 
 export default Actions;

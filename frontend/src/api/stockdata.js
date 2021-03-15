@@ -20,6 +20,12 @@ const StockActions = {
 
       return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  fetch_cash_flow: (symbol, ignoreError = false) => {
+      const endpoint = `/stock/cash_flow_statement?symbol=${symbol}`;
+      const options = {method: 'GET'};
+
+      return Utils.getJSON(`${url}${endpoint}`, options);
+  },
 
 };
 
