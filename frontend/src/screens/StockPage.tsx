@@ -10,6 +10,7 @@ import {  Container,
 import DataSummary, { summaryDataT, defaultSummaryData } from "./DataSummary";
 import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "./DataFundamentals";
 import DataIncomeStatement from "./DataIncomeStatement";
+import DataBalanceSheet from "./DataBalanceSheet";
 
 // import { render } from 'react-dom';
 import Highcharts from "highcharts/highstock";
@@ -185,7 +186,7 @@ const StockPage: React.FC<Props> = (props) => {
           && (Object.keys(incomeStatement).length === 0)
         ) {
           fetchIncomeStatement();
-        } else if ((finkey === "incomestatement")
+        } else if ((finkey === "balancesheet")
           && (balanceSheet.length === 0)) {
           fetchBalanceSheet();
         }
@@ -209,15 +210,17 @@ const StockPage: React.FC<Props> = (props) => {
         setBalanceSheet(balancedata.data);
       }
     }
+    fetchBalance();
   }
 
   const fetchCashFlow = () => {
     async function fetchCash() {
       var cashdata = symbol ? await Actions.getCashFlow(symbol) : {};
       if (cashdata.data) {
-        setCashFlow(cashdata.data);
+        setCashFlow(cashdata.data[0]);
       }
     }
+    fetchCash();
   }
 
   return (
@@ -265,6 +268,9 @@ const StockPage: React.FC<Props> = (props) => {
                   >
                       <Tab eventKey="incomestatement" title="Income Statement">
                         <DataIncomeStatement incomeStatement={incomeStatement}/>
+                      </Tab>
+                      <Tab eventKey="balancesheet" title="Balance Sheet">
+                        <DataBalanceSheet balanceSheet={balanceSheet}/>
                       </Tab>
                   </Tabs>
               </Tab>
