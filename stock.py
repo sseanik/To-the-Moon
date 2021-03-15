@@ -9,9 +9,11 @@ from json import dumps
 import pandas as pd
 import os
 from collections import OrderedDict
+import datetime
 
 from psycopg2.extras import DictCursor
 import psycopg2.extensions
+from alpha_vantage.timeseries import TimeSeries
 
 from database import createDBConnection
 from helpers import JSONLoader, AlphaVantageInfo
@@ -27,13 +29,28 @@ psycopg2.extensions.register_type(DEC2FLOAT)
 ###################################
 # Please leave all functions here #
 ###################################
-def get_stock_value(symbol):
+def update_stock_value(symbol, data_type="daily_adjusted"):
+    filename = "demo/" + symbol + "_" + data_type + ".json" if symbol else ""
+
+    _, stockmetadata = JSONLoader.load_json(filename)
+    dt_format = "%Y-%m-%d %H:%M:%S" if data_type=="intraday" else "%Y-%m-%d"
+    date_ref = datetime.datetime.strptime(stockmetadata['3. Last Refreshed'], dt_format)
+    date_today = datetime.datetime.today()
+    date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today-date_ref).days >= 1
+
+    if date_comp >= 1:
+        ts = TimeSeries(key=AlphaVantageInfo.api_key);
+        new_data, new_metadata = ts.get_intraday(symbol) if data_type=="intraday" else ts.get_daily_adjusted(symbol, outputsize='full')
+        JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
+
+def get_stock_value(filename, data_type="daily_adjusted"):
     """
     Load data for stock symbol.
     In future this will be from a DB or the API, for now this loads from file
     so use the data's JSON filename instead
     """
-    stockdata, stockmetadata = JSONLoader.load_json(symbol)
+    stockdata, stockmetadata = JSONLoader.load_json(filename)
+
     result = pd.DataFrame.from_dict(stockdata, orient='index').astype('float')
     result = result.reindex(index=result.index[::-1])
     result.index = pd.to_datetime(result.index)
@@ -157,11 +174,13 @@ def get_stock_data():
         sample_metadata = {}
         summary = {}
 
-        filename = "demo/" + symbol + ".json" if symbol else ""
+        update_stock_value(symbol, data_type="daily_adjusted")
+        filename = "demo/" + symbol + "_daily_adjusted.json" if symbol else ""
         if os.path.isfile(filename):
             sample_df, sample_metadata = get_stock_value(filename)
             summary = calculate_summary(sample_df)
 
+        update_stock_value(symbol, data_type="intraday")
         intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
         intraday = {}
         if os.path.isfile(intr_filename):
