@@ -39,7 +39,15 @@ def register_user(first_name, last_name, email, username, password):
             'message': 'That is not a valid email format'
         }
 
-    # limit length of username
+    
+    # minimum length of username
+    if len(username) < 3:
+        return {
+            'status': 400,
+            'message': 'Username must be at least 3 characters'
+        }
+
+    # maximum length of username
     if len(username) > 30:
         return {
             'status': 400,
