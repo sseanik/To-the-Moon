@@ -5,11 +5,7 @@ import { useHistory } from "react-router";
 import ClipLoader from "react-spinners/ClipLoader";
 import portfolioActions from "../redux/actions/portfolioActions";
 
-interface IObjectKeys {
-  [key: string]: string | number;
-}
-
-interface CreatePortfolioFormParams extends IObjectKeys {
+interface CreatePortfolioFormParams {
   name: string;
   userID: string;
 }
@@ -40,15 +36,8 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
     submitForm,
     createPortfolio,
   } = props;
-  const history = useHistory();
   const userID = "b1c88e2c-82fb-11eb-aa00-0a4e2d6dea13";
   const [name, setName] = useState("");
-
-  useEffect(() => {
-    if (token) {
-      history.push("/");
-    }
-  });
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -107,10 +96,10 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    submitForm: (formPayload: any) => {
+    submitForm: (formPayload: CreatePortfolioFormParams) => {
       dispatch(portfolioActions.submitCreatePortfolioForm(formPayload));
     },
-    createPortfolio: (formPayload: any) => {
+    createPortfolio: (formPayload: CreatePortfolioFormParams) => {
       dispatch(portfolioActions.createPortfolio(formPayload));
     },
   };

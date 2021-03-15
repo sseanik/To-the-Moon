@@ -26,9 +26,6 @@ const portfolioActions = {
         setTimeout(() => {
           dispatch(portfolioActions.createPortfolioSuccess(res));
         }, 2500);
-
-        const { token } = res;
-        window.localStorage.setItem("Token", token);
       } catch (error) {
         setTimeout(() => {
           dispatch(portfolioActions.createPortfolioFailure(error));

@@ -3,7 +3,6 @@ import portfolioConstants from "../constants/portfolioConstants";
 const initialState = {
   createPortfolio: {
     loading: false,
-    token: "",
     error: null,
   },
 };
@@ -40,7 +39,6 @@ const createPortfolio = (state = initialState, action) => {
           ...state.createPortfolio,
           loading: false,
           error: null,
-          token: action.payload.token,
         },
       };
     case portfolioConstants.CREATE_PORTFOLIO_FAILURE:

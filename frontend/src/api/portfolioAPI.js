@@ -1,7 +1,7 @@
 import * as config from "../config.json";
 import Utils from "./utils";
 
-const url = `http://localhost:${config.BACKEND_PORT}`;
+const backend_url = `http://localhost:${config.BACKEND_PORT}`;
 
 const portfolioAPI = {
   createPortfolio: (name, userID) => {
@@ -15,7 +15,30 @@ const portfolioAPI = {
       }),
     };
 
-    return Utils.getJSON(`${url}${endpoint}`, options);
+    /* return Utils.getJSON(`${backend_url}${endpoint}`, options); */
+    return {
+      name: "Karim Portfolio",
+      stock_info: [
+        {
+          stock_name: "AMZN",
+          stock_price: "$12.00",
+        },
+        {
+          stock_name: "TEAM",
+          stock_price: "$13.00",
+        },
+        {
+          stock_name: "GOOGL",
+          stock_price: "$9.99",
+        },
+      ],
+    };
+  },
+  getPortfolio: (name) => {
+    const endpoint = "/get_portfolio";
+    const options = {};
+    // get token from utils.js
+    // make call to backend
   },
 };
 

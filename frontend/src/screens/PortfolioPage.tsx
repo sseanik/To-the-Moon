@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Alert, Container, Row } from "react-bootstrap";
 import { useParams } from "react-router";
+import portfolioAPI from "../api/portfolioAPI";
 
 interface Props {
   token?: string;
@@ -13,6 +14,14 @@ interface RouteMatchParams {
 const PortfolioPage: React.FC<Props> = (props) => {
   const { token } = props;
   const [authenticated, setAuthenticated] = useState(false);
+
+  const [stockData, setStockData] = useState("");
+
+  useEffect(() => {
+    // api call
+    //setStockData(/*api return*/);
+    portfolioAPI.getPortfolio(name);
+  });
 
   useEffect(() => {
     if (token !== "" || window.localStorage.getItem("Token")) {
@@ -27,14 +36,12 @@ const PortfolioPage: React.FC<Props> = (props) => {
   // retrieve userID
   // pass token + userID to backend
 
-  console.log(name);
-  console.log(token);
-  console.log(authenticated);
   const allowed = () => (
     <Row>
       <p>You have access to {name}</p>
     </Row>
   );
+
   const denied = () => (
     <Row>
       <Alert variant="danger">
