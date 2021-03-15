@@ -51,7 +51,6 @@ formatMap.set('dividendyield', {name: "Dividend Yield"});
 
 const DataFundamentals: React.FC<Props> = (props) => {
   var { fundamentalData } = props;
-  console.log(fundamentalData);
   return (
     <Container>
     <Row>

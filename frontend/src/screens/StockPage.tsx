@@ -136,7 +136,7 @@ const StockPage: React.FC<Props> = (props) => {
       }
     ]
   });
-  const [incomeStatement, setIncomeStatement] = useState<any>({});
+  const [incomeStatement, setIncomeStatement] = useState<any>([]);
   const [balanceSheet, setBalanceSheet] = useState<any>([]);
   const [cashFlow, setCashFlow] = useState<any>([]);
   const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
@@ -183,7 +183,7 @@ const StockPage: React.FC<Props> = (props) => {
   useEffect(() => {
       if (genkey === "financials") {
         if ((finkey === "incomestatement")
-          && (Object.keys(incomeStatement).length === 0)
+          && (incomeStatement.length === 0)
         ) {
           fetchIncomeStatement();
         } else if ((finkey === "balancesheet")
@@ -197,7 +197,7 @@ const StockPage: React.FC<Props> = (props) => {
     async function fetchIncome() {
       var incomedata = symbol ? await Actions.getIncomeStatement(symbol) : {};
       if (incomedata.data) {
-        setIncomeStatement(incomedata.data[0]);
+        setIncomeStatement(incomedata.data);
       }
     }
     fetchIncome();
@@ -217,7 +217,7 @@ const StockPage: React.FC<Props> = (props) => {
     async function fetchCash() {
       var cashdata = symbol ? await Actions.getCashFlow(symbol) : {};
       if (cashdata.data) {
-        setCashFlow(cashdata.data[0]);
+        setCashFlow(cashdata.data);
       }
     }
     fetchCash();
