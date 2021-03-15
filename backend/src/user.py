@@ -5,11 +5,10 @@
 import os
 import re
 import bcrypt
-import jwt
 from json import dumps
 from flask import Blueprint, request
 from database import createDBConnection
-from dotenv import load_dotenv
+from token_util import generateToken
 
 
 #######################
@@ -17,8 +16,6 @@ from dotenv import load_dotenv
 #######################
 
 
-load_dotenv()
-JWT_SECRET = os.getenv("JWT_SECRET")
 USER_ROUTES = Blueprint('user', __name__)
 
 
@@ -104,7 +101,7 @@ def register_user(first_name, last_name, email, username, password):
     return {
         'status': 200,
         'userID': user_id,
-        'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256'),
+        'token': generateToken(user_id),
         'message': 'Successfully registered!'
     }
 
@@ -144,7 +141,7 @@ def login_user(email, password):
     return {
         'status': 200,
         'userID': user_id,
-        'token': jwt.encode({"id": user_id}, JWT_SECRET, algorithm='HS256'),
+        'token': generateToken(user_id),
         'message': 'Successfully logged in!'
     }
 
