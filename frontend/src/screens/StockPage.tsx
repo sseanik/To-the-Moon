@@ -7,11 +7,11 @@ import {  Container,
           Tab
         } from "react-bootstrap";
 
-import DataSummary, { summaryDataT, defaultSummaryData } from "./DataSummary";
-import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "./DataFundamentals";
-import DataIncomeStatement from "./DataIncomeStatement";
-import DataBalanceSheet from "./DataBalanceSheet";
-import DataCashFlow from "./DataCashFlow";
+import DataSummary, { summaryDataT, defaultSummaryData } from "../components/DataSummary";
+import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "../components/DataFundamentals";
+import DataIncomeStatement from "../components/DataIncomeStatement";
+import DataBalanceSheet from "../components/DataBalanceSheet";
+import DataCashFlow from "../components/DataCashFlow";
 
 // import { render } from 'react-dom';
 import Highcharts from "highcharts/highstock";
