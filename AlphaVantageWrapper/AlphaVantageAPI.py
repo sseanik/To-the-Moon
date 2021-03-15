@@ -40,6 +40,7 @@ class AlphaVantageAPI:
 
     pass
 
+
 class TimeSeries:
     """
     Wrapper for time series endpoints
@@ -51,23 +52,89 @@ class TimeSeries:
 
     @staticmethod
     def _construct_daily_adjusted(symbol, **kwargs):
-        return _construct_url("TIME_SERIES_DAILY_ADJUSTED", \
+        return AlphaVantageAPI._construct_url("TIME_SERIES_DAILY_ADJUSTED", \
+            symbol=symbol, **kwargs)
+    
+    @staticmethod
+    def _construct_company_overview(symbol, **kwargs):
+        return AlphaVantageAPI._construct_url("OVERVIEW", \
             symbol=symbol, **kwargs)
 
+    @staticmethod
+    def _construct_income_statement(symbol, **kwargs):
+        return AlphaVantageAPI._construct_url("INCOME_STATEMENT", \
+            symbol=symbol, **kwargs)
+    
+    @staticmethod
+    def _construct_balance_sheet(symbol, **kwargs):
+        return AlphaVantageAPI._construct_url("BALANCE_SHEET", \
+            symbol=symbol, **kwargs)
+            
+    @staticmethod
+    def _construct_cash_flow(symbol, **kwargs):
+        return AlphaVantageAPI._construct_url("CASH_FLOW", \
+            symbol=symbol, **kwargs)
+            
     def get_intraday(self, symbol, interval, **kwargs):
         url = TimeSeries._construct_intraday(symbol, interval, **kwargs)
         return AlphaVantageAPI._get_query(url)
 
-    def get_daily_adjusted(symbol, **kwargs):
+    def get_daily_adjusted(self, symbol, **kwargs):
         url = TimeSeries._construct_daily_adjusted(symbol, **kwargs)
         return AlphaVantageAPI._get_query(url)
 
+    def get_company_overview(self, symbol, **kwargs):
+        url = TimeSeries._construct_company_overview(symbol, **kwargs)
+        return AlphaVantageAPI._get_query(url)
+
+    def get_income_statement(self, symbol, **kwargs):
+        url = TimeSeries._construct_income_statement(symbol, **kwargs)
+        return AlphaVantageAPI._get_query(url)
+
+    def get_balance_sheet(self, symbol, **kwargs):
+        url = TimeSeries._construct_balance_sheet(symbol, **kwargs)
+        return AlphaVantageAPI._get_query(url)
+
+    def get_cash_flow(self, symbol, **kwargs):
+        url = TimeSeries._construct_cash_flow(symbol, **kwargs)
+        return AlphaVantageAPI._get_query(url)
+    
     pass
 
 
 if __name__ == "__main__":
     # Test the wrapper
     ts = TimeSeries()
-    gme = ts.get_intraday("GME", "5min", outputsize="full")
+    #gme = ts.get_intraday("GME", "5min", outputsize="full")
+    #AlphaVantageAPI.save_json("GME", gme, label="intraday")
+    
+    #ibm = ts.get_intraday("IBM", "5min", outputsize="full")
+    #AlphaVantageAPI.save_json("IBM", ibm, label="intraday")
 
-    AlphaVantageAPI.save_json("GME", gme, label="intraday")
+    #aeo = ts.get_intraday("AEO", "5min", outputsize="full")
+    #AlphaVantageAPI.save_json("AEO", aeo, label="intraday")
+
+    ibm = ts.get_company_overview("IBM")
+    AlphaVantageAPI.save_json("IBM", ibm, label="overview")
+'''
+    ibm = ts.get_income_statement("IBM")
+    AlphaVantageAPI.save_json("IBM", ibm, label="income_statement")
+
+    ibm = ts.get_balance_sheet("IBM")
+    AlphaVantageAPI.save_json("IBM", ibm, label="balance_sheet")
+
+    ibm = ts.get_cash_flow("IBM")
+    AlphaVantageAPI.save_json("IBM", ibm, label="cash_flow")
+'''
+
+
+
+
+
+
+
+
+
+
+
+
