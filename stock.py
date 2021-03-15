@@ -66,9 +66,11 @@ def get_income_statement(symbol, num_entries=3):
     conn.close()
     return result
 
-revised_bs_order = ['stockticker', 'fiscaldateending', 'total_assets', 'total_curr_assets', 'cashandshortterminvestments', 'currentnetreceivables', 'inventory', 'othercurrentassets', 'total_ncurr_assets', 'propertyplantequipment', 'goodwill', 'intangibleassets', 'longterminvestments', 'othernoncurrentassets', 'total_liabilities', 'total_curr_liabilities', 'currentaccountspayable', 'shorttermdebt', 'othercurrentliabilities', 'total_ncurr_liabilities', 'longtermdebt', 'othernoncurrentliabilities', 'total_equity', 'retainedearnings', 'totalshareholderequity']
+# revised_bs_order = ['stockticker', 'fiscaldateending', 'total_assets', 'total_curr_assets', 'cashandshortterminvestments', 'currentnetreceivables', 'inventory', 'othercurrentassets', 'total_ncurr_assets', 'propertyplantequipment', 'goodwill', 'intangibleassets', 'longterminvestments', 'othernoncurrentassets', 'total_liabilities', 'total_curr_liabilities', 'currentaccountspayable', 'shorttermdebt', 'othercurrentliabilities', 'total_ncurr_liabilities', 'longtermdebt', 'othernoncurrentliabilities', 'total_equity', 'retainedearnings', 'totalshareholderequity']
+revised_bs_order = ['fiscaldateending', 'total_assets', 'total_curr_assets', 'total_ncurr_assets', 'total_liabilities', 'total_curr_liabilities', 'total_ncurr_liabilities', 'total_equity']
+# bs_category_names = ['Stock Ticker', 'Fiscal Date Ending', 'Total Assets', 'Total Current Assets', 'Cash and Short Term Investments', 'Net Receivables', 'Inventory', 'Other', 'Total Non-Current Assets', 'Property Plant and Equipment', 'Goodwill', 'Intangible Assets', 'Long Term Investments', 'Other', 'Total Liabilities', 'Total Current Liabilities', 'Current Accounts Payable', 'Short Term Debt', 'Other', 'Total Non-Current Liabilities', 'Long Term Debt', 'Other', 'Total Equity', 'Retained Earnings', 'Total Shareholder Equity']
 
-def get_balance_sheet(symbol, num_entries=3):
+def get_balance_sheet(symbol, num_entries=1):
     conn = createDBConnection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
@@ -82,7 +84,6 @@ def get_balance_sheet(symbol, num_entries=3):
     for entry in query_results:
         record = OrderedDict(entry)
 
-        import pdb; pdb.set_trace()
         record['total_curr_assets'] = sum([float(record[x]) for x in ['cashandshortterminvestments', 'currentnetreceivables', 'inventory', 'othercurrentassets']])
         record['total_ncurr_assets'] = sum([float(record[x]) for x in ['propertyplantequipment', 'goodwill', 'intangibleassets', 'longterminvestments', 'othernoncurrentassets']]) # last one is a typo
         record['total_assets'] = record['total_curr_assets'] + record['total_ncurr_assets']
