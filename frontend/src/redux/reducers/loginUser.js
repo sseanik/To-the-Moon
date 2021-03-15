@@ -1,38 +1,38 @@
 import Types from '../constants/actionTypes';
 
 const initialState = {
-  registerUser: {
+  loginUser: {
     loading: false,
     token: "",
     error: null,
   }
 }
 
-const registerUser = (state = initialState, action) => {
+const loginUser = (state = initialState, action) => {
   switch (action.type) {
-    case Types.REGISTER_USER_PENDING:
+    case Types.LOGIN_PENDING:
       return {
         ...state,
-        registerUser: {
-          ...state.registerUser,
+        loginUser: {
+          ...state.loginUser,
           loading: true,
         }
       };
-    case Types.REGISTER_USER_SUCCESS:
+    case Types.LOGIN_SUCCESS:
       return {
         ...state,
-        registerUser: {
-          ...state.registerUser,
+        loginUser: {
+          ...state.loginUser,
           loading: false,
           error: null,
           token: action.payload.token,
         }
       };
-    case Types.REGISTER_USER_FAILURE:
+    case Types.LOGIN_FAILURE:
       return {
         ...state,
-        registerUser: {
-          ...state.registerUser,
+        loginUser: {
+          ...state.loginUser,
           loading: false,
           error: action.payload.error,
         }
@@ -42,4 +42,4 @@ const registerUser = (state = initialState, action) => {
   }
 }
   
-export default registerUser;
+export default loginUser;

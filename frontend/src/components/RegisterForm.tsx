@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import Actions from "../redux/actions/user";
 import ClipLoader from "react-spinners/ClipLoader";
+import { useHistory } from "react-router-dom";
 
 interface IObjectKeys {
   [key: string]: string | number;
@@ -42,12 +43,18 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
     submitForm,
     registerUser,
   } = props;
-
+  const history = useHistory();
   const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (token) {
+      history.push("/");
+    }
+  });
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -153,12 +160,12 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
           {registerForm.errors.password}
         </Form.Control.Feedback>
         <Form.Text className="text-muted">
-          Passwords must be between 4 and 16 characters long.
+          Passwords must be between 8 and 16 characters long.
         </Form.Text>
       </Form.Group>
 
       <Button variant="primary" type="submit">
-        Submit
+        Sign up
       </Button>
     </Form>
   );
@@ -166,7 +173,7 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
   const loadingSpinnerComponent = (
     <div>
       <ClipLoader color={"green"} loading={isLoading} />
-      <h5>Preparing rocket fuel...</h5>
+      <h5>Onboarding astronauts...</h5>
     </div>
   );
 
