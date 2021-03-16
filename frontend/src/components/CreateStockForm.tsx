@@ -1,73 +1,79 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
-import portfolioActions from "../redux/actions/portfolioActions";
 
-interface CreatePortfolioFormParams {
-  name: string;
+interface CreateStockParams {
+  portfolioName: string;
+  stockName: string;
   userID: string;
 }
 
-interface CreatePortfolioState {
-  values: CreatePortfolioFormParams;
-  errors: CreatePortfolioFormParams;
+interface CreateStockState {
+  values: CreateStockParams;
+  errors: CreateStockParams;
 }
 
 interface StateProps {
-  createPortfolioForm: CreatePortfolioState;
+  createStockForm: CreateStockState;
   isLoading: boolean;
   error: Object;
   token: string;
 }
 
 interface DispatchProps {
-  submitForm: (payload: CreatePortfolioFormParams) => void;
-  createPortfolio: (payload: CreatePortfolioFormParams) => void;
+  submitForm: (payload: CreateStockParams) => void;
+  createStock: (payload: CreateStockParams) => void;
 }
 
-const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
+interface Props {
+  portfolioName: string;
+}
+
+const CreateStockForm: React.FC<StateProps & DispatchProps & Props> = (
+  props
+) => {
   const {
-    createPortfolioForm,
+    createStockForm,
     isLoading,
     token,
     error,
     submitForm,
-    createPortfolio,
+    createStock,
+    portfolioName,
   } = props;
   // purposely input dummy data
   const userID = "b1c88e2c-82fb-11eb-aa00-0a4e2d6dea13";
-  const [name, setName] = useState("");
+  const [stockName, setStockName] = useState("");
 
   const onSubmit = (e: any) => {
     e.preventDefault();
-    createPortfolio({ name, userID });
+    createStock({ portfolioName, stockName, userID });
   };
 
   const onBlur = () => {
-    submitForm({ name, userID });
+    submitForm({ portfolioName, stockName, userID });
   };
 
   const formComponent = (
     <Form onSubmit={(e) => onSubmit(e)}>
       <Form.Group controlId="formBasicName">
-        <Form.Label>Name</Form.Label>
+        <Form.Label>Stock Name</Form.Label>
         <Form.Control
           type="text"
-          placeholder="Enter name"
-          isInvalid={createPortfolioForm.errors.name.length > 0}
+          placeholder="Enter stock name"
+          isInvalid={createStockForm.errors.stockName.length > 0}
           isValid={
-            !!createPortfolioForm.values.name &&
-            createPortfolioForm.errors.name.length === 0
+            !!createStockForm.values.stockName &&
+            createStockForm.errors.stockName.length === 0
           }
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setStockName(e.target.value)}
           onBlur={onBlur}
         />
         <Form.Control.Feedback type="invalid">
-          {createPortfolioForm.errors.name}
+          {createStockForm.errors.stockName}
         </Form.Control.Feedback>
         <Form.Text className="text-muted">
-          Choose a unique portfolio name.
+          Choose a valid stock symbol.
         </Form.Text>
       </Form.Group>
 
@@ -84,7 +90,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
     </div>
   );
 
-  return isLoading ? loadingSpinnerComponent : formComponent;
+  return <p>Hi</p>;
 };
 
 const mapStateToProps = (state: any) => ({
@@ -96,16 +102,11 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    submitForm: (formPayload: CreatePortfolioFormParams) => {
+    submitForm: (formPayload: CreateStockFormParams) => {
       dispatch(portfolioActions.submitCreatePortfolioForm(formPayload));
     },
-    createPortfolio: (formPayload: CreatePortfolioFormParams) => {
+    createPortfolio: (formPayload: CreateStockFormParams) => {
       dispatch(portfolioActions.createPortfolio(formPayload));
     },
   };
 };
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreatePortfolioForm);
