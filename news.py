@@ -45,7 +45,7 @@ def getStockNews(stockSymbol, articleCount):
 # Given a list of stock symbols, return a list of numArticles amount of related news articles
 def getPortfolioNews(stockSymbols, numArticles):
     uniqueStocks = set(stockSymbols)
-    # Either have 1 news article related to each stock, or rougly around numArticles in total
+    # Either have 1 news article related to each stock, or minimum numArticles in total
     articleCount = 1 if round(numArticles / len(uniqueStocks)) == 0 else round(numArticles / len(uniqueStocks))
     newsArticles = []
     for symbol in uniqueStocks:
