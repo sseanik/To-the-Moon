@@ -57,12 +57,12 @@ def getStockNews(stockSymbol):
     response = requests.request("GET", url, params=querystring)
     if response.status_code == 200:
         return {
-            'status': 'success',
+            'status': response.status_code,
             'articles': response.json()[:10]
         }
     else:
         return {
-            'status': 'failure',
+            'status': response.status_code,
             'articles': []
         }
 
