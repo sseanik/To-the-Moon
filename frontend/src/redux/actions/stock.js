@@ -12,7 +12,7 @@ const Actions = {
 
       return data;
     } catch (error) {
-      console.log("UA Err: ", error);
+      console.warn("UA Err: ", error);
       return error;
     }
   },
@@ -22,7 +22,7 @@ const Actions = {
 
       return data;
     } catch (error) {
-      console.log("UA Err: ", error);
+      console.warn("UA Err: ", error);
       return error;
     }
   },
@@ -32,7 +32,7 @@ const Actions = {
 
         return data;
       } catch (error) {
-        console.log("UA Err: ", error);
+        console.warn("UA Err: ", error);
         return error;
       }
   },
@@ -42,7 +42,7 @@ const Actions = {
 
         return data;
       } catch (error) {
-        console.log("UA Err: ", error);
+        console.warn("UA Err: ", error);
         return error;
       }
   },

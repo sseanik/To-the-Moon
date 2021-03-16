@@ -46,9 +46,13 @@ def update_stock_value(symbol, data_type="daily_adjusted"):
     date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
     date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
-    if date_comp == True:
-        ts = TimeSeries(key=AlphaVantageInfo.api_key);
-        new_data, new_metadata = ts.get_intraday(symbol) if data_type=="intraday" else ts.get_daily_adjusted(symbol, outputsize='full')
+    # TODO: select based on exchange trading hours
+    date_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
+    dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
+
+    if date_comp and date_constraint and dow_constraint:
+        ts = TimeSeries(key=AlphaVantageInfo.api_key)
+        new_data, new_metadata = ts.get_intraday(symbol, outputsize='full') if data_type=="intraday" else ts.get_daily_adjusted(symbol, outputsize='full')
         JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
 
 def get_stock_value(filename, data_type="daily_adjusted"):

@@ -31,8 +31,6 @@ formatMap.set('netincome', {name: "Net Income"});
 const DataCashFlow: React.FC<Props> = (props) => {
   var { cashFlow } = props;
 
-  console.log("IC: ", cashFlow);
-
   return (
     <Container>
     <Row>

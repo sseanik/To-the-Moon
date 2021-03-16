@@ -4,7 +4,8 @@ import {  Container,
           Row,
           Col,
           Tabs,
-          Tab
+          Tab,
+          Button
         } from "react-bootstrap";
 
 import RangeSelectorOptions from "../components/RangeSelectorOptions";
@@ -36,19 +37,16 @@ const StockPage: React.FC<Props> = (props) => {
 
   const [genkey, setGenkey] = useState('summary');
   const [finkey, setFinkey] = useState('incomestatement');
+  const [companyName, setCompanyName] = useState('View');
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
     title: {
-      text: ""
+      text: "Share Price"
     },
     rangeSelector: RangeSelectorOptions(setDisplayIntra),
     series: [
-      {
-        data: [
-
-        ]
-      }
+      { data: [] }
     ]
   });
   const [incomeStatement, setIncomeStatement] = useState<any>([]);
@@ -59,52 +57,52 @@ const StockPage: React.FC<Props> = (props) => {
   const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
   const [timeSeriesIntra, setTimeSeriesIntra] = useState<any>([]);
 
-  useEffect(() => {
-    async function fetchStock() {
-      var stockdata = symbol ? await Actions.getStockData(symbol) : {};
-      // console.log(symbol);
-      // console.log(stockdata);
-      if (!stockdata) { return; }
-      var seriesDailyList = [];
-      var seriesIntraList = [];
+  async function fetchStock() {
+    var stockdata = symbol ? await Actions.getStockData(symbol) : {};
 
-      if (stockdata.data) {
-          for (let [key, value] of Object.entries(stockdata.data)) {
-            seriesDailyList.push({name: key, data: value});
-          }
-          setTimeSeriesDaily(seriesDailyList);
-      }
-      if (stockdata.data_intraday) {
-          for (let [key, value] of Object.entries(stockdata.data_intraday)) {
-            seriesIntraList.push({name: key, data: value});
-          }
-          setTimeSeriesIntra(seriesIntraList);
-      }
-      if (stockdata.summary) setSummaryData(stockdata.summary);
-      if (stockdata.fundamentals) setFundamentalData(stockdata.fundamentals);
+    if (!stockdata) { return; }
+    var seriesDailyList = [];
+    var seriesIntraList = [];
+    setCompanyName(stockdata.name);
+
+    setGraphOptions({ ... graphOptions, title: {text: `Share Price`}});
+    for (let [key, value] of Object.entries(stockdata.data)) {
+      seriesDailyList.push({name: key, data: value});
     }
+    setTimeSeriesDaily(seriesDailyList);
+
+    for (let [key, value] of Object.entries(stockdata.data_intraday)) {
+      seriesIntraList.push({name: key, data: value});
+    }
+    setTimeSeriesIntra(seriesIntraList);
+
+    if (stockdata.summary) setSummaryData(stockdata.summary);
+    if (stockdata.fundamentals) setFundamentalData(stockdata.fundamentals);
+  }
+
+  useEffect(() => {
 
     fetchStock();
   }, []);
 
   useEffect(() => {
-      if (displayIntra == true) {
-          setGraphOptions({ ... graphOptions, series: timeSeriesIntra });
-      } else {
-          setGraphOptions({ ... graphOptions, series: timeSeriesDaily });
-      }
-  }, [displayIntra, timeSeriesDaily, timeSeriesIntra]);
+    if (displayIntra == true) {
+      setGraphOptions({ ... graphOptions, series: timeSeriesIntra });
+    } else {
+      setGraphOptions({ ... graphOptions, series: timeSeriesDaily });
+    }
+  }, [displayIntra, timeSeriesIntra, timeSeriesDaily]);
 
   useEffect(() => {
-      if (genkey === "financials") {
-        if ((finkey === "incomestatement") && (incomeStatement.length === 0)) {
-          fetchIncomeStatement();
-        } else if ((finkey === "balancesheet") && (balanceSheet.length === 0)) {
-          fetchBalanceSheet();
-        } else if ((finkey === "cashflow") && (cashFlow.length === 0)) {
-          fetchCashFlow();
-        }
+    if (genkey === "financials") {
+      if ((finkey === "incomestatement") && (incomeStatement.length === 0)) {
+        fetchIncomeStatement();
+      } else if ((finkey === "balancesheet") && (balanceSheet.length === 0)) {
+        fetchBalanceSheet();
+      } else if ((finkey === "cashflow") && (cashFlow.length === 0)) {
+        fetchCashFlow();
       }
+    }
   }, [genkey, finkey]);
 
   const fetchIncomeStatement = () => {
@@ -143,7 +141,15 @@ const StockPage: React.FC<Props> = (props) => {
 
       </Row>
       <Row className="justify-content-center mt-2">
-        <h1>Welcome To The Stock Page!</h1>
+        <h2>{`Company: ${companyName} (${symbol})`}</h2>
+      </Row>
+
+      <Row>
+        <Col className="border text-left" sm={2} ><h4>Controls</h4></Col>
+        <Col sm={1}>
+          <Button variant="outline-primary"
+            onClick={fetchStock}>Refresh</Button>
+        </Col>
       </Row>
 
       <Row className="justify-content-center">

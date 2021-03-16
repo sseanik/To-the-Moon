@@ -29,8 +29,6 @@ formatMap.set('netincome', {name: "Net Income"});
 const DataIncomeStatement: React.FC<Props> = (props) => {
   var { incomeStatement } = props;
 
-  console.log("IC: ", incomeStatement);
-
   return (
     <Container>
     <Row>
