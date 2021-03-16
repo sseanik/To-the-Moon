@@ -37,7 +37,7 @@ const EditPortfolioForm: React.FC<Props> = (props) => {
       initialValues={{ portfolioName: "" }}
       validationSchema={schema}
     >
-      {({ handleSubmit, handleChange, values, touched, errors }) => {
+      {({ handleSubmit, handleChange, values, errors }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="my-2">
             <Form.Control
