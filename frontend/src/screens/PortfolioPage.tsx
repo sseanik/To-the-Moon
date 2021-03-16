@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Container, Col, Row } from "react-bootstrap";
 import { useParams } from "react-router";
 import portfolioAPI from "../api/portfolioAPI";
+import CreateStockForm from "../components/CreateStockForm";
 import StockInfo from "../components/StockInfo";
 
 interface Props {
@@ -93,18 +94,13 @@ const PortfolioPage: React.FC<Props> = (props) => {
         <Col>Delete Stock</Col>
       </Row>
       <Container fluid>{listStocks}</Container>
-      <Row className="justify-content-start">
-        <Col>
+      <Row className="justify-content-center my-2">
+        {addingStock ? (
+          <CreateStockForm portfolioName={name} />
+        ) : (
           <Button variant="primary" onClick={handleAddStockClick}>
             Add Stock
           </Button>
-        </Col>
-        {addingStock ? (
-          <Col>
-            <p>adding stock</p>
-          </Col>
-        ) : (
-          <></>
         )}
       </Row>
     </Container>

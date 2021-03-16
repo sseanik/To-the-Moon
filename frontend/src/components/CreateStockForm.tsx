@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import stockActions from "../redux/actions/stockActions";
 
 interface CreateStockFormParams {
-  portfolioName: string;
   stockName: string;
   userID: string;
 }
@@ -49,17 +48,16 @@ const CreateStockForm: React.FC<StateProps & DispatchProps & Props> = (
 
   const onSubmit = (e: any) => {
     e.preventDefault();
-    createStock({ portfolioName, stockName, userID });
+    createStock({ stockName, userID });
   };
 
   const onBlur = () => {
-    submitForm({ portfolioName, stockName, userID });
+    submitForm({ stockName, userID });
   };
 
   const formComponent = (
     <Form onSubmit={(e) => onSubmit(e)}>
       <Form.Group controlId="formBasicName">
-        <Form.Label>Stock Name</Form.Label>
         <Form.Control
           type="text"
           placeholder="Enter stock name"
@@ -80,7 +78,7 @@ const CreateStockForm: React.FC<StateProps & DispatchProps & Props> = (
       </Form.Group>
 
       <Button variant="primary" type="submit">
-        Create Portfolio
+        Add Stock
       </Button>
     </Form>
   );
@@ -92,14 +90,14 @@ const CreateStockForm: React.FC<StateProps & DispatchProps & Props> = (
     </div>
   );
 
-  return <p>Hi</p>;
+  return isLoading ? loadingSpinnerComponent : formComponent;
 };
 
 const mapStateToProps = (state: any) => ({
-  createPortfolioForm: state.submitCreatePortfolioForm.createPortfolioForm,
-  isLoading: state.createPortfolio.createPortfolio.loading,
-  token: state.createPortfolio.createPortfolio.token,
-  error: state.createPortfolio.createPortfolio.error,
+  createStockForm: state.submitCreateStockForm.createStockForm,
+  isLoading: state.createStock.createStock.loading,
+  token: state.createStock.createStock.token,
+  error: state.createStock.createStock.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

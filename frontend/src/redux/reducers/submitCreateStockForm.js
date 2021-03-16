@@ -3,11 +3,11 @@ import stockConstants from "../constants/stockConstants";
 const initialState = {
   createStockForm: {
     values: {
-      name: "",
+      stockName: "",
       userID: "",
     },
     errors: {
-      name: "",
+      stockName: "",
       userID: "",
     },
   },
