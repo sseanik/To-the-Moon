@@ -68,14 +68,23 @@ const portfolioAPI = {
         {
           stock_name: "AMZN",
           stock_price: "$12.00",
+          purchase_date: "12-02-21",
+          purchase_price: "$13.00",
+          num_shares: "10",
         },
         {
           stock_name: "TEAM",
           stock_price: "$13.00",
+          purchase_date: "01-01-20",
+          purchase_price: "$5.00",
+          num_shares: "50",
         },
         {
           stock_name: "GOOGL",
           stock_price: "$10.00",
+          purchase_date: "16-03-21",
+          purchase_price: "$10.00",
+          num_shares: "100",
         },
       ],
     };
