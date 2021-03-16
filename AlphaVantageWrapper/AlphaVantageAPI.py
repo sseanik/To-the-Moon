@@ -74,7 +74,12 @@ class TimeSeries:
     def _construct_cash_flow(symbol, **kwargs):
         return AlphaVantageAPI._construct_url("CASH_FLOW", \
             symbol=symbol, **kwargs)
-            
+
+    @staticmethod
+    def _construct_global_quote(symbol, **kwargs):
+        return AlphaVantageAPI._construct_url("GlOBAL_QUOTE", \
+            symbol=symbol, **kwargs)
+     
     def get_intraday(self, symbol, interval, **kwargs):
         url = TimeSeries._construct_intraday(symbol, interval, **kwargs)
         return AlphaVantageAPI._get_query(url)
@@ -99,6 +104,10 @@ class TimeSeries:
         url = TimeSeries._construct_cash_flow(symbol, **kwargs)
         return AlphaVantageAPI._get_query(url)
     
+    def get_quick_quote(self, symbol, **kwargs):
+        url = TimeSeries._construct_global_quote(symbol, **kwargs)
+        return AlphaVantageAPI._get_query(url)
+
     pass
 
 
@@ -114,9 +123,13 @@ if __name__ == "__main__":
     #aeo = ts.get_intraday("AEO", "5min", outputsize="full")
     #AlphaVantageAPI.save_json("AEO", aeo, label="intraday")
 
+'''
+    ibm = ts.get_quick_quote("IBM")
+    AlphaVantageAPI.save_json("IBM", ibm, label="quick_quote")
+
     ibm = ts.get_company_overview("IBM")
     AlphaVantageAPI.save_json("IBM", ibm, label="overview")
-'''
+
     ibm = ts.get_income_statement("IBM")
     AlphaVantageAPI.save_json("IBM", ibm, label="income_statement")
 
