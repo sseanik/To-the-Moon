@@ -65,6 +65,10 @@ APP.register_error_handler(Exception, default_handler)
 def echo():
     # an echo route just for testing
     data = request.args.get('data')
+    if data:
+        print("Param supplied: {}".format(data))
+    else:
+        print("Param undefined")
     return dumps({
         'data': data
     })
