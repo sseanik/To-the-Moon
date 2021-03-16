@@ -5,7 +5,7 @@ const backend_url = `http://localhost:${config.BACKEND_PORT}`;
 
 const portfolioAPI = {
   createPortfolio: (name, token) => {
-    const endpoint = "/create_portfolio";
+    const endpoint = "/createUsersPortfolio";
     const options = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
