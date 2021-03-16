@@ -53,7 +53,7 @@ const portfolioAPI = {
     // subject to Austin endpoint naming
     const endpoint = "/getStocks";
     const options = {
-      method: "POST",
+      method: "GET",
       headers: { "Content-Type": "application/json" },
       body: {
         portfolio_name: portfolio_name,
@@ -79,6 +79,19 @@ const portfolioAPI = {
         },
       ],
     };
+  },
+  deletePortfolio: (portfolio_name) => {
+    const endpoint = "/deletePortfolio";
+    const options = {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: {
+        portfolio_name: portfolio_name,
+        token: Utils.getToken(),
+      },
+    };
+
+    return Utils.getJSON(`${backend_url}${endpoint}`, options);
   },
 };
 
