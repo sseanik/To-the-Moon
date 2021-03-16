@@ -16,7 +16,7 @@ const PortfoliosPage: React.FC<Props> = (props) => {
 
   useEffect(() => {
     const fetchStocks = async () => {
-      const portfolios = await portfolioAPI.getPortfolios();
+      const portfolios = portfolioAPI.getPortfolios();
       setPortfolioList(portfolios);
     };
     fetchStocks();

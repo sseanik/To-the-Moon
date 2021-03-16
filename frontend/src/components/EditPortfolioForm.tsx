@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Button, Form } from "react-bootstrap";
-import { useFormik, Formik } from "formik";
+import { Button, Row } from "react-bootstrap";
+import { useFormik, Formik, Field, Form } from "formik";
 import * as Yup from "yup";
 import portfolioAPI from "../api/portfolioAPI";
 import { useParams } from "react-router";
@@ -27,6 +27,8 @@ const EditPortfolioForm: React.FC<Props> = (props) => {
     const asyncEdit = async () => {
       await portfolioAPI.editPortfolio(name, values.portfolioName);
     };
+    asyncEdit();
+    handlePortfolioEdited();
   };
 
   return (
@@ -39,82 +41,30 @@ const EditPortfolioForm: React.FC<Props> = (props) => {
         portfolioName: "",
       }}
     >
-      {({
-        handleSubmit,
-        handleChange,
-        handleBlur,
-        values,
-        touched,
-        isValid,
-        errors,
-      }) => (
-        <Form noValidate onSubmit={handleSubmit}>
-          <Form.Group>
-            <Form.Control
+      {({ errors }) => (
+        <Form>
+          <Row className="justify-content-center my-1 rounded">
+            <Field
               id="portfolioName"
               name="portfolioName"
-              type="text"
-              placeholder="Enter new portfolio name"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.portfolioName}
-              isValid={!errors.portfolioName}
+              placeholder="Enter portfolio name"
+              className="pl-2"
             />
-            {errors.portfolioName ? (
-              <Form.Control.Feedback>
-                {errors.portfolioName}
-              </Form.Control.Feedback>
-            ) : (
-              <Form.Control.Feedback>
-                You must enter a unique portfolio name.
-              </Form.Control.Feedback>
-            )}
-          </Form.Group>
-
-          <Button variant="outline-success" type="submit">
-            Change Name
-          </Button>
+          </Row>
+          <Row className="justify-content-center my-1 text-muted">
+            {errors.portfolioName
+              ? errors.portfolioName
+              : "Enter a unique name"}
+          </Row>
+          <Row className="justify-content-center my-1">
+            <Button variant="outline-success" type="submit">
+              Change Name
+            </Button>
+          </Row>
         </Form>
       )}
     </Formik>
   );
-  /* const formik = useFormik({
-    initialValues: {
-      portfolioName: "",
-    },
-    validationSchema: Yup.object({
-      portfolioName: Yup.string()
-        .max(30, "Portfolio name must be 30 characters or less.")
-        .required("Portfolio name is required"),
-    }),
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
-  });
-
-  return (
-    <Form noValidate onSubmit={formik.handleSubmit}>
-      <Form.Group>
-        <Form.Control
-          id="portfolioName"
-          name="portfolioName"
-          type="text"
-          placeholder="Enter new portfolio name"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.portfolioName}
-          isValid={!formik.errors.portfolioName}
-        />
-        <Form.Control.Feedback type="invalid">
-          {formik.errors.portfolioName}
-        </Form.Control.Feedback>
-      </Form.Group>
-
-      <Button variant="outline-success" type="submit">
-        Change Name
-      </Button>
-    </Form>
-  ); */
 };
 
 export default EditPortfolioForm;

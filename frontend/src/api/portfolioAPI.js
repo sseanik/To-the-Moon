@@ -18,7 +18,6 @@ const portfolioAPI = {
     return Utils.getJSON(`${backend_url}${endpoint}`, options);
   },
   getPortfolios: () => {
-    // subject to Austin endpoint naming
     const endpoint = "/portfolio/getPortfolios";
     const options = {
       method: "GET",
@@ -108,9 +107,9 @@ const portfolioAPI = {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: {
-        portfolio_name: portfolio_name,
-        new_name: new_name,
         token: Utils.getToken(),
+        oldPortfolioName: portfolio_name,
+        newPortfolioName: new_name,
       },
     };
 
