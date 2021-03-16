@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
-import { useHistory } from "react-router";
 import ClipLoader from "react-spinners/ClipLoader";
 import portfolioActions from "../redux/actions/portfolioActions";
 
