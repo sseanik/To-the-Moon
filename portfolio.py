@@ -148,9 +148,10 @@ def viewInvestment(investmentID):
 ################################
 @PORTFOLIO_ROUTES.route('/portfolio/createPortfolio', methods=['GET'])
 def createUsersPortolio():
+    print('here')
+    return dumps(request.get_json())
     # Adjust this line to get userID from frontend JSON and not URL    
     userID = request.args.get('userID')
-    
     portfolioName = request.args.get('portfolioName')
     response = createPortfolio(userID, portfolioName)
     return dumps({'backend response': response})
