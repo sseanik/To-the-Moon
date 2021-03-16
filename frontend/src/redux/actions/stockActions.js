@@ -21,8 +21,12 @@ const stockActions = {
     return async (dispatch) => {
       dispatch(stockActions.createStockPending());
       try {
-        const { name, userID } = payload;
-        const res = await stockAPI.createStock(name, userID);
+        const { portfolioName, stockName, userID } = payload;
+        const res = await stockAPI.createStock(
+          portfolioName,
+          stockName,
+          userID
+        );
         setTimeout(() => {
           dispatch(stockActions.createStockSuccess(res));
         }, 2500);

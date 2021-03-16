@@ -1,10 +1,11 @@
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import stockActions from "../redux/actions/stockActions";
 
 interface CreateStockFormParams {
+  portfolioName: string;
   stockName: string;
   userID: string;
 }
@@ -28,6 +29,7 @@ interface DispatchProps {
 
 interface Props {
   portfolioName: string;
+  handleAddStock: () => void;
 }
 
 const CreateStockForm: React.FC<StateProps & DispatchProps & Props> = (
@@ -41,6 +43,7 @@ const CreateStockForm: React.FC<StateProps & DispatchProps & Props> = (
     submitForm,
     createStock,
     portfolioName,
+    handleAddStock,
   } = props;
   // purposely input dummy data
   const userID = "b1c88e2c-82fb-11eb-aa00-0a4e2d6dea13";
@@ -48,11 +51,12 @@ const CreateStockForm: React.FC<StateProps & DispatchProps & Props> = (
 
   const onSubmit = (e: any) => {
     e.preventDefault();
-    createStock({ stockName, userID });
+    createStock({ portfolioName, stockName, userID });
+    handleAddStock();
   };
 
   const onBlur = () => {
-    submitForm({ stockName, userID });
+    submitForm({ portfolioName, stockName, userID });
   };
 
   const formComponent = (

@@ -3,6 +3,7 @@ import { Alert, Button, Container, Col, Row } from "react-bootstrap";
 import { useParams } from "react-router";
 import portfolioAPI from "../api/portfolioAPI";
 import CreateStockForm from "../components/CreateStockForm";
+import EditPortfolioForm from "../components/EditPortfolioForm";
 import StockInfo from "../components/StockInfo";
 
 interface Props {
@@ -17,6 +18,8 @@ const PortfolioPage: React.FC<Props> = (props) => {
   const { token } = props;
   const { name } = useParams<RouteMatchParams>();
   const [authenticated, setAuthenticated] = useState(false);
+  const [addingStock, setAddingStock] = useState(false);
+  const [editingPortfolio, setEditingPortfolio] = useState(false);
   const [stockData, setStockData] = useState({
     name: "",
     stock_info: [
@@ -29,15 +32,14 @@ const PortfolioPage: React.FC<Props> = (props) => {
       },
     ],
   });
-  const [addingStock, setAddingStock] = useState(false);
 
   useEffect(() => {
     const fetchStocks = async () => {
-      const stockInfo = portfolioAPI.getStocks(name);
+      const stockInfo = await portfolioAPI.getStocks(name);
       setStockData(stockInfo);
     };
     fetchStocks();
-  });
+  }, [name]);
 
   // may be removed soon
   useEffect(() => {
@@ -60,10 +62,6 @@ const PortfolioPage: React.FC<Props> = (props) => {
     />
   ));
 
-  const handleAddStockClick = () => {
-    setAddingStock(true);
-  };
-
   const handleDeletePortfolioClick = () => {
     const deletePortfolio = async () => {
       portfolioAPI.deletePortfolio(name);
@@ -76,15 +74,7 @@ const PortfolioPage: React.FC<Props> = (props) => {
       <Row className="justify-content-center my-3">
         <h1>{name}</h1>
       </Row>
-      <Row className="justify-content-center my-3">
-        <Button
-          href="/portfolios"
-          variant="outline-danger"
-          onClick={handleDeletePortfolioClick}
-        >
-          Delete Portfolio
-        </Button>
-      </Row>
+      <Row></Row>
       <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
         <Col>Stock Name</Col>
         <Col>Stock Price</Col>
@@ -96,12 +86,40 @@ const PortfolioPage: React.FC<Props> = (props) => {
       <Container fluid>{listStocks}</Container>
       <Row className="justify-content-center my-2">
         {addingStock ? (
-          <CreateStockForm portfolioName={name} />
+          <CreateStockForm
+            portfolioName={name}
+            handleAddStock={() => setAddingStock(false)}
+          />
         ) : (
-          <Button variant="primary" onClick={handleAddStockClick}>
+          <Button variant="primary" onClick={() => setAddingStock(true)}>
             Add Stock
           </Button>
         )}
+      </Row>
+      <Row className="justify-content-center mt-5">
+        <Col>
+          {editingPortfolio ? (
+            <EditPortfolioForm
+              handlePortfolioEdited={() => setEditingPortfolio(false)}
+            />
+          ) : (
+            <Button
+              variant="outline-success"
+              onClick={() => setEditingPortfolio(true)}
+            >
+              Edit Portfolio
+            </Button>
+          )}
+        </Col>
+        <Col>
+          <Button
+            href="/portfolios"
+            variant="outline-danger"
+            onClick={handleDeletePortfolioClick}
+          >
+            Delete Portfolio
+          </Button>
+        </Col>
       </Row>
     </Container>
   );

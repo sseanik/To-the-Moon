@@ -5,7 +5,7 @@ const backend_url = `http://localhost:${config.BACKEND_PORT}`;
 
 const stockAPI = {
   addStock: (portfolio_name, stock_name) => {
-    const endpoint = "/addInvestment";
+    const endpoint = "/portfolio/addInvestment";
     const options = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -19,7 +19,7 @@ const stockAPI = {
     return Utils.getJSON(`${backend_url}${endpoint}`, options);
   },
   deleteStock: (portfolio_name, stock_name) => {
-    const endpoint = "/deleteInvestment";
+    const endpoint = "/portfolio/deleteInvestment";
     const options = {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },

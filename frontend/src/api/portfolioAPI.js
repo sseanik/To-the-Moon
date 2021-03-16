@@ -5,7 +5,7 @@ const backend_url = `http://localhost:${config.BACKEND_PORT}`;
 
 const portfolioAPI = {
   createPortfolio: (name, token) => {
-    const endpoint = "/createUsersPortfolio";
+    const endpoint = "/portfolio/createPortfolio";
     const options = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -19,9 +19,9 @@ const portfolioAPI = {
   },
   getPortfolios: () => {
     // subject to Austin endpoint naming
-    const endpoint = "/getPortfolios";
+    const endpoint = "/portfolio/getPortfolios";
     const options = {
-      method: "POST",
+      method: "GET",
       headers: { "Content-Type": "application/json" },
       body: {
         token: Utils.getToken(),
@@ -51,7 +51,7 @@ const portfolioAPI = {
   },
   getStocks: (portfolio_name) => {
     // subject to Austin endpoint naming
-    const endpoint = "/getStocks";
+    const endpoint = "/portfolio/getInvestments";
     const options = {
       method: "GET",
       headers: { "Content-Type": "application/json" },
@@ -90,12 +90,26 @@ const portfolioAPI = {
     };
   },
   deletePortfolio: (portfolio_name) => {
-    const endpoint = "/deletePortfolio";
+    const endpoint = "/portfolio/deleteInvestment";
     const options = {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: {
         portfolio_name: portfolio_name,
+        token: Utils.getToken(),
+      },
+    };
+
+    return Utils.getJSON(`${backend_url}${endpoint}`, options);
+  },
+  editPortfolio: (portfolio_name, new_name) => {
+    const endpoint = "/portfolio/editPortfolio";
+    const options = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: {
+        portfolio_name: portfolio_name,
+        new_name: new_name,
         token: Utils.getToken(),
       },
     };

@@ -29,7 +29,7 @@ const StockInfo: React.FC<Props> = (props) => {
   };
 
   return (
-    <Row className="border-bottom border-light my-2 w-100">
+    <Row className="border-bottom border-light my-2 w-100 align-items-center">
       <Col>{stock_name}</Col>
       <Col>{stock_price}</Col>
       <Col>{purchase_date}</Col>
