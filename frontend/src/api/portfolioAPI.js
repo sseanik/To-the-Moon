@@ -15,24 +15,7 @@ const portfolioAPI = {
       }),
     };
 
-    /* return Utils.getJSON(`${backend_url}${endpoint}`, options); */
-    return {
-      name: "Karim Portfolio",
-      stock_info: [
-        {
-          stock_name: "AMZN",
-          stock_price: "$12.00",
-        },
-        {
-          stock_name: "TEAM",
-          stock_price: "$13.00",
-        },
-        {
-          stock_name: "GOOGL",
-          stock_price: "$9.99",
-        },
-      ],
-    };
+    return Utils.getJSON(`${backend_url}${endpoint}`, options);
   },
   getPortfolios: () => {
     // subject to Austin endpoint naming
@@ -43,6 +26,27 @@ const portfolioAPI = {
       body: {
         token: Utils.getToken(),
       },
+    };
+
+    /* return Utils.getJSON(`${backend_url}${endpoint}`, options); */
+    return {
+      portfolios: [
+        {
+          portfolio_name: "Test 1",
+        },
+        {
+          portfolio_name: "Test 2",
+        },
+        {
+          portfolio_name: "Test 3",
+        },
+        {
+          portfolio_name: "Test 4",
+        },
+        {
+          portfolio_name: "Test 5",
+        },
+      ],
     };
   },
   getStocks: (portfolio_name) => {
@@ -55,6 +59,25 @@ const portfolioAPI = {
         portfolio_name: portfolio_name,
         token: Utils.getToken(),
       },
+    };
+
+    /* return Utils.getJSON(`${backend_url}${endpoint}`, options); */
+    return {
+      name: "Karim",
+      stock_info: [
+        {
+          stock_name: "AMZN",
+          stock_price: "$12.00",
+        },
+        {
+          stock_name: "TEAM",
+          stock_price: "$13.00",
+        },
+        {
+          stock_name: "GOOGL",
+          stock_price: "$10.00",
+        },
+      ],
     };
   },
 };

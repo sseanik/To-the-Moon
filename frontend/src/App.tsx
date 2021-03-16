@@ -13,6 +13,7 @@ import {
   CreatePortfolioPage,
 } from "./screens";
 import { Header } from "./components";
+import PortfoliosPage from "./screens/PortfoliosPage";
 
 const initialState = {
   loginUser: {
@@ -46,6 +47,7 @@ function App() {
               <Route path="/about-us" component={AboutUsPage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/signup" component={SignupPage} />
+              <Route path="/portfolios" component={PortfoliosPage} />
             </Switch>
           </Container>
         </BrowserRouter>

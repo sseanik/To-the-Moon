@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Container, Row } from "react-bootstrap";
+import { Alert, Button, Container, Row } from "react-bootstrap";
 import { useParams } from "react-router";
 import portfolioAPI from "../api/portfolioAPI";
+import StockInfo from "../components/StockInfo";
 
 interface Props {
   token?: string;
@@ -14,15 +15,25 @@ interface RouteMatchParams {
 const PortfolioPage: React.FC<Props> = (props) => {
   const { token } = props;
   const [authenticated, setAuthenticated] = useState(false);
-
-  const [stockData, setStockData] = useState("");
-
-  useEffect(() => {
-    // api call
-    //setStockData(/*api return*/);
-    portfolioAPI.getPortfolio(name);
+  const [stockData, setStockData] = useState({
+    name: "",
+    stock_info: [
+      {
+        stock_name: "",
+        stock_price: "",
+      },
+    ],
   });
 
+  useEffect(() => {
+    const fetchStocks = async () => {
+      const stockInfo = portfolioAPI.getStocks(name);
+      setStockData(stockInfo);
+    };
+    fetchStocks();
+  });
+
+  // may be removed soon
   useEffect(() => {
     if (token !== "" || window.localStorage.getItem("Token")) {
       setAuthenticated(true);
@@ -32,14 +43,27 @@ const PortfolioPage: React.FC<Props> = (props) => {
   }, [token]);
 
   const { name } = useParams<RouteMatchParams>();
-  // get token from from redux store
-  // retrieve userID
-  // pass token + userID to backend
+
+  const listStocks = stockData.stock_info.map((stockInfo, id) => (
+    <StockInfo
+      key={id}
+      stock_name={stockInfo.stock_name}
+      stock_price={stockInfo.stock_price}
+    />
+  ));
 
   const allowed = () => (
-    <Row>
-      <p>You have access to {name}</p>
-    </Row>
+    <Container>
+      <Row className="justify-content-center my-3">
+        <h1>{name}</h1>
+      </Row>
+      <Row className="justify-content-center my-3">
+        <Button href="/portfolios" variant="outline-danger">
+          Delete portfolio
+        </Button>
+      </Row>
+      <Container>{listStocks}</Container>
+    </Container>
   );
 
   const denied = () => (
