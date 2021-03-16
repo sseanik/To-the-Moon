@@ -10,6 +10,7 @@ import pandas as pd
 import os
 from collections import OrderedDict
 import datetime
+import pytz
 
 from psycopg2.extras import DictCursor
 import psycopg2.extensions
@@ -26,6 +27,8 @@ DEC2FLOAT = psycopg2.extensions.new_type(
     lambda value, curs: float(value) if value is not None else None)
 psycopg2.extensions.register_type(DEC2FLOAT)
 
+local_tz = pytz.timezone("Australia/Sydney")
+
 ###################################
 # Please leave all functions here #
 ###################################
@@ -34,11 +37,16 @@ def update_stock_value(symbol, data_type="daily_adjusted"):
 
     _, stockmetadata = JSONLoader.load_json(filename)
     dt_format = "%Y-%m-%d %H:%M:%S" if data_type=="intraday" else "%Y-%m-%d"
+    tz_key = "6. Time Zone" if data_type=="intraday" else "5. Time Zone"
+    reference_tz = pytz.timezone(stockmetadata[tz_key] if tz_key in stockmetadata else "US/Eastern")
     date_ref = datetime.datetime.strptime(stockmetadata['3. Last Refreshed'], dt_format)
-    date_today = datetime.datetime.today()
-    date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today-date_ref).days >= 1
+    date_ref_aware = reference_tz.localize(date_ref)
 
-    if date_comp >= 1:
+    date_today = datetime.datetime.today()
+    date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
+    date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
+
+    if date_comp == True:
         ts = TimeSeries(key=AlphaVantageInfo.api_key);
         new_data, new_metadata = ts.get_intraday(symbol) if data_type=="intraday" else ts.get_daily_adjusted(symbol, outputsize='full')
         JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
