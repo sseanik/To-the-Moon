@@ -19,7 +19,8 @@ PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
 def createPortfolio(userID, portfolioName):
     # Check name is within the max length
     if len(portfolioName) >= 30:
-        return 'The portfolio name is too long.'
+        return {'status': 400, 'message': 'The portfolio name is too long.'}
+
     conn = createDBConnection()
     cur = conn.cursor()
     # check that (portfolioName, userID) is unique
@@ -31,9 +32,15 @@ def createPortfolio(userID, portfolioName):
         sqlQuery = "insert into Portfolios (portfolioname, userid) VALUES (%s, %s)"
         cur.execute(sqlQuery, (portfolioName, userID))
         conn.commit()
-        response = 'Portfolio called \'' + portfolioName + '\' has been created.'
+        response = {
+            'status': 200,
+            'message': 'Portfolio called ' + portfolioName + ' has been created.'
+        }
     else:
-        response = 'That name is already in use.'
+        response = {
+            'status': 400,
+            'message': 'There is already a portfolio called ' + portfolioName + '. Try a new name.'
+        }
     # Close connection and return response
     conn.close()
     return response
@@ -146,17 +153,19 @@ def viewInvestment(investmentID):
 ################################
 # Please leave all routes here #
 ################################
-@PORTFOLIO_ROUTES.route('/portfolio/createPortfolio', methods=['GET'])
+@PORTFOLIO_ROUTES.route('/portfolio/createPortfolio', methods=['POST'])
 def createUsersPortolio():
     # Adjust this line to get userID from frontend JSON and not URL    
-    userID = request.args.get('userID')
-    
+    #userID = request.args.get('userID')
+    data = request.get_json()
+    print(data)
+    return dumps({})
     portfolioName = request.args.get('portfolioName')
     response = createPortfolio(userID, portfolioName)
     return dumps({'backend response': response})
 
 
-@PORTFOLIO_ROUTES.route('/portfolio/editPortfolio', methods=['GET'])
+@PORTFOLIO_ROUTES.route('/portfolio/editPortfolio', methods=['PUT'])
 def editUsersPortolio():
     # Adjust this line to get userID from frontend JSON and not URL
     userID = request.args.get('userID')
@@ -164,10 +173,10 @@ def editUsersPortolio():
     oldPortfolioName = request.args.get('oldPortfolioName')
     newPortfolioName = request.args.get('newPortfolioName')
     response = editPortfolio(userID, oldPortfolioName, newPortfolioName)
-    return dumps({'backend response': response})
+    return dumps(response)
 
 
-@PORTFOLIO_ROUTES.route('/portfolio/deletePortfolio', methods=['GET'])
+@PORTFOLIO_ROUTES.route('/portfolio/deletePortfolio', methods=['DELETE'])
 def deleteUsersPortolio():
     # Adjust this line to get userID from frontend JSON and not URL
     userID = request.args.get('userID')
@@ -177,13 +186,13 @@ def deleteUsersPortolio():
     return dumps({'backend response': response})
 
 
-@PORTFOLIO_ROUTES.route('/portfolio/addInvestment', methods=['GET'])
+@PORTFOLIO_ROUTES.route('/portfolio/addInvestment', methods=['POST'])
 def addInvestmentToPortolio():
     # Finish this when database is completed
     # This needs to be tested
     return dumps()
 
-@PORTFOLIO_ROUTES.route('/portfolio/deleteInvestment', methods=['GET'])
+@PORTFOLIO_ROUTES.route('/portfolio/deleteInvestment', methods=['DELETE'])
 def deleteInvestmentFromPortolio():
     # Finish this when database is completed
     # This needs to be tested
