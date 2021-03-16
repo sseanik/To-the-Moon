@@ -8,7 +8,7 @@ interface Props {
 const PortfolioInfo: React.FC<Props> = (props) => {
   const { portfolio_name } = props;
   return (
-    <Col className="border rounded mx-1 py-3 align-middle">
+    <Col className="border rounded mx-1 p-5 align-middle">
       <p className="m-0">{portfolio_name}</p>
       <a href={`/portfolio/${portfolio_name}`} className="stretched-link" />
     </Col>
