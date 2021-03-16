@@ -14,46 +14,43 @@ PASS = os.getenv("DBPASS")
 def createDBConnection():
     try:
         conn = psycopg2.connect(host=ENDPOINT, port=PORT, database=DBNAME, user=USER, password=PASS)
+        #cur = conn.cursor()
+        #selectQuery = "SELECT 5;"
+        #cur.execute(selectQuery)
+        #query_results = cur.fetchall()
+        #print(query_results)
         return conn
+
     except Exception as e:
         print("Database connection failed due to {}".format(e))
+
 
 def createPortfolioTable():
     conn = createDBConnection()
     cur = conn.cursor()
-    cur.execute(open("tables/Portfolio.sql", "r").read())
+    cur.execute(open("Tables/Portfolio.sql", "r").read())
     conn.commit()
     conn.close()
 
-def createUserTable():
+def createHoldingsTable():
     conn = createDBConnection()
     cur = conn.cursor()
-    cur.execute(open("tables/User.sql", "r").read())
+    cur.execute(open("Tables/Holdings.sql", "r").read())
     conn.commit()
     conn.close()
 
-# def insertGarbage():
-#     conn = createDBConnection()
-#     cur = conn.cursor()
-#     insertQuery = "INSERT INTO Portfolio (portfolioname, userid) VALUES (%s, %s)"
-#     cur.execute(insertQuery, ("Austin", 4))
-#     conn.commit()
-#     conn.close()
-def insertExample():
+def insertGarbage():
     conn = createDBConnection()
     cur = conn.cursor()
     insertQuery = "INSERT INTO Portfolio (portfolioname, userid) VALUES (%s, %s)"
     cur.execute(insertQuery, ("Austin", 4))
+    cur.execute(insertQuery, ("Bob", 2))
     conn.commit()
     conn.close()
 
-def selectExample():
-    conn = createDBConnection()
-    cur = conn.cursor()
-    cur.execute("""SELECT now()""")
-    query_results = cur.fetchall()
-    print(query_results)
-    conn.close()
+if __name__ == "__main__":
+    createDBConnection()
+    createPortfolioTable()
+    createHoldingsTable()
 
-if __name__ == "_main_":
-    selectExample()
+    insertGarbage()
