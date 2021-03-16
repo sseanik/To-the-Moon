@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS Portfolio (
-    PortfolioID UUID NOT NULL DEFAULT uuid_generate_v1() PRIMARY KEY,
     PortfolioName VARCHAR(30),
-    UserID INT
+    UserID INT,
+    PRIMARY KEY(PortfolioName, UserID)
 );
