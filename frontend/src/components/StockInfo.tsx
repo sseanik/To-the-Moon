@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Row, Col } from "react-bootstrap";
+import stockAPI from "../api/stockAPI";
 
 interface Props {
   stock_name: string;
@@ -7,6 +8,7 @@ interface Props {
   purchase_date: string;
   purchase_price: string;
   num_shares: string;
+  portfolio_name: string;
 }
 
 const StockInfo: React.FC<Props> = (props) => {
@@ -16,10 +18,14 @@ const StockInfo: React.FC<Props> = (props) => {
     purchase_date,
     purchase_price,
     num_shares,
+    portfolio_name,
   } = props;
 
   const handleDeleteStockClick = () => {
-    const deleteStock = async () => {};
+    const deleteStock = async () => {
+      stockAPI.deleteStock(portfolio_name, stock_name);
+    };
+    deleteStock();
   };
 
   return (

@@ -28,6 +28,7 @@ const PortfolioPage: React.FC<Props> = (props) => {
       },
     ],
   });
+  const [addingStock, setAddingStock] = useState(false);
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -49,6 +50,7 @@ const PortfolioPage: React.FC<Props> = (props) => {
   const listStocks = stockData.stock_info.map((stockInfo, id) => (
     <StockInfo
       key={id}
+      portfolio_name={name}
       stock_name={stockInfo.stock_name}
       stock_price={stockInfo.stock_price}
       purchase_date={stockInfo.purchase_date}
@@ -56,6 +58,10 @@ const PortfolioPage: React.FC<Props> = (props) => {
       num_shares={stockInfo.num_shares}
     />
   ));
+
+  const handleAddStockClick = () => {
+    setAddingStock(true);
+  };
 
   const handleDeletePortfolioClick = () => {
     const deletePortfolio = async () => {
@@ -78,7 +84,7 @@ const PortfolioPage: React.FC<Props> = (props) => {
           Delete Portfolio
         </Button>
       </Row>
-      <Row className="border-bottom border-secondary my-2 w-100 font-weight-bold">
+      <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
         <Col>Stock Name</Col>
         <Col>Stock Price</Col>
         <Col>Purchase Date</Col>
@@ -87,6 +93,20 @@ const PortfolioPage: React.FC<Props> = (props) => {
         <Col>Delete Stock</Col>
       </Row>
       <Container fluid>{listStocks}</Container>
+      <Row className="justify-content-start">
+        <Col>
+          <Button variant="primary" onClick={handleAddStockClick}>
+            Add Stock
+          </Button>
+        </Col>
+        {addingStock ? (
+          <Col>
+            <p>adding stock</p>
+          </Col>
+        ) : (
+          <></>
+        )}
+      </Row>
     </Container>
   );
 
