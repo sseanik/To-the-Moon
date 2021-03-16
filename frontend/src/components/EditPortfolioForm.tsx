@@ -48,9 +48,15 @@ const EditPortfolioForm: React.FC<Props> = (props) => {
               onChange={handleChange}
               isInvalid={!!errors.portfolioName}
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.portfolioName}
-            </Form.Control.Feedback>
+            {errors.portfolioName ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.portfolioName}
+              </Form.Control.Feedback>
+            ) : (
+              <Form.Text className="text-muted">
+                Portfolio name must be unique.
+              </Form.Text>
+            )}
 
             <Button type="submit" variant="outline-success" className="my-2">
               Change Name
