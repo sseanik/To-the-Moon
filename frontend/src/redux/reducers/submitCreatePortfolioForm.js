@@ -14,7 +14,7 @@ const initialState = {
 };
 
 const validateCreatePortfolio = (payload) => {
-  const { name, userID } = payload;
+  const { name } = payload;
   const errors = {
     name: "",
     userID: "",

@@ -7,21 +7,6 @@ const initialState = {
   },
 };
 
-const validateName = (payload) => {
-  const { name } = payload;
-  const errors = {
-    name: "",
-  };
-
-  if (!name && name.length === 0) {
-    errors.name = "Name is required";
-  } else if (name.length > 30) {
-    errors.name = "Name must be less than 30 characters";
-  }
-
-  return errors;
-};
-
 const createPortfolio = (state = initialState, action) => {
   switch (action.type) {
     case portfolioConstants.CREATE_PORTFOLIO_PENDING:

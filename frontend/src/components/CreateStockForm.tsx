@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
+import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
+import stockActions from "../redux/actions/stockActions";
 
-interface CreateStockParams {
+interface CreateStockFormParams {
   portfolioName: string;
   stockName: string;
   userID: string;
 }
 
 interface CreateStockState {
-  values: CreateStockParams;
-  errors: CreateStockParams;
+  values: CreateStockFormParams;
+  errors: CreateStockFormParams;
 }
 
 interface StateProps {
@@ -21,8 +23,8 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  submitForm: (payload: CreateStockParams) => void;
-  createStock: (payload: CreateStockParams) => void;
+  submitForm: (payload: CreateStockFormParams) => void;
+  createStock: (payload: CreateStockFormParams) => void;
 }
 
 interface Props {
@@ -103,10 +105,12 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => {
   return {
     submitForm: (formPayload: CreateStockFormParams) => {
-      dispatch(portfolioActions.submitCreatePortfolioForm(formPayload));
+      dispatch(stockActions.submitCreateStockForm(formPayload));
     },
-    createPortfolio: (formPayload: CreateStockFormParams) => {
-      dispatch(portfolioActions.createPortfolio(formPayload));
+    createStock: (formPayload: CreateStockFormParams) => {
+      dispatch(stockActions.createStock(formPayload));
     },
   };
 };
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateStockForm);
