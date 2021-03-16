@@ -7,19 +7,31 @@ import {
       Col
     } from "react-bootstrap";
 
-interface Props {
-
+interface BalanceSheetEntry {
+  fiscaldateending: string;
+  total_assets: number;
+  total_curr_assets: number;
+  total_ncurr_assets: number;
+  total_liabilities: number;
+  total_curr_liabilities: number;
+  total_ncurr_liabilities: number;
+  total_equity: number;
 }
 
-var formatMap = new Map();
-formatMap.set('fiscaldateending', {name: "Year Ending"});
-formatMap.set('total_assets', {name: "Total Assets"});
-formatMap.set('total_curr_assets', {name: "Total Current Assets"});
-formatMap.set('total_ncurr_assets', {name: "Total Non-Current Assets"});
-formatMap.set('total_liabilities', {name: "Total Liabilities"});
-formatMap.set('total_curr_liabilities', {name: "Total Current Liabilities"});
-formatMap.set('total_ncurr_liabilities', {name: "Total Non-Current Liabilities"});
-formatMap.set('total_equity', {name: "Total Equity"});
+interface Props {
+  balanceSheet: Array<BalanceSheetEntry>;
+}
+
+var formatMap = {
+  fiscaldateending: {name: "Year Ending"},
+  total_assets: {name: "Total Assets"},
+  total_curr_assets: {name: "Total Current Assets"},
+  total_ncurr_assets: {name: "Total Non-Current Assets"},
+  total_liabilities: {name: "Total Liabilities"},
+  total_curr_liabilities: {name: "Total Current Liabilities"},
+  total_ncurr_liabilities: {name: "Total Non-Current Liabilities"},
+  total_equity: {name: "Total Equity"},
+}; 
 
 const DataBalanceSheet: React.FC<Props> = (props) => {
   var { balanceSheet } = props;
@@ -35,7 +47,7 @@ const DataBalanceSheet: React.FC<Props> = (props) => {
               <Row lg={6}>
                 <Col className="text-left" lg={6}>
                   <span>
-                    <b>{formatMap.get(field).name}</b>
+                    <b>{formatMap[field].name}</b>
                   </span>
                 </Col>
                 <Col className="text-right" lg={6}>

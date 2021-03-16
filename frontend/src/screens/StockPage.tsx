@@ -8,7 +8,7 @@ import {  Container,
           Button
         } from "react-bootstrap";
 
-import RangeSelectorOptions from "../components/RangeSelectorOptions";
+import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
 
 import DataSummary, { summaryDataT, defaultSummaryData } from "../components/DataSummary";
 import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "../components/DataFundamentals";
@@ -16,22 +16,17 @@ import DataIncomeStatement from "../components/DataIncomeStatement";
 import DataBalanceSheet from "../components/DataBalanceSheet";
 import DataCashFlow from "../components/DataCashFlow";
 
-// import { render } from 'react-dom';
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 
 import Actions from "../redux/actions/stock";
-
-interface Props {
-  // declare props types here
-}
 
 interface graphOptionsT {
   title: { text: string };
   series: Array<{ name: string, data: Array<Array<number>> }>;
 }
 
-const StockPage: React.FC<Props> = (props) => {
+const StockPage: React.FC = () => {
   var routeMatch = useRouteMatch();
   var symbol = routeMatch.params.symbol;
 

@@ -6,5 +6,5 @@ settings.json
 backend/src/__pycache__/
 
 venv/*
-*.json
+demo/*.json
 backend/src/.env

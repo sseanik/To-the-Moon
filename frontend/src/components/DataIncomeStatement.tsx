@@ -7,24 +7,41 @@ import {
           Col
         } from "react-bootstrap";
 
-interface Props {
-
+interface IncomeStatementEntry {
+  stockticker: string;
+  fiscaldateending: string;
+  totalrevenue: string;
+  costofrevenue: string;
+  grossprofit: string;
+  operatingexpenses: string;
+  operatingincome: string;
+  incomebeforetax: string;
+  interestincome: string;
+  netinterestincome: string;
+  ebit: string;
+  ebitda: string;
+  netincome: string;
 }
 
-var formatMap = new Map();
-formatMap.set('stockticker', {name: "Company Symbol"});
-formatMap.set('fiscaldateending', {name: "Year Ending"});
-formatMap.set('totalrevenue', {name: "Total Revenue"});
-formatMap.set('costofrevenue', {name: "Cost of Revenue"});
-formatMap.set('grossprofit', {name: "Gross Profit"});
-formatMap.set('operatingexpenses', {name: "Operating Expenses"});
-formatMap.set('operatingincome', {name: "Operating Income"});
-formatMap.set('incomebeforetax', {name: "Income Before Tax"});
-formatMap.set('interestincome', {name: "Interest Income"});
-formatMap.set('netinterestincome', {name: "Net Interest Income"});
-formatMap.set('ebit', {name: "EBIT"});
-formatMap.set('ebitda', {name: "EBITDA"});
-formatMap.set('netincome', {name: "Net Income"});
+interface Props {
+  incomeStatement: Array<IncomeStatementEntry>;
+}
+
+var formatMap = {
+  stockticker: {name: "Company Symbol"},
+  fiscaldateending: {name: "Year Ending"},
+  totalrevenue: {name: "Total Revenue"},
+  costofrevenue: {name: "Cost of Revenue"},
+  grossprofit: {name: "Gross Profit"},
+  operatingexpenses: {name: "Operating Expenses"},
+  operatingincome: {name: "Operating Income"},
+  incomebeforetax: {name: "Income Before Tax"},
+  interestincome: {name: "Interest Income"},
+  netinterestincome: {name: "Net Interest Income"},
+  ebit: {name: "EBIT"},
+  ebitda: {name: "EBITDA"},
+  netincome: {name: "Net Income"},
+}; 
 
 const DataIncomeStatement: React.FC<Props> = (props) => {
   var { incomeStatement } = props;
@@ -40,7 +57,7 @@ const DataIncomeStatement: React.FC<Props> = (props) => {
               <Row lg={6}>
                 <Col className="text-left" lg={6}>
                   <span>
-                    <b>{formatMap.get(field).name}</b>
+                    <b>{formatMap[field].name}</b>
                   </span>
                 </Col>
                 <Col className="text-right" lg={6}>

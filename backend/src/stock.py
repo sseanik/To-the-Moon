@@ -7,6 +7,7 @@ from flask import Blueprint, request
 
 from json import dumps
 import pandas as pd
+import sys
 import os
 from collections import OrderedDict
 import datetime
@@ -50,10 +51,13 @@ def update_stock_value(symbol, data_type="daily_adjusted"):
     date_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
     dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
 
-    if date_comp and date_constraint and dow_constraint:
-        ts = TimeSeries(key=AlphaVantageInfo.api_key)
-        new_data, new_metadata = ts.get_intraday(symbol, outputsize='full') if data_type=="intraday" else ts.get_daily_adjusted(symbol, outputsize='full')
-        JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
+    try:
+        if date_comp and date_constraint and dow_constraint:
+            ts = TimeSeries(key=AlphaVantageInfo.api_key)
+            new_data, new_metadata = ts.get_intraday(symbol, outputsize='full') if data_type=="intraday" else ts.get_daily_adjusted(symbol, outputsize='full')
+            JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
+    except ValueError as e:
+        print(f"Error encountered: {e}", file=sys.stderr)
 
 def get_stock_value(filename, data_type="daily_adjusted"):
     """

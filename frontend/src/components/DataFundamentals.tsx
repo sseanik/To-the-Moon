@@ -37,17 +37,18 @@ interface Props {
   fundamentalData: fundamentalDataT;
 }
 
-var formatMap = new Map();
-formatMap.set('stockname', {name: "Company Name"});
-formatMap.set('exchange', {name: "Exchange"});
-formatMap.set('currency', {name: "Currency"});
-formatMap.set('yearlylow', {name: "Year Low"});
-formatMap.set('yearlyhigh', {name: "Year High"});
-formatMap.set('marketcap', {name: "Market Capitalisation"});
-formatMap.set('beta', {name: "Beta"});
-formatMap.set('peratio', {name: "PE Ratio"});
-formatMap.set('eps', {name: "EPS"});
-formatMap.set('dividendyield', {name: "Dividend Yield"});
+var formatMap = {
+  stockname: {name: "Company Name"},
+  exchange: {name: "Exchange"},
+  currency: {name: "Currency"},
+  yearlylow: {name: "Year Low"},
+  yearlyhigh: {name: "Year High"},
+  marketcap: {name: "Market Capitalisation"},
+  beta: {name: "Beta"},
+  peratio: {name: "PE Ratio"},
+  eps: {name: "EPS"},
+  dividendyield: {name: "Dividend Yield"},
+};
 
 const DataFundamentals: React.FC<Props> = (props) => {
   var { fundamentalData } = props;
@@ -61,7 +62,7 @@ const DataFundamentals: React.FC<Props> = (props) => {
             <Row lg={6}>
               <Col className="text-left" lg={6}>
                 <span>
-                  <b>{formatMap.get(field) ? formatMap.get(field).name : field}</b>
+                  <b>{formatMap[field] ? formatMap[field].name : field}</b>
                 </span>
               </Col>
               <Col className="text-right" lg={6}>

@@ -34,15 +34,16 @@ interface Props {
   summaryData: summaryDataT;
 }
 
-var formatMap = new Map();
-formatMap.set('previous_close', {name: "Previous Close"});
-formatMap.set('open', {name: "Open"});
-formatMap.set('day_min', {name: "Daily Low"});
-formatMap.set('day_max', {name: "Daily High"});
-formatMap.set('year_min', {name: "Yearly Low"});
-formatMap.set('year_max', {name: "Yearly High"});
-formatMap.set('volume', {name: "Volume"});
-formatMap.set('average_volume', {name: "Average Volume"});
+var formatMap = {
+  previous_close: {name: "Previous Close"},
+  open: {name: "Open"},
+  day_min: {name: "Daily Low"},
+  day_max: {name: "Daily High"},
+  year_min: {name: "Yearly Low"},
+  year_max: {name: "Yearly High"},
+  volume: {name: "Volume"},
+  average_volume: {name: "Average Volume"},
+};
 
 const DataSummary: React.FC<Props> = (props) => {
   var { summaryData } = props;
@@ -57,7 +58,7 @@ const DataSummary: React.FC<Props> = (props) => {
             <Row lg={6}>
               <Col className="text-left" lg={6}>
                 <span>
-                  <b>{formatMap.get(field) ? formatMap.get(field).name : field}</b>
+                  <b>{formatMap[field] ? formatMap[field].name : field}</b>
                 </span>
               </Col>
               <Col className="text-right" lg={6}>
