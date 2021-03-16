@@ -23,14 +23,13 @@ DEFAULT_NUM_ARTICLES = 10
 # Please leave all functions here #
 ###################################
 
-# Given a stock symbol, return a list of news articles related to that stock
+# Given a stock symbol, return a list with articleCount amount of news articles related to that stock
 def getStockNews(stockSymbol, articleCount):
     url = "https://finnhub.io/api/v1/company-news"
     # Only gather stocks ranging from a week old
     todaysDate = datetime.today().strftime('%Y-%m-%d')
     weekAgoDate = (datetime.today() - timedelta(days = 7)).strftime('%Y-%m-%d')
     querystring = {"symbol": stockSymbol, "from": weekAgoDate, "to": todaysDate, "token": NEWS_API_TOKEN}
-
     response = requests.request("GET", url, params=querystring)
     if response.status_code == 200:
         return {
@@ -43,10 +42,10 @@ def getStockNews(stockSymbol, articleCount):
             'articles': []
         }
 
-# Given a list of stock symbol, return a list of news articles related to that stock
+# Given a list of stock symbols, return a list of numArticles amount of related news articles
 def getPortfolioNews(stockSymbols, numArticles):
     uniqueStocks = set(stockSymbols)
-    # Either have 1 news article related to each stock, or rougly around 10 in total
+    # Either have 1 news article related to each stock, or rougly around numArticles in total
     articleCount = 1 if round(numArticles / len(uniqueStocks)) == 0 else round(numArticles / len(uniqueStocks))
     newsArticles = []
     for symbol in uniqueStocks:
@@ -62,14 +61,11 @@ def getPortfolioNews(stockSymbols, numArticles):
             'articles': newsArticles
         }
 
-# Return a list of general finance news articles
+# Given a number of articles, return a list of general finance news articles
 def getGeneralNews(numArticles):
-
     url = "https://finnhub.io/api/v1/news"
-    querystring = {"category": "technology", "token": NEWS_API_TOKEN}
-
+    querystring = {"category": "general", "token": NEWS_API_TOKEN}
     response = requests.request("GET", url, params=querystring)
-
     if response.status_code == 200:
         return {
             'status': response.status_code,
