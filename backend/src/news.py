@@ -17,39 +17,16 @@ import os
 load_dotenv()
 NEWS_API_TOKEN = os.getenv("NEWS_TOKEN")
 NEWS_ROUTES = Blueprint('news', __name__)
+DEFAULT_NUM_ARTICLES = 10
 
 ###################################
 # Please leave all functions here #
 ###################################
 
-# # 21 Requests an hour, Max 5 a page
-# def newscatcherStocks(stock):
-#     url = "https://newscatcher.p.rapidapi.com/v1/stocks"
-#     querystring = {"ticker":stock,"lang":"en","media":"True","sort_by":"relevancy"}
-#     headers = {
-#         'x-rapidapi-key': "e8c9372167mshaf8fba383452116p18aad9jsn626f2b72def6",
-#         'x-rapidapi-host': "newscatcher.p.rapidapi.com"
-#         }
-#     response = requests.request("GET", url, headers=headers, params=querystring)
-#     print(response.json()['articles'][4])
-
-# # 21 Requests an hour
-# def newscatcherSearchFree(stock):
-#     url = "https://newscatcher.p.rapidapi.com/v1/search_free"
-
-#     querystring = {"q":stock,"lang":"en","media":"True"}
-
-#     headers = {
-#         'x-rapidapi-key': "e8c9372167mshaf8fba383452116p18aad9jsn626f2b72def6",
-#         'x-rapidapi-host': "newscatcher.p.rapidapi.com"
-#         }
-
-#     response = requests.request("GET", url, headers=headers, params=querystring)
-#     print(response.json()['articles'][4])
-
-# 60 Requests per minute, 1 year historical news
-def getStockNews(stockSymbol):
+# Given a stock symbol, return a list of news articles related to that stock
+def getStockNews(stockSymbol, articleCount):
     url = "https://finnhub.io/api/v1/company-news"
+    # Only gather stocks ranging from a week old
     todaysDate = datetime.today().strftime('%Y-%m-%d')
     weekAgoDate = (datetime.today() - timedelta(days = 7)).strftime('%Y-%m-%d')
     querystring = {"symbol": stockSymbol, "from": weekAgoDate, "to": todaysDate, "token": NEWS_API_TOKEN}
@@ -58,7 +35,7 @@ def getStockNews(stockSymbol):
     if response.status_code == 200:
         return {
             'status': response.status_code,
-            'articles': response.json()[:10]
+            'articles': response.json()[:articleCount]
         }
     else:
         return {
@@ -66,8 +43,43 @@ def getStockNews(stockSymbol):
             'articles': []
         }
 
-def getPortfolioNews(portfolioName):
-    pass
+# Given a list of stock symbol, return a list of news articles related to that stock
+def getPortfolioNews(stockSymbols, numArticles):
+    uniqueStocks = set(stockSymbols)
+    # Either have 1 news article related to each stock, or rougly around 10 in total
+    articleCount = 1 if round(numArticles / len(uniqueStocks)) == 0 else round(numArticles / len(uniqueStocks))
+    newsArticles = []
+    for symbol in uniqueStocks:
+        newsArticles += getStockNews(symbol, articleCount)['articles']
+    if len(newsArticles) == articleCount * len(uniqueStocks):
+        return {
+            'status': 200,
+            'articles': newsArticles
+        }
+    else:
+        return {
+            'status': 500,
+            'articles': newsArticles
+        }
+
+# Return a list of general finance news articles
+def getGeneralNews(numArticles):
+
+    url = "https://finnhub.io/api/v1/news"
+    querystring = {"category": "technology", "token": NEWS_API_TOKEN}
+
+    response = requests.request("GET", url, params=querystring)
+
+    if response.status_code == 200:
+        return {
+            'status': response.status_code,
+            'articles': response.json()[:int(numArticles)]
+        }
+    else:
+        return {
+            'status': response.status_code,
+            'articles': []
+        }
 
 ################################
 # Please leave all routes here #
@@ -76,9 +88,14 @@ def getPortfolioNews(portfolioName):
 @NEWS_ROUTES.route('/news', methods=['GET'])
 def getSingularStockNews():
     stockSymbol = request.args.get('symbol')
-    return dumps(getStockNews(stockSymbol))
+    return dumps(getStockNews(stockSymbol, DEFAULT_NUM_ARTICLES))
 
-@NEWS_ROUTES.route('/portfolio/news', methods=['GET'])
+@NEWS_ROUTES.route('/news/portfolio', methods=['GET'])
 def getPortfolioStockNews():
-    portfolioName = request.args.get('portfolio')
-    return dumps(getPortfolioNews(portfolioName))
+    data = request.get_json()
+    return dumps(getPortfolioNews(data['stocks'], DEFAULT_NUM_ARTICLES))
+
+@NEWS_ROUTES.route('/news/general', methods=['GET'])
+def getGeneralStockNews():
+    numArticles = request.args.get('count')
+    return dumps(getGeneralNews(numArticles))
