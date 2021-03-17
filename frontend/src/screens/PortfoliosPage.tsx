@@ -10,17 +10,12 @@ interface Props {
 const PortfoliosPage: React.FC<Props> = (props) => {
   const { token } = props;
   const [authenticated, setAuthenticated] = useState(false);
-  const [portfolioList, setPortfolioList] = useState({
-    portfolios: [{ portfolio_name: "" }],
-  });
+  const [portfolioList, setPortfolioList] = useState<Array<string>>([]);
 
   useEffect(() => {
-    const fetchStocks = async () => {
-      const portfolios = portfolioAPI.getPortfolios();
-      setPortfolioList(portfolios);
-    };
-    fetchStocks();
-  });
+    portfolioAPI.getPortfolios()
+      .then((portfolios) => { console.log(portfolios); setPortfolioList(portfolios.data)});
+  }, []);
 
   // may be removed soon
   useEffect(() => {
@@ -31,8 +26,8 @@ const PortfoliosPage: React.FC<Props> = (props) => {
     }
   }, [token]);
 
-  const listPortfolios = portfolioList.portfolios.map((portfolio, id) => (
-    <PortfolioInfo key={id} portfolio_name={portfolio.portfolio_name} />
+  const listPortfolios = portfolioList.map((portfolio, id) => (
+    <PortfolioInfo key={id} portfolio_name={portfolio} />
   ));
 
   const allowed = () => (

@@ -5,12 +5,10 @@ const initialState = {
     values: {
       portfolioName: "",
       stockName: "",
-      userID: "",
     },
     errors: {
       portfolioName: "",
       stockName: "",
-      userID: "",
     },
   },
 };
@@ -19,13 +17,12 @@ const validateCreateStock = (payload) => {
   const { stockName } = payload;
   const errors = {
     stockName: "",
-    userID: "",
   };
 
   if (!stockName && stockName.length === 0) {
     errors.stockName = "Stock name is required";
-  } else if (stockName.length < 4) {
-    errors.stockName = "Stock name must be at least 4 characters";
+  } else if (stockName.length < 3) {
+    errors.stockName = "Stock name must be at least 3 characters";
   }
 
   return errors;

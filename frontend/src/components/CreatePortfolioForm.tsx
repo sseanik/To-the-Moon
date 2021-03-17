@@ -6,7 +6,6 @@ import portfolioActions from "../redux/actions/portfolioActions";
 
 interface CreatePortfolioFormParams {
   name: string;
-  userID: string;
 }
 
 interface CreatePortfolioState {
@@ -36,16 +35,15 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
     createPortfolio,
   } = props;
   // purposely input dummy data
-  const userID = "b1c88e2c-82fb-11eb-aa00-0a4e2d6dea13";
   const [name, setName] = useState("");
 
   const onSubmit = (e: any) => {
     e.preventDefault();
-    createPortfolio({ name, userID });
+    createPortfolio({ name });
   };
 
   const onBlur = () => {
-    submitForm({ name, userID });
+    submitForm({ name });
   };
 
   const formComponent = (

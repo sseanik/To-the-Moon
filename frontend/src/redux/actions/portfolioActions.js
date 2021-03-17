@@ -21,8 +21,8 @@ const portfolioActions = {
     return async (dispatch) => {
       dispatch(portfolioActions.createPortfolioPending());
       try {
-        const { name, userID } = payload;
-        const res = await portfolioAPI.createPortfolio(name, userID);
+        const { name } = payload;
+        const res = await portfolioAPI.createPortfolio(name);
         setTimeout(() => {
           dispatch(portfolioActions.createPortfolioSuccess(res));
         }, 2500);

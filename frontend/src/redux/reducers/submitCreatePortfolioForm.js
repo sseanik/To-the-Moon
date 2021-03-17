@@ -4,11 +4,9 @@ const initialState = {
   createPortfolioForm: {
     values: {
       name: "",
-      userID: "",
     },
     errors: {
       name: "",
-      userID: "",
     },
   },
 };
@@ -17,7 +15,6 @@ const validateCreatePortfolio = (payload) => {
   const { name } = payload;
   const errors = {
     name: "",
-    userID: "",
   };
 
   if (!name && name.length === 0) {

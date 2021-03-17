@@ -14,32 +14,29 @@ interface RouteMatchParams {
   name: string;
 }
 
+interface StockInfo {
+  NumShares: number
+  PurchaseDate: string;
+  PurchasePrice: string;
+  StockTicker: string;
+  TotalChange: number;
+}
+
 const PortfolioPage: React.FC<Props> = (props) => {
   const { token } = props;
   const { name } = useParams<RouteMatchParams>();
   const [authenticated, setAuthenticated] = useState(false);
   const [addingStock, setAddingStock] = useState(false);
   const [editingPortfolio, setEditingPortfolio] = useState(false);
-  const [stockData, setStockData] = useState({
-    name: "",
-    stock_info: [
-      {
-        stock_name: "",
-        stock_price: "",
-        purchase_date: "",
-        purchase_price: "",
-        num_shares: "",
-      },
-    ],
-  });
+  const [stockData, setStockData] = useState<Array<StockInfo>>([]);
 
   useEffect(() => {
-    const fetchStocks = async () => {
-      const stockInfo = await portfolioAPI.getStocks(name);
-      setStockData(stockInfo);
-    };
-    fetchStocks();
-  }, [name]);
+    portfolioAPI.getStocks(name)
+      .then(portfolioStocks => {
+        console.log(portfolioStocks.data)
+        setStockData(portfolioStocks.data);
+      })
+  }, []);
 
   // may be removed soon
   useEffect(() => {
@@ -50,15 +47,11 @@ const PortfolioPage: React.FC<Props> = (props) => {
     }
   }, [token]);
 
-  const listStocks = stockData.stock_info.map((stockInfo, id) => (
+  const listStocks = stockData.map((stockInfo, id) => (
     <StockInfo
       key={id}
       portfolio_name={name}
-      stock_name={stockInfo.stock_name}
-      stock_price={stockInfo.stock_price}
-      purchase_date={stockInfo.purchase_date}
-      purchase_price={stockInfo.purchase_price}
-      num_shares={stockInfo.num_shares}
+      {...stockInfo}
     />
   ));
 
@@ -77,10 +70,10 @@ const PortfolioPage: React.FC<Props> = (props) => {
       <Row></Row>
       <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
         <Col>Stock Name</Col>
-        <Col>Stock Price</Col>
+        <Col># Shares</Col>
         <Col>Purchase Date</Col>
         <Col>Purchase Price</Col>
-        <Col># Shares</Col>
+        <Col>Total Change</Col>
         <Col>Delete Stock</Col>
       </Row>
       <Container fluid>{listStocks}</Container>
