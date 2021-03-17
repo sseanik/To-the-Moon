@@ -48,6 +48,7 @@ def createUserTable():
     conn.commit()
     conn.close()
 
+<<<<<<< HEAD
 def createSecuritiesOverviewTable():
     conn = createDBConnection()
     cur = conn.cursor()
@@ -270,3 +271,11 @@ if __name__ == "__main__":
 
     #fillOverviewAndFinancialTables('IBM')
 
+=======
+if __name__ == "__main__":
+    createDBConnection()
+    createPortfolioTable()
+    createHoldingsTable()
+
+    insertGarbage()
+>>>>>>> fd59df24f7eef12374de988cb8defbdd6790c3b5

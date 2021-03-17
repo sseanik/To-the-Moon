@@ -7,6 +7,7 @@ import { ToastContainer } from 'react-toastify';
 import {
   LandingPage,
   SignupPage,
+  StockPage,
   LoginPage,
   AboutUsPage,
 } from "./screens";
@@ -42,6 +43,7 @@ function App() {
               <Route path="/about-us" component={AboutUsPage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/signup" component={SignupPage} />
+              <Route path="/stock/:symbol" component={StockPage} />
             </Switch>
           </Container>
         </BrowserRouter>
