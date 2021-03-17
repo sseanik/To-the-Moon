@@ -80,7 +80,7 @@ const CreateStockForm: React.FC<StateProps & DispatchProps & Props> = (
       </Form.Group>
 
       <Button variant="primary" type="submit">
-        Add Stock
+        Add Investment
       </Button>
     </Form>
   );
