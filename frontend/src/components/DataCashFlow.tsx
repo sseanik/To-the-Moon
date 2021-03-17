@@ -1,18 +1,24 @@
 import React from "react";
 
 import {
-          Container,
-          Table,
-          Row,
-          Col
-        } from "react-bootstrap";
+  Container,
+  Row,
+  Col
+} from "react-bootstrap";
+
+interface IObjectKeys {
+  [key: string]: AttributeValues;
+}
+
+interface AttributeValues {
+  name: string;
+}
 
 interface CashFlowEntry {
   stockticker: string;
   fiscaldateending: string;
   operatingcashflow: string;
   paymentsforoperatingactivities: string;
-  operatingcashflow: string;
   changeinoperatingliabilities: string;
   changeinoperatingassets: string;
   depreciationdepletionandamortization: string;
@@ -26,13 +32,12 @@ interface CashFlowEntry {
 }
 
 interface Props {
-  cashFlow: Array<cashFlowEntry>;
+  cashFlow: Array<CashFlowEntry>;
 }
 
-var formatMap = {
+const formatMap: IObjectKeys = {
   stockticker: {name: "Company Symbol"},
   fiscaldateending: {name: "Year Ending"},
-  operatingcashflow: {name: "Operating Cash Flow"},
   paymentsforoperatingactivities: {name: "Payments for Operating Activities"},
   operatingcashflow: {name: "Operating Cash Flow"},
   changeinoperatingliabilities: {name: "Change in Operating Liabilities"},

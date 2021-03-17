@@ -1,11 +1,11 @@
 import React from "react";
 
 import {
-      Container,
-      Table,
-      Row,
-      Col
-    } from "react-bootstrap";
+  Container,
+  Table,
+  Row,
+  Col
+} from "react-bootstrap";
 
 interface BalanceSheetEntry {
   fiscaldateending: string;
@@ -18,11 +18,19 @@ interface BalanceSheetEntry {
   total_equity: number;
 }
 
+interface IObjectKeys {
+  [key: string]: AttributeValues;
+}
+
+interface AttributeValues {
+  name: string;
+}
+
 interface Props {
   balanceSheet: Array<BalanceSheetEntry>;
 }
 
-var formatMap = {
+const formatMap: IObjectKeys = {
   fiscaldateending: {name: "Year Ending"},
   total_assets: {name: "Total Assets"},
   total_curr_assets: {name: "Total Current Assets"},
@@ -34,7 +42,7 @@ var formatMap = {
 }; 
 
 const DataBalanceSheet: React.FC<Props> = (props) => {
-  var { balanceSheet } = props;
+  const { balanceSheet } = props;
 
   return (
     <Container>

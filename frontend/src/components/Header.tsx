@@ -51,7 +51,7 @@ const Header: React.FC<Props> = (props) => {
   );
 
   return (
-    <Navbar bg="light" expand="lg">
+    <Navbar bg="dark" expand="lg" variant="dark">
       <Navbar.Brand href="/">To The Moon</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">

@@ -14,4 +14,8 @@ Formatted and polished the final proposal and submitted it on Sunday evening.
 
 Week 4
 
-Set up frontend with Karim. Started working on Login/Signup screens and Header bar.
+Set up frontend with Karim. Worked on Login/Signup screens, including form validation and submission. Developed a working Header bar.
+
+Week 5
+
+Added About Us content to landing page. Implemented News API interface and related components.
