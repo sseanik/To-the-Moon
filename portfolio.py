@@ -227,8 +227,8 @@ def getInvestments(userID, portfolioName):
 ################################
 @PORTFOLIO_ROUTES.route('/portfolio/createPortfolio', methods=['POST'])
 def createUsersPortolio():
-    data = request.headers.get('userID')
-    userID = getIDfromToken(data['userID'])
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
     portfolioName = request.args.get('portfolioName')
     response = createPortfolio(userID, portfolioName)
     return dumps(response)
@@ -236,8 +236,8 @@ def createUsersPortolio():
 
 @PORTFOLIO_ROUTES.route('/portfolio/editPortfolio', methods=['PUT'])
 def editUsersPortolio():
-    data = request.headers.get('userID')
-    userID = getIDfromToken(data['userID'])
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
     oldPortfolioName = request.args.get('oldPortfolioName')
     newPortfolioName = request.args.get('newPortfolioName')
     response = editPortfolio(userID, oldPortfolioName, newPortfolioName)
@@ -246,8 +246,8 @@ def editUsersPortolio():
 
 @PORTFOLIO_ROUTES.route('/portfolio/deletePortfolio', methods=['DELETE'])
 def deleteUsersPortolio():
-    data = request.headers.get('userID')
-    userID = getIDfromToken(data['userID'])
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
     portfolioName = request.args.get('portfolioName')
     response = deletePortfolio(userID, portfolioName)
     return dumps(response)
@@ -255,10 +255,9 @@ def deleteUsersPortolio():
 
 @PORTFOLIO_ROUTES.route('/portfolio/addInvestment', methods=['POST'])
 def addInvestmentToPortolio():
-    data = request.headers.get('userID')
-    userID = getIDfromToken(data['userID'])
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
     data = request.get_json()
-    #userID = data['userID']
     portfolioName = request.args.get('portfolioName')
     purchasePrice = data['purchasePrice']
     numShares = data['numShares']
@@ -284,17 +283,15 @@ def viewInvestmentsInPortolio():
 
 @PORTFOLIO_ROUTES.route('/portfolio/getPortfolios', methods=['GET'])
 def returnUsersPortfolios():
-    #data = request.get_json()
-    data = request.headers.get('userID')
-    userID = getIDfromToken(data['userID'])
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
     return dumps(getPortfolios(userID))
 
 
 @PORTFOLIO_ROUTES.route('/portfolio/getInvestments', methods=['GET'])
 def returnPortfoliosInvestments():
-    #data = request.get_json()
-    data = request.headers.get('userID')
-    userID = getIDfromToken(data['userID'])
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
     portfolioName = request.args.get('portfolioName')
     return dumps(getInvestments(userID, portfolioName))
 
