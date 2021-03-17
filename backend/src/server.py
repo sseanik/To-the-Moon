@@ -9,6 +9,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from forum import FORUM_ROUTES
+from news import NEWS_ROUTES
 from portfolio import PORTFOLIO_ROUTES
 from screener import SCREENER_ROUTES
 from stock import STOCK_ROUTES
@@ -44,6 +45,7 @@ def default_handler(err):
 ####################################
 
 APP.register_blueprint(FORUM_ROUTES)
+APP.register_blueprint(NEWS_ROUTES)
 APP.register_blueprint(PORTFOLIO_ROUTES)
 APP.register_blueprint(SCREENER_ROUTES)
 APP.register_blueprint(STOCK_ROUTES)
@@ -63,11 +65,15 @@ APP.register_error_handler(Exception, default_handler)
 def echo():
     # an echo route just for testing
     data = request.args.get('data')
+    if data:
+        print("Param supplied: {}".format(data))
+    else:
+        print("Param undefined")
     return dumps({
         'data': data
     })
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     # backend server will run on port 5000 unless otherwise specified
     APP.run(debug=True, port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5000))
