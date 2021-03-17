@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Container, Col, Row } from "react-bootstrap";
 import { useParams } from "react-router";
 import portfolioAPI from "../api/portfolioAPI";
+import AddInvestmentForm from "../components/AddInvestmentForm";
 import CreateStockForm from "../components/CreateStockForm";
 import EditPortfolioForm from "../components/EditPortfolioForm";
 import StockInfo from "../components/StockInfo";
@@ -32,11 +33,10 @@ const PortfolioPage: React.FC<Props> = (props) => {
   const [stockData, setStockData] = useState<Array<StockInfo>>([]);
 
   useEffect(() => {
-    portfolioAPI.getStocks(name)
-      .then(portfolioStocks => {
-        console.log(portfolioStocks.data)
-        setStockData(portfolioStocks.data);
-      })
+    portfolioAPI.getStocks(name).then((portfolioStocks) => {
+      console.log(portfolioStocks.data);
+      setStockData(portfolioStocks.data);
+    });
   }, []);
 
   // may be removed soon
@@ -49,11 +49,7 @@ const PortfolioPage: React.FC<Props> = (props) => {
   }, [token]);
 
   const listStocks = stockData.map((stockInfo, id) => (
-    <StockInfo
-      key={id}
-      portfolio_name={name}
-      {...stockInfo}
-    />
+    <StockInfo key={id} portfolio_name={name} {...stockInfo} />
   ));
 
   const handleDeletePortfolioClick = () => {
@@ -78,19 +74,18 @@ const PortfolioPage: React.FC<Props> = (props) => {
         <Col>Delete Stock</Col>
       </Row>
       <Container fluid>{listStocks}</Container>
-      <Row className="justify-content-center my-2">
-        {addingStock ? (
-          <CreateStockForm
-            portfolioName={name}
-            handleAddStock={() => setAddingStock(false)}
-          />
-        ) : (
-          <Button variant="primary" onClick={() => setAddingStock(true)}>
-            Add Investment
-          </Button>
-        )}
-      </Row>
       <Row className="justify-content-center mt-5">
+        <Col>
+          {addingStock ? (
+            <AddInvestmentForm
+              handleInvestmentAdded={() => setAddingStock(false)}
+            />
+          ) : (
+            <Button variant="primary" onClick={() => setAddingStock(true)}>
+              Add Investment
+            </Button>
+          )}
+        </Col>
         <Col>
           {editingPortfolio ? (
             <EditPortfolioForm
