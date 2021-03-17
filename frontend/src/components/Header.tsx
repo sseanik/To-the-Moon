@@ -1,6 +1,13 @@
-import { Navbar, Nav, NavDropdown, Form, FormControl, Button } from "react-bootstrap";
-import { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import {
+  Navbar,
+  Nav,
+  NavDropdown,
+  Form,
+  FormControl,
+  Button,
+} from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { connect } from "react-redux";
 
 const dropdownNavLinks = [
   { href: "portfolios", name: "My Portfolios"},
@@ -27,7 +34,7 @@ const Header: React.FC<Props> = (props) => {
     } else {
       setAuthenticated(false);
     }
-  }, [token])
+  }, [token]);
 
   const privateNav = () => (
     <Nav className="mr-auto">
@@ -35,13 +42,14 @@ const Header: React.FC<Props> = (props) => {
       <Nav.Link href="/dashboard">Dashboard</Nav.Link>
       <NavDropdown title="More" id="basic-nav-dropdown">
         {dropdownNavLinks.map((link) => (
-            <NavDropdown.Item href={link.href}>{link.name}</NavDropdown.Item>
-          ))
-        }
+          <NavDropdown.Item key={link.toString()} href={link.href}>
+            {link.name}
+          </NavDropdown.Item>
+        ))}
       </NavDropdown>
     </Nav>
   );
-  
+
   const publicNav = () => (
     <Nav className="mr-auto">
       <Nav.Link href="/about-us">About us</Nav.Link>
@@ -55,10 +63,7 @@ const Header: React.FC<Props> = (props) => {
       <Navbar.Brand href="/">To The Moon</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
-        { authenticated
-          ? privateNav()
-          : publicNav()
-        }
+        {authenticated ? privateNav() : publicNav()}
         <Form inline>
           <FormControl type="text" placeholder="Search" className="mr-sm-2" />
           <Button variant="outline-success">Search</Button>
@@ -66,7 +71,7 @@ const Header: React.FC<Props> = (props) => {
       </Navbar.Collapse>
     </Navbar>
   );
-}
+};
 
 const mapStateToProps = (state: any) => ({
   token: state.loginUser.loginUser.token,
