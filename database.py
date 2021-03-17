@@ -255,6 +255,7 @@ def fillOverviewAndFinancialTables(symbol):
 
 
 if __name__ == "__main__":
+    pass
     #createDBConnection()
     #createPortfolioTable()
     #createHoldingsTable()
