@@ -38,8 +38,6 @@ const Actions = {
         setTimeout(() => {
           dispatch(Actions.registerUserSuccess(res));
         }, 2500);
-        const { token } = res;
-        window.localStorage.setItem("Token", token);
       } catch (error) {
         setTimeout(() => {
           dispatch(Actions.registerUserFailure(error));
