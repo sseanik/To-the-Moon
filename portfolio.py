@@ -7,7 +7,7 @@ from flask import Blueprint, request
 from json import dumps
 from database import createDBConnection
 from token_util import getIDfromToken
-from AlphaVantageWrapper.AlphaVantageAPI import TimeSeries, AlphaVantageAPI
+from helpers import TimeSeries, AlphaVantageAPI
 from datetime import datetime
 
 PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
