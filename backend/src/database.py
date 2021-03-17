@@ -1,6 +1,6 @@
 import psycopg2
 from dotenv import load_dotenv
-from AlphaVantageWrapper.AlphaVantageAPI import TimeSeries, AlphaVantageAPI
+from helpers import TimeSeries, AlphaVantageAPI
 import os
 import json
 
@@ -268,5 +268,11 @@ if __name__ == "__main__":
     #createCashflowStatementsTable()
     #fillCashflowStatements('IBM')
 
+    # Basic materials
+    fillOverviewAndFinancialTables('BHP')
+
+    # Technology sector
+    #fillOverviewAndFinancialTables('ORCL')
     #fillOverviewAndFinancialTables('IBM')
+
 
