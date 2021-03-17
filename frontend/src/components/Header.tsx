@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 const dropdownNavLinks = [
-  { href: "portfolio", name: "My Portfolios"},
+  { href: "portfolios", name: "My Portfolios"},
   { href: "stock", name: "Stocks"},
   { href: "news", name: "News"},
   { href: "watchlist", name: "Watchlists"},
