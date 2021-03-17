@@ -33,29 +33,34 @@ local_tz = pytz.timezone("Australia/Sydney")
 ###################################
 # Please leave all functions here #
 ###################################
-def update_stock_value(symbol, data_type="daily_adjusted"):
+def update_stock_required(symbol, data_type="daily_adjusted"):
     filename = "demo/" + symbol + "_" + data_type + ".json" if symbol else ""
 
-    _, stockmetadata = JSONLoader.load_json(filename)
-    dt_format = "%Y-%m-%d %H:%M:%S" if data_type=="intraday" else "%Y-%m-%d"
-    tz_key = "6. Time Zone" if data_type=="intraday" else "5. Time Zone"
-    reference_tz = pytz.timezone(stockmetadata[tz_key] if tz_key in stockmetadata else "US/Eastern")
-    date_ref = datetime.datetime.strptime(stockmetadata['3. Last Refreshed'], dt_format)
-    date_ref_aware = reference_tz.localize(date_ref)
+    if not os.path.isfile(filename):
+        return True
+    else:
+        _, stockmetadata = JSONLoader.load_json(filename)
+        dt_format = "%Y-%m-%d %H:%M:%S" if data_type=="intraday" else "%Y-%m-%d"
+        tz_key = "6. Time Zone" if data_type=="intraday" else "5. Time Zone"
+        reference_tz = pytz.timezone(stockmetadata[tz_key] if tz_key in stockmetadata else "US/Eastern")
+        date_ref = datetime.datetime.strptime(stockmetadata['3. Last Refreshed'], dt_format)
+        date_ref_aware = reference_tz.localize(date_ref)
 
-    date_today = datetime.datetime.today()
-    date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
-    date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
+        date_today = datetime.datetime.today()
+        date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
+        date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
-    # TODO: select based on exchange trading hours
-    date_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
-    dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
+        # TODO: select based on exchange trading hours
+        date_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
+        dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
 
+        return date_comp and date_constraint and dow_constraint
+
+def retrieve_stock_data(symbol, data_type="daily_adjusted"):
     try:
-        if date_comp and date_constraint and dow_constraint:
-            ts = TimeSeries(key=AlphaVantageInfo.api_key)
-            new_data, new_metadata = ts.get_intraday(symbol, outputsize='full') if data_type=="intraday" else ts.get_daily_adjusted(symbol, outputsize='full')
-            JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
+        ts = TimeSeries(key=AlphaVantageInfo.api_key)
+        new_data, new_metadata = ts.get_intraday(symbol, outputsize='full') if data_type=="intraday" else ts.get_daily_adjusted(symbol, outputsize='full')
+        JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
     except ValueError as e:
         print(f"Error encountered: {e}", file=sys.stderr)
 
@@ -190,13 +195,15 @@ def get_stock_data():
         sample_metadata = {}
         summary = {}
 
-        update_stock_value(symbol, data_type="daily_adjusted")
+        if update_stock_required(symbol, data_type="daily_adjusted"):
+            retrieve_stock_data(symbol, data_type="daily_adjusted")
         filename = "demo/" + symbol + "_daily_adjusted.json" if symbol else ""
         if os.path.isfile(filename):
             sample_df, sample_metadata = get_stock_value(filename)
             summary = calculate_summary(sample_df)
 
-        update_stock_value(symbol, data_type="intraday")
+        if update_stock_required(symbol, data_type="intraday"):
+            retrieve_stock_data(symbol, data_type="intraday")
         intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
         intraday = {}
         if os.path.isfile(intr_filename):

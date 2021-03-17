@@ -1,11 +1,18 @@
 import React from "react";
 
 import {
-          Container,
-          Table,
-          Row,
-          Col
-        } from "react-bootstrap";
+  Container,
+  Row,
+  Col
+} from "react-bootstrap";
+
+interface IObjectKeys {
+  [key: string]: AttributeValues;
+}
+
+interface AttributeValues {
+  name: string;
+}
 
 interface IncomeStatementEntry {
   stockticker: string;
@@ -27,7 +34,7 @@ interface Props {
   incomeStatement: Array<IncomeStatementEntry>;
 }
 
-var formatMap = {
+const formatMap: IObjectKeys = {
   stockticker: {name: "Company Symbol"},
   fiscaldateending: {name: "Year Ending"},
   totalrevenue: {name: "Total Revenue"},
