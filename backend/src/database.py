@@ -268,11 +268,18 @@ if __name__ == "__main__":
     #createCashflowStatementsTable()
     #fillCashflowStatements('IBM')
 
-    # Basic materials
-    fillOverviewAndFinancialTables('BHP')
+    # Basic materials sector
+    #fillOverviewAndFinancialTables('BHP')
+    #fillOverviewAndFinancialTables('LIN')
+
+    # Financial services sector
+    #fillOverviewAndFinancialTables('JPM')
+    #fillOverviewAndFinancialTables('MA')
 
     # Technology sector
     #fillOverviewAndFinancialTables('ORCL')
     #fillOverviewAndFinancialTables('IBM')
+
+    # 
 
 
