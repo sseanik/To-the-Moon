@@ -1,12 +1,18 @@
 import React from "react";
 
 import {
-          Container,
-          Table,
-          Row,
-          Col
-        } from "react-bootstrap";
+  Container,
+  Row,
+  Col
+} from "react-bootstrap";
 
+interface IObjectKeys {
+  [key: string]: AttributeValues;
+}
+
+interface AttributeValues {
+  name: string;
+}
 
 export interface summaryDataT {
     previous_close: number;
@@ -34,7 +40,7 @@ interface Props {
   summaryData: summaryDataT;
 }
 
-var formatMap = {
+const formatMap: IObjectKeys = {
   previous_close: {name: "Previous Close"},
   open: {name: "Open"},
   day_min: {name: "Daily Low"},

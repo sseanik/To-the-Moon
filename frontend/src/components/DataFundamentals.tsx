@@ -1,11 +1,18 @@
 import React from "react";
 
 import {
-          Container,
-          Table,
-          Row,
-          Col
-        } from "react-bootstrap";
+  Container,
+  Row,
+  Col
+} from "react-bootstrap";
+
+interface IObjectKeys {
+  [key: string]: AttributeValues;
+}
+
+interface AttributeValues {
+  name: string;
+}
 
 export interface fundamentalDataT {
     company_name: string;
@@ -37,7 +44,7 @@ interface Props {
   fundamentalData: fundamentalDataT;
 }
 
-var formatMap = {
+const formatMap: IObjectKeys = {
   stockname: {name: "Company Name"},
   exchange: {name: "Exchange"},
   currency: {name: "Currency"},

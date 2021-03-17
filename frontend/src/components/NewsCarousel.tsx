@@ -1,54 +1,47 @@
 import { Carousel } from "react-bootstrap";
 import NewsAPI from "../api/news";
 import { useEffect, useState } from "react";
+import { NewsItem } from "./NewsCard";
 
 const carouselStyle = {
-  height: "500px",
   width: "100%",
+  boxShadow: "5px 10px 8px #888888"
 };
 
 const bgStyle = {
   width: "100%",
   height: "55vh",
-  opacity: "0.85"
+  opacity: "0.85",
+  padding: "2.5vh",
+  backgroundColor: "rgba(0, 0, 0, 0.9)",
 };
 
 const textStyle = {
-  backgroundColor: "rgba(0, 0, 0, 0.3)",
+  backgroundColor: "rgba(0, 0, 0, 0.4)",
+  padding: "20px",
 };
-
-interface NewsItem {
-  news_url: string;
-  image_url: string;
-  title: string;
-  text: string;
-  source_name: string;
-  date: string;
-  topics: Array<string>;
-  sentiment: string;
-  type: string;
-}
 
 const NewsCarousel: React.FC = () => {
   const [newsData, setNewsData] = useState<Array<NewsItem>>([]);
 
   useEffect(() => {
-    const news = NewsAPI.getFeaturedNews();
-    setNewsData(news.data);
+    NewsAPI.getFeaturedNews()
+      .then(news => setNewsData(news.articles))
+      .catch(err => console.log(err));
   }, []);
 
   const newsItem = (props: NewsItem, idx: number) => (
     <Carousel.Item key={idx}>
-      <a href={props.news_url} target="_blank" rel="noreferrer">
+      <a href={props.url} target="_blank" rel="noreferrer">
         <img
           className="d-block w-100"
-          src={props.image_url}
-          alt={`Background for news: ${props.title}`}
+          src={props.image}
+          alt={`Background for news: ${props.headline}`}
           style={bgStyle}
         />
         <Carousel.Caption style={textStyle}>
-          <h3>{props.title}</h3>
-          <p>{props.text}</p>
+          <h3>{props.headline}</h3>
+          <p>{props.summary}</p>
         </Carousel.Caption>
       </a>
     </Carousel.Item>
