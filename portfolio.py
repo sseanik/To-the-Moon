@@ -230,7 +230,7 @@ def createUsersPortolio():
     token = request.headers.get('Authorization')
     userID = getIDfromToken(token)
     portfolioName = request.args.get('portfolioName')
-    response = createPortfolio(userID, portfolioName)
+    response = createPortfolio(userID['id'], portfolioName)
     return dumps(response)
 
 
@@ -240,7 +240,7 @@ def editUsersPortolio():
     userID = getIDfromToken(token)
     oldPortfolioName = request.args.get('oldPortfolioName')
     newPortfolioName = request.args.get('newPortfolioName')
-    response = editPortfolio(userID, oldPortfolioName, newPortfolioName)
+    response = editPortfolio(userID['id'], oldPortfolioName, newPortfolioName)
     return dumps(response)
 
 
@@ -249,7 +249,7 @@ def deleteUsersPortolio():
     token = request.headers.get('Authorization')
     userID = getIDfromToken(token)
     portfolioName = request.args.get('portfolioName')
-    response = deletePortfolio(userID, portfolioName)
+    response = deletePortfolio(userID['id'], portfolioName)
     return dumps(response)
 
 
@@ -263,7 +263,7 @@ def addInvestmentToPortolio():
     numShares = data['numShares']
     purchaseDate = data['purchaseDate']
     stockTicker = data['stockTicker']
-    response = addInvestment(userID, portfolioName, purchasePrice, numShares, purchaseDate, stockTicker)
+    response = addInvestment(userID['id'], portfolioName, purchasePrice, numShares, purchaseDate, stockTicker)
     return dumps(response)
 
 
@@ -285,7 +285,7 @@ def viewInvestmentsInPortolio():
 def returnUsersPortfolios():
     token = request.headers.get('Authorization')
     userID = getIDfromToken(token)
-    return dumps(getPortfolios(userID))
+    return dumps(getPortfolios(userID['id']))
 
 
 @PORTFOLIO_ROUTES.route('/portfolio/getInvestments', methods=['GET'])
@@ -293,7 +293,7 @@ def returnPortfoliosInvestments():
     token = request.headers.get('Authorization')
     userID = getIDfromToken(token)
     portfolioName = request.args.get('portfolioName')
-    return dumps(getInvestments(userID, portfolioName))
+    return dumps(getInvestments(userID['id'], portfolioName))
 
 
 
