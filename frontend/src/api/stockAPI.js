@@ -30,9 +30,9 @@ const stockAPI = {
         "Content-Type": "application/json",
         "Authorization": Utils.getToken(),
       },
-      body: {
+      body: JSON.stringify({
         investmentID,
-      },
+      }),
     };
 
     return Utils.getJSON(`${backend_url}${endpoint}`, options);

@@ -15,7 +15,8 @@ interface RouteMatchParams {
 }
 
 interface StockInfo {
-  NumShares: number
+  investmentID: string;
+  NumShares: number;
   PurchaseDate: string;
   PurchasePrice: string;
   StockTicker: string;
@@ -57,7 +58,7 @@ const PortfolioPage: React.FC<Props> = (props) => {
 
   const handleDeletePortfolioClick = () => {
     const deletePortfolio = async () => {
-      portfolioAPI.deletePortfolio(name);
+      await portfolioAPI.deletePortfolio(name);
     };
     deletePortfolio();
   };
@@ -85,7 +86,7 @@ const PortfolioPage: React.FC<Props> = (props) => {
           />
         ) : (
           <Button variant="primary" onClick={() => setAddingStock(true)}>
-            Add Stock
+            Add Investment
           </Button>
         )}
       </Row>

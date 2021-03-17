@@ -87,7 +87,7 @@ const portfolioAPI = {
     // };
   },
   deletePortfolio: (name) => {
-    const endpoint = `/portfolio/deleteInvestment?portfolioName=${name}`;
+    const endpoint = `/portfolio/deletePortfolio?portfolioName=${name}`;
     const options = {
       method: "DELETE",
       headers: {
