@@ -1,0 +1,21 @@
+Week 1 
+
+Got initial group together and advertised remaining spots on the WebCMS forums. We got together and discussed our preferences on which project we were interested in. After a few days we narrowed it down to the Ecommerce app, Eskills app and the stock portfolio. We then chose the stock portfolio and did minimal research into relevant apis and potential novel features.
+
+Week 2
+
+I added to the ideas Google Doc and setup the Proposal Google Document with a table of contents and relevant headings/categories. I joined in the discussion of what features we could manage and create, where I had a greater focus with Austin on adding social features. I also had to upskill my knowledge in the finance world to understand the stock portfolio domain. In the proposal my main task was to work on the purpose and features.
+
+Week 3
+
+I shared my screen and 'pair programmed' some of the storyboarding to assist Karim and the team. I reviewed the entire proposal, focusing on improving the wording and sentence structure with the Problem Domain, statement and summary.
+
+Week 4
+
+I set up the database on AWS RDS and created example functions with psycopg2, so it would be easier to have ready examples for creating tables, or selecting or inserting into the database. I also created the .env file to store protected credentials.
+
+I had a serious medical issue occur this week and was admitted to Hospital on the 14th, so my designated tasks were delayed.
+
+Week 5
+
+After being discharged and a few days into my recovery, I worked on the News related tasks by connecting the Finnhub api to the backend, to provide stock related news, overall portfolio news and general finance news.

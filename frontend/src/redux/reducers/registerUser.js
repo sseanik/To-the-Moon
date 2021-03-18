@@ -1,12 +1,12 @@
-import Types from '../constants/actionTypes';
+import Types from "../constants/actionTypes";
 
 const initialState = {
   registerUser: {
     loading: false,
     token: "",
     error: null,
-  }
-}
+  },
+};
 
 const registerUser = (state = initialState, action) => {
   switch (action.type) {
@@ -16,7 +16,7 @@ const registerUser = (state = initialState, action) => {
         registerUser: {
           ...state.registerUser,
           loading: true,
-        }
+        },
       };
     case Types.REGISTER_USER_SUCCESS:
       return {
@@ -26,7 +26,7 @@ const registerUser = (state = initialState, action) => {
           loading: false,
           error: null,
           token: action.payload.token,
-        }
+        },
       };
     case Types.REGISTER_USER_FAILURE:
       return {
@@ -35,11 +35,11 @@ const registerUser = (state = initialState, action) => {
           ...state.registerUser,
           loading: false,
           error: action.payload.error,
-        }
+        },
       };
     default:
       return state;
   }
-}
-  
+};
+
 export default registerUser;

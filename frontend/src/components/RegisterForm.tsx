@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import { connect } from 'react-redux';
-import Actions from '../redux/actions/user';
-import ClipLoader from 'react-spinners/ClipLoader';
-import { useHistory } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Form, Button } from "react-bootstrap";
+import { connect } from "react-redux";
+import Actions from "../redux/actions/user";
+import ClipLoader from "react-spinners/ClipLoader";
+import { useHistory } from "react-router-dom";
 
 interface IObjectKeys {
   [key: string]: string | number;
@@ -15,7 +15,7 @@ interface RegisterFormParams extends IObjectKeys {
   lastName: string;
   email: string;
   password: string;
-};
+}
 
 interface RegisterFormState {
   values: RegisterFormParams;
@@ -35,7 +35,14 @@ interface DispatchProps {
 }
 
 const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { registerForm, isLoading, token, error, submitForm, registerUser } = props;
+  const {
+    registerForm,
+    isLoading,
+    token,
+    error,
+    submitForm,
+    registerUser,
+  } = props;
   const history = useHistory();
   const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -45,9 +52,9 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     if (token) {
-      history.push('/');
+      history.push("/");
     }
-  })
+  });
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -56,7 +63,7 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   const onBlur = () => {
     submitForm({ username, firstName, lastName, email, password });
-  }
+  };
 
   const formComponent = (
     <Form onSubmit={(e) => onSubmit(e)}>
@@ -76,9 +83,7 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
         <Form.Control.Feedback type="invalid">
           {registerForm.errors.username}
         </Form.Control.Feedback>
-        <Form.Text className="text-muted">
-          Choose a unique username.
-        </Form.Text>
+        <Form.Text className="text-muted">Choose a unique username.</Form.Text>
       </Form.Group>
 
       <Form.Group controlId="formBasicFirstName">
@@ -159,10 +164,7 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
         </Form.Text>
       </Form.Group>
 
-      <Button
-        variant="primary"
-        type="submit"
-      >
+      <Button variant="primary" type="submit">
         Sign up
       </Button>
     </Form>
@@ -170,30 +172,30 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   const loadingSpinnerComponent = (
     <div>
-      <ClipLoader color={'green'} loading={isLoading} />
+      <ClipLoader color={"green"} loading={isLoading} />
       <h5>Onboarding astronauts...</h5>
     </div>
   );
 
-  return (
-    isLoading
-    ? loadingSpinnerComponent
-    : formComponent
-  );
+  return isLoading ? loadingSpinnerComponent : formComponent;
 };
 
 const mapStateToProps = (state: any) => ({
   registerForm: state.submitRegisterUserForm.registerForm,
   isLoading: state.registerUser.registerUser.loading,
   token: state.registerUser.registerUser.token,
-  error: state.registerUser.registerUser.error
+  error: state.registerUser.registerUser.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    submitForm: (formPayload: any) => { dispatch(Actions.submitRegisterUserForm(formPayload)) },
-    registerUser: (formPayload: any) => { dispatch(Actions.registerUser(formPayload)) }
-  }
-}
+    submitForm: (formPayload: any) => {
+      dispatch(Actions.submitRegisterUserForm(formPayload));
+    },
+    registerUser: (formPayload: any) => {
+      dispatch(Actions.registerUser(formPayload));
+    },
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(RegisterForm);
