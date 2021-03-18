@@ -1,4 +1,5 @@
 import React from "react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
   Container,
@@ -33,6 +34,7 @@ interface CashFlowEntry {
 
 interface Props {
   cashFlow: Array<CashFlowEntry>;
+  isLoading: boolean;
 }
 
 const formatMap: IObjectKeys = {
@@ -50,12 +52,19 @@ const formatMap: IObjectKeys = {
   proceedsfromrepurchaseofequity: {name: "Proceeds From Repurchase Of Equity"},
   changeincashandcashequivalents: {name: "Change in Cash"},
   netincome: {name: "Net Income"},
-}; 
+};
 
 const DataCashFlow: React.FC<Props> = (props) => {
-  var { cashFlow } = props;
+  var { cashFlow, isLoading } = props;
 
-  return (
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={isLoading} />
+      <h5>Loading Data ...</h5>
+    </div>
+  );
+
+  const tableComponent = (
     <Container>
     <Row>
       {cashFlow.map((entry) => (
@@ -83,6 +92,8 @@ const DataCashFlow: React.FC<Props> = (props) => {
     </Row>
     </Container>
   );
+
+  return isLoading ? loadingSpinnerComponent : tableComponent;
 }
 
 export default DataCashFlow;

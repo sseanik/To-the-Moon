@@ -1,4 +1,5 @@
 import React from "react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
   Container,
@@ -28,6 +29,7 @@ interface AttributeValues {
 
 interface Props {
   balanceSheet: Array<BalanceSheetEntry>;
+  isLoading: boolean;
 }
 
 const formatMap: IObjectKeys = {
@@ -39,12 +41,19 @@ const formatMap: IObjectKeys = {
   total_curr_liabilities: {name: "Total Current Liabilities"},
   total_ncurr_liabilities: {name: "Total Non-Current Liabilities"},
   total_equity: {name: "Total Equity"},
-}; 
+};
 
 const DataBalanceSheet: React.FC<Props> = (props) => {
-  const { balanceSheet } = props;
+  const { balanceSheet, isLoading } = props;
 
-  return (
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={isLoading} />
+      <h5>Loading Balance Sheet ...</h5>
+    </div>
+  );
+
+  const tableComponent = (
     <Container>
     <Row>
       {balanceSheet.map((entry) => (
@@ -72,6 +81,8 @@ const DataBalanceSheet: React.FC<Props> = (props) => {
     </Row>
     </Container>
   );
+
+  return isLoading ? loadingSpinnerComponent : tableComponent;
 }
 
 export default DataBalanceSheet;

@@ -121,7 +121,7 @@ const StockPage: React.FC = () => {
   const fetchIncomeStatement = () => {
     async function fetchIncome() {
       var incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
-      if (incomedata.data) {
+      if (incomedata) {
         setIncomeStatement(incomedata.data);
       }
     }
@@ -131,7 +131,7 @@ const StockPage: React.FC = () => {
   const fetchBalanceSheet = () => {
     async function fetchBalance() {
       var balancedata = symbol ? await StockAPI.getBalance(symbol) : {};
-      if (balancedata.data) {
+      if (balancedata) {
         setBalanceSheet(balancedata.data);
       }
     }
@@ -185,10 +185,10 @@ const StockPage: React.FC = () => {
               onSelect={(k) => { setGenkey(k); }}
             >
               <Tab eventKey="summary" title="Summary">
-                <DataSummary summaryData={summaryData} />
+                <DataSummary summaryData={summaryData} isLoading={false}/>
               </Tab>
               <Tab eventKey="statistics" title="Statistics">
-                <DataFundamentals fundamentalData={fundamentalData} />
+                <DataFundamentals fundamentalData={fundamentalData} isLoading={false}/>
               </Tab>
 
               <Tab eventKey="financials" title="Financials">
@@ -200,13 +200,13 @@ const StockPage: React.FC = () => {
                     onSelect={(k) => { setFinkey(k); }}
                   >
                       <Tab eventKey="incomestatement" title="Income Statement">
-                        <DataIncomeStatement incomeStatement={incomeStatement}/>
+                        <DataIncomeStatement incomeStatement={incomeStatement} isLoading={false}/>
                       </Tab>
                       <Tab eventKey="balancesheet" title="Balance Sheet">
-                        <DataBalanceSheet balanceSheet={balanceSheet}/>
+                        <DataBalanceSheet balanceSheet={balanceSheet} isLoading={false}/>
                       </Tab>
                       <Tab eventKey="cashflow" title="Cash Flow Statement">
-                        <DataCashFlow cashFlow={cashFlow}/>
+                        <DataCashFlow cashFlow={cashFlow} isLoading={false}/>
                       </Tab>
                   </Tabs>
               </Tab>
