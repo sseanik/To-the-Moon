@@ -39,6 +39,14 @@ const StockPage: React.FC = () => {
   const [genkey, setGenkey] = useState<string|null>('summary');
   const [finkey, setFinkey] = useState<string|null>('incomestatement');
   const [companyName, setCompanyName] = useState('View');
+  const [isLoading, setIsLoading] = useState({
+    stockdata: true,
+    summary: false,
+    fundamentals: true,
+    incomeStatement: true,
+    balanceSheet: true,
+    cashFlowStatement: true,
+  });
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
@@ -82,9 +90,11 @@ const StockPage: React.FC = () => {
 
     if (stockdata.summary) {
       setSummaryData(stockdata.summary);
+      setIsLoading({ ... isLoading, summary: false });
     }
     if (stockdata.fundamentals) {
       setFundamentalData(stockdata.fundamentals);
+      setIsLoading({ ... isLoading, fundamentals: false });
     }
   }
 
@@ -123,6 +133,7 @@ const StockPage: React.FC = () => {
       var incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
       if (incomedata) {
         setIncomeStatement(incomedata.data);
+        setIsLoading({ ... isLoading, incomeStatement: false });
       }
     }
     fetchIncome();
@@ -133,6 +144,7 @@ const StockPage: React.FC = () => {
       var balancedata = symbol ? await StockAPI.getBalance(symbol) : {};
       if (balancedata) {
         setBalanceSheet(balancedata.data);
+        setIsLoading({ ... isLoading, balanceSheet: false });
       }
     }
     fetchBalance();
@@ -143,6 +155,7 @@ const StockPage: React.FC = () => {
       var cashdata = symbol ? await StockAPI.getCashFlow(symbol) : {};
       if (cashdata.data) {
         setCashFlow(cashdata.data);
+        setIsLoading({ ... isLoading, cashFlowStatement: false });
       }
     }
     fetchCash();
@@ -185,10 +198,10 @@ const StockPage: React.FC = () => {
               onSelect={(k) => { setGenkey(k); }}
             >
               <Tab eventKey="summary" title="Summary">
-                <DataSummary summaryData={summaryData} isLoading={false}/>
+                <DataSummary summaryData={summaryData} isLoading={isLoading.summary}/>
               </Tab>
               <Tab eventKey="statistics" title="Statistics">
-                <DataFundamentals fundamentalData={fundamentalData} isLoading={false}/>
+                <DataFundamentals fundamentalData={fundamentalData} isLoading={isLoading.fundamentals}/>
               </Tab>
 
               <Tab eventKey="financials" title="Financials">
@@ -200,13 +213,13 @@ const StockPage: React.FC = () => {
                     onSelect={(k) => { setFinkey(k); }}
                   >
                       <Tab eventKey="incomestatement" title="Income Statement">
-                        <DataIncomeStatement incomeStatement={incomeStatement} isLoading={false}/>
+                        <DataIncomeStatement incomeStatement={incomeStatement} isLoading={isLoading.incomeStatement}/>
                       </Tab>
                       <Tab eventKey="balancesheet" title="Balance Sheet">
-                        <DataBalanceSheet balanceSheet={balanceSheet} isLoading={false}/>
+                        <DataBalanceSheet balanceSheet={balanceSheet} isLoading={isLoading.balanceSheet}/>
                       </Tab>
                       <Tab eventKey="cashflow" title="Cash Flow Statement">
-                        <DataCashFlow cashFlow={cashFlow} isLoading={false}/>
+                        <DataCashFlow cashFlow={cashFlow} isLoading={isLoading.cashFlowStatement}/>
                       </Tab>
                   </Tabs>
               </Tab>
