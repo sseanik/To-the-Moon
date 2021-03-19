@@ -1,4 +1,4 @@
-import Types from "../constants/actionTypes";
+import userConstants from "../constants/userConstants";
 
 const initialState = {
   registerUser: {
@@ -10,7 +10,7 @@ const initialState = {
 
 const registerUser = (state = initialState, action) => {
   switch (action.type) {
-    case Types.REGISTER_USER_PENDING:
+    case userConstants.REGISTER_USER_PENDING:
       return {
         ...state,
         registerUser: {
@@ -18,7 +18,7 @@ const registerUser = (state = initialState, action) => {
           loading: true,
         },
       };
-    case Types.REGISTER_USER_SUCCESS:
+    case userConstants.REGISTER_USER_SUCCESS:
       return {
         ...state,
         registerUser: {
@@ -28,7 +28,7 @@ const registerUser = (state = initialState, action) => {
           token: action.payload.token,
         },
       };
-    case Types.REGISTER_USER_FAILURE:
+    case userConstants.REGISTER_USER_FAILURE:
       return {
         ...state,
         registerUser: {

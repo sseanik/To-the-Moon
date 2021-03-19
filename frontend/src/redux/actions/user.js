@@ -1,39 +1,45 @@
-import Types from '../constants/actionTypes';
-import AuthAPI from '../../api/auth';
+import userConstants from "../constants/userConstants";
+import AuthAPI from "../../api/auth";
 
 const Actions = {
   submitRegisterUserForm: (user) => ({
-    type: Types.SUBMIT_REGISTER_USER_FORM,
+    type: userConstants.SUBMIT_REGISTER_USER_FORM,
     payload: user,
   }),
   registerUserPending: () => ({
-    type: Types.REGISTER_USER_PENDING,
+    type: userConstants.REGISTER_USER_PENDING,
   }),
   registerUserSuccess: (response) => ({
-    type: Types.REGISTER_USER_SUCCESS,
-    payload: response
+    type: userConstants.REGISTER_USER_SUCCESS,
+    payload: response,
   }),
   registerUserFailure: (error) => ({
-    type: Types.REGISTER_USER_FAILURE,
-    payload: error
+    type: userConstants.REGISTER_USER_FAILURE,
+    payload: error,
   }),
   loginPending: () => ({
-    type: Types.LOGIN_PENDING,
+    type: userConstants.LOGIN_PENDING,
   }),
   loginSuccess: (response) => ({
-    type: Types.LOGIN_SUCCESS,
-    payload: response
+    type: userConstants.LOGIN_SUCCESS,
+    payload: response,
   }),
   loginFailure: (error) => ({
-    type: Types.LOGIN_FAILURE,
-    payload: error
+    type: userConstants.LOGIN_FAILURE,
+    payload: error,
   }),
   registerUser: (payload) => {
     return async (dispatch) => {
       dispatch(Actions.registerUserPending());
       try {
         const { username, firstName, lastName, email, password } = payload;
-        const res = await AuthAPI.register(username, firstName, lastName, email, password);
+        const res = await AuthAPI.register(
+          username,
+          firstName,
+          lastName,
+          email,
+          password
+        );
         // To test loading spinner
         setTimeout(() => {
           dispatch(Actions.registerUserSuccess(res));
@@ -43,7 +49,7 @@ const Actions = {
           dispatch(Actions.registerUserFailure(error));
         }, 2500);
       }
-    }
+    };
   },
   loginUser: (payload) => {
     return async (dispatch) => {
@@ -62,8 +68,8 @@ const Actions = {
           dispatch(Actions.loginFailure(error));
         }, 2500);
       }
-    }
-  }
-}
+    };
+  },
+};
 
 export default Actions;

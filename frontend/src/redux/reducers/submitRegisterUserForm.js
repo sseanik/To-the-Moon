@@ -1,4 +1,4 @@
-import Types from "../constants/actionTypes";
+import userConstants from "../constants/userConstants";
 
 const initialState = {
   registerForm: {
@@ -7,16 +7,16 @@ const initialState = {
       firstName: "",
       lastName: "",
       email: "",
-      password: ""
+      password: "",
     },
     errors: {
       username: "",
       firstName: "",
       lastName: "",
       email: "",
-      password: ""
-    }
-  }
+      password: "",
+    },
+  },
 };
 
 function validateEmail(email) {
@@ -31,9 +31,9 @@ const validateRegister = (payload) => {
     firstName: "",
     lastName: "",
     email: "",
-    password: ""
+    password: "",
   };
-  
+
   if (!username && username.length === 0) {
     errors.username = "Username is required";
   }
@@ -61,22 +61,22 @@ const validateRegister = (payload) => {
   }
 
   return errors;
-}
+};
 
 const submitRegisterUserForm = (state = initialState, action) => {
-  switch(action.type) {
-    case Types.SUBMIT_REGISTER_USER_FORM:
+  switch (action.type) {
+    case userConstants.SUBMIT_REGISTER_USER_FORM:
       const { payload } = action;
       return {
         ...state,
         registerForm: {
           values: payload,
-          errors: validateRegister(payload)
-        }
-      }
+          errors: validateRegister(payload),
+        },
+      };
     default:
       return state;
   }
-}
+};
 
 export default submitRegisterUserForm;
