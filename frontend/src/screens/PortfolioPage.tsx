@@ -85,9 +85,13 @@ const PortfolioPage: React.FC<Props> = (props) => {
         <Col>Delete Stock</Col>
       </Row>
       {stockLoading ? (
-        <ClipLoader color="blue" loading={stockLoading} />
+        <Container fluid className="mt-2">
+          <ClipLoader color="blue" loading={stockLoading} />
+        </Container>
       ) : (
-        listStocks
+        <Container fluid className="px-0">
+          {listStocks}
+        </Container>
       )}
       <Row className="justify-content-center mt-5">
         <Col>
