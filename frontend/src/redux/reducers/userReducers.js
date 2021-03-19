@@ -4,7 +4,6 @@ export const registerUser = (
   state = {
     registerUser: {
       loading: false,
-      token: "",
       error: null,
     },
   },
