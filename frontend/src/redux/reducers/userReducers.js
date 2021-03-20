@@ -5,6 +5,7 @@ export const registerUser = (
     registerUser: {
       loading: false,
       error: null,
+      token: "",
     },
   },
   action
