@@ -1,64 +1,56 @@
 import AuthAPI from "../../api/auth";
 import userConstants from "../constants/userConstants";
 
-export const register = (
-  firstName,
-  lastName,
-  email,
-  username,
-  password
-) => async (dispatch) => {
-  dispatch({
-    type: userConstants.REGISTER_USER_PENDING,
-    payload: { firstName, lastName, email, username, password },
-  });
+registerUserPending = () => ({
+  type: userConstants.REGISTER_USER_PENDING,
+});
+registerUserSuccess = (response) => ({
+  type: userConstants.REGISTER_USER_SUCCESS,
+  payload: response,
+});
+registerUserFailure = (error) => ({
+  type: userConstants.REGISTER_USER_FAILURE,
+  payload: error,
+});
+loginUserPending = () => ({
+  type: userConstants.LOGIN_PENDING,
+});
+loginUserSuccess = (response) => ({
+  type: userConstants.LOGIN_SUCCESS,
+  payload: response,
+});
+loginUserFailure = (error) => ({
+  type: userConstants.LOGIN_FAILURE,
+  payload: error,
+});
+
+export const register = (payload) => async (dispatch) => {
+  dispatch(registerUserPending());
   try {
-    const { data } = await AuthAPI.register(
+    const { firstName, lastName, email, username, password } = payload;
+    const res = await AuthAPI.register(
       firstName,
       lastName,
       email,
       username,
       password
     );
-    dispatch({
-      type: userConstants.REGISTER_USER_SUCCESS,
-      payload: data,
-    });
-    dispatch({
-      type: userConstants.LOGIN_SUCCESS,
-      payload: data,
-    });
-    localStorage.setItem("userInfo", JSON.stringify(data));
+    dispatch(registerUserSuccess());
+    dispatch(loginUserSuccess());
+    window.localStorage.setItem("userInfo", JSON.stringify(res));
   } catch (error) {
-    dispatch({
-      type: userConstants.REGISTER_USER_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
+    dispatch(registerUserFailure());
   }
 };
 
-export const login = (email, password) => async (dispatch) => {
-  dispatch({
-    type: userConstants.LOGIN_PENDING,
-    payload: { email, password },
-  });
+export const login = (payload) => async (dispatch) => {
+  dispatch(loginUserPending());
   try {
-    const { data } = await AuthAPI.login(email, password);
-    dispatch({
-      type: userConstants.LOGIN_SUCCESS,
-      payload: data,
-    });
-    localStorage.setItem("userInfo", JSON.stringify(data));
+    const { email, password } = payload;
+    const res = await AuthAPI.login(email, password);
+    dispatch(loginUserSuccess());
+    window.localStorage.setItem("userInfo", JSON.stringify(res));
   } catch (error) {
-    dispatch({
-      type: userConstants.LOGIN_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
+    dispatch(loginUserFailure());
   }
 };
