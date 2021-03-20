@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import {
@@ -7,6 +7,8 @@ import {
   Row,
   Col
 } from "react-bootstrap";
+
+import StockAPI from "../api/stock";
 
 interface BalanceSheetEntry {
   fiscaldateending: string;
@@ -28,8 +30,9 @@ interface AttributeValues {
 }
 
 interface Props {
-  balanceSheet: Array<BalanceSheetEntry>;
-  isLoading: boolean;
+  // balanceSheet: Array<BalanceSheetEntry>;
+  symbol: string;
+  tryLoading: boolean;
 }
 
 const formatMap: IObjectKeys = {
@@ -44,7 +47,27 @@ const formatMap: IObjectKeys = {
 };
 
 const DataBalanceSheet: React.FC<Props> = (props) => {
-  const { balanceSheet, isLoading } = props;
+  const { symbol, tryLoading } = props;
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [balanceSheet, setBalanceSheet] = useState<any>([]);
+
+  const fetchBalanceSheet = () => {
+    async function fetchBalance() {
+      var balancedata = symbol ? await StockAPI.getBalance(symbol) : {};
+      if (balancedata) {
+        setBalanceSheet(balancedata.data);
+        setIsLoading(false);
+      }
+    }
+    fetchBalance();
+  }
+
+  useEffect(() => {
+    if (tryLoading) {
+      fetchBalanceSheet();
+    }
+  }, [tryLoading]);
 
   const loadingSpinnerComponent = (
     <div>
@@ -56,7 +79,7 @@ const DataBalanceSheet: React.FC<Props> = (props) => {
   const tableComponent = (
     <Container>
     <Row>
-      {balanceSheet.map((entry) => (
+      {balanceSheet.map((entry: BalanceSheetEntry) => (
         <Col>
           <hr />
           {Object.entries(entry).map(([field, value]) => (

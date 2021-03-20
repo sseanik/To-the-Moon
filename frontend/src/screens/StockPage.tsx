@@ -58,9 +58,6 @@ const StockPage: React.FC = () => {
       { data: [] }
     ]
   });
-  const [incomeStatement, setIncomeStatement] = useState<any>([]);
-  const [balanceSheet, setBalanceSheet] = useState<any>([]);
-  const [cashFlow, setCashFlow] = useState<any>([]);
   const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
   const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
   const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
@@ -118,48 +115,15 @@ const StockPage: React.FC = () => {
 
   useEffect(() => {
     if (genkey === "financials") {
-      if ((finkey === "incomestatement") && (incomeStatement.length === 0)) {
-        fetchIncomeStatement();
-      } else if ((finkey === "balancesheet") && (balanceSheet.length === 0)) {
-        fetchBalanceSheet();
-      } else if ((finkey === "cashflow") && (cashFlow.length === 0)) {
-        fetchCashFlow();
+      if ((finkey === "incomestatement") && !isLoading.incomeStatement) {
+        setIsLoading({ ... isLoading, incomeStatement: true });
+      } else if ((finkey === "balancesheet") && !isLoading.balanceSheet) {
+        setIsLoading({ ... isLoading, balanceSheet: true });
+      } else if ((finkey === "cashflow") && !isLoading.cashFlowStatement) {
+        setIsLoading({ ... isLoading, cashFlowStatement: true });
       }
     }
   }, [genkey, finkey]);
-
-  const fetchIncomeStatement = () => {
-    async function fetchIncome() {
-      var incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
-      if (incomedata) {
-        setIncomeStatement(incomedata.data);
-        setIsLoading({ ... isLoading, incomeStatement: false });
-      }
-    }
-    fetchIncome();
-  }
-
-  const fetchBalanceSheet = () => {
-    async function fetchBalance() {
-      var balancedata = symbol ? await StockAPI.getBalance(symbol) : {};
-      if (balancedata) {
-        setBalanceSheet(balancedata.data);
-        setIsLoading({ ... isLoading, balanceSheet: false });
-      }
-    }
-    fetchBalance();
-  }
-
-  const fetchCashFlow = () => {
-    async function fetchCash() {
-      var cashdata = symbol ? await StockAPI.getCashFlow(symbol) : {};
-      if (cashdata.data) {
-        setCashFlow(cashdata.data);
-        setIsLoading({ ... isLoading, cashFlowStatement: false });
-      }
-    }
-    fetchCash();
-  }
 
   return (
     <Container>
@@ -213,13 +177,13 @@ const StockPage: React.FC = () => {
                     onSelect={(k) => { setFinkey(k); }}
                   >
                       <Tab eventKey="incomestatement" title="Income Statement">
-                        <DataIncomeStatement incomeStatement={incomeStatement} isLoading={isLoading.incomeStatement}/>
+                        <DataIncomeStatement symbol={symbol} tryLoading={isLoading.incomeStatement}/>
                       </Tab>
                       <Tab eventKey="balancesheet" title="Balance Sheet">
-                        <DataBalanceSheet balanceSheet={balanceSheet} isLoading={isLoading.balanceSheet}/>
+                        <DataBalanceSheet symbol={symbol} tryLoading={isLoading.balanceSheet}/>
                       </Tab>
                       <Tab eventKey="cashflow" title="Cash Flow Statement">
-                        <DataCashFlow cashFlow={cashFlow} isLoading={isLoading.cashFlowStatement}/>
+                        <DataCashFlow symbol={symbol} tryLoading={isLoading.cashFlowStatement}/>
                       </Tab>
                   </Tabs>
               </Tab>

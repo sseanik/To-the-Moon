@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import {
@@ -6,6 +6,8 @@ import {
   Row,
   Col
 } from "react-bootstrap";
+
+import StockAPI from "../api/stock";
 
 interface IObjectKeys {
   [key: string]: AttributeValues;
@@ -32,8 +34,9 @@ interface IncomeStatementEntry {
 }
 
 interface Props {
-  incomeStatement: Array<IncomeStatementEntry>;
-  isLoading: boolean;
+  // incomeStatement: Array<IncomeStatementEntry>;
+  symbol: string;
+  tryLoading: boolean;
 }
 
 const formatMap: IObjectKeys = {
@@ -53,7 +56,27 @@ const formatMap: IObjectKeys = {
 };
 
 const DataIncomeStatement: React.FC<Props> = (props) => {
-  var { incomeStatement, isLoading } = props;
+  var { symbol, tryLoading } = props;
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [incomeStatement, setIncomeStatement] = useState<any>([]);
+
+  const fetchIncomeStatement = () => {
+    async function fetchIncome() {
+      var incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
+      if (incomedata) {
+        setIncomeStatement(incomedata.data);
+        setIsLoading(false);
+      }
+    }
+    fetchIncome();
+  }
+
+  useEffect(() => {
+    if (tryLoading) {
+      fetchIncomeStatement();
+    }
+  }, [tryLoading]);
 
   const loadingSpinnerComponent = (
     <div>
@@ -65,7 +88,7 @@ const DataIncomeStatement: React.FC<Props> = (props) => {
   const tableComponent = (
     <Container>
     <Row>
-      {incomeStatement.map((entry) => (
+      {incomeStatement.map((entry: IncomeStatementEntry) => (
         <Col>
           <hr />
           {Object.entries(entry).map(([field, value]) => (

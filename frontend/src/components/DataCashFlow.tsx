@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import {
@@ -6,6 +6,8 @@ import {
   Row,
   Col
 } from "react-bootstrap";
+
+import StockAPI from "../api/stock";
 
 interface IObjectKeys {
   [key: string]: AttributeValues;
@@ -33,8 +35,9 @@ interface CashFlowEntry {
 }
 
 interface Props {
-  cashFlow: Array<CashFlowEntry>;
-  isLoading: boolean;
+  // cashFlow: Array<CashFlowEntry>;
+  symbol: string;
+  tryLoading: boolean;
 }
 
 const formatMap: IObjectKeys = {
@@ -55,7 +58,27 @@ const formatMap: IObjectKeys = {
 };
 
 const DataCashFlow: React.FC<Props> = (props) => {
-  var { cashFlow, isLoading } = props;
+  var { symbol, tryLoading } = props;
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [cashFlow, setCashFlow] = useState<any>([]);
+
+  const fetchCashFlow = () => {
+    async function fetchCash() {
+      var cashdata = symbol ? await StockAPI.getCashFlow(symbol) : {};
+      if (cashdata.data) {
+        setCashFlow(cashdata.data);
+        setIsLoading(false);
+      }
+    }
+    fetchCash();
+  }
+
+  useEffect(() => {
+    if (tryLoading) {
+      fetchCashFlow();
+    }
+  }, [tryLoading]);
 
   const loadingSpinnerComponent = (
     <div>
@@ -67,7 +90,7 @@ const DataCashFlow: React.FC<Props> = (props) => {
   const tableComponent = (
     <Container>
     <Row>
-      {cashFlow.map((entry) => (
+      {cashFlow.map((entry: CashFlowEntry) => (
         <Col>
           <hr />
           {Object.entries(entry).map(([field, value]) => (
