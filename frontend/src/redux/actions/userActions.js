@@ -10,7 +10,7 @@ export const register = (
 ) => async (dispatch) => {
   dispatch({
     type: userConstants.REGISTER_USER_PENDING,
-    payload: { fisrt_name, last_name, email, username, password },
+    payload: { first_name, last_name, email, username, password },
   });
   try {
     const { data } = await axios.post("/register", {
