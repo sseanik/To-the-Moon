@@ -40,9 +40,7 @@ export const register = (payload) => async (dispatch) => {
       username,
       password
     );
-    dispatch(registerUserSuccess());
-    dispatch(loginUserSuccess());
-    window.localStorage.setItem("userInfo", JSON.stringify(res));
+    dispatch(registerUserSuccess(res["token"]));
   } catch (error) {
     dispatch(registerUserFailure(error));
   }
@@ -54,7 +52,7 @@ export const login = (payload) => async (dispatch) => {
     const { email, password } = payload;
     const res = await AuthAPI.login(email, password);
     dispatch(loginUserSuccess());
-    window.localStorage.setItem("userInfo", JSON.stringify(res));
+    window.localStorage.setItem("token", JSON.stringify(res));
   } catch (error) {
     dispatch(loginUserFailure());
   }
