@@ -1,10 +1,8 @@
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Spinner } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { register } from "../redux/actions/userActions";
-
-interface Props {}
 
 interface RegisterFormValues {
   firstName: string;
@@ -12,6 +10,12 @@ interface RegisterFormValues {
   email: string;
   username: string;
   password: string;
+}
+
+interface StateProps {
+  loading: boolean;
+  token: string;
+  error: Object;
 }
 
 const initialValues: RegisterFormValues = {
@@ -42,21 +46,14 @@ const schema = Yup.object({
     .min(8, "Must be 8 characters or more"),
 });
 
-const RegisterForm: React.FC<Props> = () => {
+const RegisterForm: React.FC<StateProps> = (props) => {
+  const { loading, token, error } = props;
   const dispatch = useDispatch();
 
   const formComponent = (
     <Formik
       onSubmit={(values) => {
-        dispatch(
-          register(
-            values.firstName,
-            values.lastName,
-            values.email,
-            values.username,
-            values.password
-          )
-        );
+        dispatch(register(values));
       }}
       initialValues={initialValues}
       validationSchema={schema}
@@ -175,7 +172,13 @@ const RegisterForm: React.FC<Props> = () => {
     </Formik>
   );
 
-  return formComponent;
+  return loading ? <Spinner animation="border" role="status" /> : formComponent;
 };
 
-export default RegisterForm;
+const mapStateToProps = (state: any) => ({
+  loading: state.registerUser.registerUser.loading,
+  token: state.registerUser.registerUser.token,
+  error: state.registerUser.registerUser.error,
+});
+
+export default connect(mapStateToProps)(RegisterForm);

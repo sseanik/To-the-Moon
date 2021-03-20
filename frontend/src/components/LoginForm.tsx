@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import { connect } from 'react-redux';
-import Actions from '../redux/actions/user';
-import ClipLoader from 'react-spinners/ClipLoader';
-import { useHistory } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Form, Button } from "react-bootstrap";
+import { connect } from "react-redux";
+import ClipLoader from "react-spinners/ClipLoader";
+import { useHistory } from "react-router-dom";
+import { login } from "../redux/actions/userActions";
 
 interface IObjectKeys {
   [key: string]: string | number;
@@ -12,7 +12,7 @@ interface IObjectKeys {
 interface RegisterFormParams extends IObjectKeys {
   email: string;
   password: string;
-};
+}
 
 interface StateProps {
   isLoading: boolean;
@@ -32,9 +32,9 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     if (token) {
-      history.push('/');
+      history.push("/");
     }
-  })
+  });
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -61,10 +61,7 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
         />
       </Form.Group>
 
-      <Button
-        variant="primary"
-        type="submit"
-      >
+      <Button variant="primary" type="submit">
         Login
       </Button>
     </Form>
@@ -72,28 +69,26 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   const loadingSpinnerComponent = (
     <div>
-      <ClipLoader color={'green'} loading={isLoading} />
+      <ClipLoader color={"green"} loading={isLoading} />
       <h5>Preparing rocket fuel...</h5>
     </div>
   );
 
-  return (
-    isLoading
-    ? loadingSpinnerComponent
-    : formComponent
-  );
+  return isLoading ? loadingSpinnerComponent : formComponent;
 };
 
 const mapStateToProps = (state: any) => ({
   isLoading: state.loginUser.loginUser.loading,
   token: state.loginUser.loginUser.token,
-  error: state.loginUser.loginUser.error
+  error: state.loginUser.loginUser.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    loginUser: (formPayload: any) => { dispatch(Actions.loginUser(formPayload)) }
-  }
-}
+    loginUser: (formPayload: any) => {
+      dispatch(login(formPayload));
+    },
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);

@@ -1,25 +1,30 @@
 import AuthAPI from "../../api/auth";
 import userConstants from "../constants/userConstants";
 
-registerUserPending = () => ({
+const registerUserPending = () => ({
   type: userConstants.REGISTER_USER_PENDING,
 });
-registerUserSuccess = (response) => ({
+
+const registerUserSuccess = (response) => ({
   type: userConstants.REGISTER_USER_SUCCESS,
   payload: response,
 });
-registerUserFailure = (error) => ({
+
+const registerUserFailure = (error) => ({
   type: userConstants.REGISTER_USER_FAILURE,
   payload: error,
 });
-loginUserPending = () => ({
+
+const loginUserPending = () => ({
   type: userConstants.LOGIN_PENDING,
 });
-loginUserSuccess = (response) => ({
+
+const loginUserSuccess = (response) => ({
   type: userConstants.LOGIN_SUCCESS,
   payload: response,
 });
-loginUserFailure = (error) => ({
+
+const loginUserFailure = (error) => ({
   type: userConstants.LOGIN_FAILURE,
   payload: error,
 });
@@ -39,7 +44,7 @@ export const register = (payload) => async (dispatch) => {
     dispatch(loginUserSuccess());
     window.localStorage.setItem("userInfo", JSON.stringify(res));
   } catch (error) {
-    dispatch(registerUserFailure());
+    dispatch(registerUserFailure(error));
   }
 };
 
