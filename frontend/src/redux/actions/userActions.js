@@ -1,25 +1,25 @@
-import axios from "axios";
+import AuthAPI from "../../api/auth";
 import userConstants from "../constants/userConstants";
 
 export const register = (
-  first_name,
-  last_name,
+  firstName,
+  lastName,
   email,
   username,
   password
 ) => async (dispatch) => {
   dispatch({
     type: userConstants.REGISTER_USER_PENDING,
-    payload: { first_name, last_name, email, username, password },
+    payload: { firstName, lastName, email, username, password },
   });
   try {
-    const { data } = await axios.post("/register", {
-      first_name,
-      last_name,
+    const { data } = await AuthAPI.register(
+      firstName,
+      lastName,
       email,
       username,
-      password,
-    });
+      password
+    );
     dispatch({
       type: userConstants.REGISTER_USER_SUCCESS,
       payload: data,
@@ -46,7 +46,7 @@ export const login = (email, password) => async (dispatch) => {
     payload: { email, password },
   });
   try {
-    const { data } = await axios.post("/login", { email, password });
+    const { data } = await AuthAPI.login(email, password);
     dispatch({
       type: userConstants.LOGIN_SUCCESS,
       payload: data,
