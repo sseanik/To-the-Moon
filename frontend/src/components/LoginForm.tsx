@@ -1,31 +1,40 @@
 import { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
-import { connect } from "react-redux";
-import ClipLoader from "react-spinners/ClipLoader";
+import { Form, Button, Spinner } from "react-bootstrap";
+import { connect, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { login } from "../redux/actions/userActions";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
-interface IObjectKeys {
-  [key: string]: string | number;
-}
-
-interface RegisterFormParams extends IObjectKeys {
+interface LoginFormValues {
   email: string;
   password: string;
 }
 
 interface StateProps {
-  isLoading: boolean;
-  error: Object;
+  loading: boolean;
   token: string;
+  error: Object;
 }
 
-interface DispatchProps {
-  loginUser: (payload: RegisterFormParams) => void;
-}
+const initialValues: LoginFormValues = {
+  email: "",
+  password: "",
+};
 
-const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { isLoading, token, error, loginUser } = props;
+const schema = Yup.object({
+  email: Yup.string()
+    .required("Email is required.")
+    .max(30, "Must be 50 characters or less.")
+    .email("Must be a valid email"),
+  password: Yup.string()
+    .required("Password is required.")
+    .max(30, "Must be 16 characters or less.")
+    .min(8, "Must be 8 characters or more"),
+});
+
+const LoginForm: React.FC<StateProps> = (props) => {
+  const { loading, token, error } = props;
   const history = useHistory();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,7 +47,7 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   const onSubmit = (e: any) => {
     e.preventDefault();
-    loginUser({ email, password });
+    login({ email, password });
   };
 
   const formComponent = (
@@ -67,28 +76,15 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
     </Form>
   );
 
-  const loadingSpinnerComponent = (
-    <div>
-      <ClipLoader color={"green"} loading={isLoading} />
-      <h5>Preparing rocket fuel...</h5>
-    </div>
-  );
+  const loadingSpinnerComponent = <Spinner animation="border" role="status" />;
 
-  return isLoading ? loadingSpinnerComponent : formComponent;
+  return loading ? loadingSpinnerComponent : formComponent;
 };
 
 const mapStateToProps = (state: any) => ({
-  isLoading: state.loginUser.loginUser.loading,
+  loading: state.loginUser.loginUser.loading,
   token: state.loginUser.loginUser.token,
   error: state.loginUser.loginUser.error,
 });
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    loginUser: (formPayload: any) => {
-      dispatch(login(formPayload));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);
+export default connect(mapStateToProps)(LoginForm);

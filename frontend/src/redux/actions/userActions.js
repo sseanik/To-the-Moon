@@ -40,7 +40,7 @@ export const register = (payload) => async (dispatch) => {
       username,
       password
     );
-    dispatch(registerUserSuccess(res["token"]));
+    dispatch(registerUserSuccess(res.token));
   } catch (error) {
     dispatch(registerUserFailure(error));
   }

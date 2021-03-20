@@ -1,8 +1,10 @@
-import { Form, Button, Spinner } from "react-bootstrap";
+import { Form, Button, Spinner, Alert } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { register } from "../redux/actions/userActions";
+import { useHistory } from "react-router";
+import { useEffect } from "react";
 
 interface RegisterFormValues {
   firstName: string;
@@ -48,8 +50,18 @@ const schema = Yup.object({
 
 const RegisterForm: React.FC<StateProps> = (props) => {
   const { loading, token, error } = props;
-  const dispatch = useDispatch();
 
+  const history = useHistory();
+  useEffect(() => {
+    if (token || token !== "") {
+      history.push("/");
+    }
+  });
+
+  const spinnerComponent = <Spinner animation="border" role="status" />;
+  const errorComponent = <Alert variant="danger">{error}</Alert>;
+
+  const dispatch = useDispatch();
   const formComponent = (
     <Formik
       onSubmit={(values) => {
@@ -172,7 +184,7 @@ const RegisterForm: React.FC<StateProps> = (props) => {
     </Formik>
   );
 
-  return loading ? <Spinner animation="border" role="status" /> : formComponent;
+  return loading ? spinnerComponent : error ? errorComponent : formComponent;
 };
 
 const mapStateToProps = (state: any) => ({
