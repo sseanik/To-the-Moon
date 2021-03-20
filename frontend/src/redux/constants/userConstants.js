@@ -1,4 +1,4 @@
-const Types = {
+const userConstants = {
   LOGIN: "LOGIN",
   SUBMIT_REGISTER_USER_FORM: "SUBMIT_REGISTER_USER_FORM",
   REGISTER_USER_PENDING: "REGISTER_USER_PENDING",
@@ -9,4 +9,4 @@ const Types = {
   LOGIN_FAILURE: "LOGIN_FAILURE",
 };
 
-export default Types;
+export default userConstants;

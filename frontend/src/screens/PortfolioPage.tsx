@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Container, Col, Row } from "react-bootstrap";
+import { Alert, Button, Container, Col, Row, Spinner } from "react-bootstrap";
 import { useParams } from "react-router";
 import portfolioAPI from "../api/portfolioAPI";
 import AddInvestmentForm from "../components/AddInvestmentForm";
-import CreateStockForm from "../components/CreateStockForm";
 import EditPortfolioForm from "../components/EditPortfolioForm";
 import StockInfo from "../components/StockInfo";
+import ClipLoader from "react-spinners/ClipLoader";
 
 interface Props {
   token?: string;
@@ -31,11 +31,13 @@ const PortfolioPage: React.FC<Props> = (props) => {
   const [addingStock, setAddingStock] = useState(false);
   const [editingPortfolio, setEditingPortfolio] = useState(false);
   const [stockData, setStockData] = useState<Array<StockInfo>>([]);
+  const [stockLoading, setStockLoading] = useState(true);
+  const [stockDeleting, setStockDeleting] = useState(false);
 
   useEffect(() => {
     portfolioAPI.getStocks(name).then((portfolioStocks) => {
-      console.log(portfolioStocks.data);
       setStockData(portfolioStocks.data);
+      setStockLoading(false);
     });
   }, []);
 
@@ -53,10 +55,19 @@ const PortfolioPage: React.FC<Props> = (props) => {
   ));
 
   const handleDeletePortfolioClick = () => {
+    setStockDeleting(true);
     const deletePortfolio = async () => {
       await portfolioAPI.deletePortfolio(name);
     };
     deletePortfolio();
+    setStockDeleting(false);
+  };
+
+  const handleInvestmentAdded = () => {
+    portfolioAPI.getStocks(name).then((portfolioStocks) => {
+      setStockData(portfolioStocks.data);
+      setAddingStock(false);
+    });
   };
 
   const allowed = () => (
@@ -73,13 +84,19 @@ const PortfolioPage: React.FC<Props> = (props) => {
         <Col>Total Change</Col>
         <Col>Delete Stock</Col>
       </Row>
-      <Container fluid>{listStocks}</Container>
+      {stockLoading ? (
+        <Container fluid className="mt-2">
+          <ClipLoader color="blue" loading={stockLoading} />
+        </Container>
+      ) : (
+        <Container fluid className="px-0">
+          {listStocks}
+        </Container>
+      )}
       <Row className="justify-content-center mt-5">
         <Col>
           {addingStock ? (
-            <AddInvestmentForm
-              handleInvestmentAdded={() => setAddingStock(false)}
-            />
+            <AddInvestmentForm handleInvestmentAdded={handleInvestmentAdded} />
           ) : (
             <Button variant="primary" onClick={() => setAddingStock(true)}>
               Add Investment
@@ -101,13 +118,17 @@ const PortfolioPage: React.FC<Props> = (props) => {
           )}
         </Col>
         <Col>
-          <Button
-            href="/portfolios"
-            variant="outline-danger"
-            onClick={handleDeletePortfolioClick}
-          >
-            Delete Portfolio
-          </Button>
+          {stockDeleting ? (
+            <Spinner animation="border" />
+          ) : (
+            <Button
+              href="/portfolios"
+              variant="outline-danger"
+              onClick={handleDeletePortfolioClick}
+            >
+              Delete Portfolio
+            </Button>
+          )}
         </Col>
       </Row>
     </Container>

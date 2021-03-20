@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Alert, Button } from "react-bootstrap";
 import portfolioAPI from "../api/portfolioAPI";
+import AddPortfolioForm from "../components/AddPortfolioForm";
 import PortfolioInfo from "../components/PortfolioInfo";
 
 interface Props {
@@ -11,10 +12,13 @@ const PortfoliosPage: React.FC<Props> = (props) => {
   const { token } = props;
   const [authenticated, setAuthenticated] = useState(false);
   const [portfolioList, setPortfolioList] = useState<Array<string>>([]);
+  const [addingPortfolio, setAddingPortfolio] = useState(false);
 
   useEffect(() => {
-    portfolioAPI.getPortfolios()
-      .then((portfolios) => { console.log(portfolios); setPortfolioList(portfolios.data)});
+    portfolioAPI.getPortfolios().then((portfolios) => {
+      console.log(portfolios);
+      setPortfolioList(portfolios.data);
+    });
   }, []);
 
   // may be removed soon
@@ -36,9 +40,18 @@ const PortfoliosPage: React.FC<Props> = (props) => {
         <h1>Manage Portfolios</h1>
       </Row>
       <Row className="justify-content-center my-3">
-        <Button href="/create_portfolio" variant="outline-primary">
-          Add a portfolio
-        </Button>
+        {addingPortfolio ? (
+          <AddPortfolioForm
+            handlePortfolioAdded={() => setAddingPortfolio(false)}
+          />
+        ) : (
+          <Button
+            variant="outline-primary"
+            onClick={() => setAddingPortfolio(true)}
+          >
+            Add a Portfolio
+          </Button>
+        )}
       </Row>
       <Row className="my-2">{listPortfolios}</Row>
     </Container>

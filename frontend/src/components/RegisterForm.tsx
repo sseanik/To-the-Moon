@@ -1,201 +1,196 @@
-import { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
-import { connect } from "react-redux";
-import Actions from "../redux/actions/user";
-import ClipLoader from "react-spinners/ClipLoader";
-import { useHistory } from "react-router-dom";
+import { Form, Button, Spinner, Alert } from "react-bootstrap";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { connect, useDispatch } from "react-redux";
+import { register } from "../redux/actions/userActions";
+import { useHistory } from "react-router";
+import { useEffect } from "react";
 
-interface IObjectKeys {
-  [key: string]: string | number;
-}
-
-interface RegisterFormParams extends IObjectKeys {
-  username: string;
+interface RegisterFormValues {
   firstName: string;
   lastName: string;
   email: string;
+  username: string;
   password: string;
 }
 
-interface RegisterFormState {
-  values: RegisterFormParams;
-  errors: RegisterFormParams;
-}
-
 interface StateProps {
-  registerForm: RegisterFormState;
-  isLoading: boolean;
-  error: Object;
+  loading: boolean;
   token: string;
+  error: Object;
 }
 
-interface DispatchProps {
-  submitForm: (payload: RegisterFormParams) => void;
-  registerUser: (payload: RegisterFormParams) => void;
-}
+const initialValues: RegisterFormValues = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  username: "",
+  password: "",
+};
 
-const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const {
-    registerForm,
-    isLoading,
-    token,
-    error,
-    submitForm,
-    registerUser,
-  } = props;
+const schema = Yup.object({
+  firstName: Yup.string()
+    .required("First name is required.")
+    .max(30, "Must be 30 characters or less."),
+  lastName: Yup.string()
+    .required("Last name is required.")
+    .max(30, "Must be 30 characters or less."),
+  email: Yup.string()
+    .required("Email is required.")
+    .max(30, "Must be 50 characters or less.")
+    .email("Must be a valid email"),
+  username: Yup.string()
+    .required("Username is required.")
+    .max(30, "Must be 30 characters or less."),
+  password: Yup.string()
+    .required("Password is required.")
+    .max(30, "Must be 16 characters or less.")
+    .min(8, "Must be 8 characters or more"),
+});
+
+const RegisterForm: React.FC<StateProps> = (props) => {
+  const { loading, token, error } = props;
+
   const history = useHistory();
-  const [username, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
   useEffect(() => {
-    if (token) {
+    if (token || token !== "") {
       history.push("/");
     }
   });
 
-  const onSubmit = (e: any) => {
-    e.preventDefault();
-    registerUser({ username, firstName, lastName, email, password });
-  };
+  const spinnerComponent = <Spinner animation="border" role="status" />;
+  const errorComponent = <Alert variant="danger">{error}</Alert>;
 
-  const onBlur = () => {
-    submitForm({ username, firstName, lastName, email, password });
-  };
-
+  const dispatch = useDispatch();
   const formComponent = (
-    <Form onSubmit={(e) => onSubmit(e)}>
-      <Form.Group controlId="formBasicUsername">
-        <Form.Label>Username</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter username"
-          isInvalid={registerForm.errors.username.length > 0}
-          isValid={
-            !!registerForm.values.username &&
-            registerForm.errors.username.length === 0
-          }
-          onChange={(e) => setUsername(e.target.value)}
-          onBlur={onBlur}
-        />
-        <Form.Control.Feedback type="invalid">
-          {registerForm.errors.username}
-        </Form.Control.Feedback>
-        <Form.Text className="text-muted">Choose a unique username.</Form.Text>
-      </Form.Group>
+    <Formik
+      onSubmit={(values) => {
+        dispatch(register(values));
+      }}
+      initialValues={initialValues}
+      validationSchema={schema}
+    >
+      {({
+        handleSubmit,
+        handleChange,
+        handleBlur,
+        values,
+        errors,
+        touched,
+      }) => {
+        return (
+          <Form noValidate onSubmit={handleSubmit} className="w-50 my-2">
+            <Form.Control
+              className="my-1"
+              type="text"
+              name="firstName"
+              placeholder="Enter your first name"
+              value={values.firstName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.firstName && touched.firstName}
+              isValid={!errors.firstName && touched.firstName}
+            />
+            {errors.firstName && touched.firstName ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.firstName}
+              </Form.Control.Feedback>
+            ) : (
+              <></>
+            )}
+            <Form.Control
+              className="my-1"
+              type="text"
+              name="lastName"
+              placeholder="Enter your last name"
+              value={values.lastName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.lastName && touched.lastName}
+              isValid={!errors.lastName && touched.lastName}
+            />
+            {errors.lastName && touched.lastName ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.lastName}
+              </Form.Control.Feedback>
+            ) : (
+              <></>
+            )}
+            <Form.Control
+              className="my-1"
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={values.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.email && touched.email}
+              isValid={!errors.email && touched.email}
+            />
+            {errors.email && touched.email ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.email}
+              </Form.Control.Feedback>
+            ) : (
+              <Form.Text className="text-muted">
+                Email must be unique.
+              </Form.Text>
+            )}
+            <Form.Control
+              className="my-1"
+              type="text"
+              name="username"
+              placeholder="Enter your username"
+              value={values.username}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.username && touched.username}
+              isValid={!errors.username && touched.username}
+            />
+            {errors.username && touched.username ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.username}
+              </Form.Control.Feedback>
+            ) : (
+              <Form.Text className="text-muted">
+                Username must be unique.
+              </Form.Text>
+            )}
+            <Form.Control
+              className="my-1"
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={values.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.password && touched.password}
+              isValid={!errors.password && touched.password}
+            />
+            {errors.password && touched.password ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.password}
+              </Form.Control.Feedback>
+            ) : (
+              <></>
+            )}
 
-      <Form.Group controlId="formBasicFirstName">
-        <Form.Label>First name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter first name"
-          isInvalid={registerForm.errors.firstName.length > 0}
-          isValid={
-            !!registerForm.values.firstName &&
-            registerForm.errors.firstName.length === 0
-          }
-          onChange={(e) => setFirstName(e.target.value)}
-          onBlur={onBlur}
-        />
-        <Form.Control.Feedback type="invalid">
-          {registerForm.errors.firstName}
-        </Form.Control.Feedback>
-      </Form.Group>
-
-      <Form.Group controlId="formBasicLastName">
-        <Form.Label>Last name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter last name"
-          isInvalid={registerForm.errors.lastName.length > 0}
-          isValid={
-            !!registerForm.values.lastName &&
-            registerForm.errors.lastName.length === 0
-          }
-          onChange={(e) => setLastName(e.target.value)}
-          onBlur={onBlur}
-        />
-        <Form.Control.Feedback type="invalid">
-          {registerForm.errors.lastName}
-        </Form.Control.Feedback>
-      </Form.Group>
-
-      <Form.Group controlId="formBasicEmail">
-        <Form.Label>Email</Form.Label>
-        <Form.Control
-          type="email"
-          placeholder="Enter email"
-          isInvalid={registerForm.errors.email.length > 0}
-          isValid={
-            !!registerForm.values.email &&
-            registerForm.errors.email.length === 0
-          }
-          onChange={(e) => setEmail(e.target.value)}
-          onBlur={onBlur}
-        />
-        <Form.Control.Feedback type="invalid">
-          {registerForm.errors.email}
-        </Form.Control.Feedback>
-        <Form.Text className="text-muted">
-          We'll never share your email with anyone else.
-        </Form.Text>
-      </Form.Group>
-
-      <Form.Group controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Password"
-          isInvalid={registerForm.errors.password.length > 0}
-          isValid={
-            !!registerForm.values.password &&
-            registerForm.errors.password.length === 0
-          }
-          onChange={(e) => setPassword(e.target.value)}
-          onBlur={onBlur}
-        />
-        <Form.Control.Feedback type="invalid">
-          {registerForm.errors.password}
-        </Form.Control.Feedback>
-        <Form.Text className="text-muted">
-          Passwords must be between 8 and 16 characters long.
-        </Form.Text>
-      </Form.Group>
-
-      <Button variant="primary" type="submit">
-        Sign up
-      </Button>
-    </Form>
+            <Button className="w-100 my-1" variant="primary" type="submit">
+              Sign Up
+            </Button>
+          </Form>
+        );
+      }}
+    </Formik>
   );
 
-  const loadingSpinnerComponent = (
-    <div>
-      <ClipLoader color={"green"} loading={isLoading} />
-      <h5>Onboarding astronauts...</h5>
-    </div>
-  );
-
-  return isLoading ? loadingSpinnerComponent : formComponent;
+  return loading ? spinnerComponent : error ? errorComponent : formComponent;
 };
 
 const mapStateToProps = (state: any) => ({
-  registerForm: state.submitRegisterUserForm.registerForm,
-  isLoading: state.registerUser.registerUser.loading,
+  loading: state.registerUser.registerUser.loading,
   token: state.registerUser.registerUser.token,
   error: state.registerUser.registerUser.error,
 });
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    submitForm: (formPayload: any) => {
-      dispatch(Actions.submitRegisterUserForm(formPayload));
-    },
-    registerUser: (formPayload: any) => {
-      dispatch(Actions.registerUser(formPayload));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterForm);
+export default connect(mapStateToProps)(RegisterForm);
