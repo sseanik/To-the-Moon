@@ -7,13 +7,9 @@ import {
   Col
 } from "react-bootstrap";
 
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import {
+  summaryFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 export interface summaryDataT {
     previous_close: number;
@@ -41,17 +37,6 @@ interface Props {
   summaryData: summaryDataT;
   isLoading: boolean;
 }
-
-const formatMap: IObjectKeys = {
-  previous_close: {name: "Previous Close"},
-  open: {name: "Open"},
-  day_min: {name: "Daily Low"},
-  day_max: {name: "Daily High"},
-  year_min: {name: "Yearly Low"},
-  year_max: {name: "Yearly High"},
-  volume: {name: "Volume"},
-  average_volume: {name: "Average Volume"},
-};
 
 const DataSummary: React.FC<Props> = (props) => {
   const { summaryData, isLoading } = props;

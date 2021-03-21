@@ -8,14 +8,9 @@ import {
 } from "react-bootstrap";
 
 import StockAPI from "../api/stock";
-
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import {
+  cashFlowStatementFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 interface CashFlowEntry {
   stockticker: string;
@@ -39,23 +34,6 @@ interface Props {
   symbol: string;
   tryLoading: boolean;
 }
-
-const formatMap: IObjectKeys = {
-  stockticker: {name: "Company Symbol"},
-  fiscaldateending: {name: "Year Ending"},
-  paymentsforoperatingactivities: {name: "Payments for Operating Activities"},
-  operatingcashflow: {name: "Operating Cash Flow"},
-  changeinoperatingliabilities: {name: "Change in Operating Liabilities"},
-  changeinoperatingassets: {name: "Change in Operating Assets"},
-  depreciationdepletionandamortization: {name: "Depreciation Depletion and Amortisation"},
-  changeininventory: {name: "Change in Inventory"},
-  cashflowfrominvestment: {name: "Cash Flow from Investment"},
-  cashflowfromfinancing: {name: "Cash Flow from Financing"},
-  dividendpayout: {name: "Dividend Payout"},
-  proceedsfromrepurchaseofequity: {name: "Proceeds From Repurchase Of Equity"},
-  changeincashandcashequivalents: {name: "Change in Cash"},
-  netincome: {name: "Net Income"},
-};
 
 const DataCashFlow: React.FC<Props> = (props) => {
   const { symbol, tryLoading } = props;

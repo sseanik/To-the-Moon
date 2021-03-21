@@ -7,13 +7,9 @@ import {
   Col
 } from "react-bootstrap";
 
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import {
+  fundamentalsFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 export interface fundamentalDataT {
     company_name: string;
@@ -46,18 +42,6 @@ interface Props {
   isLoading: boolean;
 }
 
-const formatMap: IObjectKeys = {
-  stockname: {name: "Company Name"},
-  exchange: {name: "Exchange"},
-  currency: {name: "Currency"},
-  yearlylow: {name: "Year Low"},
-  yearlyhigh: {name: "Year High"},
-  marketcap: {name: "Market Capitalisation"},
-  beta: {name: "Beta"},
-  peratio: {name: "PE Ratio"},
-  eps: {name: "EPS"},
-  dividendyield: {name: "Dividend Yield"},
-};
 
 const DataFundamentals: React.FC<Props> = (props) => {
   const { fundamentalData, isLoading } = props;

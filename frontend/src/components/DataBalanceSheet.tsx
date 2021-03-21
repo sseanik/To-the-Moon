@@ -9,6 +9,9 @@ import {
 } from "react-bootstrap";
 
 import StockAPI from "../api/stock";
+import {
+  balanceSheetFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 interface BalanceSheetEntry {
   fiscaldateending: string;
@@ -21,30 +24,11 @@ interface BalanceSheetEntry {
   total_equity: number;
 }
 
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
-
 interface Props {
   // balanceSheet: Array<BalanceSheetEntry>;
   symbol: string;
   tryLoading: boolean;
 }
-
-const formatMap: IObjectKeys = {
-  fiscaldateending: {name: "Year Ending"},
-  total_assets: {name: "Total Assets"},
-  total_curr_assets: {name: "Total Current Assets"},
-  total_ncurr_assets: {name: "Total Non-Current Assets"},
-  total_liabilities: {name: "Total Liabilities"},
-  total_curr_liabilities: {name: "Total Current Liabilities"},
-  total_ncurr_liabilities: {name: "Total Non-Current Liabilities"},
-  total_equity: {name: "Total Equity"},
-};
 
 const DataBalanceSheet: React.FC<Props> = (props) => {
   const { symbol, tryLoading } = props;
