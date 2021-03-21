@@ -1,8 +1,9 @@
-import { Carousel } from "react-bootstrap";
+import { Carousel, Container } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
-import NewsAPI from "../api/news";
-import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { useEffect } from "react";
 import { NewsItem } from "./NewsCard";
+import newsActions from "../redux/actions/newsActions";
 
 const carouselStyle = {
   width: "100%",
@@ -22,13 +23,20 @@ const textStyle = {
   padding: "20px",
 };
 
-const NewsCarousel: React.FC = () => {
-  const [newsData, setNewsData] = useState<Array<NewsItem>>([]);
+interface StateProps {
+  loading: boolean,
+  articles: Array<NewsItem>
+}
+
+interface DispatchProps {
+  getGeneralNews: () => void;
+}
+
+const NewsCarousel: React.FC<StateProps & DispatchProps> = (props) => {
+  const { loading, articles, getGeneralNews } = props;
 
   useEffect(() => {
-    NewsAPI.getFeaturedNews()
-      .then(news => setNewsData(news.articles))
-      .catch(err => console.log(err));
+    getGeneralNews();
   }, []);
 
   const newsItem = (props: NewsItem, idx: number) => (
@@ -49,16 +57,26 @@ const NewsCarousel: React.FC = () => {
   );
 
   return (
-    <div>
+    <Container>
       <ClipLoader color={"green"} loading={loading}>
         <span className="sr-only">Loading...</span>
       </ClipLoader>
       <Carousel style={carouselStyle}>
-        {newsData.slice(0, 5).map((props, idx) => newsItem(props, idx))}
+        {articles.slice(0, 5).map((props, idx) => newsItem(props, idx))}
       </Carousel>
-    </div>
-    
+    </Container>
   );
 };
 
-export default NewsCarousel;
+const mapStateToProps = (state: any) => ({
+  loading: state.landingNewsReducer.loading,
+  articles: state.landingNewsReducer.data,
+});
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    getGeneralNews: () => dispatch(newsActions.getGeneralNews())
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewsCarousel);
