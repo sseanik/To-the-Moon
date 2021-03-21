@@ -3,7 +3,7 @@ import newsConstants from "../constants/newsConstants";
 
 const newsActions = {
   newsPending: () => ({
-    type: newsConstants. NEWS_PENDING,
+    type: newsConstants.NEWS_PENDING,
   }),
   newsSuccess: (response) => ({
     type: newsConstants.NEWS_SUCCESS,
@@ -17,11 +17,28 @@ const newsActions = {
     dispatch(newsActions.newsPending());
     try {
       const res = await NewsAPI.getFeaturedNews();
-      dispatch(newsActions.newsSuccess);
+      if (res.status === 200) {
+        dispatch(newsActions.newsSuccess(res));
+      } else {
+        dispatch(newsActions.newsFailure(res.error));
+      }
     } catch (error) {
-
+      dispatch(newsActions.newsFailure(error));
+    }
+  },
+  getNewsByStock: (stockSymbol) => async (dispatch) => {
+    dispatch(newsActions.newsPending());
+    try {
+      const res = await NewsAPI.getNewsByStock(stockSymbol);
+      if (res.status === 200) {
+        dispatch(newsActions.newsSuccess(res));
+      } else {
+        dispatch(newsActions.newsFailure(res.error));
+      }
+    } catch (error) {
+      dispatch(newsActions.newsFailure(error));
     }
   }
 };
 
-export default userActions;
+export default newsActions;

@@ -1,5 +1,6 @@
 import { combineReducers } from "redux";
 import { registerUser, loginUser } from "../reducers/userReducers";
+import { landingNewsReducer, stockNewsReducer } from "./newsReducer";
 import createPortfolio from "./createPortfolio";
 import createStock from "./createStock";
 import submitCreatePortfolioForm from "./submitCreatePortfolioForm";
@@ -11,4 +12,6 @@ export default combineReducers({
   submitCreatePortfolioForm,
   submitCreateStockForm,
   createStock,
+  landingNewsReducer,
+  stockNewsReducer,
 });
