@@ -56,14 +56,14 @@ const formatMap: IObjectKeys = {
 };
 
 const DataIncomeStatement: React.FC<Props> = (props) => {
-  var { symbol, tryLoading } = props;
+  const { symbol, tryLoading } = props;
 
   const [isLoading, setIsLoading] = useState(true);
   const [incomeStatement, setIncomeStatement] = useState<any>([]);
 
   const fetchIncomeStatement = () => {
     async function fetchIncome() {
-      var incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
+      const incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
       if (incomedata) {
         setIncomeStatement(incomedata.data);
         setIsLoading(false);

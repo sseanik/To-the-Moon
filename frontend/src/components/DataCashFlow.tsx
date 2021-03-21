@@ -58,14 +58,14 @@ const formatMap: IObjectKeys = {
 };
 
 const DataCashFlow: React.FC<Props> = (props) => {
-  var { symbol, tryLoading } = props;
+  const { symbol, tryLoading } = props;
 
   const [isLoading, setIsLoading] = useState(true);
   const [cashFlow, setCashFlow] = useState<any>([]);
 
   const fetchCashFlow = () => {
     async function fetchCash() {
-      var cashdata = symbol ? await StockAPI.getCashFlow(symbol) : {};
+      const cashdata = symbol ? await StockAPI.getCashFlow(symbol) : {};
       if (cashdata.data) {
         setCashFlow(cashdata.data);
         setIsLoading(false);

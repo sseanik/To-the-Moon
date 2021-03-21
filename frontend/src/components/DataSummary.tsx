@@ -39,7 +39,7 @@ export const defaultSummaryData = {
 
 interface Props {
   summaryData: summaryDataT;
-  isLoading: boolean; 
+  isLoading: boolean;
 }
 
 const formatMap: IObjectKeys = {
@@ -54,7 +54,7 @@ const formatMap: IObjectKeys = {
 };
 
 const DataSummary: React.FC<Props> = (props) => {
-  var { summaryData, isLoading } = props;
+  const { summaryData, isLoading } = props;
 
   const loadingSpinnerComponent = (
     <div>

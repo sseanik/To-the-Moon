@@ -60,7 +60,7 @@ const formatMap: IObjectKeys = {
 };
 
 const DataFundamentals: React.FC<Props> = (props) => {
-  var { fundamentalData, isLoading } = props;
+  const { fundamentalData, isLoading } = props;
 
   const loadingSpinnerComponent = (
     <div>

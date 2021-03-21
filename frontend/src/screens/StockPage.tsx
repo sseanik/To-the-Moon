@@ -33,8 +33,8 @@ interface RouteParams {
 }
 
 const StockPage: React.FC = () => {
-  var params = useParams<RouteParams>();
-  var symbol = params.symbol;
+  const params = useParams<RouteParams>();
+  const symbol = params.symbol;
 
   const [genkey, setGenkey] = useState<string|null>('summary');
   const [finkey, setFinkey] = useState<string|null>('incomestatement');

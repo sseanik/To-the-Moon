@@ -54,7 +54,7 @@ const DataBalanceSheet: React.FC<Props> = (props) => {
 
   const fetchBalanceSheet = () => {
     async function fetchBalance() {
-      var balancedata = symbol ? await StockAPI.getBalance(symbol) : {};
+      const balancedata = symbol ? await StockAPI.getBalance(symbol) : {};
       if (balancedata) {
         setBalanceSheet(balancedata.data);
         setIsLoading(false);
