@@ -1,4 +1,5 @@
 import { Carousel } from "react-bootstrap";
+import ClipLoader from "react-spinners/ClipLoader";
 import NewsAPI from "../api/news";
 import { useEffect, useState } from "react";
 import { NewsItem } from "./NewsCard";
@@ -48,9 +49,15 @@ const NewsCarousel: React.FC = () => {
   );
 
   return (
-    <Carousel style={carouselStyle}>
-      {newsData.slice(0, 5).map((props, idx) => newsItem(props, idx))}
-    </Carousel>
+    <div>
+      <ClipLoader color={"green"} loading={loading}>
+        <span className="sr-only">Loading...</span>
+      </ClipLoader>
+      <Carousel style={carouselStyle}>
+        {newsData.slice(0, 5).map((props, idx) => newsItem(props, idx))}
+      </Carousel>
+    </div>
+    
   );
 };
 
