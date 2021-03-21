@@ -4,11 +4,10 @@ import {
   NavDropdown,
   Button,
 } from "react-bootstrap";
-import ClipLoader from "react-spinners/ClipLoader";
-import { useEffect } from "react";
 import { connect } from "react-redux";
 import { useHistory } from "react-router-dom";
 import userActions from "../redux/actions/userActions";
+import Username from "./Username";
 
 const dropdownNavLinks = [
   { href: "/portfolios", name: "My Portfolios"},
@@ -29,11 +28,10 @@ interface StateProps {
 
 interface DispatchProps {
   logout: () => void;
-  getUsername: () => void;
 }
 
 const Header: React.FC<StateProps & DispatchProps> = (props) => {
-  const { token, username, loading, error, logout, getUsername } = props;
+  const { token, username, loading, error, logout } = props;
   const history = useHistory();
 
   const handleLogout = () => {
@@ -57,25 +55,14 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
     </Navbar.Collapse>
   );
 
-  const privateUserNavContainer = (
+  const privateUserNav = (
     <Navbar.Collapse className="justify-content-end">
-      
-
+      <Username />
       <Button variant="light" type="button" onClick={handleLogout}>
         Logout
       </Button>
     </Navbar.Collapse>
   );
-
-  const privateUser = (
-    {
-      username  
-      ? username
-      : <ClipLoader color={"green"} loading={loading}>
-          <span className="sr-only">Loading...</span>
-        </ClipLoader>
-    }
-  )
 
   const publicNav = (
     <Navbar.Collapse id="basic-navbar-nav">
@@ -107,8 +94,7 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => {
   return {
     logout: () => dispatch(userActions.logout()),
-    getUsername: () => dispatch(userActions.getUsername),
   }
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header);

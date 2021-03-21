@@ -13,8 +13,7 @@ const initialState = {
     error: null,
   },
   user: {
-    loading: false,
-    error: null,
+    loading: true,
   },
   token: Utils.getToken(),
   username: null,
@@ -97,7 +96,6 @@ const userReducer = (state = initialState, action) => {
         user: {
           ...state.user,
           loading: true,
-          error: null,
         },
         username: null,
       };
@@ -116,9 +114,8 @@ const userReducer = (state = initialState, action) => {
         user: {
           ...state.user,
           loading: false,
-          error: action.payload
         },
-        username: null
+        username: ""
       }
     default:
       return state;

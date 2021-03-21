@@ -34,9 +34,8 @@ const userActions = {
     type: userConstants.GET_USERNAME_SUCCESS,
     payload: username
   }),
-  getUsernameFailure: (error) => ({
+  getUsernameFailure: () => ({
     type: userConstants.GET_USERNAME_FAILURE,
-    payload: error
   }),
   register: (payload) => async (dispatch) => {
     dispatch(userActions.registerPending());
@@ -86,9 +85,11 @@ const userActions = {
         dispatch(userActions.getUsernameSuccess(res.username));
       } else {
         dispatch(userActions.getUsernameFailure(res.error));
+        dispatch(userActions.logout());
       }
     } catch (error) {
       dispatch(userActions.getUsernameFailure(error));
+      dispatch(userActions.logout());
     }
   }
 };

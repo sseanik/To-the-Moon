@@ -8,7 +8,7 @@ import bcrypt
 from json import dumps
 from flask import Blueprint, request
 from database import createDBConnection
-from token_util import generateToken
+from token_util import generateToken, getIDfromToken
 
 
 #######################
@@ -203,6 +203,12 @@ def login_user_wrapper():
 @USER_ROUTES.route('/user', methods=['GET'])
 def get_user_wrapper():
     token = request.headers.get('Authorization')
-    user_id = getIDfromToken(token)
-    result = get_username(user_id)
+    try:
+        user_id = getIDfromToken(token)
+    except:
+        return {
+            'status': 400,
+            'error': 'Failed to decode token'
+        }
+    result = get_username(user_id['id'])
     return dumps(result)
