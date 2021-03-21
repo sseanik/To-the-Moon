@@ -33,13 +33,14 @@ def getStockNews(stockSymbol, articleCount):
     response = requests.request("GET", url, params=querystring)
     if response.status_code == 200:
         return {
-            'status': response.status_code,
+            'status': 200,
             'articles': response.json()[:articleCount]
         }
     else:
         return {
-            'status': response.status_code,
-            'articles': []
+            'status': 404,
+            'articles': [],
+            'error': 'Unable to fetch news'
         }
 
 # Given a list of stock symbols, return a list of numArticles amount of related news articles
@@ -57,8 +58,9 @@ def getPortfolioNews(stockSymbols, numArticles):
         }
     else:
         return {
-            'status': 500,
+            'status': 400,
             'articles': newsArticles
+            'error': 'Unable to fetch news'
         }
 
 # Given a number of articles, return a list of general finance news articles
@@ -68,13 +70,14 @@ def getGeneralNews(numArticles):
     response = requests.request("GET", url, params=querystring)
     if response.status_code == 200:
         return {
-            'status': response.status_code,
+            'status': 200,
             'articles': response.json()[:int(numArticles)]
         }
     else:
         return {
-            'status': response.status_code,
-            'articles': []
+            'status': 404,
+            'articles': [],
+            'error': 'Unable to fetch news'
         }
 
 ################################
