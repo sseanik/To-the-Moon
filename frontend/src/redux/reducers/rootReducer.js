@@ -5,9 +5,7 @@ import portfolioReducer from "./portfolioReducer";
 import submitCreateStockForm from "./submitCreateStockForm";
 export default combineReducers({
   userReducer,
-  createPortfolio,
-  submitCreatePortfolioForm,
+  portfolioReducer,
   submitCreateStockForm,
   createStock,
-  portfolioReducer,
 });
