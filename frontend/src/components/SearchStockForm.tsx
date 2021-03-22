@@ -47,8 +47,8 @@ const SearchStockForm: React.FC = () => {
                 placeholder="Enter a stock symbol..."
                 value={values.stock}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 isInvalid={!!errors.stock && touched.stock}
-                isValid={!errors.stock && touched.stock}
               />
               {errors.stock && touched.stock ? (
                 <Form.Control.Feedback type="invalid">
