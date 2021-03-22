@@ -2,12 +2,12 @@ import {
   Navbar,
   Nav,
   NavDropdown,
-  Form,
-  FormControl,
   Button,
 } from "react-bootstrap";
-import { useState, useEffect } from "react";
 import { connect } from "react-redux";
+import { useHistory } from "react-router-dom";
+import userActions from "../redux/actions/userActions";
+import Username from "./Username";
 
 const dropdownNavLinks = [
   { href: "/portfolios", name: "My Portfolios"},
@@ -19,62 +19,82 @@ const dropdownNavLinks = [
   { href: "/logout", name: "Logout"},
 ];
 
-interface Props {
+interface StateProps {
   token?: string;
+  username?: string;
+  loading: boolean;
+  error?: string;
 }
 
-const Header: React.FC<Props> = (props) => {
-  const { token } = props;
+interface DispatchProps {
+  logout: () => void;
+}
 
-  const [authenticated, setAuthenticated] = useState(false);
+const Header: React.FC<StateProps & DispatchProps> = (props) => {
+  const { token, username, loading, error, logout } = props;
+  const history = useHistory();
 
-  useEffect(() => {
-    if (token !== "" || window.localStorage.getItem("Token")) {
-      setAuthenticated(true);
-    } else {
-      setAuthenticated(false);
-    }
-  }, [token]);
+  const handleLogout = () => {
+    logout();
+    history.push("/");
+  };
 
-  const privateNav = () => (
-    <Nav className="mr-auto">
-      <Nav.Link href="/home">Home</Nav.Link>
-      <Nav.Link href="/dashboard">Dashboard</Nav.Link>
-      <NavDropdown title="More" id="basic-nav-dropdown">
-        {dropdownNavLinks.map((link) => (
-          <NavDropdown.Item key={link.toString()} href={link.href}>
-            {link.name}
-          </NavDropdown.Item>
-        ))}
-      </NavDropdown>
-    </Nav>
+  const privateNav = (
+    <Navbar.Collapse id="basic-navbar-nav">
+      <Nav className="mr-auto">
+        <Nav.Link href="/home">Home</Nav.Link>
+        <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+        <NavDropdown title="More" id="basic-nav-dropdown">
+          {dropdownNavLinks.map((link, idx) => (
+            <NavDropdown.Item key={idx} href={link.href}>
+              {link.name}
+            </NavDropdown.Item>
+          ))}
+        </NavDropdown>
+      </Nav>
+    </Navbar.Collapse>
   );
 
-  const publicNav = () => (
-    <Nav className="mr-auto">
-      <Nav.Link href="/about-us">About us</Nav.Link>
-      <Nav.Link href="/login">Login</Nav.Link>
-      <Nav.Link href="/signup">Sign up</Nav.Link>
-    </Nav>
+  const privateUserNav = (
+    <Navbar.Collapse className="justify-content-end">
+      <Username />
+      <Button variant="light" type="button" onClick={handleLogout}>
+        Logout
+      </Button>
+    </Navbar.Collapse>
+  );
+
+  const publicNav = (
+    <Navbar.Collapse id="basic-navbar-nav">
+      <Nav className="mr-auto">
+        <Nav.Link href="/about-us">About us</Nav.Link>
+        <Nav.Link href="/login">Login</Nav.Link>
+        <Nav.Link href="/signup">Sign up</Nav.Link>
+      </Nav>
+    </Navbar.Collapse>
   );
 
   return (
     <Navbar bg="dark" expand="lg" variant="dark">
       <Navbar.Brand href="/">To The Moon</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        {authenticated ? privateNav() : publicNav()}
-        <Form inline>
-          <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-          <Button variant="outline-success">Search</Button>
-        </Form>
-      </Navbar.Collapse>
+      {token ? privateNav : publicNav}
+      {token ? privateUserNav : null}
     </Navbar>
   );
 };
 
 const mapStateToProps = (state: any) => ({
-  token: state.loginUser.loginUser.token,
+  token: state.userReducer.token,
+  username: state.userReducer.username,
+  loading: state.userReducer.user.loading,
+  error: state.userReducer.user.error,
 });
 
-export default connect(mapStateToProps, null)(Header);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    logout: () => dispatch(userActions.logout()),
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

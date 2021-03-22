@@ -16,13 +16,7 @@ import {
 import { Header } from "./components";
 import PortfoliosPage from "./screens/PortfoliosPage";
 
-const initialState = {
-  loginUser: {
-    loginUser: {
-      token: "",
-    },
-  },
-};
+const initialState = {};
 
 function App() {
   return (
@@ -38,8 +32,8 @@ function App() {
           draggable
           pauseOnHover
         />
-        <Header />
         <BrowserRouter>
+          <Header />
           <Container fluid className="app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />

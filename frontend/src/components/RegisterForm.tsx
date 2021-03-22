@@ -1,10 +1,11 @@
-import { Form, Button, Spinner, Alert } from "react-bootstrap";
+import { useEffect } from "react";
+import { Form, Button, Alert } from "react-bootstrap";
+import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { connect, useDispatch } from "react-redux";
-import { register } from "../redux/actions/userActions";
-import { useHistory } from "react-router";
-import { useEffect } from "react";
+import { connect } from "react-redux";
+import { useHistory } from "react-router-dom";
+import userActions from "../redux/actions/userActions";
 
 interface RegisterFormValues {
   firstName: string;
@@ -16,8 +17,12 @@ interface RegisterFormValues {
 
 interface StateProps {
   loading: boolean;
-  token: string;
+  message: string;
   error: Object;
+}
+
+interface DispatchProps {
+  register: (payload: RegisterFormValues) => void;
 }
 
 const initialValues: RegisterFormValues = {
@@ -37,36 +42,43 @@ const schema = Yup.object({
     .max(30, "Must be 30 characters or less."),
   email: Yup.string()
     .required("Email is required.")
-    .max(30, "Must be 50 characters or less.")
+    .max(50, "Must be 50 characters or less.")
     .email("Must be a valid email"),
   username: Yup.string()
     .required("Username is required.")
     .max(30, "Must be 30 characters or less."),
   password: Yup.string()
     .required("Password is required.")
-    .max(30, "Must be 16 characters or less.")
+    .max(16, "Must be 16 characters or less.")
     .min(8, "Must be 8 characters or more"),
 });
 
-const RegisterForm: React.FC<StateProps> = (props) => {
-  const { loading, token, error } = props;
-
+const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
+  const { loading, message, error, register } = props;
   const history = useHistory();
+
   useEffect(() => {
-    if (token || token !== "") {
+    const successMessage = "Successfully registered!";
+    if (message === successMessage) {
       history.push("/");
     }
-  });
+  }, [message]);
 
-  const spinnerComponent = <Spinner animation="border" role="status" />;
-  const errorComponent = <Alert variant="danger">{error}</Alert>;
+  const errorComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
+  );
 
-  const dispatch = useDispatch();
-  const formComponent = (
+  const messageComponent = (
+    <Alert variant="success">
+      {message}
+    </Alert>
+  );
+
+  return (
     <Formik
-      onSubmit={(values) => {
-        dispatch(register(values));
-      }}
+      onSubmit={register}
       initialValues={initialValues}
       validationSchema={schema}
     >
@@ -80,11 +92,17 @@ const RegisterForm: React.FC<StateProps> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="w-50 my-2">
+            <h4>Become an astronaut today! Sign up with us to start your journey <i>To The Moon</i>.</h4>
+            { error ? errorComponent: null }
+            { message ? messageComponent: null }
+            <ClipLoader color={"green"} loading={loading}>
+              <span className="sr-only">Loading...</span>
+            </ClipLoader>
             <Form.Control
               className="my-1"
               type="text"
               name="firstName"
-              placeholder="Enter your first name"
+              placeholder="First name"
               value={values.firstName}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -95,14 +113,12 @@ const RegisterForm: React.FC<StateProps> = (props) => {
               <Form.Control.Feedback type="invalid">
                 {errors.firstName}
               </Form.Control.Feedback>
-            ) : (
-              <></>
-            )}
+            ) : null}
             <Form.Control
               className="my-1"
               type="text"
               name="lastName"
-              placeholder="Enter your last name"
+              placeholder="Last name"
               value={values.lastName}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -113,14 +129,12 @@ const RegisterForm: React.FC<StateProps> = (props) => {
               <Form.Control.Feedback type="invalid">
                 {errors.lastName}
               </Form.Control.Feedback>
-            ) : (
-              <></>
-            )}
+            ) : null}
             <Form.Control
               className="my-1"
               type="email"
               name="email"
-              placeholder="Enter your email"
+              placeholder="Email"
               value={values.email}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -140,7 +154,7 @@ const RegisterForm: React.FC<StateProps> = (props) => {
               className="my-1"
               type="text"
               name="username"
-              placeholder="Enter your username"
+              placeholder="Username"
               value={values.username}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -160,7 +174,7 @@ const RegisterForm: React.FC<StateProps> = (props) => {
               className="my-1"
               type="password"
               name="password"
-              placeholder="Enter your password"
+              placeholder="Password"
               value={values.password}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -171,11 +185,9 @@ const RegisterForm: React.FC<StateProps> = (props) => {
               <Form.Control.Feedback type="invalid">
                 {errors.password}
               </Form.Control.Feedback>
-            ) : (
-              <></>
-            )}
+            ) : null}
 
-            <Button className="w-100 my-1" variant="primary" type="submit">
+            <Button disabled={loading} className="w-100 my-1" variant="primary" type="submit">
               Sign Up
             </Button>
           </Form>
@@ -183,14 +195,18 @@ const RegisterForm: React.FC<StateProps> = (props) => {
       }}
     </Formik>
   );
-
-  return loading ? spinnerComponent : error ? errorComponent : formComponent;
 };
 
 const mapStateToProps = (state: any) => ({
-  loading: state.registerUser.registerUser.loading,
-  token: state.registerUser.registerUser.token,
-  error: state.registerUser.registerUser.error,
+  loading: state.userReducer.registerUser.loading,
+  message: state.userReducer.registerUser.message,
+  error: state.userReducer.registerUser.error,
 });
 
-export default connect(mapStateToProps)(RegisterForm);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    register: (payload: RegisterFormValues) => dispatch(userActions.register(payload))
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(RegisterForm);
