@@ -23,13 +23,13 @@ const portfolioActions = {
       try {
         const { name } = payload;
         const res = await portfolioAPI.createPortfolio(name);
-        setTimeout(() => {
+        if (res.status === 200) {
           dispatch(portfolioActions.createPortfolioSuccess(res));
-        }, 2500);
+        } else {
+          dispatch(portfolioActions.createPortfolioFailure(res.error));
+        }
       } catch (error) {
-        setTimeout(() => {
-          dispatch(portfolioActions.createPortfolioFailure(error));
-        }, 2500);
+        dispatch(portfolioActions.createPortfolioFailure(error));
       }
     };
   },
