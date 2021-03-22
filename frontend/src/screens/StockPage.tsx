@@ -15,7 +15,7 @@ import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "../c
 import DataIncomeStatement from "../components/DataIncomeStatement";
 import DataBalanceSheet from "../components/DataBalanceSheet";
 import DataCashFlow from "../components/DataCashFlow";
-import { NewsCard } from "../components";
+import StockNews from "../components/StockNews";
 
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
@@ -57,7 +57,6 @@ const StockPage: React.FC = () => {
   const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
   const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
   const [timeSeriesIntra, setTimeSeriesIntra] = useState<any>([]);
-  const [stockNews, setStockNews] = useState([]);
 
   async function fetchStock() {
     const stockdata = symbol ? await StockAPI.getBasic(symbol) : {};
@@ -88,14 +87,8 @@ const StockPage: React.FC = () => {
     }
   }
 
-  async function fetchNews() {
-    const news = await NewsAPI.getNewsByStock(symbol)
-    setStockNews(news.articles);
-  }
-
   useEffect(() => {
     fetchStock();
-    fetchNews();
   }, []);
 
   useEffect(() => {
@@ -218,11 +211,7 @@ const StockPage: React.FC = () => {
         <h3>{`News related to ${symbol}`}</h3>
       </Row>
       <Row>
-        {
-          stockNews.map((news, idx) => (
-            <NewsCard key={idx} {...news} />
-          ))
-        }
+        <StockNews stock={symbol} />
       </Row>
     </Container>
   );
