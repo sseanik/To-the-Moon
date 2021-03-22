@@ -2,15 +2,15 @@ import React from "react";
 import { Col } from "react-bootstrap";
 
 interface Props {
-  portfolio_name: string;
+  portfolioName: string;
 }
 
 const PortfolioInfo: React.FC<Props> = (props) => {
-  const { portfolio_name } = props;
+  const { portfolioName } = props;
   return (
     <Col className="border rounded mx-1 p-5 align-middle">
-      <p className="m-0">{portfolio_name}</p>
-      <a href={`/portfolio/${portfolio_name}`} className="stretched-link" />
+      <p className="m-0">{portfolioName}</p>
+      <a href={`/portfolio/${portfolioName}`} className="stretched-link" />
     </Col>
   );
 };

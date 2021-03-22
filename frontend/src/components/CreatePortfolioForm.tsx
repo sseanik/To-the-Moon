@@ -62,7 +62,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
             />
 
             <Button type="submit" variant="outline-success">
-              Change Portfolio
+              Add Portfolio
             </Button>
           </Form>
         );

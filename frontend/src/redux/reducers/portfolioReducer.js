@@ -5,6 +5,10 @@ const initialState = {
     loading: false,
     error: null,
   },
+  getPortfolios: {
+    loading: false,
+    portfolios: [],
+  },
 };
 
 const portfolioReducer = (state = initialState, action) => {
@@ -31,6 +35,30 @@ const portfolioReducer = (state = initialState, action) => {
         createPortfolio: {
           loading: false,
           error: action.payload,
+        },
+      };
+    case portfolioConstants.GET_PORTFOLIOS_PENDING:
+      return {
+        ...state,
+        getPortfolios: {
+          loading: true,
+          portfolios: [],
+        },
+      };
+    case portfolioConstants.GET_PORTFOLIOS_SUCCESS:
+      return {
+        ...state,
+        getPortfolios: {
+          loading: false,
+          portfolios: action.payload.data,
+        },
+      };
+    case portfolioConstants.GET_PORTFOLIOS_FAILURE:
+      return {
+        ...state,
+        getPortfolios: {
+          loading: false,
+          portfolios: [],
         },
       };
     default:

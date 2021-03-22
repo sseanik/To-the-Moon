@@ -1,70 +1,54 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Alert, Button } from "react-bootstrap";
-import portfolioAPI from "../api/portfolioAPI";
-import AddPortfolioForm from "../components/AddPortfolioForm";
+import { connect } from "react-redux";
+import { CreatePortfolioForm } from "../components";
+import ClipLoader from "react-spinners/ClipLoader";
 import PortfolioInfo from "../components/PortfolioInfo";
+import portfolioActions from "../redux/actions/portfolioActions";
 
-interface Props {
-  token?: string;
+interface StateProps {
+  loading: boolean;
+  portfolios: Array<string>;
 }
 
-const PortfoliosPage: React.FC<Props> = (props) => {
-  const { token } = props;
-  const [authenticated, setAuthenticated] = useState(false);
-  const [portfolioList, setPortfolioList] = useState<Array<string>>([]);
-  const [addingPortfolio, setAddingPortfolio] = useState(false);
+interface DispatchProps {
+  getPortfolios: () => void;
+}
+
+const PortfoliosPage: React.FC<StateProps & DispatchProps> = (props) => {
+  const { loading, portfolios, getPortfolios } = props;
 
   useEffect(() => {
-    portfolioAPI.getPortfolios().then((portfolios) => {
-      setPortfolioList(portfolios.data);
-    });
+    getPortfolios();
   }, []);
 
-  // may be removed soon
-  useEffect(() => {
-    if (token !== "" || window.localStorage.getItem("Token")) {
-      setAuthenticated(true);
-    } else {
-      setAuthenticated(false);
-    }
-  }, [token]);
-
-  const listPortfolios = portfolioList.map((portfolio, id) => (
-    <PortfolioInfo key={id} portfolio_name={portfolio} />
-  ));
-
-  const allowed = () => (
-    <Container>
+  return (
+    <Container fluid>
       <Row className="justify-content-center my-3">
         <h1>Manage Portfolios</h1>
       </Row>
       <Row className="justify-content-center my-3">
-        {addingPortfolio ? (
-          <AddPortfolioForm
-            handlePortfolioAdded={() => setAddingPortfolio(false)}
-          />
-        ) : (
-          <Button
-            variant="outline-primary"
-            onClick={() => setAddingPortfolio(true)}
-          >
-            Add a Portfolio
-          </Button>
-        )}
+        <CreatePortfolioForm />
       </Row>
-      <Row className="my-2">{listPortfolios}</Row>
+      <Row className="my-2 justify-content-center">
+        <ClipLoader color={"green"} loading={loading} />
+        {portfolios.map((portfolioName, id) => (
+          <PortfolioInfo key={id} portfolioName={portfolioName} />
+        ))}
+      </Row>
     </Container>
   );
-
-  const denied = () => (
-    <Row>
-      <Alert variant="danger">
-        <p>You do not have permission to access the portfolios page</p>
-      </Alert>
-    </Row>
-  );
-
-  return <Container fluid>{authenticated ? allowed() : denied()}</Container>;
 };
 
-export default PortfoliosPage;
+const mapStateToProps = (state: any) => ({
+  loading: state.portfolioReducer.getPortfolios.loading,
+  portfolios: state.portfolioReducer.getPortfolios.portfolios,
+});
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    getPortfolios: () => dispatch(portfolioActions.getPortfolios()),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PortfoliosPage);
