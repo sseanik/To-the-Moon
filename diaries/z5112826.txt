@@ -1,17 +1,36 @@
 Week 1
 ======
-Formed group. Shortlisted Stock Portfolio, e-Commerce app for project with Skills Portfolio as backup. 
-Researched recommendation engines for e-Commerce app. 
-Team eventually decided on Stock Portfolio concept. 
+Formed group. Shortlisted Stock Portfolio, e-Commerce app for project with Skills Portfolio as backup.
+Researched recommendation engines for e-Commerce app.
+Team eventually decided on Stock Portfolio concept.
 
 Week 2
 ======
-Worked on proposal. Shortlisted features and wrote corresponding user stories, had these checked with tutor. Decided on basic tech stack: React + Typescript frontend, Python + Tensorflow/Keras + Flask/Django backend, PostgreSQL data layer and one third-party API (AlphaVantage for stock information). 
+Worked on proposal. Shortlisted features and wrote corresponding user stories, had these checked with tutor. Decided on basic tech stack: React + Typescript frontend, Python + Tensorflow/Keras + Flask/Django backend, PostgreSQL data layer and one third-party API (AlphaVantage for stock information).
 
-Architecture to be refined next week. 
+Architecture to be refined next week.
 
-Week 3 
+Week 3
 ======
-Worked on proposal. Decided on additional third party APIs for news and refinements to tech stack. Conducted basic sprint planning and agreed on sprint start/end dates. Also wrote preliminary architecture/implementation plans. 
+Worked on proposal. Decided on additional third party APIs for news and refinements to tech stack. Conducted basic sprint planning and agreed on sprint start/end dates. Also wrote preliminary architecture/implementation plans.
 
-Expect to begin implementation by weekend. 
+Expect to begin implementation by weekend.
+
+Week 4
+======
+Implemented:
+- Processing for company share price and financials data retrieval via API
+- Backend routes and basic UI for stock display user story
+- Backend routes and basic UI for company information + fundamentals user story
+
+Todo:
+- Code standards with remaining frontend ticket teams e.g. on state management, component structure.
+- Additional refinements to display and backend data structure.
+
+Week 5
+======
+Implemented:
+- Tabbed display for company information + fundamentals user story
+- Select refactors on code standards
+
+Did some planning on machine learning tasks for share price prediction user story.
