@@ -8,7 +8,7 @@ interface SearchStockFormValues {
 }
 
 const initialValues = {
-  stock: ""
+  stock: "",
 }
 
 const schema = Yup.object({
