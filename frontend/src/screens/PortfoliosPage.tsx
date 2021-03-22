@@ -16,7 +16,6 @@ const PortfoliosPage: React.FC<Props> = (props) => {
 
   useEffect(() => {
     portfolioAPI.getPortfolios().then((portfolios) => {
-      console.log(portfolios);
       setPortfolioList(portfolios.data);
     });
   }, []);
