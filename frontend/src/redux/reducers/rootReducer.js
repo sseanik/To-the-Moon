@@ -1,8 +1,7 @@
 import { combineReducers } from "redux";
 import userReducer from "../reducers/userReducer";
-import createPortfolio from "./createPortfolio";
 import createStock from "./createStock";
-import submitCreatePortfolioForm from "./submitCreatePortfolioForm";
+import portfolioReducer from "./portfolioReducer";
 import submitCreateStockForm from "./submitCreateStockForm";
 export default combineReducers({
   userReducer,
@@ -10,4 +9,5 @@ export default combineReducers({
   submitCreatePortfolioForm,
   submitCreateStockForm,
   createStock,
+  portfolioReducer,
 });
