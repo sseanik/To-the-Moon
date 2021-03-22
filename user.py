@@ -146,7 +146,17 @@ def login_user(email, password):
     }
 
 
-def get_username(user_id):
+def get_username(token):
+    # parse user token
+    try:
+        parsed_token = getIDfromToken(token)
+    except:
+        return {
+            'status': 400,
+            'error': 'Failed to decode token'
+        }
+    user_id = parsed_token['id']
+    
     # open database connection
     conn = createDBConnection()
     cur = conn.cursor()
@@ -203,12 +213,5 @@ def login_user_wrapper():
 @USER_ROUTES.route('/user', methods=['GET'])
 def get_user_wrapper():
     token = request.headers.get('Authorization')
-    try:
-        user_id = getIDfromToken(token)
-    except:
-        return {
-            'status': 400,
-            'error': 'Failed to decode token'
-        }
-    result = get_username(user_id['id'])
+    result = get_username(token)
     return dumps(result)
