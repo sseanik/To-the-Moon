@@ -5,10 +5,6 @@ import { connect } from "react-redux";
 import { useHistory } from "react-router-dom";
 import userActions from "../redux/actions/userActions";
 
-const usernameStyle = {
-  paddingRight: "10px",
-};
-
 interface StateProps {
   token?: string;
   username?: string;
@@ -35,13 +31,13 @@ const Username: React.FC<StateProps & DispatchProps> = (props) => {
   }, []);
 
   const usernameComponent = (
-    <Navbar.Text className="mr-sm-2" style={usernameStyle}>
+    <Navbar.Text className="mr-sm-2">
       Signed in as: {username}
     </Navbar.Text>
   );
 
   const loadingSpinnerComponent = (
-    <div style={usernameStyle}>
+    <div className="mr-sm-2">
       <ClipLoader color={"green"} loading={loading}>
         <span className="sr-only">Loading...</span>
       </ClipLoader>
