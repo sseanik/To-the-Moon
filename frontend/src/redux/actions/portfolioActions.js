@@ -13,17 +13,6 @@ const portfolioActions = {
     type: portfolioConstants.CREATE_PORTFOLIO_FAILURE,
     payload: error,
   }),
-  getPortfoliosPending: () => ({
-    type: portfolioConstants.GET_PORTFOLIOS_PENDING,
-  }),
-  getPortfoliosSuccess: (response) => ({
-    type: portfolioConstants.GET_PORTFOLIOS_SUCCESS,
-    payload: response,
-  }),
-  getPortfoliosFailure: (error) => ({
-    type: portfolioConstants.GET_PORTFOLIOS_FAILURE,
-    payload: error,
-  }),
   createPortfolio: (payload) => async (dispatch) => {
     dispatch(portfolioActions.createPortfolioPending());
     try {
@@ -38,6 +27,17 @@ const portfolioActions = {
       dispatch(portfolioActions.createPortfolioFailure(error));
     }
   },
+  getPortfoliosPending: () => ({
+    type: portfolioConstants.GET_PORTFOLIOS_PENDING,
+  }),
+  getPortfoliosSuccess: (response) => ({
+    type: portfolioConstants.GET_PORTFOLIOS_SUCCESS,
+    payload: response,
+  }),
+  getPortfoliosFailure: (error) => ({
+    type: portfolioConstants.GET_PORTFOLIOS_FAILURE,
+    payload: error,
+  }),
   getPortfolios: () => async (dispatch) => {
     dispatch(portfolioActions.getPortfoliosPending());
     try {
@@ -49,6 +49,31 @@ const portfolioActions = {
       }
     } catch (error) {
       dispatch(portfolioActions.getPortfoliosFailure(error));
+    }
+  },
+  deletePortfolioPending: () => ({
+    type: portfolioConstants.DELETE_PORTFOLIO_PENDING,
+  }),
+  deletePortfolioSuccess: (response) => ({
+    type: portfolioConstants.DELETE_PORTFOLIO_SUCCESS,
+    payload: response,
+  }),
+  deletePortfolioFailure: (error) => ({
+    type: portfolioConstants.DELETE_PORTFOLIO_FAILURE,
+    payload: error,
+  }),
+  deletePortfolios: (payload) => async (dispatch) => {
+    dispatch(portfolioActions.deletePortfolioPending());
+    try {
+      const { portfolioName } = payload;
+      const res = await portfolioAPI.deletePortfolio(portfolioName);
+      if (res.status === 200) {
+        dispatch(portfolioActions.deletePortfolioSuccess(res));
+      } else {
+        dispatch(portfolioActions.deletePortfolioFailure(res.error));
+      }
+    } catch (error) {
+      dispatch(portfolioActions.deletePortfolioFailure(error));
     }
   },
 };

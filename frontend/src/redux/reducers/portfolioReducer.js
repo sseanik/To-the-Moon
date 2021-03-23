@@ -9,6 +9,10 @@ const initialState = {
     loading: false,
     portfolios: [],
   },
+  deletePortfolio: {
+    loading: false,
+    error: null,
+  },
 };
 
 const portfolioReducer = (state = initialState, action) => {
@@ -59,6 +63,30 @@ const portfolioReducer = (state = initialState, action) => {
         getPortfolios: {
           loading: false,
           portfolios: [],
+        },
+      };
+    case portfolioConstants.DELETE_PORTFOLIO_PENDING:
+      return {
+        ...state,
+        deletePortfolio: {
+          loading: true,
+          error: null,
+        },
+      };
+    case portfolioConstants.DELETE_PORTFOLIO_SUCCESS:
+      return {
+        ...state,
+        deletePortfolio: {
+          loading: false,
+          error: null,
+        },
+      };
+    case portfolioConstants.DELETE_PORTFOLIO_FAILURE:
+      return {
+        ...state,
+        deletePortfolio: {
+          loading: false,
+          error: action.payload,
         },
       };
     default:

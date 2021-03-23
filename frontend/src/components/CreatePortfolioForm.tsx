@@ -30,9 +30,8 @@ const schema = Yup.object({
 
 const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
   const { loading, error, createPortfolio } = props;
-  // purposely input dummy data
 
-  const errorComponent = <Alert>{error}</Alert>;
+  const errorComponent = <Alert variant='danger'>{error}</Alert>;
 
   const formComponent = (
     <Formik
