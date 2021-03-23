@@ -6,7 +6,7 @@
 from flask import Blueprint, request
 from json import dumps
 from database import createDBConnection
-from token_util import getIDfromToken
+from token_util import get_id_from_token
 from helpers import TimeSeries, AlphaVantageAPI
 from datetime import datetime
 
@@ -19,30 +19,30 @@ PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
 
 
 # Create portfolio object in the database
-def createPortfolio(userID, portfolioName):
+def create_portfolio(user_id, portfolio_name):
     # Check name is within the max length
-    if len(portfolioName) >= 30:
-        return {'status': 400, 'message': 'The portfolio\'s name must be less than 30 characters. Try a new name.'}
+    if len(portfolio_name) >= 30:
+        return {'status': 400, 'message': 'Portfolio name must be less than 30 characters.'}
 
     conn = createDBConnection()
     cur = conn.cursor()
-    # check that (portfolioName, userID) is unique
-    sqlQuery = "select * from portfolios where portfolioname=%s and userid=%s"
-    cur.execute(sqlQuery, (portfolioName, userID))
-    queryResults = cur.fetchall()
-    if not queryResults:
-        # If the user has no portfolios called portfolioName, create a portfolio with that name.
-        sqlQuery = "insert into Portfolios (portfolioname, userid) VALUES (%s, %s)"
-        cur.execute(sqlQuery, (portfolioName, userID))
+    # check that (portfolio_name, user_id) is unique
+    sql_query = "select * from portfolios where portfolioname=%s and userid=%s"
+    cur.execute(sql_query, (portfolio_name, user_id))
+    query_results = cur.fetchall()
+    if not query_results:
+        # If the user has no portfolios called portfolio_name, create a portfolio with that name.
+        sql_query = "insert into Portfolios (portfolioname, userid) VALUES (%s, %s)"
+        cur.execute(sql_query, (portfolio_name, user_id))
         conn.commit()
         response = {
             'status': 200,
-            'message': 'Portfolio called \'' + portfolioName + '\' has been created.'
+            'message': 'Portfolio called \'' + portfolio_name + '\' has been created.'
         }
     else:
         response = {
             'status': 400,
-            'message': 'There is already a portfolio called \'' + portfolioName + '\'. Try a new name.'
+            'message': 'Already a portfolio named \'' + portfolio_name + '\'.'
         }
     # Close connection and return response
     conn.close()
@@ -50,33 +50,33 @@ def createPortfolio(userID, portfolioName):
 
 
 # Edit portfolio (e.g. change name of portfolio) in database
-# Note: does not check whether oldPortfolioName actually exists. If it does exist, it changes its name to newPortfolioName. Otherwise does noting.
-def editPortfolio(userID, oldPortfolioName, newPortfolioName):
+# Note: does not check whether old_portfolio_name actually exists. If it does exist, it changes its name to newPortfolioName. Otherwise does noting.
+def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
     # Check new name is within the max length
-    if len(newPortfolioName) >= 30:
-        return {'status': 400, 'message': 'The portfolio\'s name must be less than 30 characters. Try a new name.'}
+    if len(new_portfolio_name) >= 30:
+        return {'status': 400, 'message': 'Portfolio name must be less than 30 characters.'}
 
     conn = createDBConnection()
     cur = conn.cursor()
-    # check that (newPortfolioName, userID) is unique in portfolio table
-    sqlQuery = "select * from portfolios where portfolioname=%s and userid=%s"
-    cur.execute(sqlQuery, (newPortfolioName, userID))
+    # check that (new_portfolio_name, user_id) is unique in portfolio table
+    sql_query = "select * from portfolios where portfolioname=%s and userid=%s"
+    cur.execute(sql_query, (new_portfolio_name, user_id))
     query_results = cur.fetchall()
     if not query_results:
         # update portfolio table
-        sqlQuery = "update portfolios set portfolioname=%s where portfolioname=%s and userid=%s"
-        cur.execute(sqlQuery, (newPortfolioName, oldPortfolioName, userID))
+        sql_query = "update portfolios set portfolioname=%s where portfolioname=%s and userid=%s"
+        cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
         # update holdings table
-        sqlQuery = "update holdings set portfolioname=%s where portfolioname=%s and userid=%s"
-        cur.execute(sqlQuery, (newPortfolioName, oldPortfolioName, userID))
+        sql_query = "update holdings set portfolioname=%s where portfolioname=%s and userid=%s"
+        cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
         response ={ 
             'status': 200,
-            'message' : '\'' + oldPortfolioName + "\' has been changed to \'" + newPortfolioName + "\'."
+            'message' : '\'' + old_portfolio_name + "\' has been changed to \'" + new_portfolio_name + "\'."
         }
     else:
         response = {
             'status' : 400,
-            'message' : 'There is already a portfolio called' + newPortfolioName + '. Try anther name.'
+            'message' : 'Already a portfolio named' + new_portfolio_name + '.'
         }
     # Commit changes, close connection and return response to user
     conn.commit()
@@ -86,68 +86,68 @@ def editPortfolio(userID, oldPortfolioName, newPortfolioName):
 
 # Delete portfolio object from the database
 # Note: this function does not check whether userID or portfolio exists. It just deletes them if they exist
-def deletePortfolio(userID, portfolioName):
+def delete_portfolio(user_id, portfolio_name):
     conn = createDBConnection()
     cur = conn.cursor()
     # Delete from portfolio table
-    sqlQuery = "delete from portfolios where portfolioname=%s and userid=%s"
-    cur.execute(sqlQuery, (portfolioName, userID))
+    sql_query = "delete from portfolios where portfolioname=%s and userid=%s"
+    cur.execute(sql_query, (portfolio_name, user_id))
     # Delete from holdings table
-    sqlQuery = "delete from holdings where portfolioname=%s and userid=%s"
-    cur.execute(sqlQuery, (portfolioName, userID))
+    sql_query = "delete from holdings where portfolioname=%s and userid=%s"
+    cur.execute(sql_query, (portfolio_name, user_id))
     # Commit changes, close connection and return response to user
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Portfolio called \'" + portfolioName + "\' has been deleted."}
+    return {'status' : 200, 'message' : "Portfolio named \'" + portfolio_name + "\' has been deleted."}
 
 
 ############# Investment helper functions #################
-def totalStockChange(currentPrice, purchasePrice):
+def total_stock_change(current_price, purchase_price):
     # Write this after price fetching functions are written
-    return (currentPrice - purchasePrice)*100 / purchasePrice
+    return (current_price - purchase_price)*100 / purchase_price
 
 
 # Add investments to portfolio object in database 
 # Note: this assumes portfolioName and all the other inputs are of the correct size and data type
-def addInvestment(userID, portfolioName, purchasePrice, numShares, purchaseDate, stockTicker):
+def add_investment(user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker):
     conn = createDBConnection()
     cur = conn.cursor()
-    sqlQuery = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, totalChange, stockTicker) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    sql_query = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, totalChange, stockTicker) VALUES (%s, %s, %s, %s, %s, %s, %s)"
     # Fetch current price 
-    quickData = TimeSeries().get_quick_quote(stockTicker)
-    currentPrice = float(quickData['Global Quote']['05. price'])
-    totalChange = totalStockChange(currentPrice, float(purchasePrice))
+    quick_data = TimeSeries().get_quick_quote(stock_ticker)
+    current_price = float(quick_data['Global Quote']['05. price'])
+    total_change = total_stock_change(current_price, float(purchase_price))
     # Execute query and close connections
-    cur.execute(sqlQuery, (userID, portfolioName, purchasePrice, numShares, purchaseDate, totalChange, stockTicker))
+    cur.execute(sql_query, (user_id, portfolio_name, purchase_price, num_shares, purchase_date, total_change, stock_ticker))
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Your investment in " + stockTicker + " has been added to the portfolio called \'" + portfolioName + "\'."}
+    return {'status' : 200, 'message' : "Investment in " + stock_ticker + " has been added to portfolio named \'" + portfolio_name + "\'."}
 
 
 # Delete investments from portfolio object in database
-def deleteInvestment(investmentID):
+def delete_investment(investment_id):
     conn = createDBConnection()
     cur = conn.cursor()
     # Delete from holdings table
-    sqlQuery = "delete from holdings where investmentID=%s"
-    cur.execute(sqlQuery, (investmentID, ))
+    sql_query = "delete from holdings where investmentID=%s"
+    cur.execute(sql_query, (investment_id, ))
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Investment removed"}
+    return {'status' : 200, 'message' : "Investment removed successfully."}
 
 
-# View an individual investment's total performance
-# Note: this assumes investmentID is correct.
-def viewInvestment(investmentID):
+# Get an individual investment's total performance
+# Note: this assumes investment_id is correct.
+def get_investment(investment_id):
     conn = createDBConnection()
     cur = conn.cursor()
     # Delete from holdings table
-    sqlQuery = "select totalChange from holdings where investmentID=%s"
-    cur.execute(sqlQuery, (investmentID, ))
-    queryResults = cur.fetchall()
-    totalChange = str(queryResults[0][0])
+    sql_query = "select totalChange from holdings where investmentID=%s"
+    cur.execute(sql_query, (investment_id, ))
+    query_results = cur.fetchall()
+    total_change = str(query_results[0][0])
     conn.close()
-    return {'status' : 200, 'message' : totalChange}
+    return {'status' : 200, 'data' : {'total_change': total_change}}
 
 
 ############ Additional functions ##############
@@ -189,122 +189,130 @@ def getUserPortfolios(userID):
     conn.close()
     return data
 '''
-def getPortfolios(userID):
+def get_portfolios(user_id):
     conn = createDBConnection()
     cur = conn.cursor()
-    sqlQuery = "select portfolioName from portfolios where userID=%s"
-    cur.execute(sqlQuery, (userID, ))
-    queryResults = cur.fetchall()
+    sql_query = "select portfolioName from portfolios where userID=%s"
+    cur.execute(sql_query, (user_id, ))
+    query_results = cur.fetchall()
     data = []
-    for tupl in queryResults:
+    for tupl in query_results:
         data.append(tupl[0])
     conn.close()
     return {'status' : 200, 'data' : data}
 
-def getInvestments(userID, portfolioName):
+def get_investments(user_id, portfolio_name):
     conn = createDBConnection()
     cur = conn.cursor()
-    sqlQuery = "select * from holdings where userID=%s and portfolioName=%s"
-    cur.execute(sqlQuery, (userID, portfolioName))
-    queryResults = cur.fetchall()
+    sql_query = "select * from holdings where userID=%s and portfolioName=%s"
+    cur.execute(sql_query, (user_id, portfolio_name))
+    query_results = cur.fetchall()
     data = []
-    for row in queryResults:
-        newInvestment = {
-            'investmentID' : row[0],
-            'PurchasePrice' : str(row[3]), 
-            'NumShares' : row[4], 
-            'PurchaseDate' : row[5].strftime("%Y-%m-%d"), 
-            'TotalChange' : float(row[6]),
-            'StockTicker' : row[7]
+    for row in query_results:
+        new_investment = {
+            'id': row[0],
+            'PurchasePrice': str(row[3]), 
+            'NumShares': row[4], 
+            'PurchaseDate': row[5].strftime("%Y-%m-%d"), 
+            'TotalChange': float(row[6]),
+            'StockTicker': row[7]
         }
-        data.append(newInvestment)
+        data.append(new_investment)
 
     conn.close()
     return {'status' : 200, 'data' : data}
 
+
 ################################
 # Please leave all routes here #
 ################################
-@PORTFOLIO_ROUTES.route('/portfolio/createPortfolio', methods=['POST'])
-def createUsersPortolio():
+
+# Get the list of portfolios owned by a user
+@PORTFOLIO_ROUTES.route('/user/portfolio', methods=['GET'])
+def get_user_portfolios_wrapper():
     token = request.headers.get('Authorization')
-    userID = getIDfromToken(token)
-    portfolioName = request.args.get('portfolioName')
-    response = createPortfolio(userID['id'], portfolioName)
+    user_id = get_id_from_token(token)
+    return dumps(get_portfolios(user_id))
+
+
+# Get the list of investments of a portfolio owned by a user
+@PORTFOLIO_ROUTES.route('/user/investment', methods=['GET'])
+def get_user_portfolio_investments_wrapper():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    portfolio_name = request.args.get('portfolio')
+    return dumps(get_investments(user_id, portfolio_name))
+
+
+# Create a new portfolio
+@PORTFOLIO_ROUTES.route('/portfolio', methods=['POST'])
+def create_user_portfolio_wrapper():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    portfolio_name = request.args.get('name')
+    response = create_portfolio(user_id, portfolio_name)
     return dumps(response)
 
 
-@PORTFOLIO_ROUTES.route('/portfolio/editPortfolio', methods=['PUT'])
-def editUsersPortolio():
+# Modify an existing portfolio
+@PORTFOLIO_ROUTES.route('/portfolio', methods=['PUT'])
+def edit_user_portfolio_wrapper():
     token = request.headers.get('Authorization')
-    userID = getIDfromToken(token)
-    oldPortfolioName = request.args.get('oldPortfolioName')
-    newPortfolioName = request.args.get('newPortfolioName')
-    response = editPortfolio(userID['id'], oldPortfolioName, newPortfolioName)
-    return dumps(response)
-
-
-@PORTFOLIO_ROUTES.route('/portfolio/deletePortfolio', methods=['DELETE'])
-def deleteUsersPortolio():
-    token = request.headers.get('Authorization')
-    userID = getIDfromToken(token)
-    portfolioName = request.args.get('portfolioName')
-    response = deletePortfolio(userID['id'], portfolioName)
-    return dumps(response)
-
-
-@PORTFOLIO_ROUTES.route('/portfolio/addInvestment', methods=['POST'])
-def addInvestmentToPortolio():
-    token = request.headers.get('Authorization')
-    userID = getIDfromToken(token)
+    user_id = get_id_from_token(token)
+    old_portfolio_name = request.args.get('name')
     data = request.get_json()
-    portfolioName = request.args.get('portfolioName')
-    purchasePrice = data['purchasePrice']
-    numShares = data['numShares']
-    purchaseDate = data['purchaseDate']
-    stockTicker = data['stockTicker']
-    response = addInvestment(userID['id'], portfolioName, purchasePrice, numShares, purchaseDate, stockTicker)
+    new_portfolio_name = data['name']
+    response = edit_portfolio(user_id, old_portfolio_name, new_portfolio_name)
     return dumps(response)
 
 
-@PORTFOLIO_ROUTES.route('/portfolio/deleteInvestment', methods=['DELETE'])
-def deleteInvestmentFromPortolio():
-    data = request.get_json()
-    investmentID = data['investmentID']
-    return dumps(deleteInvestment(investmentID))
-
-
-@PORTFOLIO_ROUTES.route('/portfolio/viewInvestment', methods=['GET'])
-def viewInvestmentsInPortolio():
-    data = request.get_json()
-    investmentID = data['investmentID']
-    return dumps(viewInvestment(investmentID))
-
-
-@PORTFOLIO_ROUTES.route('/portfolio/getPortfolios', methods=['GET'])
-def returnUsersPortfolios():
+# Delete an existing portfolio
+@PORTFOLIO_ROUTES.route('/portfolio', methods=['DELETE'])
+def delete_user_portfolio_wrapper():
     token = request.headers.get('Authorization')
-    userID = getIDfromToken(token)
-    return dumps(getPortfolios(userID['id']))
+    user_id = get_id_from_token(token)
+    portfolio_name = request.args.get('name')
+    response = delete_portfolio(user_id, portfolio_name)
+    return dumps(response)
 
 
-@PORTFOLIO_ROUTES.route('/portfolio/getInvestments', methods=['GET'])
-def returnPortfoliosInvestments():
+# Get information about an existing investment
+@PORTFOLIO_ROUTES.route('/investment', methods=['GET'])
+def get_investment_user_portfolio_wrapper():
+    investment_id = request.args.get('id')
+    return dumps(get_investment(investment_id))
+
+
+# Create a new investment
+@PORTFOLIO_ROUTES.route('/investment', methods=['POST'])
+def add_investment_user_portfolio_wrapper():
     token = request.headers.get('Authorization')
-    userID = getIDfromToken(token)
-    portfolioName = request.args.get('portfolioName')
-    return dumps(getInvestments(userID['id'], portfolioName))
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    portfolio_name = request.args.get('portfolio')
+    purchase_price = data['purchasePrice']
+    num_shares = data['numShares']
+    purchase_date = data['purchaseDate']
+    stock_ticker = data['stockTicker']
+    response = add_investment(user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker)
+    return dumps(response)
 
+
+# Delete an existing investment
+@PORTFOLIO_ROUTES.route('/investment', methods=['DELETE'])
+def delete_investment_user_portfolio_wrapper():
+    investment_id = request.args.get('id')
+    return dumps(delete_investment(investment_id))
 
 
 
 
 ############ Tests #############
-#createPortfolio('4', 'Austin\'s portfolio')
-#createPortfolio('4', 'Austi')
-#editPortfolio('4', 'Austin\'s portfolio', 'Bob\'s portfolio')
-#deletePortfolio('4', 'Bob\'s portfolio')
-#deletePortfolio('4', 'Austi')
-#addInvestment('4', 'Austin\'s portfolio', '100.5', '50', '2021-03-15', 'IBM')
-#viewInvestment("2380756e-863c-11eb-af93-0a4e2d6dea13")
+#create_portfolio('4', 'Austin\'s portfolio')
+#create_portfolio('4', 'Austi')
+#edit_portfolio('4', 'Austin\'s portfolio', 'Bob\'s portfolio')
+#delete_portfolio('4', 'Bob\'s portfolio')
+#delete_portfolio('4', 'Austi')
+#add_investment('4', 'Austin\'s portfolio', '100.5', '50', '2021-03-15', 'IBM')
+#get_investment("2380756e-863c-11eb-af93-0a4e2d6dea13")
 
