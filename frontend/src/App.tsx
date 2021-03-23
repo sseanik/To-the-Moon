@@ -12,6 +12,7 @@ import {
   AboutUsPage,
   PortfolioPage,
   CreatePortfolioPage,
+  SearchStockPage,
 } from "./screens";
 import { Header } from "./components";
 import PortfoliosPage from "./screens/PortfoliosPage";
@@ -34,7 +35,7 @@ function App() {
         />
         <BrowserRouter>
           <Header />
-          <Container fluid className="app-container justify-content-center">
+          <Container fluid className="mt-3 app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />
               <Route path="/create_portfolio" component={CreatePortfolioPage} />
@@ -42,6 +43,7 @@ function App() {
               <Route path="/about-us" component={AboutUsPage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/signup" component={SignupPage} />
+              <Route path="/stock" component={SearchStockPage} exact />
               <Route path="/stock/:symbol" component={StockPage} />
               <Route path="/portfolios" component={PortfoliosPage} />
             </Switch>

@@ -87,9 +87,9 @@ const userReducer = (state = initialState, action) => {
     case userConstants.LOGOUT:
       return {
         ...state,
-        token: null,
-        username: null,
+        ...initialState,
       };
+    // Username
     case userConstants.GET_USERNAME_PENDING:
       return {
         ...state,
