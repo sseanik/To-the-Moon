@@ -1,17 +1,17 @@
 import { Container, Row } from "react-bootstrap";
-import { LoginForm } from "../components";
+import { SearchStockForm } from "../components";
 
-const LoginPage: React.FC = () => {
+const SearchStockPage: React.FC = () => {
   return (
     <Container>
       <Row className="justify-content-center">
-        <h2>Login 🚀</h2>
+        <h1>Stocks</h1>
       </Row>
       <Row className="justify-content-center">
-        <LoginForm />
+        <SearchStockForm />
       </Row>
     </Container>
   );
 }
 
-export default LoginPage;
+export default SearchStockPage;

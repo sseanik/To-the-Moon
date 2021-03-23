@@ -18,4 +18,10 @@ Set up frontend with Karim. Worked on Login/Signup screens, including form valid
 
 Week 5
 
-Added About Us content to landing page. Implemented News API interface and related components.
+Added About Us content to landing page. Implemented frontend News API interface and related components on the Landing Page and Stock Page.
+Connected all frontend Portfolio components to backend and bugfixed to a working state.
+Demonstrated all features during Progressive Demo A, and a ran Retrospective meeting on Friday to reflect on our team progress.
+
+Week 6
+
+Logout

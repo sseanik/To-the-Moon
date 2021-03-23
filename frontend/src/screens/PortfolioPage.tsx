@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Alert, Button, Container, Col, Row } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Alert, Button, Container, Col, Row, Spinner } from "react-bootstrap";
 import { useParams } from "react-router";
 import portfolioAPI from "../api/portfolioAPI";
-import CreateStockForm from "../components/CreateStockForm";
+import AddInvestmentForm from "../components/AddInvestmentForm";
 import EditPortfolioForm from "../components/EditPortfolioForm";
 import StockInfo from "../components/StockInfo";
+import ClipLoader from "react-spinners/ClipLoader";
 
 interface Props {
   token?: string;
@@ -15,7 +16,8 @@ interface RouteMatchParams {
 }
 
 interface StockInfo {
-  NumShares: number
+  investmentID: string;
+  NumShares: number;
   PurchaseDate: string;
   PurchasePrice: string;
   StockTicker: string;
@@ -29,13 +31,14 @@ const PortfolioPage: React.FC<Props> = (props) => {
   const [addingStock, setAddingStock] = useState(false);
   const [editingPortfolio, setEditingPortfolio] = useState(false);
   const [stockData, setStockData] = useState<Array<StockInfo>>([]);
+  const [stockLoading, setStockLoading] = useState(true);
+  const [stockDeleting, setStockDeleting] = useState(false);
 
   useEffect(() => {
-    portfolioAPI.getStocks(name)
-      .then(portfolioStocks => {
-        console.log(portfolioStocks.data)
-        setStockData(portfolioStocks.data);
-      })
+    portfolioAPI.getStocks(name).then((portfolioStocks) => {
+      setStockData(portfolioStocks.data);
+      setStockLoading(false);
+    });
   }, []);
 
   // may be removed soon
@@ -48,18 +51,23 @@ const PortfolioPage: React.FC<Props> = (props) => {
   }, [token]);
 
   const listStocks = stockData.map((stockInfo, id) => (
-    <StockInfo
-      key={id}
-      portfolio_name={name}
-      {...stockInfo}
-    />
+    <StockInfo key={id} portfolio_name={name} {...stockInfo} />
   ));
 
   const handleDeletePortfolioClick = () => {
+    setStockDeleting(true);
     const deletePortfolio = async () => {
-      portfolioAPI.deletePortfolio(name);
+      await portfolioAPI.deletePortfolio(name);
     };
     deletePortfolio();
+    setStockDeleting(false);
+  };
+
+  const handleInvestmentAdded = () => {
+    portfolioAPI.getStocks(name).then((portfolioStocks) => {
+      setStockData(portfolioStocks.data);
+      setAddingStock(false);
+    });
   };
 
   const allowed = () => (
@@ -76,20 +84,25 @@ const PortfolioPage: React.FC<Props> = (props) => {
         <Col>Total Change</Col>
         <Col>Delete Stock</Col>
       </Row>
-      <Container fluid>{listStocks}</Container>
-      <Row className="justify-content-center my-2">
-        {addingStock ? (
-          <CreateStockForm
-            portfolioName={name}
-            handleAddStock={() => setAddingStock(false)}
-          />
-        ) : (
-          <Button variant="primary" onClick={() => setAddingStock(true)}>
-            Add Stock
-          </Button>
-        )}
-      </Row>
+      {stockLoading ? (
+        <Container fluid className="mt-2">
+          <ClipLoader color="blue" loading={stockLoading} />
+        </Container>
+      ) : (
+        <Container fluid className="px-0">
+          {listStocks}
+        </Container>
+      )}
       <Row className="justify-content-center mt-5">
+        <Col>
+          {addingStock ? (
+            <AddInvestmentForm handleInvestmentAdded={handleInvestmentAdded} />
+          ) : (
+            <Button variant="primary" onClick={() => setAddingStock(true)}>
+              Add Investment
+            </Button>
+          )}
+        </Col>
         <Col>
           {editingPortfolio ? (
             <EditPortfolioForm
@@ -105,13 +118,17 @@ const PortfolioPage: React.FC<Props> = (props) => {
           )}
         </Col>
         <Col>
-          <Button
-            href="/portfolios"
-            variant="outline-danger"
-            onClick={handleDeletePortfolioClick}
-          >
-            Delete Portfolio
-          </Button>
+          {stockDeleting ? (
+            <Spinner animation="border" />
+          ) : (
+            <Button
+              href="/portfolios"
+              variant="outline-danger"
+              onClick={handleDeletePortfolioClick}
+            >
+              Delete Portfolio
+            </Button>
+          )}
         </Col>
       </Row>
     </Container>

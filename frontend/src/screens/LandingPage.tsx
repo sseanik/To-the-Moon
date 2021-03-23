@@ -7,7 +7,6 @@ const logoStyles = {
 };
 
 const LandingPage: React.FC = () => {
-
   return (
     <Container>
       <Row className="justify-content-center">
