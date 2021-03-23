@@ -12,6 +12,7 @@ const initialState = {
   deletePortfolio: {
     loading: false,
     error: null,
+    deleting: "",
   },
 };
 
