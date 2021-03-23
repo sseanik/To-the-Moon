@@ -59,7 +59,7 @@ def getPortfolioNews(stockSymbols, numArticles):
     else:
         return {
             'status': 400,
-            'articles': newsArticles
+            'articles': newsArticles,
             'error': 'Unable to fetch news'
         }
 
