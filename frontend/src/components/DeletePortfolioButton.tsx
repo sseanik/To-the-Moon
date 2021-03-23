@@ -25,12 +25,6 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
 ) => {
   const { loading, error, deletePortfolio, portfolioName } = props;
   const errorComponent = <Alert variant="danger">{error}</Alert>;
-  const loadingSpinner = (
-    <div>
-      <ClipLoader color={"green"} loading={loading} />
-      <h5>Preparing rocket fuel...</h5>
-    </div>
-  );
   const deleteButton = (
     <Button
       variant="danger"
@@ -43,7 +37,11 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   return (
     <Container fluid className="deleteButton">
       {error ? errorComponent : <></>}
-      {loading ? loadingSpinner : deleteButton}
+      {loading ? (
+        <ClipLoader color={"green"} loading={loading} />
+      ) : (
+        deleteButton
+      )}
     </Container>
   );
 };

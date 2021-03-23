@@ -31,10 +31,13 @@ const PortfoliosPage: React.FC<StateProps & DispatchProps> = (props) => {
         <CreatePortfolioForm />
       </Row>
       <Row className="my-2 justify-content-center">
-        <ClipLoader color={"green"} loading={loading} />
-        {portfolios.map((portfolioName, id) => (
-          <PortfolioInfo key={id} portfolioName={portfolioName} />
-        ))}
+        {loading ? (
+          <ClipLoader color={"green"} loading={loading} />
+        ) : (
+          portfolios.map((portfolioName, id) => (
+            <PortfolioInfo key={id} portfolioName={portfolioName} />
+          ))
+        )}
       </Row>
     </Container>
   );

@@ -20,6 +20,7 @@ const portfolioActions = {
       const res = await portfolioAPI.createPortfolio(newName);
       if (res.status === 200) {
         dispatch(portfolioActions.createPortfolioSuccess(res));
+        dispatch(portfolioActions.getPortfolios());
       } else {
         dispatch(portfolioActions.createPortfolioFailure(res.error));
       }
@@ -69,6 +70,7 @@ const portfolioActions = {
       const res = await portfolioAPI.deletePortfolio(portfolioName);
       if (res.status === 200) {
         dispatch(portfolioActions.deletePortfolioSuccess(res));
+        dispatch(portfolioActions.getPortfolios());
       } else {
         dispatch(portfolioActions.deletePortfolioFailure(res.error));
       }
