@@ -3,27 +3,50 @@ import {
   Nav,
   NavDropdown,
   Button,
+  Image,
 } from "react-bootstrap";
 import { connect } from "react-redux";
 import { useHistory } from "react-router-dom";
 import userActions from "../redux/actions/userActions";
 import Username from "./Username";
+import logo from "../resources/shuttle.png";
 
-const dropdownNavLinks = [
+const logoStyle = {
+  width: "20px",
+  marginRight: "10px",
+};
+
+const brandStyle = {
+  display: "flex",
+  alignItems: "center",
+};
+
+interface LinkItem {
+  href: string;
+  name: string;
+}
+
+const privateNavBarLinks: Array<LinkItem> = [
+  { href: "/", name: "Home"},
+  { href: "/dashboard", name: "Dashboard" },
   { href: "/portfolios", name: "My Portfolios"},
+];
+
+const publicNavBarLinks: Array<LinkItem> = [
+  { href: "/signup", name: "Sign up"},
+  { href: "/login", name: "Login"},
+]
+
+const dropdownNavLinks: Array<LinkItem> = [
   { href: "/stock", name: "Stocks"},
   { href: "/news", name: "News"},
   { href: "/watchlist", name: "Watchlists"},
   { href: "/screener", name: "Screeners"},
   { href: "/forum", name: "Forum"},
-  { href: "/logout", name: "Logout"},
 ];
 
 interface StateProps {
   token?: string;
-  username?: string;
-  loading: boolean;
-  error?: string;
 }
 
 interface DispatchProps {
@@ -31,7 +54,7 @@ interface DispatchProps {
 }
 
 const Header: React.FC<StateProps & DispatchProps> = (props) => {
-  const { token, username, loading, error, logout } = props;
+  const { token, logout } = props;
   const history = useHistory();
 
   const handleLogout = () => {
@@ -39,18 +62,41 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
     history.push("/");
   };
 
+  const handleRedirect = (href: string | null) => {
+    if (href) {
+      history.push(href);
+    };
+  }
+
   const privateNav = (
     <Navbar.Collapse id="basic-navbar-nav">
-      <Nav className="mr-auto">
-        <Nav.Link href="/home">Home</Nav.Link>
-        <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+      <Nav
+        className="mr-auto"
+        onSelect={(selectedKey) => handleRedirect(selectedKey)}
+      >
+        {privateNavBarLinks.map((link, idx) => (
+          <Nav.Link key={idx} eventKey={link.href}>
+            {link.name}
+          </Nav.Link>
+        ))}
         <NavDropdown title="More" id="basic-nav-dropdown">
           {dropdownNavLinks.map((link, idx) => (
-            <NavDropdown.Item key={idx} href={link.href}>
+            <NavDropdown.Item key={idx} eventKey={link.href}>
               {link.name}
             </NavDropdown.Item>
           ))}
         </NavDropdown>
+      </Nav>
+    </Navbar.Collapse>
+  );
+
+  const publicNav = (
+    <Navbar.Collapse id="basic-navbar-nav">
+      <Nav
+        className="mr-auto"
+        onSelect={(selectedKey) => handleRedirect(selectedKey)}
+      >
+        <Nav.Link eventKey="/about-us">About Us</Nav.Link>
       </Nav>
     </Navbar.Collapse>
   );
@@ -64,31 +110,35 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
     </Navbar.Collapse>
   );
 
-  const publicNav = (
-    <Navbar.Collapse id="basic-navbar-nav">
-      <Nav className="mr-auto">
-        <Nav.Link href="/about-us">About us</Nav.Link>
-        <Nav.Link href="/login">Login</Nav.Link>
-        <Nav.Link href="/signup">Sign up</Nav.Link>
+  const publicUserNav = (
+    <Navbar.Collapse className="justify-content-end">
+      <Nav
+        onSelect={(selectedKey) => handleRedirect(selectedKey)}
+      >
+        {publicNavBarLinks.map((link, idx) => (
+          <Nav.Link key={idx} eventKey={link.href}>
+            {link.name}
+          </Nav.Link>
+        ))}
       </Nav>
     </Navbar.Collapse>
   );
 
   return (
     <Navbar bg="dark" expand="lg" variant="dark">
-      <Navbar.Brand href="/">To The Moon</Navbar.Brand>
+      <Nav.Link onClick={() => handleRedirect("/")} className="justify-content" style={brandStyle}>
+        <Image src={logo} style={logoStyle}></Image>
+        <Navbar.Brand>To The Moon</Navbar.Brand>
+      </Nav.Link>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       {token ? privateNav : publicNav}
-      {token ? privateUserNav : null}
+      {token ? privateUserNav : publicUserNav}
     </Navbar>
   );
 };
 
 const mapStateToProps = (state: any) => ({
   token: state.userReducer.token,
-  username: state.userReducer.username,
-  loading: state.userReducer.user.loading,
-  error: state.userReducer.user.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

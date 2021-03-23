@@ -89,7 +89,6 @@ const userActions = {
       }
     } catch (error) {
       dispatch(userActions.getUsernameFailure(error));
-      dispatch(userActions.logout());
     }
   }
 };
