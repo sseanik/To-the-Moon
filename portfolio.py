@@ -109,16 +109,19 @@ def total_stock_change(current_price, purchase_price):
 
 # Add investments to portfolio object in database 
 # Note: this assumes portfolioName and all the other inputs are of the correct size and data type
-def add_investment(user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker):
+def add_investment(user_id, portfolio_name, num_shares, optional_date, stock_ticker):
     conn = createDBConnection()
     cur = conn.cursor()
-    sql_query = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, totalChange, stockTicker) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    # Fetch current price 
+    # Fetch current price
     quick_data = TimeSeries().get_quick_quote(stock_ticker)
     current_price = float(quick_data['Global Quote']['05. price'])
+    # Default to current day / market close time, and calculate total change
+    purchase_date = datetime.now() if optional_date is None else datetime.fromtimestamp(optional_date)
+    purchase_price = current_price if optional_date is None else # TODO: price at datetime.fromtimestamp(optional_date)
     total_change = total_stock_change(current_price, float(purchase_price))
     # Execute query and close connections
-    cur.execute(sql_query, (user_id, portfolio_name, purchase_price, num_shares, purchase_date, total_change, stock_ticker))
+    sql_query = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, totalChange, stockTicker) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    cur.execute(sql_query, (user_id, portfolio_name, purchase_price, num_shares, purchase_date.strftime('%Y-%m-%d %H:%M:%S'), total_change, stock_ticker))
     conn.commit()
     conn.close()
     return {'status' : 200, 'message' : "Investment in " + stock_ticker + " has been added to portfolio named \'" + portfolio_name + "\'."}
@@ -307,17 +310,23 @@ def get_investment_trending_wrapper():
     return dumps(response)
 
 # Create a new investment
+# Expects payload:
+'''
+    numShares: number
+    stockTicker: string
+    purchaseDate?: number (in UNIX timestamp format, i.e. seconds since 1970)
+'''
+# purchase_date defaults to the current time
 @PORTFOLIO_ROUTES.route('/investment', methods=['POST'])
 def add_investment_user_portfolio_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     data = request.get_json()
     portfolio_name = request.args.get('portfolio')
-    purchase_price = data['purchasePrice']
     num_shares = data['numShares']
-    purchase_date = data['purchaseDate']
     stock_ticker = data['stockTicker']
-    response = add_investment(user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker)
+    purchase_date = data['purchaseDate'] if 'purchaseDate' in data else None
+    response = add_investment(user_id, portfolio_name, num_shares, purchase_date, stock_ticker)
     return dumps(response)
 
 
