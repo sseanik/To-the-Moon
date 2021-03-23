@@ -35,7 +35,7 @@ function App() {
         />
         <BrowserRouter>
           <Header />
-          <Container fluid className="App-content app-container justify-content-center">
+          <Container fluid className="mt-3 app-container justify-content-center">
             <Switch>
               <Route path="/" component={LandingPage} exact />
               <Route path="/create_portfolio" component={CreatePortfolioPage} />
