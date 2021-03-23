@@ -28,10 +28,8 @@ const initialValues: LoginFormValues = {
 };
 
 const schema = Yup.object({
-  email: Yup.string()
-    .required("Email is required."),
-  password: Yup.string()
-    .required("Password is required.")
+  email: Yup.string().required("Email is required."),
+  password: Yup.string().required("Password is required."),
 });
 
 const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
@@ -39,23 +37,15 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
   const history = useHistory();
 
   useEffect(() => {
-    const successMessage = "Successfully logged in!"
+    const successMessage = "Successfully logged in!";
     if (message === successMessage) {
       history.push("/");
     }
-  }, [message]);
+  }, [message, history]);
 
-  const errorComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
+  const errorComponent = <Alert variant="danger">{error}</Alert>;
 
-  const messageComponent = (
-    <Alert variant="success">
-      {message}
-    </Alert>
-  );
+  const messageComponent = <Alert variant="success">{message}</Alert>;
 
   return (
     <Formik
@@ -73,8 +63,8 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
       }) => {
         return (
           <Form onSubmit={handleSubmit}>
-            { error ? errorComponent : null }
-            { message ? messageComponent : null }
+            {error ? errorComponent : null}
+            {message ? messageComponent : null}
             <ClipLoader color={"green"} loading={loading}>
               <span className="sr-only">Loading...</span>
             </ClipLoader>
@@ -90,12 +80,12 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
                 isInvalid={!!errors.email && touched.email}
               />
               {errors.email && touched.email ? (
-              <Form.Control.Feedback type="invalid">
-                {errors.email}
-              </Form.Control.Feedback>
-            ) : null}
+                <Form.Control.Feedback type="invalid">
+                  {errors.email}
+                </Form.Control.Feedback>
+              ) : null}
             </Form.Group>
-            
+
             <Form.Group controlId="formBasicPassword">
               <Form.Label>Password</Form.Label>
               <Form.Control
@@ -108,10 +98,10 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
                 isInvalid={!!errors.password && touched.password}
               />
               {errors.password && touched.password ? (
-              <Form.Control.Feedback type="invalid">
-                {errors.password}
-              </Form.Control.Feedback>
-            ) : null}
+                <Form.Control.Feedback type="invalid">
+                  {errors.password}
+                </Form.Control.Feedback>
+              ) : null}
             </Form.Group>
 
             <Button disabled={loading} variant="primary" type="submit">
@@ -132,8 +122,8 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    login: (payload: LoginFormValues) => dispatch(userActions.login(payload))
-  }
+    login: (payload: LoginFormValues) => dispatch(userActions.login(payload)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);

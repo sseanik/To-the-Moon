@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Container, Row, Alert, Button } from "react-bootstrap";
+import React, { useEffect } from "react";
+import { Container, Row } from "react-bootstrap";
 import { connect } from "react-redux";
 import { CreatePortfolioForm } from "../components";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -20,7 +20,7 @@ const PortfoliosPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     getPortfolios();
-  }, []);
+  }, [getPortfolios]);
 
   return (
     <Container fluid>

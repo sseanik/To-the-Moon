@@ -1,7 +1,6 @@
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import { Alert, Button, Row, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import portfolioActions from "../redux/actions/portfolioActions";
@@ -33,6 +32,8 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
   const { loading, error, createPortfolio } = props;
   // purposely input dummy data
 
+  const errorComponent = <Alert>{error}</Alert>;
+
   const formComponent = (
     <Formik
       onSubmit={createPortfolio}
@@ -48,23 +49,26 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
         touched,
       }) => {
         return (
-          <Form noValidate onSubmit={handleSubmit} className="my-2 w-50">
-            <Form.Control
-              className="my-1"
-              type="text"
-              name="newName"
-              placeholder="Enter a new portfolio name"
-              value={values.newName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              isInvalid={!!errors.newName && touched.newName}
-              isValid={!errors.newName && touched.newName}
-            />
+          <Row className="justify-content-center w-100">
+            {error ? errorComponent : <></>}
+            <Form noValidate onSubmit={handleSubmit} className="w-50">
+              <Form.Control
+                className="my-1"
+                type="text"
+                name="newName"
+                placeholder="Enter a new portfolio name"
+                value={values.newName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={!!errors.newName && touched.newName}
+                isValid={!errors.newName && touched.newName}
+              />
 
-            <Button type="submit" variant="outline-success">
-              Add Portfolio
-            </Button>
-          </Form>
+              <Button type="submit" variant="outline-success" className="mt-2">
+                Add Portfolio
+              </Button>
+            </Form>
+          </Row>
         );
       }}
     </Formik>

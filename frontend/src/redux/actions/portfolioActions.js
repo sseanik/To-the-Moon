@@ -43,7 +43,7 @@ const portfolioActions = {
     try {
       const res = await portfolioAPI.getPortfolios();
       if (res.status === 200) {
-        dispatch(portfolioActions.getPortfoliosSuccess(res.data));
+        dispatch(portfolioActions.getPortfoliosSuccess(res));
       } else {
         dispatch(portfolioActions.getPortfoliosFailure(res.error));
       }
