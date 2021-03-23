@@ -149,6 +149,22 @@ def get_investment(investment_id):
     conn.close()
     return {'status' : 200, 'data' : {'total_change': total_change}}
 
+# Get the 'trendiness' of each invested stock symbol
+def get_trending_investments(num):
+    conn = createDBConnection()
+    cur = conn.cursor()
+    sql_query = "select StockTicker, count(distinct UserID) as userCount from holdings group by StockTicker order by userCount desc limit %s"
+    cur.execute(sql_query, (num, ))
+    query_results = cur.fetchall()
+    data = []
+    for tupl in query_results:
+        data.append({
+            'stock': tupl[0],
+            'count': tupl[1]
+        })
+    conn.close()
+    return {'status': 200, 'data': data}
+
 
 ############ Additional functions ##############
 '''
@@ -283,6 +299,13 @@ def get_investment_user_portfolio_wrapper():
     return dumps(get_investment(investment_id))
 
 
+# Get trending investments
+@PORTFOLIO_ROUTES.route('/investment/trending', methods=['GET'])
+def get_investment_trending_wrapper():
+    num = request.args.get('n')
+    response = get_trending_investments(num)
+    return dumps(response)
+
 # Create a new investment
 @PORTFOLIO_ROUTES.route('/investment', methods=['POST'])
 def add_investment_user_portfolio_wrapper():
@@ -308,11 +331,11 @@ def delete_investment_user_portfolio_wrapper():
 
 
 ############ Tests #############
-#create_portfolio('4', 'Austin\'s portfolio')
-#create_portfolio('4', 'Austi')
-#edit_portfolio('4', 'Austin\'s portfolio', 'Bob\'s portfolio')
-#delete_portfolio('4', 'Bob\'s portfolio')
-#delete_portfolio('4', 'Austi')
-#add_investment('4', 'Austin\'s portfolio', '100.5', '50', '2021-03-15', 'IBM')
-#get_investment("2380756e-863c-11eb-af93-0a4e2d6dea13")
-
+# create_portfolio('4', 'Austin\'s portfolio')
+# create_portfolio('4', 'Austi')
+# edit_portfolio('4', 'Austin\'s portfolio', 'Bob\'s portfolio')
+# delete_portfolio('4', 'Bob\'s portfolio')
+# delete_portfolio('4', 'Austi')
+# add_investment('7', 'Sally\'s portfolio', '100.5', '50', '2021-03-15', 'BHP')
+# get_investment("2380756e-863c-11eb-af93-0a4e2d6dea13")
+# get_trending_investments('10')
