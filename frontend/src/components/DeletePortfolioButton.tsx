@@ -14,6 +14,7 @@ interface Props {
 interface StateProps {
   loading: boolean;
   error: Object;
+  deleting: Array<string>;
 }
 
 interface DispatchProps {
@@ -23,7 +24,7 @@ interface DispatchProps {
 const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
-  const { loading, error, deletePortfolio, portfolioName } = props;
+  const { loading, error, deleting, deletePortfolio, portfolioName } = props;
   const errorComponent = <Alert variant="danger">{error}</Alert>;
   const deleteButton = (
     <Button
@@ -38,7 +39,7 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   return (
     <Container fluid className="deleteButton">
       {error ? errorComponent : <></>}
-      {loading ? (
+      {loading && deleting.includes(portfolioName) ? (
         <ClipLoader color={"green"} loading={loading} />
       ) : (
         deleteButton
@@ -50,6 +51,7 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
 const mapStateToProps = (state: any) => ({
   loading: state.portfolioReducer.deletePortfolio.loading,
   error: state.portfolioReducer.deletePortfolio.error,
+  deleting: state.portfolioReducer.deletePortfolio.deleting,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
