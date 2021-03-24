@@ -52,8 +52,9 @@ const portfolioActions = {
       dispatch(portfolioActions.getPortfoliosFailure(error));
     }
   },
-  deletePortfolioPending: () => ({
+  deletePortfolioPending: (portfolioName) => ({
     type: portfolioConstants.DELETE_PORTFOLIO_PENDING,
+    payload: portfolioName,
   }),
   deletePortfolioSuccess: (response) => ({
     type: portfolioConstants.DELETE_PORTFOLIO_SUCCESS,
@@ -64,15 +65,15 @@ const portfolioActions = {
     payload: error,
   }),
   deletePortfolios: (payload) => async (dispatch) => {
-    dispatch(portfolioActions.deletePortfolioPending());
+    const { portfolioName } = payload;
+    dispatch(portfolioActions.deletePortfolioPending(portfolioName));
     try {
-      const { portfolioName } = payload;
       const res = await portfolioAPI.deletePortfolio(portfolioName);
       if (res.status === 200) {
         dispatch(portfolioActions.deletePortfolioSuccess(res));
         dispatch(portfolioActions.getPortfolios());
       } else {
-        dispatch(portfolioActions.deletePortfolioFailure(res.error));
+        dispatch(portfolioActions.deletePortfolioFailure(res));
       }
     } catch (error) {
       dispatch(portfolioActions.deletePortfolioFailure(error));

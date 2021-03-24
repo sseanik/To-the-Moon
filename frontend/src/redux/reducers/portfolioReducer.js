@@ -12,7 +12,7 @@ const initialState = {
   deletePortfolio: {
     loading: false,
     error: null,
-    deleting: "",
+    deleting: [],
   },
 };
 
@@ -72,6 +72,7 @@ const portfolioReducer = (state = initialState, action) => {
         deletePortfolio: {
           loading: true,
           error: null,
+          deleting: [...state.deletePortfolio.deleting, action.payload]
         },
       };
     case portfolioConstants.DELETE_PORTFOLIO_SUCCESS:
@@ -80,6 +81,7 @@ const portfolioReducer = (state = initialState, action) => {
         deletePortfolio: {
           loading: false,
           error: null,
+          deleting: state.deletePortfolio.deleting.filter((name) => name === action.payload.portfolioName)
         },
       };
     case portfolioConstants.DELETE_PORTFOLIO_FAILURE:
@@ -87,7 +89,8 @@ const portfolioReducer = (state = initialState, action) => {
         ...state,
         deletePortfolio: {
           loading: false,
-          error: action.payload,
+          error: action.payload.error,
+          deleting: state.deletePortfolio.deleting.filter((name) => name === action.payload.portfolioName)
         },
       };
     default:
