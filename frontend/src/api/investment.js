@@ -5,7 +5,7 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const stockAPI = {
   getStockTotalChange: (id) => {
-    const endpoint = `/investment?id=${id}`;
+    const endpoint = `/investment/total-change?id=${id}`;
     const options = {
       method: "GET",
       headers: {
