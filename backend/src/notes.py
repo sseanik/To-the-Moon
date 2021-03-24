@@ -90,9 +90,16 @@ def editNote(userID, old_title, new_title, content, stock_symbols, portfolio_nam
 
 # TEST THIS
 def deleteNote(userID, title):
-    pass
+    conn = createDBConnection()
+    cur = conn.cursor()
+    sqlQuery = "delete from notes where userID=%s and title=%s"
+    cur.execute(sqlQuery, (userID, title))
+    conn.commit()
+    conn.close()
+    return {'status' : 200, 'message' : "Note removed"}
 
-def getNote(userID, title):
+
+def getNotes(userID, title):
     pass
 
 ################################
@@ -110,7 +117,7 @@ def createUsersNote():
     portfolio_names = request.args.get('portfolio_names')
     external_references = request.args.get('external_references')
     internal_references = request.args.get('internal_references')
-    response = addNote(userID, title, content, stock_symbols, portfolio_names, external_references, internal_references)
+    response = addNote(userID['id'], title, content, stock_symbols, portfolio_names, external_references, internal_references)
     return dumps(response)
 
 
@@ -126,9 +133,18 @@ def editUsersNote():
     portfolio_names = request.args.get('portfolio_names')
     external_references = request.args.get('external_references')
     internal_references = request.args.get('internal_references')
-    response = editNote(userID, old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references)
+    response = editNote(userID['id'], old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references)
     return dumps(response)
 
+
+# TEST THIS
+@NOTES_ROUTES.route('/notes/deleteNote', methods=['DELETE'])
+def deleteUsersNote():
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
+    title = request.args.get('title')
+    response = deleteNote(userID['id'], title)
+    return dumps(response)
 
 
 ################################
@@ -140,8 +156,8 @@ values ('0ee69cfc-83ce-11eb-8620-0a4e2d6dea13', 'Austin''s note', 'Random conten
 '''
 #print(addNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
 #print(editNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Testing edit function', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-print(editNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s notez', 'Austin\'s test note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-
+#print(editNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s notez', 'Austin\'s test note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
+print(deleteNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea13', 'Austin\'s note'))
 
 
 
