@@ -55,6 +55,13 @@ def createSecuritiesOverviewTable():
     conn.commit()
     conn.close()
 
+def createNotesTable():
+    conn = createDBConnection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/Notes.sql", "r").read())
+    conn.commit()
+    conn.close()
+
 def fillSecuritiesOverviewTable(symbol):
     conn = createDBConnection()
     cur = conn.cursor()
@@ -255,6 +262,7 @@ def fillOverviewAndFinancialTables(symbol):
 
 
 if __name__ == "__main__":
+    createNotesTable()
     pass
     #createDBConnection()
     #createPortfolioTable()
