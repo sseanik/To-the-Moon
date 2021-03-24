@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter, Switch, Link, Route, useParams, useRouteMatch } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {  Container,
           Row,
           Col,
@@ -15,23 +15,29 @@ import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "../c
 import DataIncomeStatement from "../components/DataIncomeStatement";
 import DataBalanceSheet from "../components/DataBalanceSheet";
 import DataCashFlow from "../components/DataCashFlow";
+import StockNews from "../components/StockNews";
 
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 
-import Actions from "../redux/actions/stock";
+import StockAPI from "../api/stock";
+import NewsAPI from "../api/news";
 
 interface graphOptionsT {
   title: { text: string };
   series: Array<{ name: string, data: Array<Array<number>> }>;
 }
 
-const StockPage: React.FC = () => {
-  var routeMatch = useRouteMatch();
-  var symbol = routeMatch.params.symbol;
+interface RouteParams {
+  symbol: string;
+}
 
-  const [genkey, setGenkey] = useState('summary');
-  const [finkey, setFinkey] = useState('incomestatement');
+const StockPage: React.FC = () => {
+  var params = useParams<RouteParams>();
+  var symbol = params.symbol;
+
+  const [genkey, setGenkey] = useState<string|null>('summary');
+  const [finkey, setFinkey] = useState<string|null>('incomestatement');
   const [companyName, setCompanyName] = useState('View');
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
@@ -53,11 +59,13 @@ const StockPage: React.FC = () => {
   const [timeSeriesIntra, setTimeSeriesIntra] = useState<any>([]);
 
   async function fetchStock() {
-    var stockdata = symbol ? await Actions.getStockData(symbol) : {};
+    const stockdata = symbol ? await StockAPI.getBasic(symbol) : {};
 
-    if (!stockdata) { return; }
-    var seriesDailyList = [];
-    var seriesIntraList = [];
+    if (!stockdata) {
+      return;
+    }
+    const seriesDailyList = [];
+    const seriesIntraList = [];
     setCompanyName(stockdata.name);
 
     setGraphOptions({ ... graphOptions, title: {text: `Share Price`}});
@@ -71,12 +79,15 @@ const StockPage: React.FC = () => {
     }
     setTimeSeriesIntra(seriesIntraList);
 
-    if (stockdata.summary) setSummaryData(stockdata.summary);
-    if (stockdata.fundamentals) setFundamentalData(stockdata.fundamentals);
+    if (stockdata.summary) {
+      setSummaryData(stockdata.summary);
+    }
+    if (stockdata.fundamentals) {
+      setFundamentalData(stockdata.fundamentals);
+    }
   }
 
   useEffect(() => {
-
     fetchStock();
   }, []);
 
@@ -102,7 +113,7 @@ const StockPage: React.FC = () => {
 
   const fetchIncomeStatement = () => {
     async function fetchIncome() {
-      var incomedata = symbol ? await Actions.getIncomeStatement(symbol) : {};
+      var incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
       if (incomedata.data) {
         setIncomeStatement(incomedata.data);
       }
@@ -112,7 +123,7 @@ const StockPage: React.FC = () => {
 
   const fetchBalanceSheet = () => {
     async function fetchBalance() {
-      var balancedata = symbol ? await Actions.getBalanceSheet(symbol) : {};
+      var balancedata = symbol ? await StockAPI.getBalance(symbol) : {};
       if (balancedata.data) {
         setBalanceSheet(balancedata.data);
       }
@@ -122,7 +133,7 @@ const StockPage: React.FC = () => {
 
   const fetchCashFlow = () => {
     async function fetchCash() {
-      var cashdata = symbol ? await Actions.getCashFlow(symbol) : {};
+      var cashdata = symbol ? await StockAPI.getCashFlow(symbol) : {};
       if (cashdata.data) {
         setCashFlow(cashdata.data);
       }
@@ -195,6 +206,12 @@ const StockPage: React.FC = () => {
             </Tabs>
           </Container>
         </Col>
+      </Row>
+      <Row>
+        <h3>{`News related to ${symbol}`}</h3>
+      </Row>
+      <Row>
+        <StockNews stock={symbol} />
       </Row>
     </Container>
   );

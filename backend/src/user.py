@@ -8,7 +8,7 @@ import bcrypt
 from json import dumps
 from flask import Blueprint, request
 from database import createDBConnection
-from token_util import generateToken
+from token_util import generateToken, getIDfromToken
 
 
 #######################
@@ -33,7 +33,7 @@ def register_user(first_name, last_name, email, username, password):
     if not re.search(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
         return {
             'status': 400,
-            'message': 'That is not a valid email format'
+            'error': 'Not a valid email format'
         }
 
     
@@ -41,35 +41,35 @@ def register_user(first_name, last_name, email, username, password):
     if len(username) < 3:
         return {
             'status': 400,
-            'message': 'Username must be at least 3 characters'
+            'error': 'Username must be at least 3 characters'
         }
 
     # maximum length of username
     if len(username) > 30:
         return {
             'status': 400,
-            'message': 'Username cannot exceed 30 characters'
+            'error': 'Username cannot exceed 30 characters'
         }
 
     # limit length of first name
     if len(first_name) > 30:
         return {
             'status': 400,
-            'message': 'First name cannot exceed 30 characters'
+            'error': 'First name cannot exceed 30 characters'
         }
 
     # limit length of last name
     if len(last_name) > 30:
         return {
             'status': 400,
-            'message': 'Last name cannot exceed 30 characters'
+            'error': 'Last name cannot exceed 30 characters'
         }
 
     # restrict length of password
     if len(password) < 8 or len(password) > 16:
         return {
             'status': 400,
-            'message': 'Password must be between 8 and 16 characters'
+            'error': 'Password must be between 8 and 16 characters'
         }
 
     # check if user with current email already exists
@@ -78,7 +78,7 @@ def register_user(first_name, last_name, email, username, password):
     if cur.fetchone():
         return {
             'status': 400,
-            'message': 'There is already a user registered with this email'
+            'error': 'Already a user registered with given email'
         }
 
     # encode password
@@ -100,7 +100,7 @@ def register_user(first_name, last_name, email, username, password):
     # successful return
     return {
         'status': 200,
-        'userID': user_id,
+        'username': username,
         'token': generateToken(user_id),
         'message': 'Successfully registered!'
     }
@@ -112,24 +112,24 @@ def login_user(email, password):
     cur = conn.cursor()
 
     # check if user with current email already exists
-    user_query = f"select id, password from users where email='{email}'"
+    user_query = f"select id, password, username from users where email='{email}'"
     cur.execute(user_query)
     user_info = cur.fetchone()
 
     # check if there is an existing user with this email
     if not user_info:
         return {
-            'status': 400,
-            'message': 'There is no user registered with this email'
+            'status': 404,
+            'error': 'No user registered with given email'
         }
 
-    user_id, hashed_password = user_info
+    user_id, hashed_password, username = user_info
 
     # check if the password is correct
     if not bcrypt.checkpw(password.encode('utf-8'), bytes(hashed_password)):
         return {
-            'status': 400,
-            'message': 'Incorrect password'
+            'status': 404,
+            'error': 'Incorrect password'
         }
         
     # close database connection
@@ -140,9 +140,51 @@ def login_user(email, password):
     # successful return
     return {
         'status': 200,
-        'userID': user_id,
+        'username': username,
         'token': generateToken(user_id),
         'message': 'Successfully logged in!'
+    }
+
+
+def get_username(token):
+    # parse user token
+    try:
+        parsed_token = getIDfromToken(token)
+    except:
+        return {
+            'status': 400,
+            'error': 'Failed to decode token'
+        }
+    user_id = parsed_token['id']
+    
+    # open database connection
+    conn = createDBConnection()
+    cur = conn.cursor()
+
+    # check if user with current id exists
+    user_query = f"select username from users where id='{user_id}'"
+    cur.execute(user_query)
+    user_info = cur.fetchone()
+
+    # check if there is an existing user with this email
+    if not user_info:
+        return {
+            'status': 404,
+            'error': 'Token error, no user registered under user ID'
+        }
+
+    username = user_info
+        
+    # close database connection
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    # successful return
+    return {
+        'status': 200,
+        'username': username,
+        'message': 'Successfully retrieved username!'
     }
 
 
@@ -164,4 +206,12 @@ def register_user_wrapper():
 def login_user_wrapper():
     data = request.get_json()
     result = login_user(data['email'], data['password'])
+    return dumps(result)
+
+
+# Given a user token, return a user's username
+@USER_ROUTES.route('/user', methods=['GET'])
+def get_user_wrapper():
+    token = request.headers.get('Authorization')
+    result = get_username(token)
     return dumps(result)

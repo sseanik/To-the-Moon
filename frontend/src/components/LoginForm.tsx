@@ -1,99 +1,139 @@
-import { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import { connect } from 'react-redux';
-import Actions from '../redux/actions/user';
-import ClipLoader from 'react-spinners/ClipLoader';
-import { useHistory } from 'react-router-dom';
+import { useEffect } from "react";
+import { Form, Button, Alert } from "react-bootstrap";
+import ClipLoader from "react-spinners/ClipLoader";
+import { connect } from "react-redux";
+import userActions from "../redux/actions/userActions";
+import { useHistory } from "react-router-dom";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
-interface IObjectKeys {
-  [key: string]: string | number;
-}
-
-interface RegisterFormParams extends IObjectKeys {
+interface LoginFormValues {
   email: string;
   password: string;
-};
+}
 
 interface StateProps {
-  isLoading: boolean;
+  loading: boolean;
+  message: string;
   error: Object;
-  token: string;
 }
 
 interface DispatchProps {
-  loginUser: (payload: RegisterFormParams) => void;
+  login: (payload: LoginFormValues) => void;
 }
 
+const initialValues: LoginFormValues = {
+  email: "",
+  password: "",
+};
+
+const schema = Yup.object({
+  email: Yup.string()
+    .required("Email is required."),
+  password: Yup.string()
+    .required("Password is required.")
+});
+
 const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { isLoading, token, error, loginUser } = props;
+  const { loading, message, error, login } = props;
   const history = useHistory();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   useEffect(() => {
-    if (token) {
-      history.push('/');
+    const successMessage = "Successfully logged in!"
+    if (message === successMessage) {
+      history.push("/");
     }
-  })
+  }, [message]);
 
-  const onSubmit = (e: any) => {
-    e.preventDefault();
-    loginUser({ email, password });
-  };
-
-  const formComponent = (
-    <Form onSubmit={(e) => onSubmit(e)}>
-      <Form.Group controlId="formBasicEmail">
-        <Form.Label>Email</Form.Label>
-        <Form.Control
-          type="email"
-          placeholder="Enter email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </Form.Group>
-
-      <Form.Group controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </Form.Group>
-
-      <Button
-        variant="primary"
-        type="submit"
-      >
-        Login
-      </Button>
-    </Form>
+  const errorComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
   );
 
-  const loadingSpinnerComponent = (
-    <div>
-      <ClipLoader color={'green'} loading={isLoading} />
-      <h5>Preparing rocket fuel...</h5>
-    </div>
+  const messageComponent = (
+    <Alert variant="success">
+      {message}
+    </Alert>
   );
 
   return (
-    isLoading
-    ? loadingSpinnerComponent
-    : formComponent
+    <Formik
+      onSubmit={login}
+      initialValues={initialValues}
+      validationSchema={schema}
+    >
+      {({
+        handleSubmit,
+        handleChange,
+        handleBlur,
+        values,
+        errors,
+        touched,
+      }) => {
+        return (
+          <Form onSubmit={handleSubmit}>
+            { error ? errorComponent : null }
+            { message ? messageComponent : null }
+            <ClipLoader color={"green"} loading={loading}>
+              <span className="sr-only">Loading...</span>
+            </ClipLoader>
+            <Form.Group controlId="formBasicEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                placeholder="Enter email"
+                value={values.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={!!errors.email && touched.email}
+              />
+              {errors.email && touched.email ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.email}
+              </Form.Control.Feedback>
+            ) : null}
+            </Form.Group>
+            
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={values.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={!!errors.password && touched.password}
+              />
+              {errors.password && touched.password ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.password}
+              </Form.Control.Feedback>
+            ) : null}
+            </Form.Group>
+
+            <Button disabled={loading} variant="primary" type="submit">
+              Login
+            </Button>
+          </Form>
+        );
+      }}
+    </Formik>
   );
 };
 
 const mapStateToProps = (state: any) => ({
-  isLoading: state.loginUser.loginUser.loading,
-  token: state.loginUser.loginUser.token,
-  error: state.loginUser.loginUser.error
+  loading: state.userReducer.loginUser.loading,
+  message: state.userReducer.loginUser.message,
+  error: state.userReducer.loginUser.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    loginUser: (formPayload: any) => { dispatch(Actions.loginUser(formPayload)) }
+    login: (payload: LoginFormValues) => dispatch(userActions.login(payload))
   }
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);
