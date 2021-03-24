@@ -20,6 +20,6 @@ def getIDfromToken(token):
   return jwt.decode(token, os.getenv("JWT_SECRET"), algorithms=['HS256'])
 
 
-encoded_jwt = generateToken('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19')
-print(encoded_jwt)
+#encoded_jwt = generateToken('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19')
+#print(encoded_jwt)
 #print(getIDfromToken(encoded_jwt))
