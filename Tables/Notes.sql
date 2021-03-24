@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS Notes (
-    userid UUID FOREIGN KEY,
+    userid UUID,
     title VARCHAR(300) NOT NULL,
     content VARCHAR(5000),
     stock_symbols TEXT ARRAY,
