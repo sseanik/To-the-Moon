@@ -6,3 +6,4 @@ export { default as PortfoliosPage } from "./PortfoliosPage";
 export { default as CreatePortfolioPage } from "./CreatePortfolioPage";
 export { default as LoginPage } from "./LoginPage";
 export { default as AboutUsPage } from "./AboutUsPage";
+export { default as SearchStockPage } from "./SearchStockPage";

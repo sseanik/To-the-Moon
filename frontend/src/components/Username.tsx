@@ -37,9 +37,11 @@ const Username: React.FC<StateProps & DispatchProps> = (props) => {
   );
 
   const loadingSpinnerComponent = (
-    <ClipLoader color={"green"} loading={loading}>
-      <span className="sr-only">Loading...</span>
-    </ClipLoader>
+    <div className="mr-sm-2">
+      <ClipLoader color={"green"} loading={loading}>
+        <span className="sr-only">Loading...</span>
+      </ClipLoader>
+    </div>
   );
 
   return username ? usernameComponent : loadingSpinnerComponent;
