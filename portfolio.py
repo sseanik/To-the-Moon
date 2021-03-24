@@ -102,26 +102,29 @@ def delete_portfolio(user_id, portfolio_name):
 
 
 ############# Investment helper functions #################
-def total_stock_change(current_price, purchase_price):
-    # Write this after price fetching functions are written
+def total_stock_change(stock_ticker, purchase_price):
+    # Get investment current price
+    quick_data = TimeSeries().get_quick_quote(stock_ticker)
+    current_price = float(quick_data['Global Quote']['05. price'])
     return (current_price - purchase_price)*100 / purchase_price
 
 
 # Add investments to portfolio object in database 
 # Note: this assumes portfolioName and all the other inputs are of the correct size and data type
-def add_investment(user_id, portfolio_name, num_shares, optional_date, stock_ticker):
+def add_investment(user_id, portfolio_name, num_shares, timestamp, stock_ticker):
+    # Validate date
+    purchase_date = datetime.fromtimestamp(timestamp)
+    if purchase_date > datetime.now():
+        return {
+            'status': 400,
+            'error': 'Invalid purchase date, date must be in the past/present'
+        }
     conn = createDBConnection()
     cur = conn.cursor()
-    # Fetch current price
-    quick_data = TimeSeries().get_quick_quote(stock_ticker)
-    current_price = float(quick_data['Global Quote']['05. price'])
-    # Default to current day / market close time, and calculate total change
-    purchase_date = datetime.now() if optional_date is None else datetime.fromtimestamp(optional_date)
-    purchase_price = current_price if optional_date is None else # TODO: price at datetime.fromtimestamp(optional_date)
-    total_change = total_stock_change(current_price, float(purchase_price))
+    purchase_price = # TODO: price at purchase_date
     # Execute query and close connections
-    sql_query = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, totalChange, stockTicker) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    cur.execute(sql_query, (user_id, portfolio_name, purchase_price, num_shares, purchase_date.strftime('%Y-%m-%d %H:%M:%S'), total_change, stock_ticker))
+    sql_query = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, stockTicker) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    cur.execute(sql_query, (user_id, portfolio_name, purchase_price, num_shares, purchase_date.strftime('%Y-%m-%d %H:%M:%S'), stock_ticker))
     conn.commit()
     conn.close()
     return {'status' : 200, 'message' : "Investment in " + stock_ticker + " has been added to portfolio named \'" + portfolio_name + "\'."}
@@ -141,16 +144,19 @@ def delete_investment(investment_id):
 
 # Get an individual investment's total performance
 # Note: this assumes investment_id is correct.
-def get_investment(investment_id):
+def get_investment_tc(investment_id):
     conn = createDBConnection()
     cur = conn.cursor()
-    # Delete from holdings table
-    sql_query = "select totalChange from holdings where investmentID=%s"
+    # Get investment purchase price
+    sql_query = "select purchasePrice, stockTicker from Holdings where investmentID=%s"
     cur.execute(sql_query, (investment_id, ))
     query_results = cur.fetchall()
-    total_change = str(query_results[0][0])
+    purchase_price = float(query_results[0][0])
+    stock_ticker = query_results[0][1]
+    # Compute total change
+    total_change = total_stock_change(stock_ticker, purchase_price)
     conn.close()
-    return {'status' : 200, 'data' : {'total_change': total_change}}
+    return {'status' : 200, 'data' : {'id', investment_id, 'total_change': total_change}}
 
 # Get the 'trendiness' of each invested stock symbol
 def get_trending_investments(num):
@@ -192,8 +198,7 @@ def getUserPortfolios(userID):
             'PurchasePrice' : row[3], 
             'NumShares' : row[4], 
             'PurchaseDate' : row[5], 
-            'TotalChange' : row[6],
-            'StockTicker' : row[7]
+            'StockTicker' : row[6]
         }
         presentData = checkData(data, portfolioName)
         if presentData:
@@ -233,8 +238,8 @@ def get_investments(user_id, portfolio_name):
             'PurchasePrice': str(row[3]), 
             'NumShares': row[4], 
             'PurchaseDate': row[5].strftime("%Y-%m-%d"), 
-            'TotalChange': float(row[6]),
-            'StockTicker': row[7]
+            'TotalChange': total_stock_change(row[6], float(row[3]))
+            'StockTicker': row[6]
         }
         data.append(new_investment)
 
@@ -295,11 +300,11 @@ def delete_user_portfolio_wrapper():
     return dumps(response)
 
 
-# Get information about an existing investment
-@PORTFOLIO_ROUTES.route('/investment', methods=['GET'])
-def get_investment_user_portfolio_wrapper():
+# Get total change of an existing investment
+@PORTFOLIO_ROUTES.route('/investment/total-change', methods=['GET'])
+def get_investment_total_change_wrapper():
     investment_id = request.args.get('id')
-    return dumps(get_investment(investment_id))
+    return dumps(get_investment_tc(investment_id))
 
 
 # Get trending investments
@@ -314,9 +319,8 @@ def get_investment_trending_wrapper():
 '''
     numShares: number
     stockTicker: string
-    purchaseDate?: number (in UNIX timestamp format, i.e. seconds since 1970)
+    purchaseDate: number (in UNIX timestamp format, i.e. seconds since 1970)
 '''
-# purchase_date defaults to the current time
 @PORTFOLIO_ROUTES.route('/investment', methods=['POST'])
 def add_investment_user_portfolio_wrapper():
     token = request.headers.get('Authorization')
@@ -325,7 +329,7 @@ def add_investment_user_portfolio_wrapper():
     portfolio_name = request.args.get('portfolio')
     num_shares = data['numShares']
     stock_ticker = data['stockTicker']
-    purchase_date = data['purchaseDate'] if 'purchaseDate' in data else None
+    purchase_date = data['purchaseDate']
     response = add_investment(user_id, portfolio_name, num_shares, purchase_date, stock_ticker)
     return dumps(response)
 
