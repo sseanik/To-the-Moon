@@ -99,8 +99,65 @@ def deleteNote(userID, title):
     return {'status' : 200, 'message' : "Note removed"}
 
 
-def getNotes(userID, title):
-    pass
+def getNote(userID, title):
+    conn = createDBConnection()
+    cur = conn.cursor()
+    sqlQuery = "select * from notes where userID=%s and title=%s"
+    cur.execute(sqlQuery, (userID, title))
+    queryResults = cur.fetchall()[0]
+    note = {
+        'title' : queryResults[1],
+        'content' : queryResults[2],
+        'stock_symbols' : queryResults[3],
+        'portfolio_names' : queryResults[4],
+        'external_references' : queryResults[5],
+        'internal_references' : queryResults[6],
+    }
+    conn.close()
+    return {'status' : 200, 'data' : note}
+
+
+def getRelevantNotes(userID, stock_symbols, portfolio_names):
+    conn = createDBConnection()
+    cur = conn.cursor()
+    sqlQuery = "select * from notes where userID=%s and (%s::TEXT[] && stock_symbols or %s::TEXT[] && portfolio_names)"
+    cur.execute(sqlQuery, (userID, stock_symbols, portfolio_names))
+    queryResults = cur.fetchall()
+    notes = []
+    for note in queryResults:
+        new_data = {
+            'title' : note[1],
+            'content' : note[2],
+            'stock_symbols' : note[3],
+            'portfolio_names' : note[4],
+            'external_references' : note[5],
+            'internal_references' : note[6],
+        }
+        notes.append(new_data)
+    conn.close()
+    return {'status' : 200, 'data' : notes}
+
+
+def getAllNotes(userID):
+    conn = createDBConnection()
+    cur = conn.cursor()
+    sqlQuery = "select * from notes where userID=%s"
+    cur.execute(sqlQuery, (userID, ))
+    queryResults = cur.fetchall()
+    notes = []
+    for note in queryResults:
+        new_data = {
+            'title' : note[1],
+            'content' : note[2],
+            'stock_symbols' : note[3],
+            'portfolio_names' : note[4],
+            'external_references' : note[5],
+            'internal_references' : note[6],
+        }
+        notes.append(new_data)
+    conn.close()
+    return {'status' : 200, 'data' : notes}
+
 
 ################################
 # Please leave all routes here #
@@ -138,12 +195,32 @@ def editUsersNote():
 
 
 # TEST THIS
-@NOTES_ROUTES.route('/notes/deleteNote', methods=['DELETE'])
+@NOTE_ROUTES.route('/notes/deleteNote', methods=['DELETE'])
 def deleteUsersNote():
     token = request.headers.get('Authorization')
     userID = getIDfromToken(token)
     title = request.args.get('title')
     response = deleteNote(userID['id'], title)
+    return dumps(response)
+
+
+# TEST THIS
+@NOTE_ROUTES.route('/notes/getNotes', methods=['GET'])
+def getUsersNotes():
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
+    response = getAllNotes(userID['id'])
+    return dumps(response)
+
+
+# Add route for get relevant notes
+@NOTE_ROUTES.route('/notes/getRelevantNotes', methods=['GET'])
+def getUsersNotes():
+    token = request.headers.get('Authorization')
+    userID = getIDfromToken(token)
+    stock_symbols = request.args.get('stock_symbols')
+    portfolio_names = request.args.get('portfolio_names')
+    response = getRelevantNotes(userID['id'], stock_symbols, portfolio_names)
     return dumps(response)
 
 
@@ -157,7 +234,8 @@ values ('0ee69cfc-83ce-11eb-8620-0a4e2d6dea13', 'Austin''s note', 'Random conten
 #print(addNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
 #print(editNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Testing edit function', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
 #print(editNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s notez', 'Austin\'s test note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-print(deleteNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea13', 'Austin\'s note'))
+#print(deleteNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea13', 'Austin\'s note'))
 
-
-
+#print(getNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s test note'))
+#print(getAllNotes('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19'))
+print(getRelevantNotes('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', ['IBM'], []))
