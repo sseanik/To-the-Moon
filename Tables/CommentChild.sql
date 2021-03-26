@@ -1,12 +1,11 @@
-CREATE TABLE IF NOT EXISTS child_comment (
+CREATE TABLE IF NOT EXISTS ChildComment (
     child_id UUID NOT NULL DEFAULT UUID_GENERATE_V1() PRIMARY KEY,
-    parent_id TEXT NOT NULL REFERENCES parent_comment(parent_id),
+    parent_id TEXT REFERENCES ParentComment(parent_id),
     stock_ticker VARCHAR(10) REFERENCES SecuritiesOverviews(StockTicker),
-    author_id UUID NOT NULL REFERENCES Users(id),
-    is_verified REFERENCES Users(is_verified),
+    author_id UUID REFERENCES Users(id),
     time_stamp TIMESTAMP NOT NULL,
-    content TEXT,
-    is_edited BOOLEAN DEFAULT FALSE,
+    content VARCHAR(5000),
     upvote_user_ids UUID [],
-    downvote_user_ids UUID []
+    downvote_user_ids UUID [],
+    is_edited BOOLEAN DEFAULT FALSE
 );
