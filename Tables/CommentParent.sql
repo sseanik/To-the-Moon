@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS parent_comment (
-    parent_id UUID not null DEFAULT uuid_generate_v1() primary key,
-    StockTicker VARCHAR(10) FOREIGN KEY,
-    author_id UUID NOT NULL FOREIGN KEY,
-    is_verified DEFAULT FALSE,
-    timestamp TEXT NOT NULL,
+    parent_id UUID NOT NULL DEFAULT UUID_GENERATE_V1() PRIMARY KEY,
+    stock_ticker VARCHAR(10) FOREIGN KEY REFERENCES SecuritiesOverviews(StockTicker),
+    author_id UUID NOT NULL FOREIGN KEY REFERENCES Users(id),
+    is_verified FOREIGN KEY REFERENCES Users(is_verified),
+    time_stamp TIMESTAMP NOT NULL,
     content TEXT,
     is_edited BOOLEAN DEFAULT FALSE,
-    upvote_user_ids TEXT ARRAY,
-    downvote_user_ids TEXT ARRAY
+    upvote_user_ids UUID [],
+    downvote_user_ids UUID []
 );
