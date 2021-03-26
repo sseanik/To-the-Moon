@@ -40,4 +40,4 @@ Worked on cleaning up the project to have consistent syntax and adherence to bes
 Implemented Username component to show logged in user.
 Implemented Logout, improved token management and loading spinners to move the application towards an SPA with better user experience.
 Created and implemented a new page for searching stocks.
-Implemented the Trending Investments component on the landing page.
+Implemented the Trending Investments component on the landing page, cleaned up and improved backend code for portfolio endpoints.
