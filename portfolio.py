@@ -356,6 +356,6 @@ def delete_investment_user_portfolio_wrapper():
 # edit_portfolio('4', 'Austin\'s portfolio', 'Bob\'s portfolio')
 # delete_portfolio('4', 'Bob\'s portfolio')
 # delete_portfolio('4', 'Austi')
-add_investment('7', 'Sally\'s portfolio', '50', 1611061200, 'BHP')
+# add_investment('7', 'Sally\'s portfolio', '50', 1611061200, 'BHP')
 # get_investment("2380756e-863c-11eb-af93-0a4e2d6dea13")
 # get_trending_investments('10')
