@@ -10,7 +10,7 @@ import pandas as pd
 import sys
 import os
 from collections import OrderedDict
-import datetime
+from datetime import datetime
 import pytz
 
 from psycopg2.extras import DictCursor
@@ -63,6 +63,33 @@ def retrieve_stock_data(symbol, data_type="daily_adjusted"):
         JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
     except ValueError as e:
         print(f"Error encountered: {e}", file=sys.stderr)
+
+def retrieve_stock_price_at_date(symbol, purchase_date):
+    ts = TimeSeries(key=AlphaVantageInfo.api_key, output_format='csv')
+    rounded_datetime = purchase_date.strftime('%Y-%m-%d %H:%M:00')
+    rounded_date = purchase_date.strftime('%Y-%m-%d')
+    delta = datetime.today() - purchase_date
+    year = delta.days / 360 + 1
+    month = delta.days % 360 / 30 + 1
+
+    # Extended intraday if available
+    data, _ = ts.get_intraday_extended(symbol, '1min', f'year{int(year)}month{int(month)}')
+    # Process csv
+    df = pd.DataFrame(data)
+    header_row=0
+    df.columns = df.iloc[header_row]
+    df = df.drop(header_row)
+    if rounded_datetime in df.time.values:
+        return df.loc[df['time'] == rounded_datetime]['close'].iloc[0]
+
+    # Daily data fallback
+    ts = TimeSeries(key=AlphaVantageInfo.api_key)
+    data, _ = ts.get_daily_adjusted(symbol, outputsize='full')
+    if rounded_date in data:
+        return data[rounded_date]['4. close']
+
+    # If all else fails
+    return data[datetime.today().strftime('%Y-%m-%d')]['4. close']
 
 def get_stock_value(filename, data_type="daily_adjusted"):
     """

@@ -9,6 +9,7 @@ from database import createDBConnection
 from token_util import get_id_from_token
 from helpers import TimeSeries, AlphaVantageAPI
 from datetime import datetime
+from stock import retrieve_stock_price_at_date
 
 PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
 
@@ -121,9 +122,9 @@ def add_investment(user_id, portfolio_name, num_shares, timestamp, stock_ticker)
         }
     conn = createDBConnection()
     cur = conn.cursor()
-    purchase_price = # TODO: price at purchase_date
+    purchase_price = retrieve_stock_price_at_date(stock_ticker, purchase_date)
     # Execute query and close connections
-    sql_query = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, stockTicker) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    sql_query = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, stockTicker) VALUES (%s, %s, %s, %s, %s, %s)"
     cur.execute(sql_query, (user_id, portfolio_name, purchase_price, num_shares, purchase_date.strftime('%Y-%m-%d %H:%M:%S'), stock_ticker))
     conn.commit()
     conn.close()
@@ -156,7 +157,13 @@ def get_investment_tc(investment_id):
     # Compute total change
     total_change = total_stock_change(stock_ticker, purchase_price)
     conn.close()
-    return {'status' : 200, 'data' : {'id', investment_id, 'total_change': total_change}}
+    return {
+        'status' : 200,
+        'data' : {
+            'id': investment_id,
+            'total_change': total_change
+        }
+    }
 
 # Get the 'trendiness' of each invested stock symbol
 def get_trending_investments(num):
@@ -234,12 +241,12 @@ def get_investments(user_id, portfolio_name):
     data = []
     for row in query_results:
         new_investment = {
-            'id': row[0],
-            'PurchasePrice': str(row[3]), 
-            'NumShares': row[4], 
-            'PurchaseDate': row[5].strftime("%Y-%m-%d"), 
-            'TotalChange': total_stock_change(row[6], float(row[3]))
-            'StockTicker': row[6]
+            'investmentID': row[0],
+            'purchasePrice': str(row[3]), 
+            'numShares': row[4], 
+            'purchaseDate': row[5].strftime("%Y-%m-%d"), 
+            'totalChange': total_stock_change(row[6], float(row[3])),
+            'stockTicker': row[6]
         }
         data.append(new_investment)
 
@@ -329,7 +336,7 @@ def add_investment_user_portfolio_wrapper():
     portfolio_name = request.args.get('portfolio')
     num_shares = data['numShares']
     stock_ticker = data['stockTicker']
-    purchase_date = data['purchaseDate']
+    purchase_date = int(data['purchaseDate'])
     response = add_investment(user_id, portfolio_name, num_shares, purchase_date, stock_ticker)
     return dumps(response)
 
@@ -349,6 +356,6 @@ def delete_investment_user_portfolio_wrapper():
 # edit_portfolio('4', 'Austin\'s portfolio', 'Bob\'s portfolio')
 # delete_portfolio('4', 'Bob\'s portfolio')
 # delete_portfolio('4', 'Austi')
-# add_investment('7', 'Sally\'s portfolio', '100.5', '50', '2021-03-15', 'BHP')
+add_investment('7', 'Sally\'s portfolio', '50', 1611061200, 'BHP')
 # get_investment("2380756e-863c-11eb-af93-0a4e2d6dea13")
 # get_trending_investments('10')
