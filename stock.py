@@ -43,10 +43,10 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
         dt_format = "%Y-%m-%d %H:%M:%S" if data_type=="intraday" else "%Y-%m-%d"
         tz_key = "6. Time Zone" if data_type=="intraday" else "5. Time Zone"
         reference_tz = pytz.timezone(stockmetadata[tz_key] if tz_key in stockmetadata else "US/Eastern")
-        date_ref = datetime.datetime.strptime(stockmetadata['3. Last Refreshed'], dt_format)
+        date_ref = datetime.strptime(stockmetadata['3. Last Refreshed'], dt_format)
         date_ref_aware = reference_tz.localize(date_ref)
 
-        date_today = datetime.datetime.today()
+        date_today = datetime.today()
         date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
         date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
