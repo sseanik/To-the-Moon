@@ -1,4 +1,5 @@
 import React from "react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
   Container,
@@ -38,6 +39,7 @@ export const defaultSummaryData = {
 
 interface Props {
   summaryData: summaryDataT;
+  isLoading: boolean;
 }
 
 const formatMap: IObjectKeys = {
@@ -52,9 +54,16 @@ const formatMap: IObjectKeys = {
 };
 
 const DataSummary: React.FC<Props> = (props) => {
-  var { summaryData } = props;
+  const { summaryData, isLoading } = props;
 
-  return (
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={isLoading} />
+      <h5>Loading Data ...</h5>
+    </div>
+  );
+
+  const tableComponent = (
     <Container>
     <Row>
       <Col>
@@ -80,6 +89,8 @@ const DataSummary: React.FC<Props> = (props) => {
     </Row>
     </Container>
   );
+
+  return isLoading ? loadingSpinnerComponent : tableComponent;
 }
 
 export default DataSummary;

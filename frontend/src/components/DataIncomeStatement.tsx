@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
   Container,
   Row,
   Col
 } from "react-bootstrap";
+
+import StockAPI from "../api/stock";
 
 interface IObjectKeys {
   [key: string]: AttributeValues;
@@ -31,7 +34,9 @@ interface IncomeStatementEntry {
 }
 
 interface Props {
-  incomeStatement: Array<IncomeStatementEntry>;
+  // incomeStatement: Array<IncomeStatementEntry>;
+  symbol: string;
+  tryLoading: boolean;
 }
 
 const formatMap: IObjectKeys = {
@@ -48,15 +53,42 @@ const formatMap: IObjectKeys = {
   ebit: {name: "EBIT"},
   ebitda: {name: "EBITDA"},
   netincome: {name: "Net Income"},
-}; 
+};
 
 const DataIncomeStatement: React.FC<Props> = (props) => {
-  var { incomeStatement } = props;
+  const { symbol, tryLoading } = props;
 
-  return (
+  const [isLoading, setIsLoading] = useState(true);
+  const [incomeStatement, setIncomeStatement] = useState<any>([]);
+
+  const fetchIncomeStatement = () => {
+    async function fetchIncome() {
+      const incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
+      if (incomedata) {
+        setIncomeStatement(incomedata.data);
+        setIsLoading(false);
+      }
+    }
+    fetchIncome();
+  }
+
+  useEffect(() => {
+    if (tryLoading) {
+      fetchIncomeStatement();
+    }
+  }, [tryLoading]);
+
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={isLoading} />
+      <h5>Loading Income Statement ...</h5>
+    </div>
+  );
+
+  const tableComponent = (
     <Container>
     <Row>
-      {incomeStatement.map((entry) => (
+      {incomeStatement.map((entry: IncomeStatementEntry) => (
         <Col>
           <hr />
           {Object.entries(entry).map(([field, value]) => (
@@ -81,6 +113,8 @@ const DataIncomeStatement: React.FC<Props> = (props) => {
     </Row>
     </Container>
   );
+
+  return isLoading ? loadingSpinnerComponent : tableComponent;
 }
 
 export default DataIncomeStatement;
