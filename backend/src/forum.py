@@ -61,16 +61,17 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
 
     # If no parent_id is provided, comment is a parent comment (comment)
     if not parent_id:
-        insert_query = "INSERT INTO ForumComment (stock_ticker, author_id, time_stamp, content) VALUES (%s, %s, %s, %s)"
+        insert_query = "INSERT INTO ForumComment (stock_ticker, author_id, time_stamp, content) VALUES (%s, %s, %s, %s) RETURNING comment_id"
         values = (stock_ticker, user_id, timestamp, content)
     # Otherwise, using the provided parent id, it is a child comment (reply)
     else:
-        insert_query = "INSERT INTO ForumReply (comment_id, stock_ticker, author_id, time_stamp, content) VALUES (%s, %s, %s, %s, %s)"
+        insert_query = "INSERT INTO ForumReply (comment_id, stock_ticker, author_id, time_stamp, content) VALUES (%s, %s, %s, %s, %s) RETURNING reply_id"
         values = (parent_id, stock_ticker, user_id, timestamp, content)
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
     try:
         cur.execute(insert_query, values)
+        new_comment_id = cur.fetchone()[0]
         status = 200
         message = "Submitted successfully"
     except:
@@ -85,7 +86,8 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     return {
         'status': status,
         'message': message,
-        'content': content
+        'content': content,
+        'comment_id': new_comment_id
     }
 
 
@@ -131,9 +133,12 @@ def submit_reply():
 
 if __name__ == "__main__":
     # Testing Posting Parent Comment
-    print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-          "Parent 1"))
-    print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-          "Parent 2"))
-    print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-          "Parent 3"))
+    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+    #       "Parent 1"))
+    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+    #       "Parent 2"))
+    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+    #       "Parent 3"))
+
+    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+    #                    "Child 1 D", "275af66c-8ec7-11eb-b34c-0a4e2d6dea13"))
