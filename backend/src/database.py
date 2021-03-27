@@ -64,9 +64,9 @@ def createSecuritiesOverviewTable():
 def createCommentTables():
     conn = createDBConnection()
     cur = conn.cursor()
-    cur.execute(open("Tables/ForumComment.sql", "r").read())
+    cur.execute(open("Tables/forum_comment.sql", "r").read())
     conn.commit()
-    cur.execute(open("Tables/ForumReply.sql", "r").read())
+    cur.execute(open("Tables/forum_reply.sql", "r").read())
     conn.commit()
     conn.close()
 
