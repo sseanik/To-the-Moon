@@ -61,7 +61,7 @@ def createSecuritiesOverviewTable():
     conn.close()
 
 
-def createCommentTables():
+def create_comment_tables():
     conn = createDBConnection()
     cur = conn.cursor()
     cur.execute(open("Tables/forum_comment.sql", "r").read())
@@ -276,7 +276,7 @@ def fillOverviewAndFinancialTables(symbol):
 
 
 if __name__ == "__main__":
-    createCommentTables()
+    create_comment_tables()
     # createDBConnection()
     # createPortfolioTable()
     # createHoldingsTable()
