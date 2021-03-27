@@ -27,8 +27,8 @@ def get_stock_comments(user_id, stock_ticker):
     # Select Query returning parent comments and their children
     select_query = """
         SELECT ROW_TO_JSON(c.*) AS comment, COALESCE(JSON_AGG(r), '[]'::JSON) AS replies
-        FROM forumcomment c
-        LEFT JOIN forumreply r
+        FROM forum_comment c
+        LEFT JOIN forum_reply r
         ON (c.comment_id = r.comment_id)
         WHERE c.stock_ticker = %s
         GROUP BY c.comment_id
@@ -84,9 +84,9 @@ def get_comments():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     data = request.get_json()
-    result = get_stock_comments(user_id, data['stock_ticker'])
+    result = get_stock_comments(user_id, data['stockTicker'])
     return dumps(result)
 
 
-if __name__ == "__main__":
-    print(get_stock_comments("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM"))
+# if __name__ == "__main__":
+#     print(get_stock_comments("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM"))
