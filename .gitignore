@@ -9,6 +9,5 @@ venv/*
 demo/*.json
 
 *.pickle
-model/sarimax/venv/*
+model/*/venv/*
 demo/.ipynb_checkpoints/
-
