@@ -15,7 +15,7 @@ FORUM_ROUTES = Blueprint('forum', __name__)
 
 
 def validate_timestamp(timestamp):
-    # Validate the timestamp
+    # Validate the timestamp by checking if post time is within 1 day's timeframe
     now_milliseconds = time.time() * 1000
     day_milliseconds = 86400000
     yesterday = now_milliseconds - day_milliseconds
