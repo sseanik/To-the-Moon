@@ -41,7 +41,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
 
     Returns:
-        dict: Status Code, accompanying message and filtered content text
+        dict: Status Code, accompanying message, filtered content text and generated comment id
     """
 
     # If the timestamp is not between yesterday or tomorrow
@@ -49,7 +49,8 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         return {
             'status': 400,
             'message': 'Timestamp provided is invalid',
-            'content': ""
+            'content': "",
+            'comment_id': ""
         }
 
     # Censor rude words
@@ -78,6 +79,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         status = 400
         message = "Invalid data was provided to the Database"
         content = ""
+        new_comment_id = ""
 
     conn.commit()
     cur.close()
