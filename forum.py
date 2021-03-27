@@ -96,7 +96,7 @@ def get_stock_comments(stock_ticker):
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     select_query = """
-        SELECT c.*, JSON_AGG(r) AS replies
+        SELECT ROW_TO_JSON(c.*) AS comments, JSON_AGG(r) AS replies
         FROM forumcomment c
         LEFT JOIN forumreply r
         ON (c.comment_id = r.comment_id)
@@ -152,21 +152,15 @@ def downvote_comment():
 
 if __name__ == "__main__":
     get_stock_comments("IBM")
-    # Testing Posting Parent Comment
-    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13",
-    #       "IBM", 1616810169114, "Parent Comment 1"))
 
     # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #       "Child 1 A", "562c5a86-8ea8-11eb-bf93-0a4e2d6dea13"))
+    #       "Child 1 A", "02effd9a-8ec2-11eb-a796-0a4e2d6dea13"))
 
     # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #       "Child 1 b", "562c5a86-8ea8-11eb-bf93-0a4e2d6dea13"))
+    #       "Child 1 B", "02effd9a-8ec2-11eb-a796-0a4e2d6dea13"))
 
     # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #       "Child 1 C", "562c5a86-8ea8-11eb-bf93-0a4e2d6dea13"))
+    #       "Child 1 C", "02effd9a-8ec2-11eb-a796-0a4e2d6dea13"))
 
     # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #       "Child 2 A", "5c91ce86-8eb4-11eb-b157-0a4e2d6dea13"))
-    # # # Testing Posting Child Comment
-    # # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    # #       "Fuck IBM. Move along, don't buy", "562c5a86-8ea8-11eb-bf93-0a4e2d6dea13"))
+    #       "Child 2 A", "03f716ce-8ec2-11eb-977b-0a4e2d6dea13"))
