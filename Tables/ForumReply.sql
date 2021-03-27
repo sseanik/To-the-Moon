@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS ForumReply (
     author_id UUID REFERENCES Users(id),
     time_stamp BIGINT NOT NULL,
     content VARCHAR(5000),
-    upvote_user_ids UUID [],
-    downvote_user_ids UUID [],
+    upvote_user_ids UUID [] DEFAULT '{}',
+    downvote_user_ids UUID [] DEFAULT '{}',
     is_edited BOOLEAN DEFAULT FALSE
 );
