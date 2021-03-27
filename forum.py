@@ -129,10 +129,11 @@ def submit_reply():
     return dumps(result)
 
 
-# if __name__ == "__main__":
-#     # Testing Posting Parent Comment
-#     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-#           "IBM is great. Microsoft's acquisition of Discord is shit"))
-#     # Testing Posting Child Comment
-#     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-#           "Fuck IBM. Move along, don't buy", "562c5a86-8ea8-11eb-bf93-0a4e2d6dea13"))
+if __name__ == "__main__":
+    # Testing Posting Parent Comment
+    print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+          "Parent 1"))
+    print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+          "Parent 2"))
+    print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+          "Parent 3"))
