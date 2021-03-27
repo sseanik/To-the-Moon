@@ -60,20 +60,20 @@ def fillSecuritiesOverviewTable(symbol):
     cur = conn.cursor()
     Overview = TimeSeries().get_company_overview(symbol)
     insertQuery = '''INSERT INTO SecuritiesOverviews (
-        StockTicker, 
-        StockName,
-        StockDescription,
-        Exchange,
-        Currency, 
-        YearlyHigh,
-        YearlyLow,
-        MarketCap,
-        BETA, 
-        PERatio,
-        EPS,
-        DividendYield
+        stock_ticker,
+        stock_name,
+        stock_description,
+        exchange,
+        currency,
+        yearly_high,
+        yearly_low,
+        market_cap,
+        beta,
+        pe_ratio,
+        eps,
+        dividend_yield
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    ON CONFLICT (StockTicker) DO NOTHING
+    ON CONFLICT (stock_ticker) DO NOTHING
     '''
     cur.execute(insertQuery, (
         Overview['Symbol'],
@@ -106,21 +106,21 @@ def fillIncomeStatements(symbol):
     Statement = TimeSeries().get_income_statement(symbol)
     for annualReport in Statement['annualReports']:
         insertQuery = '''INSERT INTO IncomeStatements (
-            StockTicker,
-            FiscalDateEnding, 
-            TotalRevenue,
-            CostOfRevenue,
-            GrossProfit,
-            OperatingExpenses, 
-            OperatingIncome,
-            IncomeBeforeTax,
-            InterestIncome,
-            NetInterestIncome,
-            EBIT,
-            EBITDA,
-            NetIncome
+            stock_ticker,
+            fiscal_date_ending,
+            total_revenue,
+            cost_of_revenue,
+            gross_profit,
+            operating_expenses,
+            operating_income,
+            income_before_tax,
+            interest_income,
+            net_interest_income,
+            ebit,
+            ebitda,
+            net_income
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT (stockTicker, fiscalDateEnding) DO NOTHING
+        ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
         cur.execute(insertQuery, (
             symbol,
@@ -153,26 +153,26 @@ def fillBalanceSheets(symbol):
     Statement = TimeSeries().get_balance_sheet(symbol)
     for annualReport in Statement['annualReports']:
         insertQuery = '''INSERT INTO BalanceSheets (
-            StockTicker,
-            fiscalDateEnding,
-            cashAndShortTermInvestments,
-            currentNetReceivables,
+            stock_ticker,
+            fiscal_date_ending,
+            cash_and_short_term_investments,
+            current_net_receivables,
             inventory,
-            otherCurrentAssets,
-            propertyPlantEquipment,
+            other_current_assets,
+            property_plant_equipment,
             goodwill,
-            intangibleAssets,
-            longTermInvestments,
-            otherNonCurrrentAssets,
-            currentAccountsPayable, 
-            shortTermDebt,
-            otherCurrentLiabilities,
-            longTermDebt,
-            otherNonCurrentLiabilities,
-            retainedEarnings,
-            totalShareholderEquity
+            intangible_assets,
+            long_term_investments,
+            other_non_current_assets,
+            current_accounts_payable,
+            short_term_debt,
+            other_current_liabilities,
+            long_term_debt,
+            other_non_current_liabilities,
+            retained_earnings,
+            total_shareholder_equity,
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT (stockTicker, fiscalDateEnding) DO NOTHING
+        ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
         cur.execute(insertQuery, (
             symbol,
@@ -210,22 +210,22 @@ def fillCashflowStatements(symbol):
     Statement = TimeSeries().get_cash_flow(symbol)
     for annualReport in Statement['annualReports']:
         insertQuery = '''INSERT INTO CashflowStatements (
-            StockTicker,
-            fiscalDateEnding, 
-            operatingCashflow,
-            paymentsForOperatingActivities,
-            changeInOperatingLiabilities,
-            changeInOperatingAssets,
-            depreciationDepletionAndAmortization, 
-            changeInInventory,
-            cashflowFromInvestment,
-            cashflowFromFinancing,
-            dividendPayout,
-            proceedsFromRepurchaseOfEquity,
-            changeInCashAndCashEquivalents,
-            netIncome
+            stock_ticker,
+            fiscal_date_ending,
+            operating_cash_flow,
+            payments_for_operating_activities,
+            change_in_operating_liabilities,
+            change_in_operating_assets,
+            depreciation_depletion_and_amortization,
+            change_in_inventory,
+            cashflow_from_investment,
+            cashflow_from_financing,
+            dividend_payout,
+            proceeds_from_repurchase_of_equity,
+            change_in_cash_and_cash_equivalents,
+            net_income,
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT (stockTicker, fiscalDateEnding) DO NOTHING
+        ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
         cur.execute(insertQuery, (
             symbol,
@@ -274,5 +274,3 @@ if __name__ == "__main__":
     # Technology sector
     #fillOverviewAndFinancialTables('ORCL')
     #fillOverviewAndFinancialTables('IBM')
-
-

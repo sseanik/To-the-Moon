@@ -1,14 +1,14 @@
 CREATE TABLE IF NOT EXISTS SecuritiesOverviews (
-    StockTicker VARCHAR(10) PRIMARY KEY,
-    StockName TEXT,
-    StockDescription TEXT,
-    Exchange TEXT,
-    Currency TEXT, 
-    YearlyHigh DECIMAL(20,4),
-    YearlyLow DECIMAL(20,4),
-    MarketCap TEXT,
-    BETA DECIMAL(15,4), 
-    PERatio DECIMAL(15,4),
-    EPS DECIMAL(15,4),
-    DividendYield DECIMAL(15,4)
+    stock_ticker VARCHAR(10) PRIMARY KEY,
+    stock_name TEXT,
+    stock_description TEXT,
+    exchange TEXT,
+    currency TEXT,
+    yearly_high DECIMAL(20,4),
+    yearly_low DECIMAL(20,4),
+    market_cap DECIMAL(20,4),
+    beta DECIMAL(15,4),
+    pe_ratio DECIMAL(15,4),
+    eps DECIMAL(15,4),
+    dividend_yield DECIMAL(15,4)
 );
