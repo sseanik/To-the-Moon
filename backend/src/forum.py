@@ -15,92 +15,22 @@ import psycopg2.extras
 FORUM_ROUTES = Blueprint('forum', __name__)
 
 
-def validate_timestamp(timestamp):
-    # Validate the timestamp by checking if post time is within 1 day's timeframe
-    now_milliseconds = time.time() * 1000
-    day_milliseconds = 86400000
-    yesterday = now_milliseconds - day_milliseconds
-    tomorrow = now_milliseconds + day_milliseconds
-
-    if timestamp < yesterday or timestamp > tomorrow:
-        return False
-    return True
-
 ###################################
 # Please leave all functions here #
 ###################################
 
-
-def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
-    """Posting either a parent or child comment in the provided stock's forum
-
-    Args:
-        user_id (uuid): The UUID of the User posting the comment
-        stock_ticker (string): The Stock symbol
-        timestamp (big int): Timestamp in Milliseconds since epoch UTC
-        content (string): The Comment's text content
-        parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
-
-    Returns:
-        dict: Status Code, accompanying message and filtered content text
-    """
-
-    # If the timestamp is not between yesterday or tomorrow
-    if not validate_timestamp(timestamp):
-        return {
-            'status': 400,
-            'message': 'Timestamp provided is invalid',
-            'content': ""
-        }
-
-    # Censor rude words
-    content = profanity.censor(content)
-
-    # Open database connection
-    conn = createDBConnection()
-    cur = conn.cursor()
-
-    # If no parent_id is provided, comment is a parent comment (comment)
-    if not parent_id:
-        insert_query = "INSERT INTO ForumComment (stock_ticker, author_id, time_stamp, content) VALUES (%s, %s, %s, %s)"
-        values = (stock_ticker, user_id, timestamp, content)
-    # Otherwise, using the provided parent id, it is a child comment (reply)
-    else:
-        insert_query = "INSERT INTO ForumReply (comment_id, stock_ticker, author_id, time_stamp, content) VALUES (%s, %s, %s, %s, %s)"
-        values = (parent_id, stock_ticker, user_id, timestamp, content)
-
-    # Attempt to insert values into the DB, handling invalid Data cases in the insert
-    try:
-        cur.execute(insert_query, values)
-        status = 200
-        message = "Submitted successfully"
-    except:
-        status = 400
-        message = "Invalid data was provided to the Database"
-        content = ""
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return {
-        'status': status,
-        'message': message,
-        'content': content
-    }
-
-
-def get_stock_comments(stock_ticker):
+def get_stock_comments(user_id, stock_ticker):
     # Open database connection
     conn = createDBConnection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
+    # Select Query returning parent comments and their children
     select_query = """
-        SELECT ROW_TO_JSON(c.*) AS comments, JSON_AGG(r) AS replies
+        SELECT ROW_TO_JSON(c.*) AS comment, COALESCE(JSON_AGG(r), '[]'::JSON) AS replies
         FROM forumcomment c
         LEFT JOIN forumreply r
         ON (c.comment_id = r.comment_id)
-        WHERE c.stock_ticker = 'IBM'
+        WHERE c.stock_ticker = %s
         GROUP BY c.comment_id
     """.replace("\n", "")
 
@@ -109,58 +39,54 @@ def get_stock_comments(stock_ticker):
     cur.close()
     conn.close()
 
-    print(query_results)
+    for i, comment_tree in enumerate(query_results):
+        # Convert to Dictionary
+        query_results[i] = dict(query_results[i])
 
+        # Add upvote and downvote fields to comments
+        parent = comment_tree['comment']
+        parent['is_upvoted'] = False
+        parent['is_downvoted'] = False
+
+        # If the user id is present in the votes, update fields
+        if user_id in parent['upvote_user_ids']:
+            parent['is_upvoted'] = True
+        elif user_id in parent['downvote_user_ids']:
+            parent['is_upvoted'] = True
+
+        # Fix the case of [None], into []
+        if query_results[i]['replies'] == [None]:
+            query_results[i]['replies'] = []
+            continue
+
+        for reply in comment_tree['replies']:
+            # Add upvote and downvote fields to replies
+            reply['is_upvoted'] = False
+            reply['is_downvoted'] = False
+
+            # If the user is present in the reply votes, update fields
+            if user_id in reply['upvote_user_ids']:
+                reply['is_upvoted'] = True
+            elif user_id in reply['downvote_user_ids']:
+                reply['is_upvoted'] = True
+
+    # TODO: Sort Weighting
+
+    return query_results
 
 ################################
 # Please leave all routes here #
 ################################
-@FORUM_ROUTES.route('/forum/comment', methods=['POST'])
-def submit_comment():
-    """
-    Submitting a Parent Comment Example:
-    {
-        "stock_ticker": "AAPL",
-        "timestamp": 1616810169114 (milliseconds since epoch UTC)
-        "content": "This is my parent comment"
-    }
-    """
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = post_comment(
-        user_id, data['stock_ticker'], data['timestamp'], data['content'])
-    return dumps(result)
 
 
 @FORUM_ROUTES.route('/forum', methods=['GET'])
 def get_comments():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
     data = request.get_json()
-    result = get_stock_comments(data['stock_ticker'])
+    result = get_stock_comments(user_id, data['stock_ticker'])
     return dumps(result)
 
 
-@FORUM_ROUTES.route('/forum/upvote', methods=['POST'])
-def upvote_comment():
-    pass
-
-
-@FORUM_ROUTES.route('/forum/downvote', methods=['POST'])
-def downvote_comment():
-    pass
-
-
 if __name__ == "__main__":
-    get_stock_comments("IBM")
-
-    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #       "Child 1 A", "02effd9a-8ec2-11eb-a796-0a4e2d6dea13"))
-
-    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #       "Child 1 B", "02effd9a-8ec2-11eb-a796-0a4e2d6dea13"))
-
-    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #       "Child 1 C", "02effd9a-8ec2-11eb-a796-0a4e2d6dea13"))
-
-    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #       "Child 2 A", "03f716ce-8ec2-11eb-977b-0a4e2d6dea13"))
+    print(get_stock_comments("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM"))
