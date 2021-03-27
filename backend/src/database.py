@@ -66,7 +66,7 @@ def createCommentTables():
     cur = conn.cursor()
     cur.execute(open("Tables/CommentParent.sql", "r").read())
     conn.commit()
-    cur.execute(open("Tables/CommentParent.sql", "r").read())
+    cur.execute(open("Tables/CommentChild.sql", "r").read())
     conn.commit()
     conn.close()
 
@@ -276,7 +276,7 @@ def fillOverviewAndFinancialTables(symbol):
 
 
 if __name__ == "__main__":
-    pass
+    createCommentTables()
     # createDBConnection()
     # createPortfolioTable()
     # createHoldingsTable()
@@ -290,7 +290,7 @@ if __name__ == "__main__":
     # fillCashflowStatements('IBM')
 
     # Basic materials
-    fillOverviewAndFinancialTables('BHP')
+    # fillOverviewAndFinancialTables('BHP')
 
     # Technology sector
     # fillOverviewAndFinancialTables('ORCL')
