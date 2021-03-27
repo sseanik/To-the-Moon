@@ -13,14 +13,16 @@ DBNAME = os.getenv("DBNAME")
 USER = os.getenv("DBUSER")
 PASS = os.getenv("DBPASS")
 
+
 def createDBConnection():
     try:
-        conn = psycopg2.connect(host=ENDPOINT, port=PORT, database=DBNAME, user=USER, password=PASS)
+        conn = psycopg2.connect(host=ENDPOINT, port=PORT,
+                                database=DBNAME, user=USER, password=PASS)
         #cur = conn.cursor()
         #selectQuery = "SELECT 5;"
-        #cur.execute(selectQuery)
+        # cur.execute(selectQuery)
         #query_results = cur.fetchall()
-        #print(query_results)
+        # print(query_results)
         return conn
 
     except Exception as e:
@@ -34,12 +36,14 @@ def createPortfolioTable():
     conn.commit()
     conn.close()
 
+
 def createHoldingsTable():
     conn = createDBConnection()
     cur = conn.cursor()
     cur.execute(open("Tables/Holdings.sql", "r").read())
     conn.commit()
     conn.close()
+
 
 def createUserTable():
     conn = createDBConnection()
@@ -48,12 +52,24 @@ def createUserTable():
     conn.commit()
     conn.close()
 
+
 def createSecuritiesOverviewTable():
     conn = createDBConnection()
     cur = conn.cursor()
     cur.execute(open("Tables/SecuritiesOverviews.sql", "r").read())
     conn.commit()
     conn.close()
+
+
+def create_comment_tables():
+    conn = createDBConnection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/forum_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/forum_reply.sql", "r").read())
+    conn.commit()
+    conn.close()
+
 
 def fillSecuritiesOverviewTable(symbol):
     conn = createDBConnection()
@@ -81,7 +97,7 @@ def fillSecuritiesOverviewTable(symbol):
         Overview['Description'],
         Overview['Exchange'],
         Overview['Currency'],
-        Overview['52WeekHigh'], 
+        Overview['52WeekHigh'],
         Overview['52WeekLow'],
         Overview['MarketCapitalization'],
         Overview['Beta'],
@@ -99,6 +115,7 @@ def createIncomeStatementsTable():
     cur.execute(open("Tables/IncomeStatements.sql", "r").read())
     conn.commit()
     conn.close()
+
 
 def fillIncomeStatements(symbol):
     conn = createDBConnection()
@@ -140,12 +157,14 @@ def fillIncomeStatements(symbol):
     conn.commit()
     conn.close()
 
+
 def createBalanceSheetsTable():
     conn = createDBConnection()
     cur = conn.cursor()
     cur.execute(open("Tables/BalanceSheets.sql", "r").read())
     conn.commit()
     conn.close()
+
 
 def fillBalanceSheets(symbol):
     conn = createDBConnection()
@@ -197,12 +216,14 @@ def fillBalanceSheets(symbol):
     conn.commit()
     conn.close()
 
+
 def createCashflowStatementsTable():
     conn = createDBConnection()
     cur = conn.cursor()
     cur.execute(open("Tables/CashflowStatements.sql", "r").read())
     conn.commit()
     conn.close()
+
 
 def fillCashflowStatements(symbol):
     conn = createDBConnection()
@@ -255,24 +276,22 @@ def fillOverviewAndFinancialTables(symbol):
 
 
 if __name__ == "__main__":
-    pass
-    #createDBConnection()
-    #createPortfolioTable()
-    #createHoldingsTable()
-    #createSecuritiesOverviewTable()
-    #fillSecuritiesOverviewTable('IBM')
-    #createIncomeStatementsTable()
-    #fillIncomeStatements('IBM')
-    #createBalanceSheetsTable()
-    #fillBalanceSheets('IBM')
-    #createCashflowStatementsTable()
-    #fillCashflowStatements('IBM')
+    create_comment_tables()
+    # createDBConnection()
+    # createPortfolioTable()
+    # createHoldingsTable()
+    # createSecuritiesOverviewTable()
+    # fillSecuritiesOverviewTable('IBM')
+    # createIncomeStatementsTable()
+    # fillIncomeStatements('IBM')
+    # createBalanceSheetsTable()
+    # fillBalanceSheets('IBM')
+    # createCashflowStatementsTable()
+    # fillCashflowStatements('IBM')
 
     # Basic materials
-    fillOverviewAndFinancialTables('BHP')
+    # fillOverviewAndFinancialTables('BHP')
 
     # Technology sector
-    #fillOverviewAndFinancialTables('ORCL')
-    #fillOverviewAndFinancialTables('IBM')
-
-
+    # fillOverviewAndFinancialTables('ORCL')
+    # fillOverviewAndFinancialTables('IBM')
