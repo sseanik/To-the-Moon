@@ -10,3 +10,5 @@ demo/*.json
 
 *.pickle
 model/sarimax/venv/*
+demo/.ipynb_checkpoints/
+
