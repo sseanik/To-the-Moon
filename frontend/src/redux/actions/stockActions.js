@@ -1,5 +1,5 @@
 import stockConstants from "../constants/stockConstants";
-import stockAPI from "../../api/stockAPI";
+import stockAPI from "../../api/investment";
 
 const stockActions = {
   submitCreateStockForm: (user) => ({

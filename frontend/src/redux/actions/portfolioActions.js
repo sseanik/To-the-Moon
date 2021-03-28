@@ -1,5 +1,5 @@
 import portfolioConstants from "../constants/portfolioConstants";
-import portfolioAPI from "../../api/portfolioAPI";
+import portfolioAPI from "../../api/portfolio";
 
 const portfolioActions = {
   submitCreatePortfolioForm: (user) => ({

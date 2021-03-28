@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container, Row, Alert, Button } from "react-bootstrap";
-import portfolioAPI from "../api/portfolioAPI";
+import portfolioAPI from "../api/portfolio";
 import AddPortfolioForm from "../components/AddPortfolioForm";
 import PortfolioInfo from "../components/PortfolioInfo";
 
