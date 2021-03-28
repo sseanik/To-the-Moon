@@ -106,7 +106,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     }
 
 
-def forum_delete(user_id, comment_id, parent_id=None):
+def delete_comment(user_id, comment_id, parent_id=None):
     """Delete comment from the forum
     Args:
         user_id (uuid): The UUID of the User posting the comment.
@@ -182,7 +182,7 @@ def delete_user_comment():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     data = request.get_json()
-    result = forum_delete(user_id, data['comment_id'])
+    result = delete_comment(user_id, data['comment_id'])
     return dumps(result)
 
 @FORUM_ROUTES.route('/forum/deleteReply', methods=['DELETE'])
@@ -190,7 +190,7 @@ def delete_user_reply():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     data = request.get_json()
-    result = forum_delete(user_id, data['comment_id'], data['parent_id'])
+    result = delete_comment(user_id, data['comment_id'], data['parent_id'])
     return dumps(result)
 
 if __name__ == "__main__":
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
     #                    "Child 1 D", "275af66c-8ec7-11eb-b34c-0a4e2d6dea13"))
 
-    #print(forum_delete("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
-    #print(forum_delete("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "6ed3656c-8f8d-11eb-a71a-0a4e2d6dea13", "something"))
-    #print(forum_delete("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
-    print(forum_delete("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
+    #print(delete_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
+    #print(delete_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "6ed3656c-8f8d-11eb-a71a-0a4e2d6dea13", "something"))
+    #print(delete_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
+    print(delete_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
