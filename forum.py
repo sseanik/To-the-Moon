@@ -129,13 +129,13 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     try:
         if not parent_id:
             sqlQuery = '''
-                UPDATE forum_comment set time_stamp=%s, content=%s, is_edited=TRUE
-                where comment_id=%s and author_id=%s
+                UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
+                WHERE comment_id=%s AND author_id=%s
             '''
         else:
             sqlQuery = '''
-                UPDATE forum_reply set time_stamp=%s, content=%s, is_edited=TRUE
-                where reply_id=%s and author_id=%s
+                UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
+                WHERE reply_id=%s AND author_id=%s
             '''
         values = (timestamp, content, comment_id, user_id)
         cur.execute(sqlQuery, values)
