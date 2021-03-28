@@ -3,6 +3,9 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import { Container, Row, Col, Alert } from "react-bootstrap";
 import stockActions from "../redux/actions/stockActions";
+import {
+  balanceSheetFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 interface BalanceSheetEntry {
   fiscaldateending: string;
@@ -13,14 +16,6 @@ interface BalanceSheetEntry {
   total_curr_liabilities: number;
   total_ncurr_liabilities: number;
   total_equity: number;
-}
-
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
 }
 
 interface getStockBalanceParams {
@@ -40,17 +35,6 @@ interface StateProps {
 interface DispatchProps {
   getStockBalance: (payload: getStockBalanceParams) => void;
 }
-
-const formatMap: IObjectKeys = {
-  fiscaldateending: {name: "Year Ending"},
-  total_assets: {name: "Total Assets"},
-  total_curr_assets: {name: "Total Current Assets"},
-  total_ncurr_assets: {name: "Total Non-Current Assets"},
-  total_liabilities: {name: "Total Liabilities"},
-  total_curr_liabilities: {name: "Total Current Liabilities"},
-  total_ncurr_liabilities: {name: "Total Non-Current Liabilities"},
-  total_equity: {name: "Total Equity"},
-};
 
 const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) => {
   const { symbol, loading, error, data, getStockBalance } = props;

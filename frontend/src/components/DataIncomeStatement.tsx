@@ -3,14 +3,9 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import { Container, Row, Col, Alert } from "react-bootstrap";
 import stockActions from "../redux/actions/stockActions";
-
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import {
+  incomeStatementFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 interface IncomeStatementEntry {
   stockticker: string;
@@ -45,22 +40,6 @@ interface StateProps {
 interface DispatchProps {
   getStockIncome: (payload: getStockIncomeParams) => void;
 }
-
-const formatMap: IObjectKeys = {
-  stockticker: {name: "Company Symbol"},
-  fiscaldateending: {name: "Year Ending"},
-  totalrevenue: {name: "Total Revenue"},
-  costofrevenue: {name: "Cost of Revenue"},
-  grossprofit: {name: "Gross Profit"},
-  operatingexpenses: {name: "Operating Expenses"},
-  operatingincome: {name: "Operating Income"},
-  incomebeforetax: {name: "Income Before Tax"},
-  interestincome: {name: "Interest Income"},
-  netinterestincome: {name: "Net Interest Income"},
-  ebit: {name: "EBIT"},
-  ebitda: {name: "EBITDA"},
-  netincome: {name: "Net Income"},
-};
 
 const DataIncomeStatement: React.FC<Props & StateProps & DispatchProps> = (props) => {
   const { symbol, loading, error, data, getStockIncome } = props;

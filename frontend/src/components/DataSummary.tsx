@@ -1,14 +1,9 @@
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import { Container, Row, Col, Alert } from "react-bootstrap";
-
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import {
+  summaryFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 export interface summaryDataT {
   previous_close: number;
@@ -37,17 +32,6 @@ interface StateProps {
   data: summaryDataT;
   error: string;
 }
-
-const formatMap: IObjectKeys = {
-  previous_close: {name: "Previous Close"},
-  open: {name: "Open"},
-  day_min: {name: "Daily Low"},
-  day_max: {name: "Daily High"},
-  year_min: {name: "Yearly Low"},
-  year_max: {name: "Yearly High"},
-  volume: {name: "Volume"},
-  average_volume: {name: "Average Volume"},
-};
 
 const DataSummary: React.FC<StateProps> = (props) => {
   const { loading, error, data } = props;
