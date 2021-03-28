@@ -32,8 +32,8 @@ def get_stock_comments(user_id, stock_ticker):
         u.username, 
         c.time_stamp, 
         c.content, 
-        c.upvote_user_ids, 
-        c.downvote_user_ids, 
+        array_to_json(c.upvote_user_ids) AS upvote_user_ids, 
+        array_to_json(c.downvote_user_ids) AS downvote_user_ids,
         c.is_edited, 
         c.is_deleted, 
         COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies 
@@ -70,37 +70,58 @@ def get_stock_comments(user_id, stock_ticker):
     cur.close()
     conn.close()
 
-    for i, comment_tree in enumerate(query_results):
-        # Convert to Dictionary
+    for i in range(len(query_results)):
+        # Convert from RealDictCursor to Dictionary
         query_results[i] = dict(query_results[i])
 
-        # Add upvote and downvote fields to comments
-        parent = comment_tree['comment']
-        parent['is_upvoted'] = False
-        parent['is_downvoted'] = False
+        # Add upvoted and downvoted fields to comments
+        query_results[i]['is_upvoted'] = False
+        query_results[i]['is_downvoted'] = False
 
         # If the user id is present in the votes, update fields
-        if user_id in parent['upvote_user_ids']:
-            parent['is_upvoted'] = True
-        elif user_id in parent['downvote_user_ids']:
-            parent['is_upvoted'] = True
+        if user_id in query_results[i]['upvote_user_ids']:
+            query_results[i]['is_upvoted'] = True
+        elif user_id in query_results[i]['downvote_user_ids']:
+            query_results[i]['is_upvoted'] = True
+
+        # Add upvote and downvote count fields
+        query_results[i]['upvotes'] = len(query_results[i]['upvote_user_ids'])
+        query_results[i]['downvotes'] = len(
+            query_results[i]['downvote_user_ids'])
+        query_results[i]['vote_difference'] = query_results[i]['upvotes'] - \
+            query_results[i]['downvotes']
+
+        # Remove user_ids exposed in upvotes and downvotes
+        del query_results[i]['upvote_user_ids']
+        del query_results[i]['downvote_user_ids']
 
         # Fix the case of [None], into []
         if query_results[i]['replies'] == [None]:
-            query_results[i]['replies'] = 0
+            query_results[i]['replies'] = []
             continue
 
-        for reply in comment_tree['replies']:
+        for j in range(len(query_results[i]['replies'])):
             # Add upvote and downvote fields to replies
-            reply['is_upvoted'] = False
-            reply['is_downvoted'] = False
+            query_results[i]['replies'][j]['is_upvoted'] = False
+            query_results[i]['replies'][j]['is_downvoted'] = False
 
             # If the user is present in the reply votes, update fields
-            if user_id in reply['upvote_user_ids']:
-                reply['is_upvoted'] = True
-            elif user_id in reply['downvote_user_ids']:
-                reply['is_upvoted'] = True
+            if user_id in query_results[i]['replies'][j]['upvote_user_ids']:
+                query_results[i]['replies'][j]['is_upvoted'] = True
+            elif user_id in query_results[i]['replies'][j]['downvote_user_ids']:
+                query_results[i]['replies'][j]['is_downvoted'] = True
 
+            # Add number of upvotes and downvote fields
+            query_results[i]['replies'][j]['upvotes'] = len(
+                query_results[i]['replies'][j]['upvote_user_ids'])
+            query_results[i]['replies'][j]['downvotes'] = len(
+                query_results[i]['replies'][j]['downvote_user_ids'])
+            query_results[i]['replies'][j]['vote_difference'] = query_results[i]['replies'][j]['upvotes'] - \
+                query_results[i]['replies'][j]['downvotes']
+
+            # Remove upvote and downvote user ids
+            del query_results[i]['replies'][j]['upvote_user_ids']
+            del query_results[i]['replies'][j]['downvote_user_ids']
     # TODO: Sort Weighting
 
     return query_results
@@ -120,4 +141,4 @@ def get_comments():
 
 
 # if __name__ == "__main__":
-#     print(get_stock_comments("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM"))
+#     print(dumps(get_stock_comments("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM")))
