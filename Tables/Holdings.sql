@@ -5,6 +5,5 @@ CREATE TABLE IF NOT EXISTS Holdings (
     PurchasePrice MONEY, 
     NumShares INT, 
     PurchaseDate DATE, 
-    TotalChange DECIMAL(10,2),
     StockTicker VARCHAR(10)
 );
