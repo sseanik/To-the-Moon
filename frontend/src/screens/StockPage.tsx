@@ -61,6 +61,7 @@ const StockPage: React.FC = () => {
   const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
   const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
   const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
+  const [timeSeriesDailyPre, setTimeSeriesDailyPre] = useState<any>({});
   const [timeSeriesIntra, setTimeSeriesIntra] = useState<any>([]);
   const [stockNews, setStockNews] = useState([]);
 
@@ -95,8 +96,15 @@ const StockPage: React.FC = () => {
     }
   }
 
+  async function fetchPredictDaily() {
+    const pred = await StockAPI.getPredictionDaily(symbol);
+    if (pred) {
+      setTimeSeriesDailyPre(pred);
+    }
+  }
+
   async function fetchNews() {
-    const news = await NewsAPI.getNewsByStock(symbol)
+    const news = await NewsAPI.getNewsByStock(symbol);
     setStockNews(news.articles);
   }
 
@@ -108,10 +116,13 @@ const StockPage: React.FC = () => {
   useEffect(() => {
     if (displayIntra == true) {
       setGraphOptions({ ... graphOptions, series: timeSeriesIntra });
+    } else if (timeSeriesDailyPre) {
+      const display = [...timeSeriesDaily, timeSeriesDailyPre];
+      setGraphOptions({ ... graphOptions, series: display });
     } else {
       setGraphOptions({ ... graphOptions, series: timeSeriesDaily });
     }
-  }, [displayIntra, timeSeriesIntra, timeSeriesDaily]);
+  }, [displayIntra, timeSeriesIntra, timeSeriesDaily, timeSeriesDailyPre]);
 
   useEffect(() => {
     if (genkey === "financials") {
@@ -186,6 +197,20 @@ const StockPage: React.FC = () => {
                         <DataCashFlow symbol={symbol} tryLoading={isLoading.cashFlowStatement}/>
                       </Tab>
                   </Tabs>
+              </Tab>
+              <Tab eventKey="prediction" title="Market Prediction">
+                <Container>
+                    <Row>
+                        Prediction Status
+                    </Row>
+                    <Row>
+                        Prediction Settings
+                    </Row>
+                    <Row>
+                        <Button variant="outline-primary"
+                          onClick={() => { fetchPredictDaily(); }}>Predict</Button>
+                    </Row>
+                </Container>
               </Tab>
             </Tabs>
           </Container>

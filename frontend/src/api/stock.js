@@ -28,7 +28,12 @@ const StockAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  getPredictionDaily: (symbol) => {
+    const endpoint = `/stock/get_prediction_daily?symbol=${symbol}`;
+    const options = {method: 'GET'};
 
+    return Utils.getJSON(`${url}${endpoint}`, options); 
+  }
 };
 
 export default StockAPI;
