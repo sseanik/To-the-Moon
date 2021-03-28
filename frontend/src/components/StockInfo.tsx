@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Row, Col } from "react-bootstrap";
-import stockAPI from "../api/stockAPI";
+import stockAPI from "../api/investment";
 
 interface Props {
   investmentID: string;

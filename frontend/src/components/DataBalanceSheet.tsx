@@ -1,14 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
-
-import {
-  Container,
-  Table,
-  Row,
-  Col
-} from "react-bootstrap";
-
-import StockAPI from "../api/stock";
+import { connect } from "react-redux";
+import { Container, Row, Col, Alert } from "react-bootstrap";
+import stockActions from "../redux/actions/stockActions";
 import {
   balanceSheetFormatter as formatMap
 } from "../helpers/ObjectFormatRules";
@@ -24,72 +18,88 @@ interface BalanceSheetEntry {
   total_equity: number;
 }
 
-interface Props {
-  // balanceSheet: Array<BalanceSheetEntry>;
+interface getStockBalanceParams {
   symbol: string;
-  tryLoading: boolean;
 }
 
-const DataBalanceSheet: React.FC<Props> = (props) => {
-  const { symbol, tryLoading } = props;
+interface Props {
+  symbol: string;
+}
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [balanceSheet, setBalanceSheet] = useState<any>([]);
+interface StateProps {
+  loading: boolean;
+  data: Array<BalanceSheetEntry>;
+  error: string;
+}
 
-  const fetchBalanceSheet = () => {
-    async function fetchBalance() {
-      const balancedata = symbol ? await StockAPI.getBalance(symbol) : {};
-      if (balancedata) {
-        setBalanceSheet(balancedata.data);
-        setIsLoading(false);
-      }
-    }
-    fetchBalance();
-  }
+interface DispatchProps {
+  getStockBalance: (payload: getStockBalanceParams) => void;
+}
+
+const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) => {
+  const { symbol, loading, error, data, getStockBalance } = props;
 
   useEffect(() => {
-    if (tryLoading) {
-      fetchBalanceSheet();
-    }
-  }, [tryLoading]);
+    getStockBalance({ symbol });
+  }, []);
 
   const loadingSpinnerComponent = (
     <div>
-      <ClipLoader color={"green"} loading={isLoading} />
+      <ClipLoader color={"green"} loading={loading} />
       <h5>Loading Balance Sheet ...</h5>
     </div>
   );
 
+  const alertComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
+  );
+
   const tableComponent = (
     <Container>
-    <Row>
-      {balanceSheet.map((entry: BalanceSheetEntry) => (
-        <Col>
-          <hr />
-          {Object.entries(entry).map(([field, value]) => (
-            <div>
-              <Row lg={6}>
-                <Col className="text-left" lg={6}>
-                  <span>
-                    <b>{formatMap[field].name}</b>
-                  </span>
-                </Col>
-                <Col className="text-right" lg={6}>
-                  <span>
-                    {typeof value === "string" ? value : value / 1000}
-                  </span>
-                </Col>
-              </Row>
-              <hr />
-            </div>
-          ))}
-        </Col>
-      ))}
-    </Row>
+      <Row>
+        { error ? alertComponent : null }
+      </Row>
+      <Row>
+        {data.map((entry: BalanceSheetEntry) => (
+          <Col>
+            <hr />
+            {Object.entries(entry).map(([field, value]) => (
+              <div>
+                <Row lg={6}>
+                  <Col className="text-left" lg={6}>
+                    <span>
+                      <b>{formatMap[field].name}</b>
+                    </span>
+                  </Col>
+                  <Col className="text-right" lg={6}>
+                    <span>
+                      {typeof value === "string" ? value : value / 1000}
+                    </span>
+                  </Col>
+                </Row>
+                <hr />
+              </div>
+            ))}
+          </Col>
+        ))}
+      </Row>
     </Container>
   );
 
-  return isLoading ? loadingSpinnerComponent : tableComponent;
+  return loading ? loadingSpinnerComponent : tableComponent;
 }
 
-export default DataBalanceSheet;
+const mapStateToProps = (state: any) => ({
+  loading: state.stockReducer.balance.loading,
+  error: state.stockReducer.balance.error,
+  data: state.stockReducer.balance.data,
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getStockBalance: (payload: getStockBalanceParams) => dispatch(stockActions.getStockBalance(payload))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(DataBalanceSheet);
+

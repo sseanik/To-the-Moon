@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
-import stockActions from "../redux/actions/stockActions";
+import stockActions from "../redux/actions/investmentActions";
 
 interface CreateStockFormParams {
   portfolioName: string;

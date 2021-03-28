@@ -1,21 +1,44 @@
 Week 1 
 
-Group formed. I created the group on WebCMS and volunteered as the Scrum Master. As a group, we discussed which projects we were interested in pursuing. After doing an intial spike into the 3 projects we were most interested in, we decided on the Stock Portfolio project and began discussing APIs, libraries and tools that we could use. We also brainstormed some novel features we could implement, such as a predictive model and social features, and the difficulty of these.
+Group formed.
+I created the group on WebCMS and volunteered as the Scrum Master.
+As a group, we discussed which projects we were interested in pursuing.
+After doing an intial spike into the 3 projects we were most interested in, we decided on the Stock Portfolio project and began discussing APIs, libraries and tools that we could use.
+We also brainstormed some novel features we could implement, such as a predictive model and social features, and the difficulty of these.
 
 Week 2
 
-I setup a Google Docs page to collaborate our ideas for the Project Proposal, laying out major criteria we needed to achieve to plan the project. The team roughly scoped out the features we desired in the final product, and I ran a meeting on Monday evening to vet the features we wanted to propose. During this meeting we refined the exact features and objectives we wanted. I also proposed dividing the responsibility of the different sections of the proposal but an agreement was made to collaborate iteratively on all the parts. Collaborating with Junji, we broke down the major features into an extensive list of epics and user stories of which the rest of the team reviewed.
+I setup a Google Docs page to collaborate our ideas for the Project Proposal, laying out major criteria we needed to achieve to plan the project.
+The team roughly scoped out the features we desired in the final product, and I ran a meeting on Monday evening to vet the features we wanted to propose.
+During this meeting we refined the exact features and objectives we wanted.
+I also proposed dividing the responsibility of the different sections of the proposal but an agreement was made to collaborate iteratively on all the parts.
+Collaborating with Junji, we broke down the major features into an extensive list of epics and user stories of which the rest of the team reviewed.
 I refined the stories and epics further and added them to Jira, and also helped to roadmap the work for future sprints.
 
 Week 3
 
-Added descriptions to epics and explanation of the scope of each epic in the proposal. Reviewed other parts of the proposal and added comments and change suggestions. Developed UI wireframes with the team for Watchlists and Screeners.
+Added descriptions to epics and explanation of the scope of each epic in the proposal.
+Reviewed other parts of the proposal and added comments and change suggestions.
+Developed UI wireframes with the team for Watchlists and Screeners.
 Formatted and polished the final proposal and submitted it on Sunday evening.
 
 Week 4
 
-Set up frontend with Karim. Worked on Login/Signup screens, including form validation and submission. Developed a working Header bar.
+Set up frontend with Karim.
+Worked on Login/Signup screens, including form validation and submission.
+Developed a working Header navigation bar.
 
 Week 5
 
-Added About Us content to landing page. Implemented News API interface and related components.
+Added About Us content to landing page. Implemented frontend News API interface and related components on the Landing Page and Stock Page.
+Connected all frontend Portfolio components to backend and bugfixed to a working state.
+Demonstrated all features during Progressive Demo A, and a ran Retrospective meeting on Friday to reflect on our team progress.
+
+Week 6
+
+Worked on cleaning up the project to have consistent syntax and adherence to best practices (both frontend and backend).
+Implemented Username component to show logged in user.
+Implemented Logout, improved token management and loading spinners to move the application towards an SPA with better user experience.
+Created and implemented a new page for searching stocks.
+Implemented the Trending Investments component on the landing page, cleaned up and improved backend code for portfolio endpoints.
+Refactored stock page to use Redux for asynchronous requests, and include loading spinners and error handling.

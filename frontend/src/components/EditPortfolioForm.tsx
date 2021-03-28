@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Form } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import portfolioAPI from "../api/portfolioAPI";
+import portfolioAPI from "../api/portfolio";
 import { useParams } from "react-router";
 
 interface Props {

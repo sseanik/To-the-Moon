@@ -1,52 +1,69 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import {  Container,
-          Row,
-          Col,
-          Tabs,
-          Tab,
-          Button
-        } from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Button, Alert } from "react-bootstrap";
+import ClipLoader from "react-spinners/ClipLoader";
+import { connect } from "react-redux";
+import stockActions from "../redux/actions/stockActions";
+
+import {
+  DataSummary,
+  DataFundamentals,
+  DataIncomeStatement,
+  DataBalanceSheet,
+  DataCashFlow,
+  StockNews
+} from "../components"
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
-
-import DataSummary, { summaryDataT, defaultSummaryData } from "../components/DataSummary";
-import DataFundamentals, { fundamentalDataT, defaultFundamentalData } from "../components/DataFundamentals";
-import DataIncomeStatement from "../components/DataIncomeStatement";
-import DataBalanceSheet from "../components/DataBalanceSheet";
-import DataCashFlow from "../components/DataCashFlow";
-import { NewsCard } from "../components";
 
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 
-import StockAPI from "../api/stock";
-import NewsAPI from "../api/news";
+interface seriesT {
+  name: string;
+  data: Array<Array<number>>;
+}
+
+interface titleT {
+  text: string;
+}
 
 interface graphOptionsT {
-  title: { text: string };
-  series: Array<{ name: string, data: Array<Array<number>> }>;
+  title: titleT;
+  series: Array<seriesT>;
 }
 
 interface RouteParams {
   symbol: string;
 }
 
-const StockPage: React.FC = () => {
+interface getStockBasicParams {
+  symbol: string;
+}
+
+interface getPredictionDailyParams {
+  symbol: string;
+}
+
+interface StateProps {
+  loading: boolean;
+  error: string;
+  company: string;
+  priceDataDaily: any;
+  priceDataIntraday: any;
+  predictionDaily: any;
+}
+
+interface DispatchProps {
+  getStockBasic: (payload: getStockBasicParams) => void;
+  getPredictionDaily: (payload: getPredictionDailyParams) => void;
+}
+
+const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
+  const { company, loading, error, priceDataDaily, priceDataIntraday, predictionDaily, getStockBasic, getPredictionDaily, } = props;
+
   const params = useParams<RouteParams>();
   const symbol = params.symbol;
-
-  const [genkey, setGenkey] = useState<string|null>('summary');
-  const [finkey, setFinkey] = useState<string|null>('incomestatement');
-  const [companyName, setCompanyName] = useState('View');
-  const [isLoading, setIsLoading] = useState({
-    stockdata: true,
-    summary: false,
-    fundamentals: true,
-    incomeStatement: true,
-    balanceSheet: true,
-    cashFlowStatement: true,
-  });
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
@@ -58,145 +75,108 @@ const StockPage: React.FC = () => {
       { data: [] }
     ]
   });
-  const [summaryData, setSummaryData] = useState<summaryDataT>(defaultSummaryData);
-  const [fundamentalData, setFundamentalData] = useState<fundamentalDataT>(defaultFundamentalData);
-  const [timeSeriesDaily, setTimeSeriesDaily] = useState<any>([]);
-  const [timeSeriesDailyPre, setTimeSeriesDailyPre] = useState<any>({});
-  const [timeSeriesIntra, setTimeSeriesIntra] = useState<any>([]);
-  const [stockNews, setStockNews] = useState([]);
 
-  async function fetchStock() {
-    const stockdata = symbol ? await StockAPI.getBasic(symbol) : {};
-
-    if (!stockdata) {
-      return;
-    }
-    const seriesDailyList = [];
-    const seriesIntraList = [];
-    setCompanyName(stockdata.name);
-
-    setGraphOptions({ ... graphOptions, title: {text: `Share Price`}});
-    for (let [key, value] of Object.entries(stockdata.data)) {
-      seriesDailyList.push({name: key, data: value});
-    }
-    setTimeSeriesDaily(seriesDailyList);
-
-    for (let [key, value] of Object.entries(stockdata.data_intraday)) {
-      seriesIntraList.push({name: key, data: value});
-    }
-    setTimeSeriesIntra(seriesIntraList);
-
-    if (stockdata.summary) {
-      setSummaryData(stockdata.summary);
-      setIsLoading({ ... isLoading, summary: false });
-    }
-    if (stockdata.fundamentals) {
-      setFundamentalData(stockdata.fundamentals);
-      setIsLoading({ ... isLoading, fundamentals: false });
-    }
+  const fetchStock = () => {
+    getStockBasic({ symbol });
   }
 
-  async function fetchPredictDaily() {
-    const pred = await StockAPI.getPredictionDaily(symbol);
-    if (pred) {
-      setTimeSeriesDailyPre(pred);
-    }
-  }
-
-  async function fetchNews() {
-    const news = await NewsAPI.getNewsByStock(symbol);
-    setStockNews(news.articles);
+  const fetchPredictDaily = () => {
+    getPredictionDaily({ symbol });
   }
 
   useEffect(() => {
     fetchStock();
-    fetchNews();
   }, []);
 
   useEffect(() => {
     if (displayIntra == true) {
-      setGraphOptions({ ... graphOptions, series: timeSeriesIntra });
-    } else if (timeSeriesDailyPre) {
-      const display = [...timeSeriesDaily, timeSeriesDailyPre];
-      setGraphOptions({ ... graphOptions, series: display });
+      const seriesIntraList = Object.entries(priceDataIntraday).map(entry => {
+        const [key, value] = entry;
+        return { name: key, data: value }
+      });
+      setGraphOptions((graphOptions: graphOptionsT) => ({ ... graphOptions, series: seriesIntraList }));
     } else {
-      setGraphOptions({ ... graphOptions, series: timeSeriesDaily });
+      console.log("Displaying daily");
+      console.log(priceDataDaily);
+      console.log(predictionDaily);
+      const seriesDailyList = Object.entries(priceDataDaily).map(entry => {
+        const [key, value] = entry;
+        return { name: key, data: value }
+      });
+      const displaySeries = predictionDaily ? [ ... seriesDailyList, predictionDaily ] : seriesDailyList;
+      setGraphOptions((graphOptions: graphOptionsT) => ({ ... graphOptions, series: displaySeries }));
     }
-  }, [displayIntra, timeSeriesIntra, timeSeriesDaily, timeSeriesDailyPre]);
+  }, [displayIntra, priceDataDaily, priceDataIntraday, predictionDaily]);
 
-  useEffect(() => {
-    if (genkey === "financials") {
-      if ((finkey === "incomestatement") && !isLoading.incomeStatement) {
-        setIsLoading({ ... isLoading, incomeStatement: true });
-      } else if ((finkey === "balancesheet") && !isLoading.balanceSheet) {
-        setIsLoading({ ... isLoading, balanceSheet: true });
-      } else if ((finkey === "cashflow") && !isLoading.cashFlowStatement) {
-        setIsLoading({ ... isLoading, cashFlowStatement: true });
-      }
-    }
-  }, [genkey, finkey]);
+  const graphComponent = (
+    <Container>
+      <HighchartsReact
+        highcharts={Highcharts}
+        constructorType={'stockChart'}
+        options={graphOptions}
+      />
+      <Row className="justify-content-center">
+        <Button variant="outline-info" onClick={fetchStock}>Refresh data</Button>
+      </Row>
+    </Container>
+  );
+
+  const loadingSpinnerComponent = (
+    <Container>
+      <ClipLoader color={"green"} loading={loading} />
+      <h5>Loading Data ...</h5>
+    </Container>
+  );
+
+  const alertComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
+  );
+
+  const stockNameText =
+    error
+    ? `${symbol}`
+    : `${company} (${symbol})`
 
   return (
     <Container>
-      <Row className="justify-content-center">
-
-      </Row>
       <Row className="justify-content-center mt-2">
-        <h2>{`Company: ${companyName} (${symbol})`}</h2>
+        <h1>{ loading ? loadingSpinnerComponent : stockNameText }</h1>
       </Row>
-
       <Row>
-        <Col className="border text-left" sm={2} ><h4>Controls</h4></Col>
-        <Col sm={1}>
-          <Button variant="outline-primary"
-            onClick={fetchStock}>Refresh</Button>
-        </Col>
+        { error ? alertComponent : null }
       </Row>
-
       <Row className="justify-content-center">
-        <Col>
-          <div>
-            <HighchartsReact
-              highcharts={Highcharts}
-              constructorType={'stockChart'}
-              options={graphOptions}
-            />
-          </div>
-        </Col>
         <Col>
           <Container>
             <Tabs
               className="justify-content-center mt-2"
               defaultActiveKey="summary"
               id="sec-view-info-selector"
-              activeKey={genkey}
-              onSelect={(k) => { setGenkey(k); }}
             >
               <Tab eventKey="summary" title="Summary">
-                <DataSummary summaryData={summaryData} isLoading={isLoading.summary}/>
+                <DataSummary />
               </Tab>
               <Tab eventKey="statistics" title="Statistics">
-                <DataFundamentals fundamentalData={fundamentalData} isLoading={isLoading.fundamentals}/>
+                <DataFundamentals />
               </Tab>
-
               <Tab eventKey="financials" title="Financials">
-                  <Tabs
-                    className="justify-content-center mt-2"
-                    defaultActiveKey="incomestatement"
-                    id="sec-view-financials"
-                    activeKey={finkey}
-                    onSelect={(k) => { setFinkey(k); }}
-                  >
-                      <Tab eventKey="incomestatement" title="Income Statement">
-                        <DataIncomeStatement symbol={symbol} tryLoading={isLoading.incomeStatement}/>
-                      </Tab>
-                      <Tab eventKey="balancesheet" title="Balance Sheet">
-                        <DataBalanceSheet symbol={symbol} tryLoading={isLoading.balanceSheet}/>
-                      </Tab>
-                      <Tab eventKey="cashflow" title="Cash Flow Statement">
-                        <DataCashFlow symbol={symbol} tryLoading={isLoading.cashFlowStatement}/>
-                      </Tab>
-                  </Tabs>
+                <Tabs
+                  className="justify-content-center mt-2"
+                  defaultActiveKey="incomestatement"
+                  id="sec-view-financials"
+                >
+                  <Tab eventKey="incomestatement" title="Income Statement">
+                    <DataIncomeStatement symbol={symbol} />
+                  </Tab>
+                  <Tab eventKey="balancesheet" title="Balance Sheet">
+                    <DataBalanceSheet symbol={symbol} />
+                  </Tab>
+                  <Tab eventKey="cashflow" title="Cash Flow Statement">
+                    <DataCashFlow symbol={symbol} />
+                  </Tab>
+                </Tabs>
               </Tab>
               <Tab eventKey="prediction" title="Market Prediction">
                 <Container>
@@ -208,26 +188,53 @@ const StockPage: React.FC = () => {
                     </Row>
                     <Row>
                         <Button variant="outline-primary"
-                          onClick={() => { fetchPredictDaily(); }}>Predict</Button>
+                          onClick={() => { fetchPredictDaily() }}>Predict</Button>
                     </Row>
                 </Container>
               </Tab>
             </Tabs>
           </Container>
         </Col>
+        <Col>
+          { loading ? loadingSpinnerComponent : graphComponent }
+        </Col>
       </Row>
       <Row>
-        <h3>{`News related to ${symbol}`}</h3>
-      </Row>
-      <Row>
-        {
-          stockNews.map((news, idx) => (
-            <NewsCard key={idx} {...news} />
-          ))
-        }
+        <Container>
+          <Tabs
+            className="justify-content-center mt-2"
+            defaultActiveKey="news"
+          >
+            <Tab eventKey="news" title="News">
+              <Row>
+                <h3>{`News related to ${symbol}`}</h3>
+              </Row>
+              <StockNews stock={symbol} />
+            </Tab>
+            <Tab eventKey="other" title="Other">
+
+            </Tab>
+          </Tabs>
+        </Container>
       </Row>
     </Container>
   );
 }
 
-export default StockPage;
+const mapStateToProps = (state: any) => ({
+  loading: state.stockReducer.basic.loading,
+  error: state.stockReducer.basic.error,
+  company: state.stockReducer.basic.data.fundamentals.stockname,
+  priceDataDaily: state.stockReducer.basic.data.data,
+  priceDataIntraday: state.stockReducer.basic.data.data_intraday,
+  predictionDaily: state.stockReducer.predictionDaily.data,
+});
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    getStockBasic: (payload: getStockBasicParams) => dispatch(stockActions.getStockBasic(payload)),
+    getPredictionDaily: (payload: getPredictionDailyParams) => dispatch(stockActions.getPredictionDaily(payload))
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(StockPage);

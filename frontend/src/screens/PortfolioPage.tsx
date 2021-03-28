@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Button, Container, Col, Row, Spinner } from "react-bootstrap";
 import { useParams } from "react-router";
-import portfolioAPI from "../api/portfolioAPI";
+import portfolioAPI from "../api/portfolio";
 import AddInvestmentForm from "../components/AddInvestmentForm";
 import EditPortfolioForm from "../components/EditPortfolioForm";
 import StockInfo from "../components/StockInfo";

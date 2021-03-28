@@ -30,23 +30,18 @@ const AuthAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  logout: () => {
-    const endpoint = "/logout";
+  getUsername: () => {
+    const endpoint = "/user";
     const options = {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${Utils.getToken()}`,
+        Authorization: Utils.getToken(),
       },
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  // new function with different endpoint
-  // pass portfolio name through either URL or body
-  // pass token (encoded) through header
-  // backend needs to decode token for userID
-  // implement function with userID and portfolio name
 };
 
 export default AuthAPI;

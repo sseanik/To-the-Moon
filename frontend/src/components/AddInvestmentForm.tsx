@@ -4,7 +4,7 @@ import { useState } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import stockAPI from "../api/stockAPI";
+import stockAPI from "../api/investment";
 
 interface Props {
   handleInvestmentAdded: () => void;

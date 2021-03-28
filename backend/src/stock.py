@@ -11,7 +11,7 @@ import pandas as pd
 import sys
 import os
 from collections import OrderedDict
-import datetime
+from datetime import datetime
 import pytz
 import requests
 
@@ -45,10 +45,10 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
         dt_format = "%Y-%m-%d %H:%M:%S" if data_type=="intraday" else "%Y-%m-%d"
         tz_key = "6. Time Zone" if data_type=="intraday" else "5. Time Zone"
         reference_tz = pytz.timezone(stockmetadata[tz_key] if tz_key in stockmetadata else "US/Eastern")
-        date_ref = datetime.datetime.strptime(stockmetadata['3. Last Refreshed'], dt_format)
+        date_ref = datetime.strptime(stockmetadata['3. Last Refreshed'], dt_format)
         date_ref_aware = reference_tz.localize(date_ref)
 
-        date_today = datetime.datetime.today()
+        date_today = datetime.today()
         date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
         date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
@@ -66,6 +66,33 @@ def retrieve_stock_data(symbol, data_type="daily_adjusted"):
         JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
     except ValueError as e:
         print(f"Error encountered: {e}", file=sys.stderr)
+
+def retrieve_stock_price_at_date(symbol, purchase_date):
+    ts = TimeSeries(key=AlphaVantageInfo.api_key, output_format='csv')
+    rounded_datetime = purchase_date.strftime('%Y-%m-%d %H:%M:00')
+    rounded_date = purchase_date.strftime('%Y-%m-%d')
+    delta = datetime.today() - purchase_date
+    year = delta.days / 360 + 1
+    month = delta.days % 360 / 30 + 1
+
+    # Extended intraday if available
+    data, _ = ts.get_intraday_extended(symbol, '1min', f'year{int(year)}month{int(month)}')
+    # Process csv
+    df = pd.DataFrame(data)
+    header_row=0
+    df.columns = df.iloc[header_row]
+    df = df.drop(header_row)
+    if rounded_datetime in df.time.values:
+        return df.loc[df['time'] == rounded_datetime]['close'].iloc[0]
+
+    # Daily data fallback
+    ts = TimeSeries(key=AlphaVantageInfo.api_key)
+    data, _ = ts.get_daily_adjusted(symbol, outputsize='full')
+    if rounded_date in data:
+        return data[rounded_date]['4. close']
+
+    # If all else fails
+    return data[datetime.today().strftime('%Y-%m-%d')]['4. close']
 
 def get_stock_value(filename, data_type="daily_adjusted"):
     """
@@ -180,6 +207,22 @@ def calculate_summary(df):
 
     return result
 
+def get_financials_data(symbol, func):
+    income_statement = func(symbol)
+    if symbol and income_statement:
+        data = dumps({
+            'status': 200,
+            'name': symbol,
+            'data': income_statement
+        })
+    else:
+        data = dumps({
+            'status:': 404,
+            'name': symbol,
+            'data': {},
+            'error': "Financials data not found"
+        })
+    return data
 
 
 ################################
@@ -220,38 +263,27 @@ def get_stock_data():
         stock_name = funds['stockname']
 
         data = dumps({
+            'status': 200,
             'name': stock_name,
             'data': {
-                '4. close': sample_data_close,
-                '2. high': sample_data_high,
-                '3. low': sample_data_low
-            },
-            'data_intraday': {
-                '4. close': intr_data_close,
-            },
-            'summary': summary,
-            'fundamentals': funds
+                'data': {
+                    '4. close': sample_data_close,
+                    '2. high': sample_data_high,
+                    '3. low': sample_data_low
+                },
+                'data_intraday': {
+                    '4. close': intr_data_close,
+                },
+                'summary': summary,
+                'fundamentals': funds
+            }
         })
     else:
         data = dumps({
+            'status': 404,
             'name': "",
             'data': {},
             'error': "Symbol not found"
-        })
-    return data
-
-def get_financials_data(symbol, func):
-    income_statement = func(symbol)
-    if symbol and income_statement:
-        data = dumps({
-            'name': symbol,
-            'data': income_statement
-        })
-    else:
-        data = dumps({
-            'name': str(symbol),
-            'data': None,
-            'error': "Income statement not found"
         })
     return data
 
@@ -275,31 +307,43 @@ def get_prediction_daily():
     headers = { "Content-Type": "application/json", }
     endpoint = f"http://127.0.0.1:{3001}/model/api/get_prediction"
 
-    r = requests.post(url=endpoint, data=dumps(data), headers=headers)
+    status = 0
+    dispatch_data = {}
+    try:
+        r = requests.post(url=endpoint, data=dumps(data), headers=headers)
 
-    # TODO: cleanup processing, this is really ugly.
-    # Ideally auto-limit sequence sizes
-    prediction_result = []
-    if r.status_code == requests.codes.ok:
-        prediction_result = r.json()
-    prediction_data = np.array(prediction_result['data'])
-    if prediction_data.shape[0] > 60:
-        prediction_data = prediction_data[:60]
+        # TODO: cleanup processing, this is really ugly.
+        # Ideally auto-limit sequence sizes
+        prediction_result = []
+        if r.status_code == requests.codes.ok:
+            prediction_result = r.json()
+        prediction_data = np.array(prediction_result['data'])
+        if prediction_data.shape[0] > 60:
+            prediction_data = prediction_data[:60]
 
-    prediction_start = sample_df["4. close"][-1:].index
-    # print("Start: ", prediction_start, type(prediction_start))
-    prediction_end = prediction_start + pd.tseries.offsets.BDay(60)
-    # print("End: ", prediction_end, type(prediction_end))
+        prediction_start = sample_df["4. close"][-1:].index
+        # print("Start: ", prediction_start, type(prediction_start))
+        prediction_end = prediction_start + pd.tseries.offsets.BDay(60)
+        # print("End: ", prediction_end, type(prediction_end))
 
-    prediction_range = (pd.date_range(start=prediction_start.array[0], end=prediction_end.array[0], freq="B") - pd.Timestamp("1970-01-01")) // pd.Timedelta(milliseconds=1)
-    if prediction_range.shape[0] > 60:
-        prediction_range = prediction_range[:60]
+        prediction_range = (pd.date_range(start=prediction_start.array[0], end=prediction_end.array[0], freq="B") - pd.Timestamp("1970-01-01")) // pd.Timedelta(milliseconds=1)
+        if prediction_range.shape[0] > 60:
+            prediction_range = prediction_range[:60]
 
-    prediction_data_s = [[int(timestamp), value] for timestamp, value in zip(prediction_range.tolist(), prediction_data)]
+        prediction_data_s = [[int(timestamp), value] for timestamp, value in zip(prediction_range.tolist(), prediction_data)]
+
+        status = 200
+        dispatch_data = {
+            'name': "Prediction (daily)",
+            'data': prediction_data_s
+        }
+    except Exception as e:
+        status = 500
+        dispatch_data = {}
 
     return dumps({
-        'name': "Prediction (daily)",
-        'data': prediction_data_s
+        'status': status,
+        'data': dispatch_data
     })
 
 @STOCK_ROUTES.route('/stock/income_statement', methods=['GET'])
