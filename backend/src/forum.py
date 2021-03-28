@@ -61,11 +61,27 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
 
     # If no parent_id is provided, comment is a parent comment (comment)
     if not parent_id:
-        insert_query = "INSERT INTO forum_comment (stock_ticker, author_id, time_stamp, content) VALUES (%s, %s, %s, %s) RETURNING *"
+        insert_query = """
+            WITH inserted_comment as (
+            INSERT INTO forum_comment (stock_ticker, author_id, time_stamp, content) 
+            VALUES (%s, %s, %s, %s) 
+            RETURNING *
+            ) SELECT i.comment_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.is_deleted
+            FROM inserted_comment i
+            JOIN users u on i.author_id = u.id;
+        """.replace("\n", "")
         values = (stock_ticker, user_id, timestamp, content)
     # Otherwise, using the provided parent id, it is a child comment (reply)
     else:
-        insert_query = "INSERT INTO forum_reply (comment_id, stock_ticker, author_id, time_stamp, content) VALUES (%s, %s, %s, %s, %s) RETURNING *"
+        insert_query = """
+            WITH inserted_reply as (
+            INSERT INTO forum_reply (comment_id, stock_ticker, author_id, time_stamp, content) 
+            VALUES (%s, %s, %s, %s, %s) 
+            RETURNING *
+            ) SELECT i.reply_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.comment_id
+            FROM inserted_reply i
+            JOIN users u on i.author_id = u.id;
+        """.replace("\n", "")
         values = (parent_id, stock_ticker, user_id, timestamp, content)
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
@@ -74,8 +90,9 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         status = 200
         message = "Submitted successfully"
         inserted_comment = dict(cur.fetchall()[0])
-        inserted_comment['upvote_user_ids'] = []
-        inserted_comment['downvote_user_ids'] = []
+        inserted_comment['upvotes'] = 0
+        inserted_comment['downvotes'] = 0
+        inserted_comment['vote_difference'] = 0
     except:
         status = 400
         message = "Invalid data was provided to the Database"
@@ -115,14 +132,14 @@ def submit_reply():
     return dumps(result)
 
 
-# if __name__ == "__main__":
-#     # Testing Posting Parent Comment
-#     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-#           "Parent 4"))
-#     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-#           "Parent 5"))
-#     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-#           "Parent 6"))
+if __name__ == "__main__":
+    #     # Testing Posting Parent Comment
+    #     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+    #           "Parent 4"))
+    #     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
+    #           "Parent 5"))
+    print(post_comment("4fbee696-89f3-11eb-8558-0a4e2d6dea13", "IBM",
+          1616810169114, "Parent 6", "505489ae-8f65-11eb-9d86-0a4e2d6dea13"))
 
     # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
     #                    "Child 1 D", "275af66c-8ec7-11eb-b34c-0a4e2d6dea13"))
