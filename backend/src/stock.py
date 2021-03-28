@@ -10,7 +10,7 @@ import pandas as pd
 import sys
 import os
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 from psycopg2.extras import DictCursor
@@ -88,8 +88,9 @@ def retrieve_stock_price_at_date(symbol, purchase_date):
     if rounded_date in data:
         return data[rounded_date]['4. close']
 
-    # If all else fails
-    return data[datetime.today().strftime('%Y-%m-%d')]['4. close']
+    # If all else fails - get the latest data point
+    first_key = list(data.keys())[0]
+    return data[first_key]['4. close']
 
 def get_stock_value(filename, data_type="daily_adjusted"):
     """
