@@ -87,7 +87,7 @@ def get_stock_comments(user_id, stock_ticker):
 
         # Fix the case of [None], into []
         if query_results[i]['replies'] == [None]:
-            query_results[i]['replies'] = []
+            query_results[i]['replies'] = 0
             continue
 
         for reply in comment_tree['replies']:
