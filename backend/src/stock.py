@@ -204,6 +204,23 @@ def calculate_summary(df):
 
     return result
 
+def get_financials_data(symbol, func):
+    income_statement = func(symbol)
+    if symbol and income_statement:
+        data = dumps({
+            'status': 200,
+            'name': symbol,
+            'data': income_statement
+        })
+    else:
+        data = dumps({
+            'status:': 404,
+            'name': symbol,
+            'data': {},
+            'error': "Financials data not found"
+        })
+    return data
+
 
 
 ################################
@@ -244,38 +261,27 @@ def get_stock_data():
         stock_name = funds['stockname']
 
         data = dumps({
+            'status': 200,
             'name': stock_name,
             'data': {
-                '4. close': sample_data_close,
-                '2. high': sample_data_high,
-                '3. low': sample_data_low
-            },
-            'data_intraday': {
-                '4. close': intr_data_close,
-            },
-            'summary': summary,
-            'fundamentals': funds
+                'data': {
+                    '4. close': sample_data_close,
+                    '2. high': sample_data_high,
+                    '3. low': sample_data_low
+                },
+                'data_intraday': {
+                    '4. close': intr_data_close,
+                },
+                'summary': summary,
+                'fundamentals': funds
+            }
         })
     else:
         data = dumps({
+            'status': 404,
             'name': "",
             'data': {},
             'error': "Symbol not found"
-        })
-    return data
-
-def get_financials_data(symbol, func):
-    income_statement = func(symbol)
-    if symbol and income_statement:
-        data = dumps({
-            'name': symbol,
-            'data': income_statement
-        })
-    else:
-        data = dumps({
-            'name': str(symbol),
-            'data': None,
-            'error': "Income statement not found"
         })
     return data
 

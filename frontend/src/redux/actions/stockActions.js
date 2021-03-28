@@ -1,38 +1,112 @@
 import stockConstants from "../constants/stockConstants";
-import stockAPI from "../../api/investment";
+import StockAPI from "../../api/stock";
 
 const stockActions = {
-  submitCreateStockForm: (user) => ({
-    type: stockConstants.SUBMIT_CREATE_STOCK_FORM,
-    payload: user,
+  getStockBasicPending: () => ({
+    type: stockConstants.GET_STOCK_BASIC_PENDING,
   }),
-  createStockPending: () => ({
-    type: stockConstants.CREATE_STOCK_PENDING,
-  }),
-  createStockSuccess: (response) => ({
-    type: stockConstants.CREATE_STOCK_SUCCESS,
+  getStockBasicSuccess: (response) => ({
+    type: stockConstants.GET_STOCK_BASIC_SUCCESS,
     payload: response,
   }),
-  createStockFailure: (error) => ({
-    type: stockConstants.CREATE_STOCK_FAILURE,
+  getStockBasicFailure: (error) => ({
+    type: stockConstants.GET_STOCK_BASIC_FAILURE,
     payload: error,
   }),
-  createStock: (payload) => {
+  getStockIncomePending: () => ({
+    type: stockConstants.GET_STOCK_INCOME_PENDING,
+  }),
+  getStockIncomeSuccess: (response) => ({
+    type: stockConstants.GET_STOCK_INCOME_SUCCESS,
+    payload: response,
+  }),
+  getStockIncomeFailure: (error) => ({
+    type: stockConstants.GET_STOCK_INCOME_FAILURE,
+    payload: error,
+  }),
+  getStockBalancePending: () => ({
+    type: stockConstants.GET_STOCK_BALANCE_PENDING,
+  }),
+  getStockBalanceSuccess: (response) => ({
+    type: stockConstants.GET_STOCK_BALANCE_SUCCESS,
+    payload: response,
+  }),
+  getStockBalanceFailure: (error) => ({
+    type: stockConstants.GET_STOCK_BALANCE_FAILURE,
+    payload: error,
+  }),
+  getStockCashFlowPending: () => ({
+    type: stockConstants.GET_STOCK_CASHFLOW_PENDING,
+  }),
+  getStockCashFlowSuccess: (response) => ({
+    type: stockConstants.GET_STOCK_CASHFLOW_SUCCESS,
+    payload: response,
+  }),
+  getStockCashFlowFailure: (error) => ({
+    type: stockConstants.GET_STOCK_CASHFLOW_FAILURE,
+    payload: error,
+  }),
+  getStockBasic: (payload) => {
     return async (dispatch) => {
-      dispatch(stockActions.createStockPending());
+      dispatch(stockActions.getStockBasicPending());
       try {
-        const { portfolioName, stockName } = payload;
-        const res = await stockAPI.addStock(
-          portfolioName,
-          stockName 
-        );
-        setTimeout(() => {
-          dispatch(stockActions.createStockSuccess(res));
-        }, 2500);
+        const { symbol } = payload;
+        const res = await StockAPI.getBasic(symbol);
+        if (res.status === 200) {
+          dispatch(stockActions.getStockBasicSuccess(res));
+        } else {
+          dispatch(stockActions.getStockBasicFailure(res.error));
+        }
       } catch (error) {
-        setTimeout(() => {
-          dispatch(stockActions.createStockFailure(error));
-        }, 2500);
+        dispatch(stockActions.getStockBasicFailure(error));
+      }
+    };
+  },
+  getStockIncome: (payload) => {
+    return async (dispatch) => {
+      dispatch(stockActions.getStockIncomePending());
+      try {
+        const { symbol } = payload;
+        const res = await StockAPI.getIncome(symbol);
+        if (res.status === 200) {
+          dispatch(stockActions.getStockIncomeSuccess(res));
+        } else {
+          dispatch(stockActions.getStockIncomeFailure(res.error));
+        }
+      } catch (error) {
+        dispatch(stockActions.getStockIncomeFailure(error));
+      }
+    };
+  },
+  getStockBalance: (payload) => {
+    return async (dispatch) => {
+      dispatch(stockActions.getStockBalancePending());
+      try {
+        const { symbol } = payload;
+        const res = await StockAPI.getBalance(symbol);
+        if (res.status === 200) {
+          dispatch(stockActions.getStockBalanceSuccess(res));
+        } else {
+          dispatch(stockActions.getStockBalanceFailure(res.error));
+        }
+      } catch (error) {
+        dispatch(stockActions.getStockBalanceFailure(error));
+      }
+    };
+  },
+  getStockCashFlow: (payload) => {
+    return async (dispatch) => {
+      dispatch(stockActions.getStockCashFlowPending());
+      try {
+        const { symbol } = payload;
+        const res = await StockAPI.getCashFlow(symbol);
+        if (res.status === 200) {
+          dispatch(stockActions.getStockCashFlowSuccess(res));
+        } else {
+          dispatch(stockActions.getStockCashFlowFailure(res.error));
+        }
+      } catch (error) {
+        dispatch(stockActions.getStockCashFlowFailure(error));
       }
     };
   },

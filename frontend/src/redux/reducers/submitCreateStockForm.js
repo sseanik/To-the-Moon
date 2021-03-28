@@ -1,4 +1,4 @@
-import stockConstants from "../constants/stockConstants";
+import stockConstants from "../constants/investmentConstants";
 
 const initialState = {
   createStockForm: {

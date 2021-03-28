@@ -1,11 +1,6 @@
-import React from "react";
 import ClipLoader from "react-spinners/ClipLoader";
-
-import {
-  Container,
-  Row,
-  Col
-} from "react-bootstrap";
+import { connect } from "react-redux";
+import { Container, Row, Col, Alert } from "react-bootstrap";
 
 interface IObjectKeys {
   [key: string]: AttributeValues;
@@ -16,16 +11,16 @@ interface AttributeValues {
 }
 
 export interface fundamentalDataT {
-    company_name: string;
-    exchange: string;
-    currency: string;
-    year_high: number;
-    year_low: number;
-    market_cap: number;
-    beta: number;
-    pe_ratio: number;
-    eps: number;
-    dividend_yield: number;
+  company_name: string;
+  exchange: string;
+  currency: string;
+  year_high: number;
+  year_low: number;
+  market_cap: number;
+  beta: number;
+  pe_ratio: number;
+  eps: number;
+  dividend_yield: number;
 }
 
 export const defaultFundamentalData = {
@@ -41,9 +36,10 @@ export const defaultFundamentalData = {
   dividend_yield: 0,
 }
 
-interface Props {
-  fundamentalData: fundamentalDataT;
-  isLoading: boolean;
+interface StateProps {
+  loading: boolean;
+  data: fundamentalDataT;
+  error: string;
 }
 
 const formatMap: IObjectKeys = {
@@ -59,44 +55,59 @@ const formatMap: IObjectKeys = {
   dividendyield: {name: "Dividend Yield"},
 };
 
-const DataFundamentals: React.FC<Props> = (props) => {
-  const { fundamentalData, isLoading } = props;
+const DataFundamentals: React.FC<StateProps> = (props) => {
+  const { loading, error, data } = props;
 
   const loadingSpinnerComponent = (
     <div>
-      <ClipLoader color={"green"} loading={isLoading} />
+      <ClipLoader color={"green"} loading={loading} />
       <h5>Loading Statistics ...</h5>
     </div>
   );
 
+  const alertComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
+  );
+
   const tableComponent = (
     <Container>
-    <Row>
-      <Col>
-        <hr />
-        {Object.entries(fundamentalData).map(([field, value]) => (
-          <div>
-            <Row lg={6}>
-              <Col className="text-left" lg={6}>
-                <span>
-                  <b>{formatMap[field] ? formatMap[field].name : field}</b>
-                </span>
-              </Col>
-              <Col className="text-right" lg={6}>
-                <span>
-                  {value}
-                </span>
-              </Col>
-            </Row>
-            <hr />
-          </div>
-        ))}
-      </Col>
-    </Row>
+      <Row>
+        { error ? alertComponent : null }
+      </Row>
+      <Row>
+        <Col>
+          <hr />
+          {Object.entries(data).map(([field, value]) => (
+            <div>
+              <Row lg={6}>
+                <Col className="text-left" lg={6}>
+                  <span>
+                    <b>{formatMap[field] ? formatMap[field].name : field}</b>
+                  </span>
+                </Col>
+                <Col className="text-right" lg={6}>
+                  <span>
+                    {value}
+                  </span>
+                </Col>
+              </Row>
+              <hr />
+            </div>
+          ))}
+        </Col>
+      </Row>
     </Container>
   );
 
-  return isLoading ? loadingSpinnerComponent : tableComponent;
+  return loading ? loadingSpinnerComponent : tableComponent;
 }
 
-export default DataFundamentals;
+const mapStateToProps = (state: any) => ({
+  loading: state.stockReducer.basic.loading,
+  error: state.stockReducer.basic.error,
+  data: state.stockReducer.basic.data.fundamentals,
+});
+
+export default connect(mapStateToProps)(DataFundamentals);

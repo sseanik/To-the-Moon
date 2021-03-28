@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
-
-import {
-  Container,
-  Row,
-  Col
-} from "react-bootstrap";
-
-import StockAPI from "../api/stock";
+import { connect } from "react-redux";
+import { Container, Row, Col, Alert } from "react-bootstrap";
+import stockActions from "../redux/actions/stockActions";
 
 interface IObjectKeys {
   [key: string]: AttributeValues;
@@ -34,10 +29,22 @@ interface CashFlowEntry {
   netincome: string;
 }
 
-interface Props {
-  // cashFlow: Array<CashFlowEntry>;
+interface getStockCashFlowParams {
   symbol: string;
-  tryLoading: boolean;
+}
+
+interface Props {
+  symbol: string;
+}
+
+interface StateProps {
+  loading: boolean;
+  data: Array<CashFlowEntry>;
+  error: string;
+}
+
+interface DispatchProps {
+  getStockCashFlow: (payload: getStockCashFlowParams) => void;
 }
 
 const formatMap: IObjectKeys = {
@@ -57,66 +64,71 @@ const formatMap: IObjectKeys = {
   netincome: {name: "Net Income"},
 };
 
-const DataCashFlow: React.FC<Props> = (props) => {
-  const { symbol, tryLoading } = props;
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [cashFlow, setCashFlow] = useState<any>([]);
-
-  const fetchCashFlow = () => {
-    async function fetchCash() {
-      const cashdata = symbol ? await StockAPI.getCashFlow(symbol) : {};
-      if (cashdata.data) {
-        setCashFlow(cashdata.data);
-        setIsLoading(false);
-      }
-    }
-    fetchCash();
-  }
+const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
+  const { symbol, loading, error, data, getStockCashFlow } = props;
 
   useEffect(() => {
-    if (tryLoading) {
-      fetchCashFlow();
-    }
-  }, [tryLoading]);
+    getStockCashFlow({ symbol });
+  }, []);
 
   const loadingSpinnerComponent = (
     <div>
-      <ClipLoader color={"green"} loading={isLoading} />
+      <ClipLoader color={"green"} loading={loading} />
       <h5>Loading Data ...</h5>
     </div>
   );
 
+  const alertComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
+  );
+
   const tableComponent = (
     <Container>
-    <Row>
-      {cashFlow.map((entry: CashFlowEntry) => (
-        <Col>
-          <hr />
-          {Object.entries(entry).map(([field, value]) => (
-            <div>
-              <Row lg={6}>
-                <Col className="text-left" lg={6}>
-                  <span>
-                    <b>{formatMap[field].name}</b>
-                  </span>
-                </Col>
-                <Col className="text-right" lg={6}>
-                  <span>
-                    {typeof value === "string" ? value : value / 1000}
-                  </span>
-                </Col>
-              </Row>
-              <hr />
-            </div>
-          ))}
-        </Col>
-      ))}
-    </Row>
+      <Row>
+        { error ? alertComponent : null }
+      </Row>
+      <Row>
+        {data.map((entry: CashFlowEntry) => (
+          <Col>
+            <hr />
+            {Object.entries(entry).map(([field, value]) => (
+              <div>
+                <Row lg={6}>
+                  <Col className="text-left" lg={6}>
+                    <span>
+                      <b>{formatMap[field].name}</b>
+                    </span>
+                  </Col>
+                  <Col className="text-right" lg={6}>
+                    <span>
+                      {typeof value === "string" ? value : value / 1000}
+                    </span>
+                  </Col>
+                </Row>
+                <hr />
+              </div>
+            ))}
+          </Col>
+        ))}
+      </Row>
     </Container>
   );
 
-  return isLoading ? loadingSpinnerComponent : tableComponent;
+  return loading ? loadingSpinnerComponent : tableComponent;
 }
 
-export default DataCashFlow;
+const mapStateToProps = (state: any) => ({
+  loading: state.stockReducer.cashFlow.loading,
+  error: state.stockReducer.cashFlow.error,
+  data: state.stockReducer.cashFlow.data,
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getStockCashFlow: (payload: getStockCashFlowParams) => dispatch(stockActions.getStockCashFlow(payload))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(DataCashFlow);
+
+
