@@ -108,7 +108,6 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
 
 def forum_delete(user_id, comment_id, parent_id=None):
     """Delete comment from the forum
-
     Args:
         user_id (uuid): The UUID of the User posting the comment.
         comment_id (uuid): The UUID of the comment row to be deleted.
