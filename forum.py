@@ -239,4 +239,5 @@ if __name__ == "__main__":
     #print(post_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "IBM", time.time() * 1000, "TEST 2"))
     #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13", time.time() * 1000, "EDITED 2"))
     #print(post_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "IBM", time.time() * 1000, "CHILD COMMENT TEST 2", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
-    #print(edit_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "0cd048e2-8f9e-11eb-9394-0a4e2d6dea13", time.time() * 1000, "EDITED CHILD COMMENT 2", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
+    #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "1b03ad9c-8f9d-11eb-8f6f-0a4e2d6dea13", time.time() * 1000, "EDITED CHILD COMMENT 2"))
+    print(edit_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "0cd048e2-8f9e-11eb-9394-0a4e2d6dea13", time.time() * 1000, "EDIT CHILD COMMENT", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
