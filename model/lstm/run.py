@@ -59,10 +59,14 @@ def get_prediction():
     inference_mode = request_data['inference_mode']
     initial_data = np.array(request_data['data'])
 
-    predictions = get_walkforward_prediction(model, initial_data)
-    predictions = predictions.tolist()
-
-    return {"data": predictions}
+    result = {}
+    if inference_mode == "walk_forward":
+        predictions = get_walkforward_prediction(model, initial_data)
+        predictions = predictions.tolist()
+        result = {"data": predictions}
+    else:
+        result = {"error": f"Inference mode: {inference_mode} not supported yet"}
+    return result
 
 if __name__ == "__main__":
     if "ENVIRONMENT" in os.environ:
