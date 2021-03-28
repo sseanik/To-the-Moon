@@ -26,12 +26,43 @@ def get_stock_comments(user_id, stock_ticker):
 
     # Select Query returning parent comments and their children
     select_query = """
-        SELECT ROW_TO_JSON(c.*) AS comment, COALESCE(JSON_AGG(r), '[]'::JSON) AS replies
-        FROM forum_comment c
-        LEFT JOIN forum_reply r
-        ON (c.comment_id = r.comment_id)
-        WHERE c.stock_ticker = %s
-        GROUP BY c.comment_id
+        SELECT 
+        c.comment_id, 
+        c.stock_ticker, 
+        u.username, 
+        c.time_stamp, 
+        c.content, 
+        c.upvote_user_ids, 
+        c.downvote_user_ids, 
+        c.is_edited, 
+        c.is_deleted, 
+        COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies 
+        FROM 
+        forum_comment c 
+        JOIN users u ON (c.author_id = u.id) 
+        LEFT JOIN(
+            SELECT 
+            f.reply_id, 
+            f.stock_ticker, 
+            u.username, 
+            f.time_stamp, 
+            f.content, 
+            f.upvote_user_ids, 
+            f.downvote_user_ids, 
+            f.is_edited, 
+            f.comment_id 
+            FROM 
+            forum_reply f 
+            LEFT JOIN users u ON (f.author_id = u.id) 
+            GROUP BY 
+            f.reply_id, 
+            u.username
+        ) AS r ON (c.comment_id = r.comment_id) 
+        WHERE 
+        c.stock_ticker = 'IBM' 
+        GROUP BY 
+        c.comment_id, 
+        u.username
     """.replace("\n", "")
 
     cur.execute(select_query, (stock_ticker,))
