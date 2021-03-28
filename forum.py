@@ -115,17 +115,24 @@ def forum_delete(user_id, comment_id, parent_id=None):
             insert_query = """
                 UPDATE forum_comment SET content=%s, is_deleted=TRUE
                 WHERE comment_id=%s and author_id=%s
+                RETURNING *
             """.replace("\n", "")
             values = ("", comment_id, user_id)
-            
+            cur.execute(insert_query, values)   
+            updated_comment = dict(cur.fetchall()[0])
+            response = {
+                "status" : 200, 
+                "message" : "Comment deleted.",
+                "comment" : updated_comment
+                }
         # Otherwise, using the provided parent id, it is a child comment (reply)
         else:
             insert_query = """
                 DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
             """.replace("\n", "")
             values = (comment_id, user_id)
-        cur.execute(insert_query, values)
-        response = {"status" : 200, "message" : "Comment deleted."}
+            cur.execute(insert_query, values) 
+            response = {"status" : 200, "message" : "Comment deleted."}
     except:
         response = {"status" : 400, "message" : "Something when wrong when trying to delete."}
 
@@ -187,4 +194,6 @@ if __name__ == "__main__":
     #                    "Child 1 D", "275af66c-8ec7-11eb-b34c-0a4e2d6dea13"))
 
     #print(forum_delete("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
-    print(forum_delete("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "6ed3656c-8f8d-11eb-a71a-0a4e2d6dea13", "something"))
+    #print(forum_delete("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "6ed3656c-8f8d-11eb-a71a-0a4e2d6dea13", "something"))
+    #print(forum_delete("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
+    print(forum_delete("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
