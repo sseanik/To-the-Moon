@@ -4,6 +4,7 @@ appdirs==1.4.3
 async-timeout==3.0.1
 attrs==20.3.0
 bcrypt==3.2.0
+better-profanity==0.7.0
 CacheControl==0.12.6
 certifi==2019.11.28
 cffi==1.14.5
