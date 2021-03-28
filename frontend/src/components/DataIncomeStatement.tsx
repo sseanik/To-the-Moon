@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
   Container,
@@ -6,13 +7,10 @@ import {
   Col
 } from "react-bootstrap";
 
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import StockAPI from "../api/stock";
+import {
+  incomeStatementFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 interface IncomeStatementEntry {
   stockticker: string;
@@ -31,32 +29,45 @@ interface IncomeStatementEntry {
 }
 
 interface Props {
-  incomeStatement: Array<IncomeStatementEntry>;
+  // incomeStatement: Array<IncomeStatementEntry>;
+  symbol: string;
+  tryLoading: boolean;
 }
 
-const formatMap: IObjectKeys = {
-  stockticker: {name: "Company Symbol"},
-  fiscaldateending: {name: "Year Ending"},
-  totalrevenue: {name: "Total Revenue"},
-  costofrevenue: {name: "Cost of Revenue"},
-  grossprofit: {name: "Gross Profit"},
-  operatingexpenses: {name: "Operating Expenses"},
-  operatingincome: {name: "Operating Income"},
-  incomebeforetax: {name: "Income Before Tax"},
-  interestincome: {name: "Interest Income"},
-  netinterestincome: {name: "Net Interest Income"},
-  ebit: {name: "EBIT"},
-  ebitda: {name: "EBITDA"},
-  netincome: {name: "Net Income"},
-}; 
-
 const DataIncomeStatement: React.FC<Props> = (props) => {
-  var { incomeStatement } = props;
+  const { symbol, tryLoading } = props;
 
-  return (
+  const [isLoading, setIsLoading] = useState(true);
+  const [incomeStatement, setIncomeStatement] = useState<any>([]);
+
+  const fetchIncomeStatement = () => {
+    async function fetchIncome() {
+      const incomedata = symbol ? await StockAPI.getIncome(symbol) : {};
+      if (incomedata) {
+        setIncomeStatement(incomedata.data);
+        setIsLoading(false);
+      }
+    }
+    fetchIncome();
+  }
+
+  useEffect(() => {
+    if (tryLoading) {
+      fetchIncomeStatement();
+    }
+  }, [tryLoading]);
+
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={isLoading} />
+      <h5>Loading Income Statement ...</h5>
+    </div>
+  );
+
+  const tableComponent = (
     <Container>
     <Row>
-      {incomeStatement.map((entry) => (
+      {incomeStatement.map((entry: IncomeStatementEntry) => (
         <Col>
           <hr />
           {Object.entries(entry).map(([field, value]) => (
@@ -81,6 +92,8 @@ const DataIncomeStatement: React.FC<Props> = (props) => {
     </Row>
     </Container>
   );
+
+  return isLoading ? loadingSpinnerComponent : tableComponent;
 }
 
 export default DataIncomeStatement;

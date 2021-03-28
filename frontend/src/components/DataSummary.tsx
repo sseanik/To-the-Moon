@@ -1,4 +1,5 @@
 import React from "react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
   Container,
@@ -6,13 +7,9 @@ import {
   Col
 } from "react-bootstrap";
 
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import {
+  summaryFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 export interface summaryDataT {
     previous_close: number;
@@ -38,23 +35,20 @@ export const defaultSummaryData = {
 
 interface Props {
   summaryData: summaryDataT;
+  isLoading: boolean;
 }
 
-const formatMap: IObjectKeys = {
-  previous_close: {name: "Previous Close"},
-  open: {name: "Open"},
-  day_min: {name: "Daily Low"},
-  day_max: {name: "Daily High"},
-  year_min: {name: "Yearly Low"},
-  year_max: {name: "Yearly High"},
-  volume: {name: "Volume"},
-  average_volume: {name: "Average Volume"},
-};
-
 const DataSummary: React.FC<Props> = (props) => {
-  var { summaryData } = props;
+  const { summaryData, isLoading } = props;
 
-  return (
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={isLoading} />
+      <h5>Loading Data ...</h5>
+    </div>
+  );
+
+  const tableComponent = (
     <Container>
     <Row>
       <Col>
@@ -80,6 +74,8 @@ const DataSummary: React.FC<Props> = (props) => {
     </Row>
     </Container>
   );
+
+  return isLoading ? loadingSpinnerComponent : tableComponent;
 }
 
 export default DataSummary;

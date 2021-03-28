@@ -1,4 +1,5 @@
 import React from "react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
   Container,
@@ -6,13 +7,9 @@ import {
   Col
 } from "react-bootstrap";
 
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import {
+  fundamentalsFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 export interface fundamentalDataT {
     company_name: string;
@@ -42,24 +39,21 @@ export const defaultFundamentalData = {
 
 interface Props {
   fundamentalData: fundamentalDataT;
+  isLoading: boolean;
 }
 
-const formatMap: IObjectKeys = {
-  stockname: {name: "Company Name"},
-  exchange: {name: "Exchange"},
-  currency: {name: "Currency"},
-  yearlylow: {name: "Year Low"},
-  yearlyhigh: {name: "Year High"},
-  marketcap: {name: "Market Capitalisation"},
-  beta: {name: "Beta"},
-  peratio: {name: "PE Ratio"},
-  eps: {name: "EPS"},
-  dividendyield: {name: "Dividend Yield"},
-};
 
 const DataFundamentals: React.FC<Props> = (props) => {
-  var { fundamentalData } = props;
-  return (
+  const { fundamentalData, isLoading } = props;
+
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={isLoading} />
+      <h5>Loading Statistics ...</h5>
+    </div>
+  );
+
+  const tableComponent = (
     <Container>
     <Row>
       <Col>
@@ -85,6 +79,8 @@ const DataFundamentals: React.FC<Props> = (props) => {
     </Row>
     </Container>
   );
+
+  return isLoading ? loadingSpinnerComponent : tableComponent;
 }
 
 export default DataFundamentals;

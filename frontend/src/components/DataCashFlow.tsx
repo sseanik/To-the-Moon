@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import {
   Container,
@@ -6,13 +7,10 @@ import {
   Col
 } from "react-bootstrap";
 
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+import StockAPI from "../api/stock";
+import {
+  cashFlowStatementFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 interface CashFlowEntry {
   stockticker: string;
@@ -32,33 +30,45 @@ interface CashFlowEntry {
 }
 
 interface Props {
-  cashFlow: Array<CashFlowEntry>;
+  // cashFlow: Array<CashFlowEntry>;
+  symbol: string;
+  tryLoading: boolean;
 }
 
-const formatMap: IObjectKeys = {
-  stockticker: {name: "Company Symbol"},
-  fiscaldateending: {name: "Year Ending"},
-  paymentsforoperatingactivities: {name: "Payments for Operating Activities"},
-  operatingcashflow: {name: "Operating Cash Flow"},
-  changeinoperatingliabilities: {name: "Change in Operating Liabilities"},
-  changeinoperatingassets: {name: "Change in Operating Assets"},
-  depreciationdepletionandamortization: {name: "Depreciation Depletion and Amortisation"},
-  changeininventory: {name: "Change in Inventory"},
-  cashflowfrominvestment: {name: "Cash Flow from Investment"},
-  cashflowfromfinancing: {name: "Cash Flow from Financing"},
-  dividendpayout: {name: "Dividend Payout"},
-  proceedsfromrepurchaseofequity: {name: "Proceeds From Repurchase Of Equity"},
-  changeincashandcashequivalents: {name: "Change in Cash"},
-  netincome: {name: "Net Income"},
-}; 
-
 const DataCashFlow: React.FC<Props> = (props) => {
-  var { cashFlow } = props;
+  const { symbol, tryLoading } = props;
 
-  return (
+  const [isLoading, setIsLoading] = useState(true);
+  const [cashFlow, setCashFlow] = useState<any>([]);
+
+  const fetchCashFlow = () => {
+    async function fetchCash() {
+      const cashdata = symbol ? await StockAPI.getCashFlow(symbol) : {};
+      if (cashdata.data) {
+        setCashFlow(cashdata.data);
+        setIsLoading(false);
+      }
+    }
+    fetchCash();
+  }
+
+  useEffect(() => {
+    if (tryLoading) {
+      fetchCashFlow();
+    }
+  }, [tryLoading]);
+
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={isLoading} />
+      <h5>Loading Data ...</h5>
+    </div>
+  );
+
+  const tableComponent = (
     <Container>
     <Row>
-      {cashFlow.map((entry) => (
+      {cashFlow.map((entry: CashFlowEntry) => (
         <Col>
           <hr />
           {Object.entries(entry).map(([field, value]) => (
@@ -83,6 +93,8 @@ const DataCashFlow: React.FC<Props> = (props) => {
     </Row>
     </Container>
   );
+
+  return isLoading ? loadingSpinnerComponent : tableComponent;
 }
 
 export default DataCashFlow;
