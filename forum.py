@@ -111,6 +111,19 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     }
 
 def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
+    """Edit the contents of a comment.
+
+    args:
+        user_id (uuid): The UUID of the User posting the comment
+        comment_id (uuid): The UUID of the comment row to be deleted.
+        timestamp (big int): Timestamp in Milliseconds since epoch UTC
+        content (string): The Comment's text content
+        parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
+
+    Returns:
+        dict: Status Code, accompanying message, comment object    
+
+    """
     # If the timestamp is not between yesterday or tomorrow
     if not validate_timestamp(timestamp):
         return {
