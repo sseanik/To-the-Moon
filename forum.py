@@ -111,7 +111,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
 def get_stock_comments(user_id, stock_ticker):
     # Open database connection
     conn = createDBConnection()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # Select Query returning parent comments and their children
     select_query = """
