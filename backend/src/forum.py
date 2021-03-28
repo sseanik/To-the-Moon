@@ -20,10 +20,7 @@ def validate_timestamp(timestamp):
     day_milliseconds = 86400000
     yesterday = now_milliseconds - day_milliseconds
     tomorrow = now_milliseconds + day_milliseconds
-
-    if timestamp < yesterday or timestamp > tomorrow:
-        return False
-    return True
+    return False if (timestamp < yesterday or timestamp > tomorrow) else True
 
 ###################################
 # Please leave all functions here #
