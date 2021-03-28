@@ -107,6 +107,19 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
 
 
 def forum_delete(user_id, comment_id, parent_id=None):
+    """Delete comment from the forum
+
+    Args:
+        user_id (uuid): The UUID of the User posting the comment.
+        comment_id (uuid): The UUID of the comment row to be deleted.
+        parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
+
+    Returns:
+        if we are deleting a parent object:
+            dict: Status Code, accompanying message, comment object
+        if we are deleting a child object:
+            dict: Status Code, accompanying message
+    """
     conn = createDBConnection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
