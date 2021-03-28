@@ -84,6 +84,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         """.replace("\n", "")
         values = (parent_id, stock_ticker, user_id, timestamp, content)
 
+    
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
     try:
         cur.execute(insert_query, values)
@@ -98,6 +99,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         message = "Invalid data was provided to the Database"
         inserted_comment = {}
 
+    
     conn.commit()
     cur.close()
     conn.close()
@@ -107,7 +109,6 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         'message': message,
         'comment': inserted_comment
     }
-
 
 def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     # If the timestamp is not between yesterday or tomorrow
@@ -131,17 +132,21 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
             sqlQuery = '''
                 UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
                 WHERE comment_id=%s AND author_id=%s
+                RETURNING *
             '''
         else:
             sqlQuery = '''
                 UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
                 WHERE reply_id=%s AND author_id=%s
+                RETURNING *
             '''
         values = (timestamp, content, comment_id, user_id)
         cur.execute(sqlQuery, values)
+        updated_comment = dict(cur.fetchall()[0])
         response = {
             'status' : 200,
-            'message' : "Comment updated"
+            'message' : "Comment updated",
+            'comment' : updated_comment
         }
     except:
         response = {
@@ -216,4 +221,9 @@ if __name__ == "__main__":
 
     #print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13",  time.time() * 1000, "Test edit"))
     #print(edit_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "6ed3656c-8f8d-11eb-a71a-0a4e2d6dea13",  
-    #time.time() * 1000, "edited again content", 'something'))
+        #time.time() * 1000, "edited again content", 'something'))
+
+    #print(post_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "IBM", time.time() * 1000, "TEST 2"))
+    #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13", time.time() * 1000, "EDITED 2"))
+    #print(post_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "IBM", time.time() * 1000, "CHILD COMMENT TEST 2", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
+    #print(edit_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "0cd048e2-8f9e-11eb-9394-0a4e2d6dea13", time.time() * 1000, "EDITED CHILD COMMENT 2", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
