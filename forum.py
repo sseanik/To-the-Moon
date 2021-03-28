@@ -208,4 +208,5 @@ if __name__ == "__main__":
     #print(delete_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
     #print(delete_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "6ed3656c-8f8d-11eb-a71a-0a4e2d6dea13", "something"))
     #print(delete_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
-    print(delete_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
+    #print(delete_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
+    print(delete_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "0cd048e2-8f9e-11eb-9394-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
