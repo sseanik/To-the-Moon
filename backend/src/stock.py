@@ -10,7 +10,7 @@ import pandas as pd
 import sys
 import os
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 
 from psycopg2.extras import DictCursor
