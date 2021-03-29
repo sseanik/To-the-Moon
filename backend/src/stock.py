@@ -178,8 +178,8 @@ def get_cash_flow(symbol, num_entries=1):
     cur = conn.cursor(cursor_factory=DictCursor)
 
     selectQuery = f"SELECT * FROM cashflow_statements \
-        WHERE stockticker='{symbol}' \
-        ORDER BY fiscaldateending DESC LIMIT {num_entries}"
+        WHERE stock_ticker='{symbol}' \
+        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
     cur.execute(selectQuery)
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
