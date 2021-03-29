@@ -154,8 +154,16 @@ def get_stock_comments(user_id, stock_ticker):
         u.username
     """.replace("\n", "")
 
-    cur.execute(select_query, (stock_ticker,))
-    query_results = cur.fetchall()
+    try:
+        cur.execute(select_query, (stock_ticker,))
+        query_results = cur.fetchall()
+        status = 200
+        message = "Submitted successfully"
+    except:
+        query_results = []
+        status = 400
+        message = "Invalid data was provided to the Database"
+
     cur.close()
     conn.close()
 
@@ -211,9 +219,14 @@ def get_stock_comments(user_id, stock_ticker):
             # Remove upvote and downvote user ids
             del query_results[i]['replies'][j]['upvote_user_ids']
             del query_results[i]['replies'][j]['downvote_user_ids']
+
     # TODO: Sort Weighting
 
-    return query_results
+    return {
+        'status': status,
+        'message': message,
+        'comments': query_results
+    }
 
 ################################
 # Please leave all routes here #
