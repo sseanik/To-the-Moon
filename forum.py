@@ -135,16 +135,25 @@ def delete_comment(user_id, comment_id, parent_id=None):
             """.replace("\n", "")
             values = ("", comment_id, user_id)
             cur.execute(insert_query, values)   
-            updated_comment = dict(cur.fetchall()[0])
-            updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
-            updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
-            updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
-            updated_comment.pop("upvote_user_ids")
-            updated_comment.pop("downvote_user_ids")
-            response = {
-                "status" : 200, 
-                "message" : "Comment deleted.",
-                "comment" : updated_comment
+            db_reply = cur.fetchall()
+            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+            if not db_reply:
+                response = {
+                    'status' : 400,
+                    'message' : "User does not have permission to edit this comment."
+                }
+            else:
+            # If rows have been updated, return the newly updated row.
+                updated_comment = dict(db_reply[0])
+                updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
+                updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
+                updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+                updated_comment.pop("upvote_user_ids")
+                updated_comment.pop("downvote_user_ids")
+                response = {
+                    'status' : 200,
+                    'message' : "Comment deleted.",
+                    'comment' : updated_comment
                 }
         # Otherwise, using the provided parent id, it is a child comment (reply)
         else:
@@ -153,9 +162,23 @@ def delete_comment(user_id, comment_id, parent_id=None):
             """.replace("\n", "")
             values = (comment_id, user_id)
             cur.execute(insert_query, values) 
-            response = {"status" : 200, "message" : "Comment deleted."}
+            db_reply = cur.fetchall()
+            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+            if not db_reply:
+                response = {
+                    'status' : 400,
+                    'message' : "User does not have permission to delete this comment."
+                }
+            else:
+                response = {
+                "status" : 200, 
+                "message" : "Child comment deleted."
+                }
     except:
-        response = {"status" : 400, "message" : "Something when wrong when trying to delete."}
+        response = {
+            "status" : 400, 
+            "message" : "Something when wrong when trying to delete."
+        }
 
     conn.commit()
     cur.close()
@@ -222,6 +245,7 @@ if __name__ == "__main__":
 
     #print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1617010730000, "TEST CONTENT"))
     print(delete_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13"))
+    #print(delete_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13"))
 
 
 
