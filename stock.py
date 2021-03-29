@@ -17,7 +17,7 @@ from psycopg2.extras import DictCursor
 import psycopg2.extensions
 from alpha_vantage.timeseries import TimeSeries
 
-from database import createDBConnection
+from database import create_DB_connection
 from helpers import JSONLoader, AlphaVantageInfo
 
 STOCK_ROUTES = Blueprint('stock', __name__)
@@ -108,7 +108,7 @@ def get_stock_value(filename, data_type="daily_adjusted"):
 revised_fs_fields = ['stockname', 'exchange', 'currency', 'yearlylow', 'yearlyhigh', 'marketcap', 'beta', 'peratio', 'eps', 'dividendyield']
 
 def get_fundamentals(symbol):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     selectQuery = f"SELECT * FROM securitiesoverviews \
@@ -122,7 +122,7 @@ def get_fundamentals(symbol):
     return result
 
 def get_income_statement(symbol, num_entries=1):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     selectQuery = f"SELECT * FROM incomestatements \
@@ -138,7 +138,7 @@ def get_income_statement(symbol, num_entries=1):
 revised_bs_order = ['fiscaldateending', 'total_assets', 'total_curr_assets', 'total_ncurr_assets', 'total_liabilities', 'total_curr_liabilities', 'total_ncurr_liabilities', 'total_equity']
 
 def get_balance_sheet(symbol, num_entries=1):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     selectQuery = f"SELECT * FROM balancesheets \
@@ -168,7 +168,7 @@ def get_balance_sheet(symbol, num_entries=1):
     return result
 
 def get_cash_flow(symbol, num_entries=1):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     selectQuery = f"SELECT * FROM cashflowstatements \
