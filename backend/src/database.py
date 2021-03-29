@@ -76,15 +76,15 @@ def fillSecuritiesOverviewTable(symbol):
     cur = conn.cursor()
     Overview = TimeSeries().get_company_overview(symbol)
     insertQuery = '''INSERT INTO SecuritiesOverviews (
-        StockTicker, 
+        StockTicker,
         StockName,
         StockDescription,
         Exchange,
-        Currency, 
+        Currency,
         YearlyHigh,
         YearlyLow,
         MarketCap,
-        BETA, 
+        BETA,
         PERatio,
         EPS,
         DividendYield
@@ -124,11 +124,11 @@ def fillIncomeStatements(symbol):
     for annualReport in Statement['annualReports']:
         insertQuery = '''INSERT INTO IncomeStatements (
             StockTicker,
-            FiscalDateEnding, 
+            FiscalDateEnding,
             TotalRevenue,
             CostOfRevenue,
             GrossProfit,
-            OperatingExpenses, 
+            OperatingExpenses,
             OperatingIncome,
             IncomeBeforeTax,
             InterestIncome,
@@ -182,8 +182,8 @@ def fillBalanceSheets(symbol):
             goodwill,
             intangibleAssets,
             longTermInvestments,
-            otherNonCurrrentAssets,
-            currentAccountsPayable, 
+            otherNonCurrentAssets,
+            currentAccountsPayable,
             shortTermDebt,
             otherCurrentLiabilities,
             longTermDebt,
@@ -204,7 +204,7 @@ def fillBalanceSheets(symbol):
             annualReport['goodwill'],
             annualReport['intangibleAssets'],
             annualReport['longTermInvestments'],
-            annualReport['otherNonCurrrentAssets'],
+            annualReport['otherNonCurrentAssets'],
             annualReport['currentAccountsPayable'],
             annualReport['shortTermDebt'],
             annualReport['otherCurrentLiabilities'],
@@ -232,12 +232,12 @@ def fillCashflowStatements(symbol):
     for annualReport in Statement['annualReports']:
         insertQuery = '''INSERT INTO CashflowStatements (
             StockTicker,
-            fiscalDateEnding, 
+            fiscalDateEnding,
             operatingCashflow,
             paymentsForOperatingActivities,
             changeInOperatingLiabilities,
             changeInOperatingAssets,
-            depreciationDepletionAndAmortization, 
+            depreciationDepletionAndAmortization,
             changeInInventory,
             cashflowFromInvestment,
             cashflowFromFinancing,
