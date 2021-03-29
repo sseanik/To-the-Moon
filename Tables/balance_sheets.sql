@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS balance_sheets (
+    stock_ticker VARCHAR(10) REFERENCES securities_overviews(stock_ticker),
+    fiscal_date_ending DATE,
+    cash_and_short_term_investments BIGINT,
+    current_net_receivables BIGINT,
+    inventory BIGINT,
+    other_current_assets BIGINT,
+    property_plant_equipment BIGINT,
+    goodwill BIGINT,
+    intangible_assets BIGINT,
+    long_term_investments BIGINT,
+    other_non_current_assets BIGINT,
+    current_accounts_payable BIGINT,
+    short_term_debt BIGINT,
+    other_current_liabilities BIGINT,
+    long_term_debt BIGINT,
+    other_non_current_liabilities BIGINT,
+    retained_earnings BIGINT,
+    total_shareholder_equity BIGINT,
+    PRIMARY KEY (stock_ticker, fiscal_date_ending)
+);
