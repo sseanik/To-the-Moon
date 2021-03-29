@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Row, Col, Tabs, Tab, Button, Alert, Badge } from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Button, Alert, Badge, Dropdown, DropdownButton } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
@@ -45,6 +45,10 @@ interface getPredictionDailyParams {
   symbol: string;
 }
 
+interface durationChoiceParams {
+  [key: string]: {dur: number, display: string, units: string};
+}
+
 interface StateProps {
   loading: boolean;
   error: string;
@@ -68,6 +72,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const params = useParams<RouteParams>();
   const symbol = params.symbol;
 
+  const durationOptions: durationChoiceParams = {
+    "durDays3":     {dur: 3, display: "3", units: "days"},
+    "durWeeks1":    {dur: 7, display: "1", units: "week"},
+    "durWeeks2":    {dur: 14, display: "2", units: "weeks"},
+    "durMonths1":   {dur: 30, display: "1", units: "month"},
+    "durMonths2":   {dur: 60, display: "2", units: "months"},
+  };
+
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
     title: {
@@ -78,6 +90,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       { data: [] }
     ]
   });
+  const [durationChoice, setDurationChoice] =  useState<string>("durMonths2");
 
   const fetchStock = () => {
     getStockBasic({ symbol });
@@ -208,7 +221,16 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
                     </Row>
                     <Row>
                         <Col>Duration: </Col>
-                        <Col></Col>
+                        <Col>
+                          <DropdownButton variant="outline-dark" id="dropdown-basic-button" title={ durationOptions[durationChoice].display + " " + durationOptions[durationChoice].units}>
+                            {Object.entries(durationOptions).map(
+                              entry => {
+                                const [key, value] = entry;
+
+                                return <Dropdown.Item href="#/action-1" onClick={() => {setDurationChoice(key);}}>{value.display + " " + value.units}</Dropdown.Item>
+                              })}
+                          </DropdownButton>
+                        </Col>
                     </Row>
                     <Row>
                         <Button variant="outline-primary"
