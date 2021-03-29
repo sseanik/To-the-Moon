@@ -11,7 +11,9 @@ import pandas as pd
 with open("IBM_daily_adjusted.json", 'r') as infile:
     company_data, company_metadata = json.load(infile)
 
-port = 3000
+# port = 3000
+address = "127.0.0.1"
+port = 5001
 
 company_df = pd.DataFrame.from_dict(company_data, orient='index').astype('float')
 company_df = company_df.reindex(index=company_df.index[::-1])
@@ -29,11 +31,13 @@ print("Shape: ", y_sample.shape)
 data = {"inference_mode": "walk_forward", "data": y_sample.tolist()}
 headers = { "Content-Type": "application/json", }
 # endpoint = "http://127.0.0.1:5000/model/api/get_prediction"
-endpoint = f"http://127.0.0.1:{port}/model/api/get_prediction"
+endpoint = f"http://{address}:{port}/model/api/get_prediction"
 
 print("Data: ", json.dumps(data))
 
 r = requests.post(url=endpoint, data=json.dumps(data), headers=headers)
+
+import pdb; pdb.set_trace()
 
 print(f"{r.text}")
 print(f"{r.status_code}")
