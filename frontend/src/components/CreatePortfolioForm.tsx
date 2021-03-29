@@ -1,103 +1,96 @@
-import { useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { Alert, Button, Row, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import portfolioActions from "../redux/actions/portfolioActions";
 
-interface CreatePortfolioFormParams {
-  name: string;
-}
-
-interface CreatePortfolioState {
-  values: CreatePortfolioFormParams;
-  errors: CreatePortfolioFormParams;
+interface CreatePortfolioFormValues {
+  newName: string;
 }
 
 interface StateProps {
-  createPortfolioForm: CreatePortfolioState;
-  isLoading: boolean;
+  loading: boolean;
   error: Object;
-  token: string;
 }
 
 interface DispatchProps {
-  submitForm: (payload: CreatePortfolioFormParams) => void;
-  createPortfolio: (payload: CreatePortfolioFormParams) => void;
+  createPortfolio: (payload: CreatePortfolioFormValues) => void;
 }
 
+const initialValues: CreatePortfolioFormValues = {
+  newName: "",
+};
+
+const schema = Yup.object({
+  newName: Yup.string()
+    .required("Portfolio name is required.")
+    .max(30, "Must be 30 characters or less."),
+});
+
 const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const {
-    createPortfolioForm,
-    isLoading,
-    token,
-    error,
-    submitForm,
-    createPortfolio,
-  } = props;
-  // purposely input dummy data
-  const [name, setName] = useState("");
+  const { loading, error, createPortfolio } = props;
 
-  const onSubmit = (e: any) => {
-    e.preventDefault();
-    createPortfolio({ name });
-  };
-
-  const onBlur = () => {
-    submitForm({ name });
-  };
+  const errorComponent = <Alert variant='danger'>{error}</Alert>;
 
   const formComponent = (
-    <Form onSubmit={(e) => onSubmit(e)}>
-      <Form.Group controlId="formBasicName">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter name"
-          isInvalid={createPortfolioForm.errors.name.length > 0}
-          isValid={
-            !!createPortfolioForm.values.name &&
-            createPortfolioForm.errors.name.length === 0
-          }
-          onChange={(e) => setName(e.target.value)}
-          onBlur={onBlur}
-        />
-        <Form.Control.Feedback type="invalid">
-          {createPortfolioForm.errors.name}
-        </Form.Control.Feedback>
-        <Form.Text className="text-muted">
-          Choose a unique portfolio name.
-        </Form.Text>
-      </Form.Group>
+    <Formik
+      onSubmit={createPortfolio}
+      initialValues={initialValues}
+      schema={schema}
+    >
+      {({
+        handleSubmit,
+        handleChange,
+        handleBlur,
+        values,
+        errors,
+        touched,
+      }) => {
+        return (
+          <Row className="justify-content-center w-100">
+            {error ? errorComponent : <></>}
+            <Form noValidate onSubmit={handleSubmit} className="w-50">
+              <Form.Control
+                className="my-1"
+                type="text"
+                name="newName"
+                placeholder="Enter a new portfolio name"
+                value={values.newName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={!!errors.newName && touched.newName}
+                isValid={!errors.newName && touched.newName}
+              />
 
-      <Button variant="primary" type="submit">
-        Create Portfolio
-      </Button>
-    </Form>
+              <Button type="submit" variant="outline-success" className="mt-2">
+                Add Portfolio
+              </Button>
+            </Form>
+          </Row>
+        );
+      }}
+    </Formik>
   );
 
   const loadingSpinnerComponent = (
     <div>
-      <ClipLoader color={"green"} loading={isLoading} />
+      <ClipLoader color={"green"} loading={loading} />
       <h5>Preparing rocket fuel...</h5>
     </div>
   );
 
-  return isLoading ? loadingSpinnerComponent : formComponent;
+  return loading ? loadingSpinnerComponent : formComponent;
 };
 
 const mapStateToProps = (state: any) => ({
-  createPortfolioForm: state.submitCreatePortfolioForm.createPortfolioForm,
-  isLoading: state.createPortfolio.createPortfolio.loading,
-  token: state.createPortfolio.createPortfolio.token,
-  error: state.createPortfolio.createPortfolio.error,
+  loading: state.portfolioReducer.createPortfolio.loading,
+  error: state.portfolioReducer.createPortfolio.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    submitForm: (formPayload: CreatePortfolioFormParams) => {
-      dispatch(portfolioActions.submitCreatePortfolioForm(formPayload));
-    },
-    createPortfolio: (formPayload: CreatePortfolioFormParams) => {
+    createPortfolio: (formPayload: CreatePortfolioFormValues) => {
       dispatch(portfolioActions.createPortfolio(formPayload));
     },
   };
