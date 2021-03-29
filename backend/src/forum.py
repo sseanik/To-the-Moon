@@ -143,28 +143,50 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     try:
         if not parent_id:
             sqlQuery = '''
-                UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
-                WHERE comment_id=%s AND author_id=%s
-                RETURNING *
+                WITH edited_comment as (
+                    UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
+                    WHERE comment_id=%s AND author_id=%s
+                    RETURNING *
+                ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
+                FROM edited_comment e
+                JOIN users u on e.author_id = u.id;
             '''
         else:
             sqlQuery = '''
-                UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
-                WHERE reply_id=%s AND author_id=%s
-                RETURNING *
+                WITH edited_comment as (
+                    UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
+                    WHERE reply_id=%s AND author_id=%s
+                    RETURNING *
+                ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
+                FROM edited_comment e
+                JOIN users u on e.author_id = u.id;
             '''
         values = (timestamp, content, comment_id, user_id)
         cur.execute(sqlQuery, values)
-        updated_comment = dict(cur.fetchall()[0])
-        response = {
-            'status' : 200,
-            'message' : "Comment updated",
-            'comment' : updated_comment
-        }
+        db_reply = cur.fetchall()
+        # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+        if not db_reply:
+            response = {
+                'status' : 200,
+                'message' : "User does not have permission to edit this comment."
+            }
+        else:
+        # If rows have been updated, return the newly updated row.
+            updated_comment = dict(db_reply[0])
+            updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
+            updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
+            updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+            updated_comment.pop("upvote_user_ids")
+            updated_comment.pop("downvote_user_ids")
+            response = {
+                'status' : 200,
+                'message' : "Comment updated",
+                'comment' : updated_comment
+            }
     except:
         response = {
             'status' : 400,
-            'message' : 'Something went wrong when updating'
+            'message' : 'Something went wrong when editing'
         }
     
     conn.commit()
@@ -240,4 +262,7 @@ if __name__ == "__main__":
     #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13", time.time() * 1000, "EDITED 2"))
     #print(post_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "IBM", time.time() * 1000, "CHILD COMMENT TEST 2", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
     #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "1b03ad9c-8f9d-11eb-8f6f-0a4e2d6dea13", time.time() * 1000, "EDITED CHILD COMMENT 2"))
-    print(edit_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "0cd048e2-8f9e-11eb-9394-0a4e2d6dea13", time.time() * 1000, "EDIT CHILD COMMENT", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
+    print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", time.time() * 1000, "EDIT PARENT COMMENT"))
+    #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", time.time() * 1000, "EDIT PARENT COMMENT"))
+
+
