@@ -17,7 +17,7 @@ from psycopg2.extras import DictCursor
 import psycopg2.extensions
 from alpha_vantage.timeseries import TimeSeries
 
-from database import createDBConnection
+from database import create_DB_connection
 from helpers import JSONLoader, AlphaVantageInfo
 
 STOCK_ROUTES = Blueprint('stock', __name__)
@@ -105,14 +105,14 @@ def get_stock_value(filename, data_type="daily_adjusted"):
     result.index = pd.to_datetime(result.index)
     return result, stockmetadata
 
-revised_fs_fields = ['stockname', 'exchange', 'currency', 'yearlylow', 'yearlyhigh', 'marketcap', 'beta', 'peratio', 'eps', 'dividendyield']
+revised_fs_fields = ['stock_name', 'exchange', 'currency', 'yearly_low', 'yearly_high', 'market_cap', 'beta', 'pe_ratio', 'eps', 'dividend_yield']
 
 def get_fundamentals(symbol):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM securitiesoverviews \
-        WHERE stockticker='{symbol}'"
+    selectQuery = f"SELECT * FROM securities_overviews \
+        WHERE stock_ticker='{symbol}'"
     cur.execute(selectQuery)
     query_result = cur.fetchone()
     result = OrderedDict(query_result) if query_result else None
@@ -122,28 +122,30 @@ def get_fundamentals(symbol):
     return result
 
 def get_income_statement(symbol, num_entries=1):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM incomestatements \
-        WHERE stockticker='{symbol}' \
-        ORDER BY fiscaldateending DESC LIMIT {num_entries}"
+    selectQuery = f"SELECT * FROM income_statements \
+        WHERE stock_ticker='{symbol}' \
+        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
     cur.execute(selectQuery)
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
+    for record in result:
+        record['fiscal_date_ending'] = str(record['fiscal_date_ending'].isoformat())
 
     conn.close()
     return result
 
-revised_bs_order = ['fiscaldateending', 'total_assets', 'total_curr_assets', 'total_ncurr_assets', 'total_liabilities', 'total_curr_liabilities', 'total_ncurr_liabilities', 'total_equity']
+revised_bs_order = ['fiscal_date_ending', 'total_assets', 'total_curr_assets', 'total_ncurr_assets', 'total_liabilities', 'total_curr_liabilities', 'total_ncurr_liabilities', 'total_equity']
 
 def get_balance_sheet(symbol, num_entries=1):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM balancesheets \
-        WHERE stockticker='{symbol}' \
-        ORDER BY fiscaldateending DESC LIMIT {num_entries}"
+    selectQuery = f"SELECT * FROM balance_sheets \
+        WHERE stock_ticker='{symbol}' \
+        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
     cur.execute(selectQuery)
     query_results = cur.fetchall()
     # result = [dict(record) for record in query_results]
@@ -151,32 +153,35 @@ def get_balance_sheet(symbol, num_entries=1):
     for entry in query_results:
         record = OrderedDict(entry)
 
-        record['total_curr_assets'] = sum([float(record[x]) for x in ['cashandshortterminvestments', 'currentnetreceivables', 'inventory', 'othercurrentassets']])
-        record['total_ncurr_assets'] = sum([float(record[x]) for x in ['propertyplantequipment', 'goodwill', 'intangibleassets', 'longterminvestments', 'othernoncurrentassets']]) # last one is a typo
+        record['total_curr_assets'] = sum([float(record[x]) for x in ['cash_and_short_term_investments', 'current_net_receivables', 'inventory', 'other_current_assets']])
+        record['total_ncurr_assets'] = sum([float(record[x]) for x in ['property_plant_equipment', 'goodwill', 'intangible_assets', 'long_term_investments', 'other_non_current_assets']]) # last one is a typo
         record['total_assets'] = record['total_curr_assets'] + record['total_ncurr_assets']
 
-        record['total_curr_liabilities'] = sum([float(record[x]) for x in  ['currentaccountspayable', 'shorttermdebt', 'othercurrentliabilities']])
-        record['total_ncurr_liabilities'] = sum([float(record[x]) for x in ['longtermdebt', 'othernoncurrentliabilities']])
+        record['total_curr_liabilities'] = sum([float(record[x]) for x in  ['current_accounts_payable', 'short_term_debt', 'other_current_liabilities']])
+        record['total_ncurr_liabilities'] = sum([float(record[x]) for x in ['long_term_debt', 'other_non_current_liabilities']])
         record['total_liabilities'] = record['total_curr_liabilities'] + record['total_ncurr_liabilities']
 
-        record['total_equity'] = sum([float(record[x]) for x in ['retainedearnings', 'totalshareholderequity']])
+        record['total_equity'] = sum([float(record[x]) for x in ['retained_earnings', 'total_shareholder_equity']])
 
         record = OrderedDict((k, record[k]) for k in revised_bs_order)
+        record['fiscal_date_ending'] = str(record['fiscal_date_ending'].isoformat())
         result.append(record)
     conn.close()
 
     return result
 
 def get_cash_flow(symbol, num_entries=1):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM cashflowstatements \
+    selectQuery = f"SELECT * FROM cashflow_statements \
         WHERE stockticker='{symbol}' \
         ORDER BY fiscaldateending DESC LIMIT {num_entries}"
     cur.execute(selectQuery)
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
+    for record in result:
+        record['fiscal_date_ending'] = str(record['fiscal_date_ending'].isoformat())
 
     conn.close()
     return result
@@ -259,7 +264,7 @@ def get_stock_data():
         sample_data_low = convert_to_opairs(sample_df, label="3. low")
 
         intr_data_close = convert_to_opairs(intraday, label="4. close")
-        stock_name = funds['stockname']
+        stock_name = funds['stock_name']
 
         data = dumps({
             'status': 200,

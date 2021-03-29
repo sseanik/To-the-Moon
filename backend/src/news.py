@@ -2,7 +2,7 @@
 #   News Module   #
 ###################
 
-from database import createDBConnection
+from database import create_DB_connection
 import requests
 from datetime import datetime, timedelta
 from json import dumps
