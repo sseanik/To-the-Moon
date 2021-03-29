@@ -60,15 +60,15 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
     conn = createDBConnection()
     cur = conn.cursor()
     # check that (new_portfolio_name, user_id) is unique in portfolio table
-    sql_query = "SELECT * FROM portfolios WHERE portfolio_name=%s AND user_id=%s"
+    sql_query = "SELECT * FROM Portfolios WHERE portfolio_name=%s AND user_id=%s"
     cur.execute(sql_query, (new_portfolio_name, user_id))
     query_results = cur.fetchall()
     if not query_results:
         # update portfolio table
-        sql_query = "UPDATE portfolios SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
+        sql_query = "UPDATE Portfolios SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
         cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
         # update holdings table
-        sql_query = "UPDATE holdings SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
+        sql_query = "UPDATE Holdings SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
         cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
         response ={
             'status': 200,
@@ -91,10 +91,10 @@ def delete_portfolio(user_id, portfolio_name):
     conn = createDBConnection()
     cur = conn.cursor()
     # Delete from portfolio table
-    sql_query = "delete from portfolios where portfolio_name=%s and user_id=%s"
+    sql_query = "DELETE FROM Portfolios WHERE portfolio_name=%s AND user_id=%s"
     cur.execute(sql_query, (portfolio_name, user_id))
     # Delete from holdings table
-    sql_query = "delete from holdings where portfolio_name=%s and user_id=%s"
+    sql_query = "DELETE FROM Holdings WHERE portfolio_name=%s AND user_id=%s"
     cur.execute(sql_query, (portfolio_name, user_id))
     # Commit changes, close connection and return response to user
     conn.commit()
@@ -136,7 +136,7 @@ def delete_investment(investment_id):
     conn = createDBConnection()
     cur = conn.cursor()
     # Delete from holdings table
-    sql_query = "delete from holdings where investment_id=%s"
+    sql_query = "delete from Holdings where investment_id=%s"
     cur.execute(sql_query, (investment_id, ))
     conn.commit()
     conn.close()
@@ -149,7 +149,7 @@ def get_investment_tc(investment_id):
     conn = createDBConnection()
     cur = conn.cursor()
     # Get investment purchase price
-    sql_query = "select purchase_price, stock_ticker from Holdings where investment_id=%s"
+    sql_query = "SELECT purchase_price, stock_ticker FROM Holdings WHERE investment_id=%s"
     cur.execute(sql_query, (investment_id, ))
     query_results = cur.fetchall()
     purchase_price = float(query_results[0][0])
@@ -169,7 +169,7 @@ def get_investment_tc(investment_id):
 def get_trending_investments(num):
     conn = createDBConnection()
     cur = conn.cursor()
-    sql_query = "select stock_ticker, count(distinct user_id) as userCount from holdings group by stock_ticker order by userCount desc limit %s"
+    sql_query = "SELECT stock_ticker, count(distinct user_id) AS user_count FROM Holdings GROUP BY stock_ticker ORDER BY user_count DESC limit %s"
     cur.execute(sql_query, (num, ))
     query_results = cur.fetchall()
     data = []
@@ -194,7 +194,7 @@ def check_data(data, portfolio_name):
 def getUserPortfolios(user_id):
     conn = createDBConnection()
     cur = conn.cursor()
-    sql_query = "SELECT * FROM holdings where user_id=%s"
+    sql_query = "SELECT * FROM Holdings where user_id=%s"
     cur.execute(sql_query, (user_id, ))
     query_results = cur.fetchall()
     data = []
@@ -223,7 +223,7 @@ def getUserPortfolios(user_id):
 def get_portfolios(user_id):
     conn = createDBConnection()
     cur = conn.cursor()
-    sql_query = "SELECT portfolio_name FROM portfolios WHERE user_id=%s"
+    sql_query = "SELECT portfolio_name FROM Portfolios WHERE user_id=%s"
     cur.execute(sql_query, (user_id, ))
     query_results = cur.fetchall()
     data = []
@@ -235,7 +235,7 @@ def get_portfolios(user_id):
 def get_investments(user_id, portfolio_name):
     conn = createDBConnection()
     cur = conn.cursor()
-    sql_query = "SELECT * FROM holdings WHERE user_id=%s AND portfolio_name=%s"
+    sql_query = "SELECT * FROM Holdings WHERE user_id=%s AND portfolio_name=%s"
     cur.execute(sql_query, (user_id, portfolio_name))
     query_results = cur.fetchall()
     data = []
