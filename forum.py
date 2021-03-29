@@ -140,54 +140,54 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
     
-    try:
-        if not parent_id:
-            sqlQuery = '''
-                WITH edited_comment as (
-                    UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
-                    WHERE comment_id=%s AND author_id=%s
-                    RETURNING *
-                ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
-                FROM edited_comment e
-                JOIN users u on e.author_id = u.id;
-            '''
-        else:
-            sqlQuery = '''
-                WITH edited_comment as (
-                    UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
-                    WHERE reply_id=%s AND author_id=%s
-                    RETURNING *
-                ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
-                FROM edited_comment e
-                JOIN users u on e.author_id = u.id;
-            '''
-        values = (timestamp, content, comment_id, user_id)
-        cur.execute(sqlQuery, values)
-        db_reply = cur.fetchall()
-        # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
-        if not db_reply:
-            response = {
-                'status' : 400,
-                'message' : "User does not have permission to edit this comment."
-            }
-        else:
-        # If rows have been updated, return the newly updated row.
-            updated_comment = dict(db_reply[0])
-            updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
-            updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
-            updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
-            updated_comment.pop("upvote_user_ids")
-            updated_comment.pop("downvote_user_ids")
-            response = {
-                'status' : 200,
-                'message' : "Comment updated",
-                'comment' : updated_comment
-            }
-    except:
+    # try:
+    if not parent_id:
+        sqlQuery = '''
+            WITH edited_comment as (
+                UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
+                WHERE comment_id=%s AND author_id=%s
+                RETURNING *
+            ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
+            FROM edited_comment e
+            JOIN users u on e.author_id = u.id;
+        '''
+    else:
+        sqlQuery = '''
+            WITH edited_comment as (
+                UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
+                WHERE reply_id=%s AND author_id=%s
+                RETURNING *
+            ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
+            FROM edited_comment e
+            JOIN users u on e.author_id = u.id;
+        '''
+    values = (timestamp, content, comment_id, user_id)
+    cur.execute(sqlQuery, values)
+    db_reply = cur.fetchall()
+    # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+    if not db_reply:
         response = {
             'status' : 400,
-            'message' : 'Something went wrong when editing'
+            'message' : "User does not have permission to edit this comment."
         }
+    else:
+    # If rows have been updated, return the newly updated row.
+        updated_comment = dict(db_reply[0])
+        updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
+        updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
+        updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+        updated_comment.pop("upvote_user_ids")
+        updated_comment.pop("downvote_user_ids")
+        response = {
+            'status' : 200,
+            'message' : "Comment updated",
+            'comment' : updated_comment
+        }
+    # except:
+    #     response = {
+    #         'status' : 400,
+    #         'message' : 'Something went wrong when editing'
+    #     }
     
     conn.commit()
     cur.close()
@@ -262,7 +262,8 @@ if __name__ == "__main__":
     #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13", time.time() * 1000, "EDITED 2"))
     #print(post_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "IBM", time.time() * 1000, "CHILD COMMENT TEST 2", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
     #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "1b03ad9c-8f9d-11eb-8f6f-0a4e2d6dea13", time.time() * 1000, "EDITED CHILD COMMENT 2"))
-    print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", time.time() * 1000, "EDIT PARENT COMMENT"))
+    #print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", time.time() * 1000, "EDIT PARENT COMMENT"))
     #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", time.time() * 1000, "EDIT PARENT COMMENT"))
-
-
+    #print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", 1616993847150, "New content"))
+    #print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616993847150, "TEST CHILD CONTENT", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13"))
+    print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "596bbec2-9064-11eb-809e-0a4e2d6dea13", 1616993847150, "NEW CHILD CONTENT", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13"))
