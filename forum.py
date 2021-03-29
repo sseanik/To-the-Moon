@@ -4,7 +4,7 @@
 import time
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from database import createDBConnection
+from database import create_DB_connection
 from token_util import get_id_from_token
 from better_profanity import profanity
 from json import dumps
@@ -55,7 +55,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     content = profanity.censor(content)
 
     # Open database connection
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # If no parent_id is provided, comment is a parent comment (comment)
@@ -110,7 +110,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
 
 def get_stock_comments(user_id, stock_ticker):
     # Open database connection
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # Select Query returning parent comments and their children
