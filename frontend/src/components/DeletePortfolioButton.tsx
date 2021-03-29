@@ -25,12 +25,11 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
   const { loading, error, deleting, deletePortfolio, portfolioName } = props;
-  const errorComponent = <Alert variant="danger">{error}</Alert>;
   const deleteButton = (
     <Button
       variant="danger"
       className="rounded-circle"
-      onClick={() => deletePortfolio({ portfolioName: portfolioName })}
+      onClick={() => deletePortfolio({ portfolioName })}
     >
       -
     </Button>
@@ -38,7 +37,7 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
 
   return (
     <Container fluid className="deleteButton">
-      {error ? errorComponent : <></>}
+      {error ? <Alert variant="danger">{error}</Alert> : null}
       {loading && deleting.includes(portfolioName) ? (
         <ClipLoader color={"green"} loading={loading} />
       ) : (

@@ -14,6 +14,12 @@ const initialState = {
     error: null,
     deleting: [],
   },
+  editPortfolio: {
+    loading: false,
+    error: null,
+    oldName: null,
+    newName: null,
+  },
 };
 
 const portfolioReducer = (state = initialState, action) => {
@@ -55,7 +61,7 @@ const portfolioReducer = (state = initialState, action) => {
         ...state,
         getPortfolios: {
           loading: false,
-          portfolios: action.payload.data,
+          portfolios: action.payload,
         },
       };
     case portfolioConstants.GET_PORTFOLIOS_FAILURE:
@@ -72,7 +78,7 @@ const portfolioReducer = (state = initialState, action) => {
         deletePortfolio: {
           loading: true,
           error: null,
-          deleting: [...state.deletePortfolio.deleting, action.payload]
+          deleting: [...state.deletePortfolio.deleting, action.payload],
         },
       };
     case portfolioConstants.DELETE_PORTFOLIO_SUCCESS:
@@ -81,7 +87,9 @@ const portfolioReducer = (state = initialState, action) => {
         deletePortfolio: {
           loading: false,
           error: null,
-          deleting: state.deletePortfolio.deleting.filter((name) => name === action.payload.portfolioName)
+          deleting: state.deletePortfolio.deleting.filter(
+            (name) => name === action.payload
+          ),
         },
       };
     case portfolioConstants.DELETE_PORTFOLIO_FAILURE:
@@ -90,7 +98,31 @@ const portfolioReducer = (state = initialState, action) => {
         deletePortfolio: {
           loading: false,
           error: action.payload.error,
-          deleting: state.deletePortfolio.deleting.filter((name) => name === action.payload.portfolioName)
+          deleting: state.deletePortfolio.deleting.filter(
+            (name) => name === action.payload
+          ),
+        },
+      };
+    case portfolioConstants.EDIT_PORTFOLIO_PENDING:
+      return {
+        ...state,
+        editPortfolio: { loading: true, error: null },
+      };
+    case portfolioConstants.EDIT_PORTFOLIO_SUCCESS:
+      return {
+        ...state,
+        editPortfolio: {
+          loading: false,
+          oldName: action.payload.oldName,
+          newName: action.payload.newName,
+        },
+      };
+    case portfolioConstants.EDIT_PORTFOLIO_FAILURE:
+      return {
+        ...state,
+        editPortfolio: {
+          loading: false,
+          error: action.payload,
         },
       };
     default:

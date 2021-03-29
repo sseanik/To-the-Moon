@@ -1,56 +1,86 @@
-import React from "react";
-import { Button, Form } from "react-bootstrap";
+import React, { useEffect } from "react";
+import { Alert, Button, Form } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import portfolioAPI from "../api/portfolio";
-import { useParams } from "react-router";
-
-interface Props {
-  handlePortfolioEdited: () => void;
-}
+import { useHistory, useParams } from "react-router";
+import portfolioActions from "../redux/actions/portfolioActions";
+import { connect } from "react-redux";
+import ClipLoader from "react-spinners/ClipLoader";
 
 interface RouteMatchParams {
   name: string;
 }
 
+interface StateProps {
+  loading: boolean;
+  error: Object;
+  oldName: string;
+  newName: string;
+}
+
+interface DispatchProps {
+  editPortfolio: (payload: any) => void;
+}
+
+interface EditPortfolioParams {
+  oldName: string;
+  newName: string;
+}
+
+const initialValues: EditPortfolioParams = {
+  oldName: "",
+  newName: "",
+};
+
 const schema = Yup.object({
-  portfolioName: Yup.string()
+  newName: Yup.string()
     .required("Portfolio name is required.")
     .max(30, "Portfolio name must be 30 characters or less."),
 });
 
-const EditPortfolioForm: React.FC<Props> = (props) => {
-  const { handlePortfolioEdited } = props;
-  const { name } = useParams<RouteMatchParams>();
+const EditPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
+  const { name: portfolioName } = useParams<RouteMatchParams>();
+  const { loading, error, oldName, newName, editPortfolio } = props;
+  initialValues.oldName = portfolioName;
 
-  const onSuccess = (values: any) => {
-    const asyncEdit = async () => {
-      await portfolioAPI.editPortfolio(name, values.portfolioName);
-    };
-    asyncEdit();
-    handlePortfolioEdited();
-  };
+  const history = useHistory();
 
-  return (
+  useEffect(() => {
+    oldName === portfolioName
+      ? history.push(`/portfolio/${newName}`)
+      : console.log("DO NOT CHANGE");
+  }, [oldName, newName, portfolioName, history]);
+
+  const formComponent = (
     <Formik
-      onSubmit={onSuccess}
-      initialValues={{ portfolioName: "" }}
+      onSubmit={editPortfolio}
+      initialValues={initialValues}
       validationSchema={schema}
     >
-      {({ handleSubmit, handleChange, values, errors }) => {
+      {({
+        handleSubmit,
+        handleChange,
+        handleBlur,
+        values,
+        errors,
+        touched,
+      }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="my-2">
+            {error ? <Alert variant="danger">{error}</Alert> : null}
+            <Form.Label>New Portfolio Name</Form.Label>
             <Form.Control
               type="text"
-              name="portfolioName"
+              name="newName"
               placeholder="Enter a portfolio name"
-              value={values.portfolioName}
+              value={values.newName}
               onChange={handleChange}
-              isInvalid={!!errors.portfolioName}
+              onBlur={handleBlur}
+              isInvalid={!!errors.newName && touched.newName}
             />
-            {errors.portfolioName ? (
+            {errors.newName ? (
               <Form.Control.Feedback type="invalid">
-                {errors.portfolioName}
+                {errors.newName}
               </Form.Control.Feedback>
             ) : (
               <Form.Text className="text-muted">
@@ -67,40 +97,26 @@ const EditPortfolioForm: React.FC<Props> = (props) => {
     </Formik>
   );
 
-  /* return (
-    <Formik
-      validationSchema={schema}
-      onSubmit={(values) => {
-        handleEditPortfolio(values);
-      }}
-      initialValues={{
-        portfolioName: "",
-      }}
-    >
-      {({ errors }) => (
-        <Form>
-          <Row className="justify-content-center my-1 rounded">
-            <Field
-              id="portfolioName"
-              name="portfolioName"
-              placeholder="Enter portfolio name"
-              className="pl-2"
-            />
-          </Row>
-          <Row className="justify-content-center my-1 text-muted">
-            {errors.portfolioName
-              ? errors.portfolioName
-              : "Enter a unique name"}
-          </Row>
-          <Row className="justify-content-center my-1">
-            <Button variant="outline-success" type="submit">
-              Change Name
-            </Button>
-          </Row>
-        </Form>
-      )}
-    </Formik>
-  ); */
+  return loading ? (
+    <ClipLoader color={"green"} loading={loading} />
+  ) : (
+    formComponent
+  );
 };
 
-export default EditPortfolioForm;
+const mapStateToProps = (state: any) => ({
+  loading: state.portfolioReducer.editPortfolio.loading,
+  error: state.portfolioReducer.editPortfolio.error,
+  oldName: state.portfolioReducer.editPortfolio.oldName,
+  newName: state.portfolioReducer.editPortfolio.newName,
+});
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    editPortfolio: (formPayload: any) => {
+      dispatch(portfolioActions.editPortfolio(formPayload));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditPortfolioForm);

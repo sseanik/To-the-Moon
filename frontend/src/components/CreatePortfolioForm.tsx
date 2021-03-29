@@ -1,6 +1,6 @@
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { Alert, Button, Row, Form } from "react-bootstrap";
+import { Alert, Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import portfolioActions from "../redux/actions/portfolioActions";
@@ -18,20 +18,18 @@ interface DispatchProps {
   createPortfolio: (payload: CreatePortfolioFormValues) => void;
 }
 
-const initialValues: CreatePortfolioFormValues = {
-  newName: "",
-};
-
 const schema = Yup.object({
   newName: Yup.string()
     .required("Portfolio name is required.")
     .max(30, "Must be 30 characters or less."),
 });
 
+const initialValues: CreatePortfolioFormValues = {
+  newName: "",
+};
+
 const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
   const { loading, error, createPortfolio } = props;
-
-  const errorComponent = <Alert variant='danger'>{error}</Alert>;
 
   const formComponent = (
     <Formik
@@ -48,26 +46,24 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
         touched,
       }) => {
         return (
-          <Row className="justify-content-center w-100">
-            {error ? errorComponent : <></>}
-            <Form noValidate onSubmit={handleSubmit} className="w-50">
-              <Form.Control
-                className="my-1"
-                type="text"
-                name="newName"
-                placeholder="Enter a new portfolio name"
-                value={values.newName}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={!!errors.newName && touched.newName}
-                isValid={!errors.newName && touched.newName}
-              />
+          <Form noValidate onSubmit={handleSubmit} className="w-50">
+            {error ? <Alert variant="danger">{error}</Alert> : null}
+            <Form.Control
+              className="my-1"
+              type="text"
+              name="newName"
+              placeholder="Enter a portfolio name"
+              value={values.newName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.newName && touched.newName}
+              isValid={!errors.newName && touched.newName}
+            />
 
-              <Button type="submit" variant="outline-success" className="mt-2">
-                Add Portfolio
-              </Button>
-            </Form>
-          </Row>
+            <Button type="submit" variant="outline-success" className="mt-2">
+              Add Portfolio
+            </Button>
+          </Form>
         );
       }}
     </Formik>
