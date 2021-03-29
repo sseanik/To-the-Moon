@@ -45,7 +45,7 @@ interface getPredictionDailyParams {
   symbol: string;
 }
 
-interface durationChoiceParams {
+interface durChoiceParams {
   [key: string]: {dur: number, display: string, units: string};
 }
 
@@ -72,12 +72,13 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const params = useParams<RouteParams>();
   const symbol = params.symbol;
 
-  const durationOptions: durationChoiceParams = {
+  const durOpts: durChoiceParams = {
     "durDays3":     {dur: 3, display: "3", units: "days"},
-    "durWeeks1":    {dur: 7, display: "1", units: "week"},
-    "durWeeks2":    {dur: 14, display: "2", units: "weeks"},
-    "durMonths1":   {dur: 30, display: "1", units: "month"},
-    "durMonths2":   {dur: 60, display: "2", units: "months"},
+    "durWeeks1":    {dur: 5, display: "5", units: "days"},
+    "durWeeks2":    {dur: 10, display: "10", units: "days"},
+    "durMonths1":   {dur: 20, display: "20", units: "days"},
+    "durMonths2":   {dur: 40, display: "40", units: "days"},
+    "durMonths3":   {dur: 60, display: "60", units: "days"},
   };
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
@@ -90,7 +91,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       { data: [] }
     ]
   });
-  const [durationChoice, setDurationChoice] =  useState<string>("durMonths2");
+  const [durChoice, setdurChoice] =  useState<string>("durMonths3");
 
   const fetchStock = () => {
     getStockBasic({ symbol });
@@ -112,17 +113,19 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       });
       setGraphOptions((graphOptions: graphOptionsT) => ({ ... graphOptions, series: seriesIntraList }));
     } else {
-      console.log("Displaying daily");
-      console.log(priceDataDaily);
-      console.log(predictionDaily);
       const seriesDailyList = Object.entries(priceDataDaily).map(entry => {
         const [key, value] = entry;
         return { name: key, data: value }
       });
-      const displaySeries = predictionDaily ? [ ... seriesDailyList, predictionDaily ] : seriesDailyList;
+      let predictions = JSON.parse(JSON.stringify(predictionDaily));
+      if (predictions.data) {
+        predictions.data = predictions.data.slice(0, durOpts[durChoice].dur);
+      }
+
+      const displaySeries = predictions ? [ ... seriesDailyList, predictions ] : seriesDailyList;
       setGraphOptions((graphOptions: graphOptionsT) => ({ ... graphOptions, series: displaySeries }));
     }
-  }, [displayIntra, priceDataDaily, priceDataIntraday, predictionDaily]);
+  }, [displayIntra, priceDataDaily, priceDataIntraday, predictionDaily, durChoice]);
 
   const graphComponent = (
     <Container>
@@ -156,7 +159,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     : `${company} (${symbol})`
 
   const statusBadgeModifier = (prediction: Array<any>, isLoading: boolean, error: object|null) => {
-    console.log("prediction:", Object.keys(prediction).length);
     const result = prediction !== null && Object.keys(prediction).length > 0 && !isLoading ? "success"
     : isLoading ? "primary"
     : prediction === null || Object.keys(prediction).length === 0 ? "secondary"
@@ -173,6 +175,35 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     : "Error";
     return result;
   };
+
+  const predictionControlComponent = (
+    <Container>
+        <hr />
+        <Row>
+            <Col>Prediction Status: </Col>
+            <Col><Badge variant={ statusBadgeModifier(predictionDaily, predictionDailyLoading, predictionDailyError) }>{ statusBadgeText(predictionDaily, predictionDailyLoading, predictionDailyError) }</Badge></Col>
+        </Row>
+        <hr />
+        <Row>
+            <Col>Duration: </Col>
+            <Col>
+              <DropdownButton variant="outline-dark" id="dropdown-basic-button" title={ durOpts[durChoice].display + " " + durOpts[durChoice].units}>
+                {Object.entries(durOpts).map(
+                  entry => {
+                    const [key, value] = entry;
+
+                    return <Dropdown.Item href="#/action-1" onClick={() => {setdurChoice(key);}}>{value.display + " " + value.units}</Dropdown.Item>
+                  })}
+              </DropdownButton>
+            </Col>
+        </Row>
+        <hr />
+        <Row>
+            <Button variant="outline-primary"
+              onClick={() => { fetchPredictDaily() }}>Predict</Button>
+        </Row>
+    </Container>
+  );
 
   return (
     <Container>
@@ -214,29 +245,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
                 </Tabs>
               </Tab>
               <Tab eventKey="prediction" title="Market Prediction">
-                <Container>
-                    <Row>
-                        <Col>Prediction Status: </Col>
-                        <Col><Badge variant={ statusBadgeModifier(predictionDaily, predictionDailyLoading, predictionDailyError) }>{ statusBadgeText(predictionDaily, predictionDailyLoading, predictionDailyError) }</Badge></Col>
-                    </Row>
-                    <Row>
-                        <Col>Duration: </Col>
-                        <Col>
-                          <DropdownButton variant="outline-dark" id="dropdown-basic-button" title={ durationOptions[durationChoice].display + " " + durationOptions[durationChoice].units}>
-                            {Object.entries(durationOptions).map(
-                              entry => {
-                                const [key, value] = entry;
-
-                                return <Dropdown.Item href="#/action-1" onClick={() => {setDurationChoice(key);}}>{value.display + " " + value.units}</Dropdown.Item>
-                              })}
-                          </DropdownButton>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Button variant="outline-primary"
-                          onClick={() => { fetchPredictDaily() }}>Predict</Button>
-                    </Row>
-                </Container>
+                { predictionControlComponent }
               </Tab>
             </Tabs>
           </Container>
