@@ -70,6 +70,7 @@ def fill_securities_overview_table(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
     Overview = TimeSeries().get_company_overview(symbol)
+<<<<<<< HEAD
     insertQuery = '''INSERT INTO securities_overviews (
         stock_ticker,
         stock_name,
@@ -83,6 +84,21 @@ def fill_securities_overview_table(symbol):
         pe_ratio,
         eps,
         dividend_yield
+=======
+    insertQuery = '''INSERT INTO SecuritiesOverviews (
+        StockTicker,
+        StockName,
+        StockDescription,
+        Exchange,
+        Currency,
+        YearlyHigh,
+        YearlyLow,
+        MarketCap,
+        BETA,
+        PERatio,
+        EPS,
+        DividendYield
+>>>>>>> 2a6e6f0d48f9d2389089909d2e07b8990491dc3f
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (stock_ticker) DO NOTHING
     '''
@@ -117,6 +133,7 @@ def fill_income_statements(symbol):
     cur = conn.cursor()
     Statement = TimeSeries().get_income_statement(symbol)
     for annualReport in Statement['annualReports']:
+<<<<<<< HEAD
         insertQuery = '''INSERT INTO income_statements (
             stock_ticker,
             fiscal_date_ending,
@@ -131,6 +148,22 @@ def fill_income_statements(symbol):
             ebit,
             ebitda,
             net_income
+=======
+        insertQuery = '''INSERT INTO IncomeStatements (
+            StockTicker,
+            FiscalDateEnding,
+            TotalRevenue,
+            CostOfRevenue,
+            GrossProfit,
+            OperatingExpenses,
+            OperatingIncome,
+            IncomeBeforeTax,
+            InterestIncome,
+            NetInterestIncome,
+            EBIT,
+            EBITDA,
+            NetIncome
+>>>>>>> 2a6e6f0d48f9d2389089909d2e07b8990491dc3f
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
@@ -175,6 +208,7 @@ def fill_balance_sheets(symbol):
             other_current_assets,
             property_plant_equipment,
             goodwill,
+<<<<<<< HEAD
             intangible_assets,
             long_term_investments,
             other_non_current_assets,
@@ -185,6 +219,18 @@ def fill_balance_sheets(symbol):
             other_non_current_liabilities,
             retained_earnings,
             total_shareholder_equity
+=======
+            intangibleAssets,
+            longTermInvestments,
+            otherNonCurrentAssets,
+            currentAccountsPayable,
+            shortTermDebt,
+            otherCurrentLiabilities,
+            longTermDebt,
+            otherNonCurrentLiabilities,
+            retainedEarnings,
+            totalShareholderEquity
+>>>>>>> 2a6e6f0d48f9d2389089909d2e07b8990491dc3f
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
@@ -204,7 +250,7 @@ def fill_balance_sheets(symbol):
             annualReport['goodwill'],
             annualReport['intangibleAssets'],
             annualReport['longTermInvestments'],
-            annualReport['otherNonCurrrentAssets'],
+            annualReport['otherNonCurrentAssets'],
             annualReport['currentAccountsPayable'],
             annualReport['shortTermDebt'],
             annualReport['otherCurrentLiabilities'],
@@ -230,6 +276,7 @@ def fill_cashflow_statements(symbol):
     cur = conn.cursor()
     Statement = TimeSeries().get_cash_flow(symbol)
     for annualReport in Statement['annualReports']:
+<<<<<<< HEAD
         insertQuery = '''INSERT INTO cashflow_statements (
             stock_ticker,
             fiscal_date_ending,
@@ -245,6 +292,23 @@ def fill_cashflow_statements(symbol):
             proceeds_from_repurchase_of_equity,
             change_in_cash_and_cash_equivalents,
             net_income
+=======
+        insertQuery = '''INSERT INTO CashflowStatements (
+            StockTicker,
+            fiscalDateEnding,
+            operatingCashflow,
+            paymentsForOperatingActivities,
+            changeInOperatingLiabilities,
+            changeInOperatingAssets,
+            depreciationDepletionAndAmortization,
+            changeInInventory,
+            cashflowFromInvestment,
+            cashflowFromFinancing,
+            dividendPayout,
+            proceedsFromRepurchaseOfEquity,
+            changeInCashAndCashEquivalents,
+            netIncome
+>>>>>>> 2a6e6f0d48f9d2389089909d2e07b8990491dc3f
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''

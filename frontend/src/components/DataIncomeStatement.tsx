@@ -1,18 +1,11 @@
-import React from "react";
-
+import { useEffect } from "react";
+import ClipLoader from "react-spinners/ClipLoader";
+import { connect } from "react-redux";
+import { Container, Row, Col, Alert } from "react-bootstrap";
+import stockActions from "../redux/actions/stockActions";
 import {
-  Container,
-  Row,
-  Col
-} from "react-bootstrap";
-
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
-}
+  incomeStatementFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 interface IncomeStatementEntry {
   stockticker: string;
@@ -30,57 +23,87 @@ interface IncomeStatementEntry {
   netincome: string;
 }
 
-interface Props {
-  incomeStatement: Array<IncomeStatementEntry>;
+interface getStockIncomeParams {
+  symbol: string;
 }
 
-const formatMap: IObjectKeys = {
-  stockticker: {name: "Company Symbol"},
-  fiscaldateending: {name: "Year Ending"},
-  totalrevenue: {name: "Total Revenue"},
-  costofrevenue: {name: "Cost of Revenue"},
-  grossprofit: {name: "Gross Profit"},
-  operatingexpenses: {name: "Operating Expenses"},
-  operatingincome: {name: "Operating Income"},
-  incomebeforetax: {name: "Income Before Tax"},
-  interestincome: {name: "Interest Income"},
-  netinterestincome: {name: "Net Interest Income"},
-  ebit: {name: "EBIT"},
-  ebitda: {name: "EBITDA"},
-  netincome: {name: "Net Income"},
-}; 
+interface Props {
+  symbol: string;
+}
 
-const DataIncomeStatement: React.FC<Props> = (props) => {
-  var { incomeStatement } = props;
+interface StateProps {
+  loading: boolean;
+  data: Array<IncomeStatementEntry>;
+  error: string;
+}
 
-  return (
+interface DispatchProps {
+  getStockIncome: (payload: getStockIncomeParams) => void;
+}
+
+const DataIncomeStatement: React.FC<Props & StateProps & DispatchProps> = (props) => {
+  const { symbol, loading, error, data, getStockIncome } = props;
+
+  useEffect(() => {
+    getStockIncome({ symbol });
+  }, []);
+
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={loading} />
+      <h5>Loading Income Statement ...</h5>
+    </div>
+  );
+
+  const alertComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
+  );
+
+  const tableComponent = (
     <Container>
-    <Row>
-      {incomeStatement.map((entry) => (
-        <Col>
-          <hr />
-          {Object.entries(entry).map(([field, value]) => (
-            <div>
-              <Row lg={6}>
-                <Col className="text-left" lg={6}>
-                  <span>
-                    <b>{formatMap[field].name}</b>
-                  </span>
-                </Col>
-                <Col className="text-right" lg={6}>
-                  <span>
-                    {typeof value === "string" ? value : value / 1000}
-                  </span>
-                </Col>
-              </Row>
-              <hr />
-            </div>
-          ))}
-        </Col>
-      ))}
-    </Row>
+      <Row>
+        { error ? alertComponent : null }
+      </Row>
+      <Row>
+        {data.map((entry: IncomeStatementEntry) => (
+          <Col>
+            <hr />
+            {Object.entries(entry).map(([field, value]) => (
+              <div>
+                <Row lg={6}>
+                  <Col className="text-left" lg={6}>
+                    <span>
+                      <b>{formatMap[field].name}</b>
+                    </span>
+                  </Col>
+                  <Col className="text-right" lg={6}>
+                    <span>
+                      {typeof value === "string" ? value : value / 1000}
+                    </span>
+                  </Col>
+                </Row>
+                <hr />
+              </div>
+            ))}
+          </Col>
+        ))}
+      </Row>
     </Container>
   );
+
+  return loading ? loadingSpinnerComponent : tableComponent;
 }
 
-export default DataIncomeStatement;
+const mapStateToProps = (state: any) => ({
+  loading: state.stockReducer.income.loading,
+  error: state.stockReducer.income.error,
+  data: state.stockReducer.income.data,
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getStockIncome: (payload: getStockIncomeParams) => dispatch(stockActions.getStockIncome(payload))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(DataIncomeStatement);

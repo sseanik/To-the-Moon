@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+div.portfolio-info a:hover {
+  text-decoration: none;
+}
