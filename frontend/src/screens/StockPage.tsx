@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Row, Col, Tabs, Tab, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Button, Alert, Badge } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
@@ -52,6 +52,9 @@ interface StateProps {
   priceDataDaily: any;
   priceDataIntraday: any;
   predictionDaily: any;
+
+  predictionDailyLoading: any;
+  predictionDailyError: any;
 }
 
 interface DispatchProps {
@@ -60,7 +63,7 @@ interface DispatchProps {
 }
 
 const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
-  const { company, loading, error, priceDataDaily, priceDataIntraday, predictionDaily, getStockBasic, getPredictionDaily, } = props;
+  const { company, loading, error, priceDataDaily, priceDataIntraday, predictionDaily, getStockBasic, getPredictionDaily, predictionDailyLoading, predictionDailyError } = props;
 
   const params = useParams<RouteParams>();
   const symbol = params.symbol;
@@ -139,6 +142,25 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     ? `${symbol}`
     : `${company} (${symbol})`
 
+  const statusBadgeModifier = (prediction: Array<any>, isLoading: boolean, error: object|null) => {
+    console.log("prediction:", Object.keys(prediction).length);
+    const result = prediction !== null && Object.keys(prediction).length > 0 && !isLoading ? "success"
+    : isLoading ? "primary"
+    : prediction === null || Object.keys(prediction).length === 0 ? "secondary"
+    : error ? "danger"
+    : "danger";
+    return result;
+  };
+
+  const statusBadgeText = (prediction: Array<any>, isLoading: boolean, error: object|null) => {
+    const result = prediction !== null && Object.keys(prediction).length > 0 && !isLoading ? "Fetched"
+    : isLoading ? "Pending"
+    : Object.keys(prediction).length === 0 || prediction === null ? "Not requested"
+    : error !== null ? "Error"
+    : "Error";
+    return result;
+  };
+
   return (
     <Container>
       <Row className="justify-content-center mt-2">
@@ -181,10 +203,12 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               <Tab eventKey="prediction" title="Market Prediction">
                 <Container>
                     <Row>
-                        Prediction Status
+                        <Col>Prediction Status: </Col>
+                        <Col><Badge variant={ statusBadgeModifier(predictionDaily, predictionDailyLoading, predictionDailyError) }>{ statusBadgeText(predictionDaily, predictionDailyLoading, predictionDailyError) }</Badge></Col>
                     </Row>
                     <Row>
-                        Prediction Settings
+                        <Col>Duration: </Col>
+                        <Col></Col>
                     </Row>
                     <Row>
                         <Button variant="outline-primary"
@@ -223,6 +247,8 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.basic.loading,
+  predictionDailyLoading: state.stockReducer.predictionDaily.loading,
+  predictionDailyError: state.stockReducer.predictionDaily.error,
   error: state.stockReducer.basic.error,
   company: state.stockReducer.basic.data.fundamentals.stock_name,
   priceDataDaily: state.stockReducer.basic.data.data,

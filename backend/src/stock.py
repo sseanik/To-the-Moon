@@ -5,6 +5,7 @@
 
 from flask import Blueprint, request
 
+from dotenv import load_dotenv
 from json import dumps
 import numpy as np
 import pandas as pd
@@ -21,6 +22,8 @@ from alpha_vantage.timeseries import TimeSeries
 
 from database import create_DB_connection
 from helpers import JSONLoader, AlphaVantageInfo
+
+MODELSRVPORT = os.getenv("MODELSRVPORT")
 
 STOCK_ROUTES = Blueprint('stock', __name__)
 
@@ -311,7 +314,7 @@ def get_prediction_daily():
 
     data = {"inference_mode": "walk_forward", "data": close_data.tolist()}
     headers = { "Content-Type": "application/json", }
-    endpoint = f"http://127.0.0.1:{3001}/model/api/get_prediction"
+    endpoint = f"http://127.0.0.1:{MODELSRVPORT}/model/api/get_prediction"
 
     status = 0
     dispatch_data = {}
