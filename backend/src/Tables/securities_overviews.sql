@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS SecuritiesOverviews (
+CREATE TABLE IF NOT EXISTS securities_overviews (
     stock_ticker VARCHAR(10) PRIMARY KEY,
     stock_name TEXT,
     stock_description TEXT,
