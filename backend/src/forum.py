@@ -167,7 +167,7 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
         # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
         if not db_reply:
             response = {
-                'status' : 200,
+                'status' : 400,
                 'message' : "User does not have permission to edit this comment."
             }
         else:
