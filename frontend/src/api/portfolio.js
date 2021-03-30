@@ -16,18 +16,6 @@ const portfolioAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getStocks: (name) => {
-    const endpoint = `/user/investment?portfolio=${name}`;
-    const options = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: Utils.getToken(),
-      },
-    };
-
-    return Utils.getJSON(`${url}${endpoint}`, options);
-  },
   createPortfolio: (name) => {
     const endpoint = `/portfolio?name=${name}`;
     const options = {
@@ -50,7 +38,7 @@ const portfolioAPI = {
       },
       body: JSON.stringify({
         name: newName,
-      })
+      }),
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
@@ -67,7 +55,6 @@ const portfolioAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  
 };
 
 export default portfolioAPI;

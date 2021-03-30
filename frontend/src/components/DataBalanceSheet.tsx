@@ -1,11 +1,11 @@
-import React from "react";
-
+import { useEffect } from "react";
+import ClipLoader from "react-spinners/ClipLoader";
+import { connect } from "react-redux";
+import { Container, Row, Col, Alert } from "react-bootstrap";
+import stockActions from "../redux/actions/stockActions";
 import {
-  Container,
-  Table,
-  Row,
-  Col
-} from "react-bootstrap";
+  balanceSheetFormatter as formatMap
+} from "../helpers/ObjectFormatRules";
 
 interface BalanceSheetEntry {
   fiscaldateending: string;
@@ -18,60 +18,88 @@ interface BalanceSheetEntry {
   total_equity: number;
 }
 
-interface IObjectKeys {
-  [key: string]: AttributeValues;
-}
-
-interface AttributeValues {
-  name: string;
+interface getStockBalanceParams {
+  symbol: string;
 }
 
 interface Props {
-  balanceSheet: Array<BalanceSheetEntry>;
+  symbol: string;
 }
 
-const formatMap: IObjectKeys = {
-  fiscaldateending: {name: "Year Ending"},
-  total_assets: {name: "Total Assets"},
-  total_curr_assets: {name: "Total Current Assets"},
-  total_ncurr_assets: {name: "Total Non-Current Assets"},
-  total_liabilities: {name: "Total Liabilities"},
-  total_curr_liabilities: {name: "Total Current Liabilities"},
-  total_ncurr_liabilities: {name: "Total Non-Current Liabilities"},
-  total_equity: {name: "Total Equity"},
-}; 
+interface StateProps {
+  loading: boolean;
+  data: Array<BalanceSheetEntry>;
+  error: string;
+}
 
-const DataBalanceSheet: React.FC<Props> = (props) => {
-  const { balanceSheet } = props;
+interface DispatchProps {
+  getStockBalance: (payload: getStockBalanceParams) => void;
+}
 
-  return (
+const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) => {
+  const { symbol, loading, error, data, getStockBalance } = props;
+
+  useEffect(() => {
+    getStockBalance({ symbol });
+  }, []);
+
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={loading} />
+      <h5>Loading Balance Sheet ...</h5>
+    </div>
+  );
+
+  const alertComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
+  );
+
+  const tableComponent = (
     <Container>
-    <Row>
-      {balanceSheet.map((entry) => (
-        <Col>
-          <hr />
-          {Object.entries(entry).map(([field, value]) => (
-            <div>
-              <Row lg={6}>
-                <Col className="text-left" lg={6}>
-                  <span>
-                    <b>{formatMap[field].name}</b>
-                  </span>
-                </Col>
-                <Col className="text-right" lg={6}>
-                  <span>
-                    {typeof value === "string" ? value : value / 1000}
-                  </span>
-                </Col>
-              </Row>
-              <hr />
-            </div>
-          ))}
-        </Col>
-      ))}
-    </Row>
+      <Row>
+        { error ? alertComponent : null }
+      </Row>
+      <Row>
+        {data.map((entry: BalanceSheetEntry) => (
+          <Col>
+            <hr />
+            {Object.entries(entry).map(([field, value]) => (
+              <div>
+                <Row lg={6}>
+                  <Col className="text-left" lg={6}>
+                    <span>
+                      <b>{formatMap[field].name}</b>
+                    </span>
+                  </Col>
+                  <Col className="text-right" lg={6}>
+                    <span>
+                      {typeof value === "string" ? value : value / 1000}
+                    </span>
+                  </Col>
+                </Row>
+                <hr />
+              </div>
+            ))}
+          </Col>
+        ))}
+      </Row>
     </Container>
   );
+
+  return loading ? loadingSpinnerComponent : tableComponent;
 }
 
-export default DataBalanceSheet;
+const mapStateToProps = (state: any) => ({
+  loading: state.stockReducer.balance.loading,
+  error: state.stockReducer.balance.error,
+  data: state.stockReducer.balance.data,
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getStockBalance: (payload: getStockBalanceParams) => dispatch(stockActions.getStockBalance(payload))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(DataBalanceSheet);
+
