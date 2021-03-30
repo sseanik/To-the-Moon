@@ -141,7 +141,7 @@ def login_user(email, password):
     return {
         'status': 200,
         'username': username,
-        'token': generateToken(user_id),
+        'token': generate_token(user_id),
         'message': 'Successfully logged in!'
     }
 

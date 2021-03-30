@@ -1,51 +1,59 @@
 import { useParams } from "react-router";
-import { Button, Form } from "react-bootstrap";
-import { useState } from "react";
+import { Alert, Button, Form } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import stockAPI from "../api/investment";
-
-interface Props {
-  handleInvestmentAdded: () => void;
-}
+import investmentActions from "../redux/actions/investmentActions";
+import { connect } from "react-redux";
 
 interface RouteMatchParams {
   name: string;
 }
 
+interface AddInvestmentFormParams {
+  portfolioName: string;
+  stockTicker: string;
+  numShares: number;
+  purchaseDate: string;
+  purchaseTime: string;
+}
+
+interface StateProps {
+  loading: boolean;
+  error: Object;
+}
+
+interface DispatchProps {
+  createStock: (payload: AddInvestmentFormParams) => void;
+}
+
 const schema = Yup.object({
-  investmentSymbol: Yup.string()
+  stockTicker: Yup.string()
     .required("Investment symbol is required.")
     .min(3, "Investment symbol must be at least 3 characters.")
     .max(5, "Investment symbol must be at most 5 characters"),
 });
 
-const AddInvestmentForm: React.FC<Props> = (props) => {
-  const { handleInvestmentAdded } = props;
+const initialValues: AddInvestmentFormParams = {
+  portfolioName: "",
+  stockTicker: "",
+  numShares: 1,
+  purchaseDate: new Date().toLocaleDateString().split("/").reverse().join("-"),
+  purchaseTime: new Date().toLocaleTimeString(),
+};
+
+const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
+  const { loading, error, createStock } = props;
   const { name } = useParams<RouteMatchParams>();
-  const [isLoading, setLoading] = useState(false);
+  initialValues.portfolioName = name;
 
-  const onSuccess = (values: any) => {
-    setLoading(true);
-    const asyncAdd = async () => {
-      await stockAPI.addStock(name, values.investmentSymbol);
-      handleInvestmentAdded();
-    };
-    asyncAdd();
-  };
-
-  const loadingSpinnerComponent = (
-    <div>
-      <ClipLoader color={"green"} loading={isLoading} />
-      <h5>Adding rocket fuel...</h5>
-    </div>
-  );
+  const options = Array.from(Array(1000).keys());
+  options.shift();
 
   const formComponent = (
     <Formik
-      onSubmit={onSuccess}
-      initialValues={{ investmentSymbol: "" }}
+      onSubmit={createStock}
+      initialValues={initialValues}
       validationSchema={schema}
     >
       {({
@@ -58,27 +66,67 @@ const AddInvestmentForm: React.FC<Props> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="my-2 w-100">
+            {error ? <Alert variant="danger">{error}</Alert> : null}
+            <Form.Label>Investment Symbol</Form.Label>
             <Form.Control
               type="text"
-              id="investmentSymbol"
-              name="investmentSymbol"
+              name="stockTicker"
               placeholder="Enter an investment symbol"
-              value={values.investmentSymbol}
+              value={values.stockTicker}
               onChange={handleChange}
               onBlur={handleBlur}
-              isInvalid={!!errors.investmentSymbol && touched.investmentSymbol}
+              isInvalid={!!errors.stockTicker && touched.stockTicker}
             />
-            {errors.investmentSymbol ? (
+            {errors.stockTicker ? (
               <Form.Control.Feedback type="invalid">
-                {errors.investmentSymbol}
+                {errors.stockTicker}
               </Form.Control.Feedback>
             ) : (
               <Form.Text className="text-muted">
-                Invesment symbol must be offered.
+                Investment must be offered by To The Moon.
               </Form.Text>
             )}
 
-            <Button variant="primary" type="submit" className="my-2">
+            <Form.Label className="mt-2">Number of Shares</Form.Label>
+            <Form.Control
+              as="select"
+              name="numShares"
+              value={values.numShares}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.numShares && touched.numShares}
+            >
+              {options.map((number) => (
+                <option key={number}>{number}</option>
+              ))}
+            </Form.Control>
+            {errors.numShares ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.numShares}
+              </Form.Control.Feedback>
+            ) : null}
+
+            <Form.Label className="mt-2">Purchase Date</Form.Label>
+            <Form.Control
+              type="date"
+              name="purchaseDate"
+              value={values.purchaseDate}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.purchaseDate}
+            />
+
+            <Form.Label className="mt-2">Purchase Time</Form.Label>
+            <Form.Control
+              type="time"
+              name="purchaseTime"
+              value={values.purchaseTime}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              isInvalid={!!errors.purchaseTime}
+            />
+
+            <Button variant="outline-primary" type="submit" className="my-2">
               Add Investment
             </Button>
           </Form>
@@ -87,7 +135,24 @@ const AddInvestmentForm: React.FC<Props> = (props) => {
     </Formik>
   );
 
-  return isLoading ? loadingSpinnerComponent : formComponent;
+  return loading ? (
+    <ClipLoader color={"green"} loading={loading} />
+  ) : (
+    formComponent
+  );
 };
 
-export default AddInvestmentForm;
+const mapStateToProps = (state: any) => ({
+  loading: state.investmentReducer.createStock.loading,
+  error: state.investmentReducer.createStock.error,
+});
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    createStock: (formPayload: AddInvestmentFormParams) => {
+      dispatch(investmentActions.createStock(formPayload));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddInvestmentForm);
