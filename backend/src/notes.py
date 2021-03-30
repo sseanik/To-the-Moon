@@ -6,7 +6,7 @@
 from flask import Blueprint, request
 import psycopg2
 from json import dumps
-from database import createDBConnection
+from database import create_DB_connection
 from token_util import getIDfromToken
 from helpers import TimeSeries, AlphaVantageAPI
 from datetime import datetime
@@ -20,12 +20,12 @@ NOTE_ROUTES = Blueprint('notes', __name__)
 
 def addNote(userID, title, content, stock_symbols, portfolio_names, external_references, internal_references):
     if len(title) >= 300 or len(title) == 0:
-        return {'status': 400, 'message': 'The note title must be at least 1 character and no more than 300 characters. Try a new title.'}
+        return {'status': 400, 'error': 'The note title must be at least 1 character and no more than 300 characters. Try a new title.'}
 
-    if len(content) >= 5000:
-        return {'status': 400, 'message': 'The note contents cannot be more than 5000 characters. Please reduct content or create a new note.'}
+    if len(content) >= 5000 or len(content) == 0:
+        return {'status': 400, 'error': 'The note contents must be more than 1 character and less than 5000 characters. Please adjust content.'}
 
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = """
     INSERT INTO notes (userID, title, content, stock_symbols, portfolio_names, external_references, internal_references) 
@@ -53,13 +53,13 @@ def addNote(userID, title, content, stock_symbols, portfolio_names, external_ref
 
 
 def editNote(userID, old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references):
-    if len(title) >= 300 or len(title) == 0:
-        return {'status': 400, 'message': 'The note title must be at least 1 character and no more than 300 characters. Try a new title.'}
+    if len(new_title) >= 300 or len(new_title) == 0:
+        return {'status': 400, 'error': 'The note title must be at least 1 character and no more than 300 characters. Try a new title.'}
 
-    if len(content) >= 5000:
-        return {'status': 400, 'message': 'The note contents cannot be more than 5000 characters. Please reduct content or create a new note.'}
+    if len(content) >= 5000 or len(content) == 0:
+        return {'status': 400, 'error': 'The note contents must be more than 1 character and less than 5000 characters. Please adjust content.'}
 
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = """
         UPDATE notes SET title=%s, content=%s, stock_symbols=%s::TEXT[], portfolio_names=%s::TEXT[], external_references=%s::TEXT[], internal_references=%s::TEXT[]
@@ -75,19 +75,19 @@ def editNote(userID, old_title, new_title, content, stock_symbols, portfolio_nam
     except psycopg2.errors.UniqueViolation:
         response = {
             'status' : 400,
-            'message' : 'There is already a note called \'' + new_title + '\'. Try another title name.'
+            'error' : 'There is already a note called \'' + new_title + '\'. Try another title name.'
         }
     except:
         response = {
             'status' : 400,
-            'message' : 'Something went wrong when updating'
+            'error' : 'Something went wrong when updating'
         }
     conn.close()
     return response
 
 
 def deleteNote(userID, title):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = "DELETE FROM notes WHERE userID=%s AND title=%s"
     cur.execute(sqlQuery, (userID, title))
@@ -97,7 +97,7 @@ def deleteNote(userID, title):
 
 
 def getNote(userID, title):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = "SELECT * FROM notes WHERE userID=%s AND title=%s"
     cur.execute(sqlQuery, (userID, title))
@@ -115,7 +115,7 @@ def getNote(userID, title):
 
 
 def getRelevantNotes(userID, stock_symbols, portfolio_names):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = "SELECT * FROM notes WHERE userID=%s AND (%s::TEXT[] && stock_symbols OR %s::TEXT[] && portfolio_names)"
     cur.execute(sqlQuery, (userID, stock_symbols, portfolio_names))
@@ -136,7 +136,7 @@ def getRelevantNotes(userID, stock_symbols, portfolio_names):
 
 
 def getAllNotes(userID):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = "SELECT * FROM notes WHERE userID=%s"
     cur.execute(sqlQuery, (userID, ))
