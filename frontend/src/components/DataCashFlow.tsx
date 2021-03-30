@@ -65,9 +65,6 @@ const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
   const tableComponent = (
     <Container>
       <Row>
-        { error ? alertComponent : null }
-      </Row>
-      <Row>
         {data.map((entry: CashFlowEntry) => (
           <Col>
             <hr />
@@ -94,7 +91,7 @@ const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
     </Container>
   );
 
-  return loading ? loadingSpinnerComponent : tableComponent;
+  return loading ? loadingSpinnerComponent : (error ? alertComponent : tableComponent);
 }
 
 const mapStateToProps = (state: any) => ({

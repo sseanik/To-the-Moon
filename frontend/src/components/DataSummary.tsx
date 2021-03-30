@@ -52,9 +52,6 @@ const DataSummary: React.FC<StateProps> = (props) => {
   const tableComponent = (
     <Container>
       <Row>
-        { error ? alertComponent : null }
-      </Row>
-      <Row>
         <Col>
           <hr />
           {Object.entries(data).map(([field, value]) => (
@@ -79,7 +76,7 @@ const DataSummary: React.FC<StateProps> = (props) => {
     </Container>
   );
 
-  return loading ? loadingSpinnerComponent : tableComponent;
+  return loading ? loadingSpinnerComponent : (error ? alertComponent : tableComponent);
 }
 
 const mapStateToProps = (state: any) => ({
