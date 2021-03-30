@@ -36,7 +36,7 @@ const investmentActions = {
         dispatch(investmentActions.createStockFailure(error));
       }
     } catch (error) {
-      dispatch(investmentActions.createStockFailure(error));
+      dispatch(investmentActions.createStockFailure(error.message));
     }
   },
   getStocksPending: () => ({
@@ -62,7 +62,7 @@ const investmentActions = {
         dispatch(investmentActions.getStocksFailure(error));
       }
     } catch (error) {
-      dispatch(investmentActions.getStocksFailure(error));
+      dispatch(investmentActions.getStocksFailure(error.message));
     }
   },
   deleteStockPending: (id) => ({
@@ -91,7 +91,7 @@ const investmentActions = {
         dispatch(investmentActions.deleteStockFailure(error));
       }
     } catch (error) {
-      dispatch(investmentActions.deleteStockFailure(error));
+      dispatch(investmentActions.deleteStockFailure(error.message));
     }
   },
 };

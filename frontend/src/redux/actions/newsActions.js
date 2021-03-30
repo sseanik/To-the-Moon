@@ -23,7 +23,7 @@ const newsActions = {
         dispatch(newsActions.newsFailure(res.error));
       }
     } catch (error) {
-      dispatch(newsActions.newsFailure(error));
+      dispatch(newsActions.newsFailure(error.message));
     }
   },
   getNewsByStock: (stockSymbol) => async (dispatch) => {
@@ -36,7 +36,7 @@ const newsActions = {
         dispatch(newsActions.newsFailure(res.error));
       }
     } catch (error) {
-      dispatch(newsActions.newsFailure(error));
+      dispatch(newsActions.newsFailure(error.message));
     }
   }
 };

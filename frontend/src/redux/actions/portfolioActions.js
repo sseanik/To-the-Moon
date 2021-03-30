@@ -24,7 +24,7 @@ const portfolioActions = {
         dispatch(portfolioActions.createPortfolioFailure(error));
       }
     } catch (error) {
-      dispatch(portfolioActions.createPortfolioFailure(error));
+      dispatch(portfolioActions.createPortfolioFailure(error.message));
     }
   },
   getPortfoliosPending: () => ({
@@ -48,7 +48,7 @@ const portfolioActions = {
         dispatch(portfolioActions.getPortfoliosFailure(error));
       }
     } catch (error) {
-      dispatch(portfolioActions.getPortfoliosFailure(error));
+      dispatch(portfolioActions.getPortfoliosFailure(error.message));
     }
   },
   deletePortfolioPending: (portfolioName) => ({
@@ -77,7 +77,7 @@ const portfolioActions = {
         dispatch(portfolioActions.deletePortfolioFailure(error));
       }
     } catch (error) {
-      dispatch(portfolioActions.deletePortfolioFailure(error));
+      dispatch(portfolioActions.deletePortfolioFailure(error.message));
     }
   },
   editPortfolioPending: () => ({
@@ -105,7 +105,7 @@ const portfolioActions = {
         dispatch(portfolioActions.editPortfolioFailure(message));
       }
     } catch (error) {
-      dispatch(portfolioActions.editPortfolioFailure(error));
+      dispatch(portfolioActions.editPortfolioFailure(error.message));
     }
   },
 };

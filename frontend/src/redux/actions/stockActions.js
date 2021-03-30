@@ -58,7 +58,7 @@ const stockActions = {
           dispatch(stockActions.getStockBasicFailure(res.error));
         }
       } catch (error) {
-        dispatch(stockActions.getStockBasicFailure(error));
+        dispatch(stockActions.getStockBasicFailure(error.message));
       }
     };
   },
@@ -74,7 +74,7 @@ const stockActions = {
           dispatch(stockActions.getStockIncomeFailure(res.error));
         }
       } catch (error) {
-        dispatch(stockActions.getStockIncomeFailure(error));
+        dispatch(stockActions.getStockIncomeFailure(error.message));
       }
     };
   },
@@ -90,7 +90,7 @@ const stockActions = {
           dispatch(stockActions.getStockBalanceFailure(res.error));
         }
       } catch (error) {
-        dispatch(stockActions.getStockBalanceFailure(error));
+        dispatch(stockActions.getStockBalanceFailure(error.message));
       }
     };
   },
@@ -106,7 +106,7 @@ const stockActions = {
           dispatch(stockActions.getStockCashFlowFailure(res.error));
         }
       } catch (error) {
-        dispatch(stockActions.getStockCashFlowFailure(error));
+        dispatch(stockActions.getStockCashFlowFailure(error.message));
       }
     };
   },

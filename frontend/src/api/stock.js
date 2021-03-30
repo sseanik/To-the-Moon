@@ -28,7 +28,6 @@ const StockAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-
 };
 
 export default StockAPI;
