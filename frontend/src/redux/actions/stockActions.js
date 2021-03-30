@@ -46,6 +46,17 @@ const stockActions = {
     type: stockConstants.GET_STOCK_CASHFLOW_FAILURE,
     payload: error,
   }),
+  getPredictionDailyPending: () => ({
+    type: stockConstants.GET_PREDICTION_DAILY_PENDING,
+  }),
+  getPredictionDailySuccess: (response) => ({
+    type: stockConstants.GET_PREDICTION_DAILY_SUCCESS,
+    payload: response,
+  }),
+  getPredictionDailyFailure: (error) => ({
+    type: stockConstants.GET_PREDICTION_DAILY_FAILURE ,
+    payload: error,
+  }),
   getStockBasic: (payload) => {
     return async (dispatch) => {
       dispatch(stockActions.getStockBasicPending());
@@ -109,6 +120,22 @@ const stockActions = {
         dispatch(stockActions.getStockCashFlowFailure(error.message));
       }
     };
+  },
+  getPredictionDaily: (payload) => {
+    return async (dispatch) => {
+      dispatch(stockActions.getPredictionDailyPending());
+      try {
+        const { symbol } = payload;
+        const res = await StockAPI.getPredictionDaily(symbol);
+        if (res.status === 200) {
+          dispatch(stockActions.getPredictionDailySuccess(res));
+        } else {
+          dispatch(stockActions.getPredictionDailyFailure(res.error));
+        }
+      } catch (error) {
+        dispatch(stockActions.getPredictionDailyFailure(error.message));
+      }
+    }
   },
 };
 
