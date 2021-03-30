@@ -232,6 +232,7 @@ def get_portfolios(user_id):
     conn.close()
     return {'status' : 200, 'data' : data}
 
+
 def get_investments(user_id, portfolio_name):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -253,6 +254,9 @@ def get_investments(user_id, portfolio_name):
     conn.close()
     return {'status' : 200, 'data' : data}
 
+
+def get_portfolio_performance():
+    pass
 
 ################################
 # Please leave all routes here #
