@@ -11,3 +11,4 @@ export { default as DataIncomeStatement } from "./DataIncomeStatement";
 export { default as DataBalanceSheet } from "./DataBalanceSheet";
 export { default as DataCashFlow } from "./DataCashFlow";
 export { default as StockNews } from "./StockNews";
+export { default as TrendingInvestments } from "./TrendingInvestments";
