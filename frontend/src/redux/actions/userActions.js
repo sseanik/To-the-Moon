@@ -55,7 +55,7 @@ const userActions = {
         dispatch(userActions.registerFailure(res.error))
       }
     } catch (error) {
-      dispatch(userActions.registerFailure(error));
+      dispatch(userActions.registerFailure(error.message));
     }
   },
   login: (payload) => async (dispatch) => {
@@ -70,7 +70,7 @@ const userActions = {
         dispatch(userActions.loginFailure(res.error))
       }
     } catch (error) {
-      dispatch(userActions.loginFailure(error));
+      dispatch(userActions.loginFailure(error.message));
     }
   },
   logout: () => (dispatch) => {
@@ -88,7 +88,7 @@ const userActions = {
         dispatch(userActions.logout());
       }
     } catch (error) {
-      dispatch(userActions.getUsernameFailure(error));
+      dispatch(userActions.getUsernameFailure(error.message));
     }
   }
 };

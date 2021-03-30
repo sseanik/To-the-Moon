@@ -196,7 +196,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.basic.loading,
   error: state.stockReducer.basic.error,
-  company: state.stockReducer.basic.data.fundamentals.stockname,
+  company: state.stockReducer.basic.data.fundamentals.stock_name,
   priceDataDaily: state.stockReducer.basic.data.data,
   priceDataIntraday: state.stockReducer.basic.data.data_intraday,
 });
