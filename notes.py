@@ -18,7 +18,7 @@ NOTE_ROUTES = Blueprint('notes', __name__)
 # Please leave all functions here #
 ###################################
 
-def addNote(user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references):
+def add_note(user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references):
     if len(title) >= 300 or len(title) == 0:
         return {'status': 400, 'error': 'The note title must be at least 1 character and no more than 300 characters. Try a new title.'}
 
@@ -52,7 +52,7 @@ def addNote(user_id, title, content, stock_symbols, portfolio_names, external_re
     return response
 
 
-def editNote(user_id, old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references):
+def edit_note(user_id, old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references):
     if len(new_title) >= 300 or len(new_title) == 0:
         return {'status': 400, 'error': 'The note title must be at least 1 character and no more than 300 characters. Try a new title.'}
 
@@ -86,7 +86,7 @@ def editNote(user_id, old_title, new_title, content, stock_symbols, portfolio_na
     return response
 
 
-def deleteNote(user_id, title):
+def delete_note(user_id, title):
     conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = "DELETE FROM notes WHERE user_id=%s AND title=%s"
@@ -96,7 +96,7 @@ def deleteNote(user_id, title):
     return {'status' : 200, 'message' : "Note removed"}
 
 
-def getNote(user_id, title):
+def get_note(user_id, title):
     conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = "SELECT * FROM notes WHERE user_id=%s AND title=%s"
@@ -114,7 +114,7 @@ def getNote(user_id, title):
     return {'status' : 200, 'data' : note}
 
 
-def getRelevantNotes(user_id, stock_symbols, portfolio_names):
+def get_relevant_notes(user_id, stock_symbols, portfolio_names):
     conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = "SELECT * FROM notes WHERE user_id=%s AND (%s::TEXT[] && stock_symbols OR %s::TEXT[] && portfolio_names)"
@@ -135,7 +135,7 @@ def getRelevantNotes(user_id, stock_symbols, portfolio_names):
     return {'status' : 200, 'data' : notes}
 
 
-def getAllNotes(user_id):
+def get_all_notes(user_id):
     conn = create_DB_connection()
     cur = conn.cursor()
     sqlQuery = "SELECT * FROM notes WHERE user_id=%s"
@@ -161,7 +161,7 @@ def getAllNotes(user_id):
 ################################
 
 @NOTE_ROUTES.route('/notes', methods=['POST'])
-def createUsersNote():
+def create_users_note_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     data = request.get_json()
@@ -171,12 +171,12 @@ def createUsersNote():
     portfolio_names = data['portfolio_names']
     external_references = data['external_references']
     internal_references = data['internal_references']
-    response = addNote(user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references)
+    response = add_note(user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references)
     return dumps(response)
 
 
 @NOTE_ROUTES.route('/notes', methods=['PUT'])
-def editUsersNote():
+def edit_users_note_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     old_title = request.args.get('old_title')
@@ -187,35 +187,35 @@ def editUsersNote():
     portfolio_names = data['portfolio_names']
     external_references = data['external_references']
     internal_references = data['internal_references']
-    response = editNote(user_id, old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references)
+    response = edit_note(user_id, old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references)
     return dumps(response)
 
 
 @NOTE_ROUTES.route('/notes', methods=['DELETE'])
-def deleteUsersNote():
+def delete_users_note_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     title = request.args.get('title')
-    response = deleteNote(user_id, title)
+    response = delete_note(user_id, title)
     return dumps(response)
 
 
-@NOTE_ROUTES.route('/notes/getNotes', methods=['GET'])
-def getUsersNotes():
+@NOTE_ROUTES.route('/notes/get_notes', methods=['GET'])
+def get_users_notes_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
-    response = getAllNotes(user_id)
+    response = get_all_notes(user_id)
     return dumps(response)
 
 
 # Add route for get relevant notes
-@NOTE_ROUTES.route('/notes/getRelevantNotes', methods=['GET'])
-def getUsersNotes():
+@NOTE_ROUTES.route('/notes/get_relevant_notes', methods=['GET'])
+def get_users_relevant_notes_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     stock_symbols = request.args.get('stock_symbols')
     portfolio_names = request.args.get('portfolio_names')
-    response = getRelevantNotes(user_id, stock_symbols, portfolio_names)
+    response = get_relevant_notes(user_id, stock_symbols, portfolio_names)
     return dumps(response)
 
 
@@ -226,11 +226,11 @@ def getUsersNotes():
 insert into Notes (user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references) 
 values ('0ee69cfc-83ce-11eb-8620-0a4e2d6dea13', 'Austin''s note', 'Random content', ARRAY['IBM', 'TSLA']::TEXT[], ARRAY['Austin''s portfolio']::TEXT[], ARRAY['https://www.google.com/']::TEXT[], ARRAY[]::TEXT[]);
 '''
-#print(addNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-#print(editNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Testing edit function', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-#print(editNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s notez', 'Austin\'s test note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-#print(deleteNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Testing edit function'))
+#print(add_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
+#print(edit_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Testing edit function', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
+#print(edit_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s notez', 'Austin\'s test note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
+#print(delete_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Testing edit function'))
 
-#print(getNote('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s test note'))
-#print(getAllNotes('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19'))
-#print(getRelevantNotes('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', ['IBM'], []))
+#print(get_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s test note'))
+#print(get_all_notes('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19'))
+#print(get_relevant_notes('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', ['IBM'], []))
