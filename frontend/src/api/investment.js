@@ -46,6 +46,18 @@ const stockAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  getTrendingStocks: (n) => {
+    const endpoint = `/investment/trending?n=${n}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+    };
+
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
 };
 
 export default stockAPI;
