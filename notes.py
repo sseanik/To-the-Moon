@@ -27,12 +27,12 @@ def add_note(user_id, title, content, stock_symbols, portfolio_names, external_r
 
     conn = create_DB_connection()
     cur = conn.cursor()
-    sqlQuery = """
+    sql_query = """
     INSERT INTO notes (user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references) 
     VALUES (%s, %s, %s, %s::TEXT[], %s::TEXT[], %s::TEXT[], %s::TEXT[])
     """
     try:
-        cur.execute(sqlQuery, (user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references))
+        cur.execute(sql_query, (user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references))
         conn.commit()
         response = {
             'status' : 200, 
@@ -61,12 +61,12 @@ def edit_note(user_id, old_title, new_title, content, stock_symbols, portfolio_n
 
     conn = create_DB_connection()
     cur = conn.cursor()
-    sqlQuery = """
+    sql_query = """
         UPDATE notes SET title=%s, content=%s, stock_symbols=%s::TEXT[], portfolio_names=%s::TEXT[], external_references=%s::TEXT[], internal_references=%s::TEXT[]
         WHERE user_id=%s AND title=%s
     """
     try:
-        cur.execute(sqlQuery, (new_title, content, stock_symbols, portfolio_names, external_references, internal_references, user_id, old_title))
+        cur.execute(sql_query, (new_title, content, stock_symbols, portfolio_names, external_references, internal_references, user_id, old_title))
         conn.commit()
         response = {
             'status' : 200, 
@@ -89,8 +89,8 @@ def edit_note(user_id, old_title, new_title, content, stock_symbols, portfolio_n
 def delete_note(user_id, title):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sqlQuery = "DELETE FROM notes WHERE user_id=%s AND title=%s"
-    cur.execute(sqlQuery, (user_id, title))
+    sql_query = "DELETE FROM notes WHERE user_id=%s AND title=%s"
+    cur.execute(sql_query, (user_id, title))
     conn.commit()
     conn.close()
     return {'status' : 200, 'message' : "Note removed"}
@@ -99,16 +99,16 @@ def delete_note(user_id, title):
 def get_note(user_id, title):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sqlQuery = "SELECT * FROM notes WHERE user_id=%s AND title=%s"
-    cur.execute(sqlQuery, (user_id, title))
-    queryResults = cur.fetchall()[0]
+    sql_query = "SELECT * FROM notes WHERE user_id=%s AND title=%s"
+    cur.execute(sql_query, (user_id, title))
+    query_results = cur.fetchall()[0]
     note = {
-        'title' : queryResults[1],
-        'content' : queryResults[2],
-        'stock_symbols' : queryResults[3],
-        'portfolio_names' : queryResults[4],
-        'external_references' : queryResults[5],
-        'internal_references' : queryResults[6],
+        'title' : query_results[1],
+        'content' : query_results[2],
+        'stock_symbols' : query_results[3],
+        'portfolio_names' : query_results[4],
+        'external_references' : query_results[5],
+        'internal_references' : query_results[6],
     }
     conn.close()
     return {'status' : 200, 'data' : note}
@@ -117,11 +117,11 @@ def get_note(user_id, title):
 def get_relevant_notes(user_id, stock_symbols, portfolio_names):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sqlQuery = "SELECT * FROM notes WHERE user_id=%s AND (%s::TEXT[] && stock_symbols OR %s::TEXT[] && portfolio_names)"
-    cur.execute(sqlQuery, (user_id, stock_symbols, portfolio_names))
-    queryResults = cur.fetchall()
+    sql_query = "SELECT * FROM notes WHERE user_id=%s AND (%s::TEXT[] && stock_symbols OR %s::TEXT[] && portfolio_names)"
+    cur.execute(sql_query, (user_id, stock_symbols, portfolio_names))
+    query_results = cur.fetchall()
     notes = []
-    for note in queryResults:
+    for note in query_results:
         new_data = {
             'title' : note[1],
             'content' : note[2],
@@ -138,11 +138,11 @@ def get_relevant_notes(user_id, stock_symbols, portfolio_names):
 def get_all_notes(user_id):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sqlQuery = "SELECT * FROM notes WHERE user_id=%s"
-    cur.execute(sqlQuery, (user_id, ))
-    queryResults = cur.fetchall()
+    sql_query = "SELECT * FROM notes WHERE user_id=%s"
+    cur.execute(sql_query, (user_id, ))
+    query_results = cur.fetchall()
     notes = []
-    for note in queryResults:
+    for note in query_results:
         new_data = {
             'title' : note[1],
             'content' : note[2],
@@ -200,7 +200,7 @@ def delete_users_note_wrapper():
     return dumps(response)
 
 
-@NOTE_ROUTES.route('/notes/get_notes', methods=['GET'])
+@NOTE_ROUTES.route('/notes', methods=['GET'])
 def get_users_notes_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
@@ -209,7 +209,7 @@ def get_users_notes_wrapper():
 
 
 # Add route for get relevant notes
-@NOTE_ROUTES.route('/notes/get_relevant_notes', methods=['GET'])
+@NOTE_ROUTES.route('/notes/relevant', methods=['GET'])
 def get_users_relevant_notes_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
