@@ -133,7 +133,7 @@ const stockActions = {
           dispatch(stockActions.getPredictionDailyFailure(res.error));
         }
       } catch (error) {
-        dispatch(stockActions.getPredictionDailyFailure(error));
+        dispatch(stockActions.getPredictionDailyFailure(error.message));
       }
     }
   },

@@ -178,30 +178,30 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   const predictionControlComponent = (
     <Container>
-        <hr />
-        <Row>
-            <Col>Prediction Status: </Col>
-            <Col><Badge variant={ statusBadgeModifier(predictionDaily, predictionDailyLoading, predictionDailyError) }>{ statusBadgeText(predictionDaily, predictionDailyLoading, predictionDailyError) }</Badge></Col>
-        </Row>
-        <hr />
-        <Row>
-            <Col>Duration: </Col>
-            <Col>
-              <DropdownButton variant="outline-dark" id="dropdown-basic-button" title={ durOpts[durChoice].display + " " + durOpts[durChoice].units}>
-                {Object.entries(durOpts).map(
-                  entry => {
-                    const [key, value] = entry;
+      <hr />
+      <Row>
+        <Col>Prediction Status: </Col>
+        <Col><Badge variant={ statusBadgeModifier(predictionDaily, predictionDailyLoading, predictionDailyError) }>{ statusBadgeText(predictionDaily, predictionDailyLoading, predictionDailyError) }</Badge></Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>Duration: </Col>
+        <Col>
+          <DropdownButton variant="outline-dark" id="dropdown-basic-button" title={ durOpts[durChoice].display + " " + durOpts[durChoice].units}>
+            {Object.entries(durOpts).map(
+              entry => {
+                const [key, value] = entry;
 
-                    return <Dropdown.Item href="#/action-1" onClick={() => {setdurChoice(key);}}>{value.display + " " + value.units}</Dropdown.Item>
-                  })}
-              </DropdownButton>
-            </Col>
-        </Row>
-        <hr />
-        <Row>
-            <Button variant="outline-primary"
-              onClick={() => { fetchPredictDaily() }}>Predict</Button>
-        </Row>
+                return <Dropdown.Item href="#/action-1" onClick={() => {setdurChoice(key);}}>{value.display + " " + value.units}</Dropdown.Item>
+            })}
+          </DropdownButton>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Button variant="outline-primary"
+          onClick={() => { fetchPredictDaily() }}>Predict</Button>
+      </Row>
     </Container>
   );
 
