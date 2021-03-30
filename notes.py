@@ -213,8 +213,9 @@ def get_users_notes_wrapper():
 def get_users_relevant_notes_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
-    stock_symbols = request.args.get('stock_symbols')
-    portfolio_names = request.args.get('portfolio_names')
+    data = request.get_json()
+    stock_symbols = data['stock_symbols']
+    portfolio_names = data['portfolio_names']
     response = get_relevant_notes(user_id, stock_symbols, portfolio_names)
     return dumps(response)
 
