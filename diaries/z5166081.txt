@@ -41,3 +41,4 @@ Implemented Username component to show logged in user.
 Implemented Logout, improved token management and loading spinners to move the application towards an SPA with better user experience.
 Created and implemented a new page for searching stocks.
 Implemented the Trending Investments component on the landing page, cleaned up and improved backend code for portfolio endpoints.
+Refactored stock page to use Redux for asynchronous requests, and include loading spinners and error handling.

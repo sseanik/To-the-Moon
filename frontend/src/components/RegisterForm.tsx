@@ -62,7 +62,7 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
     if (message === successMessage) {
       history.push("/");
     }
-  }, [message]);
+  }, [message, history]);
 
   const errorComponent = (
     <Alert variant="danger">
