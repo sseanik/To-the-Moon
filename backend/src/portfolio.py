@@ -227,7 +227,7 @@ def get_portfolio_performance(user_id, portfolio_name):
     cur.execute(sql_query, (user_id, portfolio_name))
     query_results = cur.fetchall()
     if not query_results:
-        return {'status' : 400, 'error' : 'There are no investments in portfolio called \'' + portfolio_name + '\'.'}
+        return {'status' : 400, 'error' : 'There are no investments in a portfolio called \'' + portfolio_name + '\'.'}
     conn.close()
     
     # Fill the data dictionary with investments and collect the stock tickers for a batch API call

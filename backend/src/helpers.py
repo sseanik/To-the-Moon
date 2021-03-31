@@ -151,10 +151,6 @@ if __name__ == "__main__":
 
     #aeo = ts.get_intraday("AEO", "5min", outputsize="full")
     #AlphaVantageAPI.save_json("AEO", aeo, label="intraday")
-    url = "https://www.alphavantage.co/query?function=BATCH_STOCK_QUOTES&apikey=1PRBO66RYM7SV7B9&symbols=MSFT,AAPL,FB"
-    response = requests.get(url, proxies={}, headers={})
-    response = response.json()
-    print(response)
 
     '''
     ibm = ts.get_quick_quote("IBM")
