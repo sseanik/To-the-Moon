@@ -286,7 +286,7 @@ def fill_overview_and_financial_tables(symbol):
 
 
 if __name__ == "__main__":
-    create_user_table()
+    #create_user_table()
     #create_portfolios_table()
     #create_holdings_table()
     #create_securities_overviewTable()
@@ -304,5 +304,5 @@ if __name__ == "__main__":
     #fill_overview_and_financial_tables('IBM')
 
     # Consumer defence sector
-    #fill_overview_and_financial_tables('WMT')
+    fill_overview_and_financial_tables('WMT')
     #fill_overview_and_financial_tables('KO')
