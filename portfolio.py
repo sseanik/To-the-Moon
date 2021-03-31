@@ -5,7 +5,7 @@
 
 from flask import Blueprint, request
 from json import dumps
-from database import createDBConnection
+from database import create_DB_connection
 from token_util import get_id_from_token
 from helpers import TimeSeries, AlphaVantageAPI
 from datetime import datetime
@@ -25,15 +25,15 @@ def create_portfolio(user_id, portfolio_name):
     if len(portfolio_name) >= 30:
         return {'status': 400, 'message': 'Portfolio name must be less than 30 characters.'}
 
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     # check that (portfolio_name, user_id) is unique
-    sql_query = "select * from portfolios where portfolioname=%s and userid=%s"
+    sql_query = "SELECT * FROM Portfolios WHERE portfolio_name=%s AND user_id=%s"
     cur.execute(sql_query, (portfolio_name, user_id))
     query_results = cur.fetchall()
     if not query_results:
         # If the user has no portfolios called portfolio_name, create a portfolio with that name.
-        sql_query = "insert into Portfolios (portfolioname, userid) VALUES (%s, %s)"
+        sql_query = "INSERT INTO Portfolios (portfolio_name, user_id) VALUES (%s, %s)"
         cur.execute(sql_query, (portfolio_name, user_id))
         conn.commit()
         response = {
@@ -51,26 +51,26 @@ def create_portfolio(user_id, portfolio_name):
 
 
 # Edit portfolio (e.g. change name of portfolio) in database
-# Note: does not check whether old_portfolio_name actually exists. If it does exist, it changes its name to newPortfolioName. Otherwise does noting.
+# Note: does not check whether old_portfolio_name actually exists. If it does exist, it changes its name to newportfolio_name. Otherwise does noting.
 def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
     # Check new name is within the max length
     if len(new_portfolio_name) >= 30:
         return {'status': 400, 'message': 'Portfolio name must be less than 30 characters.'}
 
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     # check that (new_portfolio_name, user_id) is unique in portfolio table
-    sql_query = "select * from portfolios where portfolioname=%s and userid=%s"
+    sql_query = "SELECT * FROM Portfolios WHERE portfolio_name=%s AND user_id=%s"
     cur.execute(sql_query, (new_portfolio_name, user_id))
     query_results = cur.fetchall()
     if not query_results:
         # update portfolio table
-        sql_query = "update portfolios set portfolioname=%s where portfolioname=%s and userid=%s"
+        sql_query = "UPDATE Portfolios SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
         cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
         # update holdings table
-        sql_query = "update holdings set portfolioname=%s where portfolioname=%s and userid=%s"
+        sql_query = "UPDATE Holdings SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
         cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
-        response ={ 
+        response ={
             'status': 200,
             'message' : '\'' + old_portfolio_name + "\' has been changed to \'" + new_portfolio_name + "\'."
         }
@@ -86,15 +86,15 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
 
 
 # Delete portfolio object from the database
-# Note: this function does not check whether userID or portfolio exists. It just deletes them if they exist
+# Note: this function does not check whether user_id or portfolio exists. It just deletes them if they exist
 def delete_portfolio(user_id, portfolio_name):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     # Delete from portfolio table
-    sql_query = "delete from portfolios where portfolioname=%s and userid=%s"
+    sql_query = "DELETE FROM Portfolios WHERE portfolio_name=%s AND user_id=%s"
     cur.execute(sql_query, (portfolio_name, user_id))
     # Delete from holdings table
-    sql_query = "delete from holdings where portfolioname=%s and userid=%s"
+    sql_query = "DELETE FROM Holdings WHERE portfolio_name=%s AND user_id=%s"
     cur.execute(sql_query, (portfolio_name, user_id))
     # Commit changes, close connection and return response to user
     conn.commit()
@@ -110,8 +110,8 @@ def total_stock_change(stock_ticker, purchase_price):
     return (current_price - purchase_price)*100 / purchase_price
 
 
-# Add investments to portfolio object in database 
-# Note: this assumes portfolioName and all the other inputs are of the correct size and data type
+# Add investments to portfolio object in database
+# Note: this assumes portfolio_name and all the other inputs are of the correct size and data type
 def add_investment(user_id, portfolio_name, num_shares, timestamp, stock_ticker):
     # Validate date
     purchase_date = datetime.fromtimestamp(timestamp)
@@ -120,11 +120,11 @@ def add_investment(user_id, portfolio_name, num_shares, timestamp, stock_ticker)
             'status': 400,
             'error': 'Invalid purchase date, date must be in the past/present'
         }
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     purchase_price = retrieve_stock_price_at_date(stock_ticker, purchase_date)
     # Execute query and close connections
-    sql_query = "insert into Holdings (userID, portfolioName, purchasePrice, numShares, purchaseDate, stockTicker) VALUES (%s, %s, %s, %s, %s, %s)"
+    sql_query = "INSERT INTO Holdings (user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker) VALUES (%s, %s, %s, %s, %s, %s)"
     cur.execute(sql_query, (user_id, portfolio_name, purchase_price, num_shares, purchase_date.strftime('%Y-%m-%d %H:%M:%S'), stock_ticker))
     conn.commit()
     conn.close()
@@ -133,10 +133,10 @@ def add_investment(user_id, portfolio_name, num_shares, timestamp, stock_ticker)
 
 # Delete investments from portfolio object in database
 def delete_investment(investment_id):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     # Delete from holdings table
-    sql_query = "delete from holdings where investmentID=%s"
+    sql_query = "delete from Holdings where investment_id=%s"
     cur.execute(sql_query, (investment_id, ))
     conn.commit()
     conn.close()
@@ -146,10 +146,10 @@ def delete_investment(investment_id):
 # Get an individual investment's total performance
 # Note: this assumes investment_id is correct.
 def get_investment_tc(investment_id):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
     # Get investment purchase price
-    sql_query = "select purchasePrice, stockTicker from Holdings where investmentID=%s"
+    sql_query = "SELECT purchase_price, stock_ticker FROM Holdings WHERE investment_id=%s"
     cur.execute(sql_query, (investment_id, ))
     query_results = cur.fetchall()
     purchase_price = float(query_results[0][0])
@@ -167,9 +167,9 @@ def get_investment_tc(investment_id):
 
 # Get the 'trendiness' of each invested stock symbol
 def get_trending_investments(num):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "select StockTicker, count(distinct UserID) as userCount from holdings group by StockTicker order by userCount desc limit %s"
+    sql_query = "SELECT stock_ticker, count(distinct user_id) AS user_count FROM Holdings GROUP BY stock_ticker ORDER BY user_count DESC limit %s"
     cur.execute(sql_query, (num, ))
     query_results = cur.fetchall()
     data = []
@@ -184,46 +184,46 @@ def get_trending_investments(num):
 
 ############ Additional functions ##############
 '''
-def checkData(data, portfolioName):
+def check_data(data, portfolio_name):
     for portfolio in data:
-        if portfolio['portfolioName'] == portfolioName:
+        if portfolio['portfolio_name'] == portfolio_name:
             return portfolio
     return {}
 
 
-def getUserPortfolios(userID):
-    conn = createDBConnection()
+def getUserPortfolios(user_id):
+    conn = create_DB_connection()
     cur = conn.cursor()
-    sqlQuery = "select * from holdings where userID=%s"
-    cur.execute(sqlQuery, (userID, ))
-    queryResults = cur.fetchall()
+    sql_query = "SELECT * FROM Holdings where user_id=%s"
+    cur.execute(sql_query, (user_id, ))
+    query_results = cur.fetchall()
     data = []
-    for row in queryResults:
-        portfolioName = row[2]
-        newInvestment = {
-            'investmentID' : row[0],
-            'PurchasePrice' : row[3], 
-            'NumShares' : row[4], 
-            'PurchaseDate' : row[5], 
-            'StockTicker' : row[6]
+    for row in query_results:
+        portfolio_name = row[2]
+        new_investment = {
+            'investment_id' : row[0],
+            'purchase_price' : row[3],
+            'num_shares' : row[4],
+            'purchase_date' : row[5],
+            'stock_ticker' : row[6]
         }
-        presentData = checkData(data, portfolioName)
-        if presentData:
-            presentData['holdings'].append(newInvestment)
+        present_data = check_data(data, portfolio_name)
+        if present_data:
+            present_data['holdings'].append(new_investment)
         else:
-            newPortfolio = {
-                'portfolioName' : portfolioName,
-                'holdings' : [newInvestment]
+            new_portfolio = {
+                'portfolio_name' : portfolio_name,
+                'holdings' : [new_investment]
             }
-            data.append(newPortfolio)
+            data.append(new_portfolio)
 
     conn.close()
     return data
 '''
 def get_portfolios(user_id):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "select portfolioName from portfolios where userID=%s"
+    sql_query = "SELECT portfolio_name FROM Portfolios WHERE user_id=%s"
     cur.execute(sql_query, (user_id, ))
     query_results = cur.fetchall()
     data = []
@@ -233,20 +233,20 @@ def get_portfolios(user_id):
     return {'status' : 200, 'data' : data}
 
 def get_investments(user_id, portfolio_name):
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "select * from holdings where userID=%s and portfolioName=%s"
+    sql_query = "SELECT * FROM Holdings WHERE user_id=%s AND portfolio_name=%s"
     cur.execute(sql_query, (user_id, portfolio_name))
     query_results = cur.fetchall()
     data = []
     for row in query_results:
         new_investment = {
-            'investmentID': row[0],
-            'purchasePrice': str(row[3]), 
-            'numShares': row[4], 
-            'purchaseDate': row[5].strftime("%Y-%m-%d"), 
-            'totalChange': total_stock_change(row[6], float(row[3])),
-            'stockTicker': row[6]
+            'investment_id': row[0],
+            'purchase_price': str(row[3]),
+            'num_shares': row[4],
+            'purchase_date': row[5].strftime("%Y-%m-%d"),
+            'total_change': total_stock_change(row[6], float(row[3])),
+            'stock_ticker': row[6]
         }
         data.append(new_investment)
 
@@ -324,9 +324,9 @@ def get_investment_trending_wrapper():
 # Create a new investment
 # Expects payload:
 '''
-    numShares: number
-    stockTicker: string
-    purchaseDate: number (in UNIX timestamp format, i.e. seconds since 1970)
+    num_shares: number
+    stock_ticker: string
+    purchase_date: number (in UNIX timestamp format, i.e. seconds since 1970)
 '''
 @PORTFOLIO_ROUTES.route('/investment', methods=['POST'])
 def add_investment_user_portfolio_wrapper():
@@ -334,9 +334,9 @@ def add_investment_user_portfolio_wrapper():
     user_id = get_id_from_token(token)
     data = request.get_json()
     portfolio_name = request.args.get('portfolio')
-    num_shares = data['numShares']
-    stock_ticker = data['stockTicker']
-    purchase_date = int(data['purchaseDate'])
+    num_shares = data['num_shares']
+    stock_ticker = data['stock_ticker']
+    purchase_date = int(data['purchase_date'])
     response = add_investment(user_id, portfolio_name, num_shares, purchase_date, stock_ticker)
     return dumps(response)
 
