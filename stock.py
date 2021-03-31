@@ -5,13 +5,16 @@
 
 from flask import Blueprint, request
 
+from dotenv import load_dotenv
 from json import dumps
+import numpy as np
 import pandas as pd
 import sys
 import os
 from collections import OrderedDict
 from datetime import datetime
 import pytz
+import requests
 
 from psycopg2.extras import DictCursor
 import psycopg2.extensions
@@ -19,6 +22,8 @@ from alpha_vantage.timeseries import TimeSeries
 
 from database import create_DB_connection
 from helpers import JSONLoader, AlphaVantageInfo
+
+MODELSRVPORT = os.getenv("MODELSRVPORT")
 
 STOCK_ROUTES = Blueprint('stock', __name__)
 
@@ -51,6 +56,7 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
         date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
         # TODO: select based on exchange trading hours
+        # TODO: allow updating on weekends if last fetched on prior weekday
         date_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
         dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
 
@@ -175,8 +181,8 @@ def get_cash_flow(symbol, num_entries=1):
     cur = conn.cursor(cursor_factory=DictCursor)
 
     selectQuery = f"SELECT * FROM cashflow_statements \
-        WHERE stockticker='{symbol}' \
-        ORDER BY fiscaldateending DESC LIMIT {num_entries}"
+        WHERE stock_ticker='{symbol}' \
+        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
     cur.execute(selectQuery)
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
@@ -226,7 +232,6 @@ def get_financials_data(symbol, func):
             'error': "Financials data not found"
         })
     return data
-
 
 
 ################################
@@ -290,6 +295,65 @@ def get_stock_data():
             'error': "Symbol not found"
         })
     return data
+
+@STOCK_ROUTES.route('/stock/get_prediction_daily', methods=['GET'])
+def get_prediction_daily():
+    symbol = request.args.get('symbol')
+
+    sample_df = {}
+    sample_metadata = {}
+    summary = {}
+
+    filename = "demo/" + symbol + "_daily_adjusted.json" if symbol else ""
+    if os.path.isfile(filename):
+        sample_df, sample_metadata = get_stock_value(filename)
+    # TODO: generate values differently based on inference type
+    close_data = sample_df["4. close"][-60:].values
+    for i in np.where(np.isnan(close_data))[0]:
+        close_data[i] = close_data[i-1] if not np.isnan(close_data[i-1]) else 0
+
+    data = {"inference_mode": "walk_forward", "data": close_data.tolist()}
+    headers = { "Content-Type": "application/json", }
+    endpoint = f"http://127.0.0.1:{MODELSRVPORT}/model/api/get_prediction"
+
+    status = 0
+    dispatch_data = {}
+    try:
+        r = requests.post(url=endpoint, data=dumps(data), headers=headers)
+
+        # TODO: cleanup processing, this is really ugly.
+        # Ideally auto-limit sequence sizes
+        prediction_result = []
+        if r.status_code == requests.codes.ok:
+            prediction_result = r.json()
+        prediction_data = np.array(prediction_result['data'])
+        if prediction_data.shape[0] > 60:
+            prediction_data = prediction_data[:60]
+
+        prediction_start = sample_df["4. close"][-1:].index
+        # print("Start: ", prediction_start, type(prediction_start))
+        prediction_end = prediction_start + pd.tseries.offsets.BDay(60)
+        # print("End: ", prediction_end, type(prediction_end))
+
+        prediction_range = (pd.date_range(start=prediction_start.array[0], end=prediction_end.array[0], freq="B") - pd.Timestamp("1970-01-01")) // pd.Timedelta(milliseconds=1)
+        if prediction_range.shape[0] > 60:
+            prediction_range = prediction_range[:60]
+
+        prediction_data_s = [[int(timestamp), value] for timestamp, value in zip(prediction_range.tolist(), prediction_data)]
+
+        status = 200
+        dispatch_data = {
+            'name': "Prediction (daily)",
+            'data': prediction_data_s
+        }
+    except Exception as e:
+        status = 500
+        dispatch_data = {}
+
+    return dumps({
+        'status': status,
+        'data': dispatch_data
+    })
 
 @STOCK_ROUTES.route('/stock/income_statement', methods=['GET'])
 def get_income_statement_data():

@@ -134,6 +134,11 @@ def fill_income_statements(symbol):
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
+        # Convert "None" values to None so cur.execute converts it to NULL.
+        for key, value in annualReport.items():
+            if (value == "None"):
+                annualReport[key] = None
+
         cur.execute(insertQuery, (
             symbol,
             annualReport['fiscalDateEnding'],
@@ -204,7 +209,7 @@ def fill_balance_sheets(symbol):
             annualReport['goodwill'],
             annualReport['intangibleAssets'],
             annualReport['longTermInvestments'],
-            annualReport['otherNonCurrentAssets'],
+            annualReport['otherNonCurrrentAssets'],
             annualReport['currentAccountsPayable'],
             annualReport['shortTermDebt'],
             annualReport['otherCurrentLiabilities'],
@@ -274,25 +279,30 @@ def fill_cashflow_statements(symbol):
 
 
 def fill_overview_and_financial_tables(symbol):
-    fillSecuritiesOverviewTable(symbol)
-    fillIncomeStatements(symbol)
-    fillBalanceSheets(symbol)
-    fillCashflowStatements(symbol)
+    fill_securities_overview_table(symbol)
+    fill_income_statements(symbol)
+    fill_balance_sheets(symbol)
+    fill_cashflow_statements(symbol)
 
 
 if __name__ == "__main__":
     create_user_table()
     #create_portfolios_table()
-    #create_holdings_table() 
+    #create_holdings_table()
     #create_securities_overviewTable()
     #create_income_statementsTable()
     #create_balance_sheets_table()
     #create_cashflow_statements_table()
     #create_comment_tables()
 
-    # Basic materials
-    # fillOverviewAndFinancialTables('BHP')
+    # Basic materials sector
+    #fill_overview_and_financial_tables('BHP')
+    #fill_overview_and_financial_tables('LIN')
 
     # Technology sector
-    #fillOverviewAndFinancialTables('ORCL')
-    #fillOverviewAndFinancialTables('IBM')
+    #fill_overview_and_financial_tables('ORCL')
+    #fill_overview_and_financial_tables('IBM')
+
+    # Consumer defence sector
+    #fill_overview_and_financial_tables('WMT')
+    #fill_overview_and_financial_tables('KO')
