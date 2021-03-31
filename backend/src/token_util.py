@@ -24,6 +24,5 @@ def get_id_from_token(token):
     raise Exception('Failed to decode token')
 
 
-#encoded_jwt = generate_token('hello')
 #print(encoded_jwt)
 #print(get_id_from_token(encoded_jwt))

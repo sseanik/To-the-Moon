@@ -1,5 +1,6 @@
 import sys
 import json
+import csv
 import requests
 from datetime import date
 
@@ -122,7 +123,16 @@ if __name__ == "__main__":
 
     #aeo = ts.get_intraday("AEO", "5min", outputsize="full")
     #AlphaVantageAPI.save_json("AEO", aeo, label="intraday")
-
+    url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=IBM&apikey=1PRBO66RYM7SV7B9&outputsize=full&datatype=csv"
+    ibm = requests.get(url, proxies={}, headers={})
+    ibm = ibm.content.decode('utf-8')
+    cr = csv.reader(ibm.splitlines(), delimiter=',')
+    #print(list(cr))
+    #AlphaVantageAPI.save_json("IBM", ibm, label="daily_adjusted")
+    with open(f'./IBM_daily_adjusted_full{date.today().strftime("%Y%m%d")}.csv', 'w') as outfile:
+        writer = csv.writer(outfile)
+        for row in cr:
+            writer.writerow(row)
 '''
     ibm = ts.get_quick_quote("IBM")
     AlphaVantageAPI.save_json("IBM", ibm, label="quick_quote")

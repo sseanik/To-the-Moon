@@ -1,0 +1,29 @@
+Week 1:
+- This week we were forming groups. Sean and I made a post and managed to get 3 other members
+- In class we discussed the interesting projects. Most of our group was leaning towards the skills e-portfolio, stock portfolio management, and the E-commerce recommender system
+- Our eventually decided on the stock portfolio management project
+- During our weekly standup we brain stormed the basic features we would need, and also novel features we could add to the app.
+
+Week 2:
+- This week we worked on the proposal
+- During our Monday standup we delegated portions of the proposal, with me getting the background section
+- To start I found apps most similar to ours and representative of the stock portfolio management market. I decided to compare to the apps Yahoo Finance, Raiz, Investing.com, and MetaTrader 5
+- The rest of the week was spent interacting with these apps to view their features and platforms. Additionally I started constructing a list of features and strengths/weaknesses of each app to help myself write the comparison section.
+
+Week 3:
+- The proposal backend was written this week.
+- Started with the domain problem and wrote a problem statement which i shared with the group. Everyone approved so it was added and remained unchanged until submission.
+- The comparison section took quite some time, with each app taking about 2.5 pages of writing. UI screenshots were also included in this section.
+- After the comparison section I added a summary section which listed features, and how each app satisfied these features.
+- Lastly was the section on our apps basic and novel features. Sean wrote this section and i editied it.
+
+Week 4:
+- This week code development started
+- I got the portfolio backend jobs. Also helped Sean and Junji with the database. 
+- Much of the portfolio backend was writing up the schema for the necessary database tables. So i created Holdings.sql and portfolio.sql
+- I also took on the job of writing the sql schema for the securities overview, income statements, balance sheets, and cashflow statements. 
+- I adjusted the AlphaVantageAPIWrapper python file to fetch infomation on securities overview, income statements, balance sheets, and cashflow statements.
+- added the loading functions to database python file. Then created a function fillOverviewAndFinancialTables() which takes a stock symbol and fills the overview table, income statement table, balance sheet table, and cashflow table.
+
+Week 5:
+

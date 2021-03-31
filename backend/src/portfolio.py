@@ -2,7 +2,7 @@
 #   Portfolio Module   #
 ########################
 
-
+import time
 from flask import Blueprint, request
 from json import dumps
 from database import create_DB_connection
@@ -221,26 +221,45 @@ def get_investments(user_id, portfolio_name):
 
 
 def get_portfolio_performance(user_id, portfolio_name):
-    response = get_investments(user_id, portfolio_name)
-    data = response['data']
-    if not data:
-        return {'status' : 400, 'error' : 'There is no portfolio called \'' + portfolio_name + '\'.'}
-
-    # Get all the stock tickers
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    sql_query = "SELECT * FROM Holdings WHERE user_id=%s AND portfolio_name=%s"
+    cur.execute(sql_query, (user_id, portfolio_name))
+    query_results = cur.fetchall()
+    if not query_results:
+        return {'status' : 400, 'error' : 'There are no investments in portfolio called \'' + portfolio_name + '\'.'}
+    conn.close()
+    
+    # Fill the data dictionary with investments and collect the stock tickers for a batch API call
+    data = {'investments' : []}
     stocks = []
-    for investment in data:
-        if investment['stock_ticker'] not in stocks:
-            stocks.append(investment['stock_ticker'])
+    for row in query_results:
+        stock_ticker = row[6]
+        if stock_ticker not in stocks:
+            stocks.append(stock_ticker)
+
+        new_investment = {
+            'investment_id': row[0],
+            'purchase_price': str(row[3]),
+            'num_shares': row[4],
+            'purchase_date': row[5].strftime("%Y-%m-%d"),
+            'stock_ticker': stock_ticker
+        }
+        data['investments'].append(new_investment)
 
     # Fetch stock prices
     batch = Stock(stocks)
     batch = batch.get_quote()
-    value_change = 0
-    total_value = 0
-    for investment in data:
-        value_change += batch.latestPrice[investment['stock_ticker']] - investment['purchase_price']
-        total_value += investment['purchase_price']
-    return {'status' : 200, 'message' : value_change / total_value}
+    total_value_change = 0
+    total_invested_capital = 0
+    for investment in data['investments']:
+        value_change = batch.latestPrice[investment['stock_ticker']] - float(investment['purchase_price'])
+        investment['total_change'] = (value_change * 100) / float(investment['purchase_price'])
+        total_value_change += value_change
+        total_invested_capital += float(investment['purchase_price'])
+
+    data['portfolio_change'] = (total_value_change * 100) / total_invested_capital
+    return data
 
 
 ################################
@@ -337,6 +356,14 @@ def delete_investment_user_portfolio_wrapper():
     return dumps(delete_investment(investment_id))
 
 
+# Get the performance of a portfolio and its individual investments.
+@PORTFOLIO_ROUTES.route('/user/portfolio/performance', methods=['GET'])
+def get_portfolio_performance_wrapper():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    portfolio_name = request.args.get('name')
+    response = get_portfolio_performance(user_id, portfolio_name)
+    return dumps(response)
 
 
 ############ Tests #############
@@ -365,9 +392,11 @@ def delete_investment_user_portfolio_wrapper():
 # for key, value in batch.items():
 #     print(key, " : ", value)
 
-create_portfolio()
+#create_portfolio("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test")
 # add TSLA, IBM
-get_portfolio_performance
-
-
+#add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
+#add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "ORCL")
+#dd_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
+# test 
+#print(get_portfolio_performance("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test"))
 

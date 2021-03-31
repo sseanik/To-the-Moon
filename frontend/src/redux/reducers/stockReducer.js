@@ -26,6 +26,11 @@ const initialState = {
     error: null,
     data: []
   },
+  predictionDaily: {
+    loading: false,
+    error: null,
+    data: {}
+  },
 };
 
 const stockReducer = (state = initialState, action) => {
@@ -146,6 +151,35 @@ const stockReducer = (state = initialState, action) => {
           error: action.payload,
         },
       };
+    // Prediction - Daily
+    case stockConstants.GET_PREDICTION_DAILY_PENDING:
+    return {
+      ...state,
+      predictionDaily: {
+        ...state.predictionDaily,
+        loading: true,
+        error: null,
+      },
+    };
+    case stockConstants.GET_PREDICTION_DAILY_SUCCESS:
+    return {
+      ...state,
+      predictionDaily: {
+        ...state.predictionDaily,
+        loading: false,
+        error: null,
+        data: action.payload.data
+      },
+    };
+    case stockConstants.GET_PREDICTION_DAILY_FAILURE:
+    return {
+      ...state,
+      predictionDaily: {
+        ...state.predictionDaily,
+        loading: false,
+        error: action.payload,
+      },
+    };
     default:
       return state;
   }
