@@ -7,7 +7,7 @@ import re
 import bcrypt
 from json import dumps
 from flask import Blueprint, request
-from database import createDBConnection
+from database import create_DB_connection
 from token_util import generate_token, get_id_from_token
 
 
@@ -26,7 +26,7 @@ USER_ROUTES = Blueprint('user', __name__)
 
 def register_user(first_name, last_name, email, username, password):
     # open database connection
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
 
     # validate email format
@@ -108,7 +108,7 @@ def register_user(first_name, last_name, email, username, password):
 
 def login_user(email, password):
     # open database connection
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
 
     # check if user with current email already exists
@@ -141,14 +141,14 @@ def login_user(email, password):
     return {
         'status': 200,
         'username': username,
-        'token': generateToken(user_id),
+        'token': generate_token(user_id),
         'message': 'Successfully logged in!'
     }
 
 
 def get_username(user_id):
     # open database connection
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor()
 
     # check if user with current id exists
