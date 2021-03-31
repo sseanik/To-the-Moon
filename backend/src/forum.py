@@ -4,11 +4,12 @@
 import time
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from database import createDBConnection
+from database import create_DB_connection
 from token_util import get_id_from_token
 from better_profanity import profanity
 from json import dumps
 from flask import Blueprint, request
+import psycopg2.extras
 
 
 FORUM_ROUTES = Blueprint('forum', __name__)
@@ -20,10 +21,8 @@ def validate_timestamp(timestamp):
     day_milliseconds = 86400000
     yesterday = now_milliseconds - day_milliseconds
     tomorrow = now_milliseconds + day_milliseconds
+    return False if (timestamp < yesterday or timestamp > tomorrow) else True
 
-    if timestamp < yesterday or timestamp > tomorrow:
-        return False
-    return True
 
 ###################################
 # Please leave all functions here #
@@ -56,7 +55,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     content = profanity.censor(content)
 
     # Open database connection
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # If no parent_id is provided, comment is a parent comment (comment)
@@ -197,9 +196,131 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     
 
 
+def get_stock_comments(user_id, stock_ticker):
+    # Open database connection
+    conn = create_DB_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Select Query returning parent comments and their children
+    select_query = """
+        SELECT 
+        c.comment_id, 
+        c.stock_ticker, 
+        u.username, 
+        c.time_stamp, 
+        c.content, 
+        array_to_json(c.upvote_user_ids) AS upvote_user_ids, 
+        array_to_json(c.downvote_user_ids) AS downvote_user_ids,
+        c.is_edited, 
+        c.is_deleted, 
+        COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies 
+        FROM 
+        forum_comment c 
+        JOIN users u ON (c.author_id = u.id) 
+        LEFT JOIN(
+            SELECT 
+            f.reply_id, 
+            f.stock_ticker, 
+            u.username, 
+            f.time_stamp, 
+            f.content, 
+            f.upvote_user_ids, 
+            f.downvote_user_ids, 
+            f.is_edited, 
+            f.comment_id 
+            FROM 
+            forum_reply f 
+            LEFT JOIN users u ON (f.author_id = u.id) 
+            GROUP BY 
+            f.reply_id, 
+            u.username
+        ) AS r ON (c.comment_id = r.comment_id) 
+        WHERE 
+        c.stock_ticker = 'IBM' 
+        GROUP BY 
+        c.comment_id, 
+        u.username
+    """.replace("\n", "")
+
+    try:
+        cur.execute(select_query, (stock_ticker,))
+        query_results = cur.fetchall()
+        status = 200
+        message = "Submitted successfully"
+    except:
+        query_results = []
+        status = 400
+        message = "Invalid data was provided to the Database"
+
+    cur.close()
+    conn.close()
+
+    for i in range(len(query_results)):
+        # Convert from RealDictCursor to Dictionary
+        query_results[i] = dict(query_results[i])
+
+        # Add upvoted and downvoted fields to comments
+        query_results[i]['is_upvoted'] = False
+        query_results[i]['is_downvoted'] = False
+
+        # If the user id is present in the votes, update fields
+        if user_id in query_results[i]['upvote_user_ids']:
+            query_results[i]['is_upvoted'] = True
+        elif user_id in query_results[i]['downvote_user_ids']:
+            query_results[i]['is_upvoted'] = True
+
+        # Add upvote and downvote count fields
+        query_results[i]['upvotes'] = len(query_results[i]['upvote_user_ids'])
+        query_results[i]['downvotes'] = len(
+            query_results[i]['downvote_user_ids'])
+        query_results[i]['vote_difference'] = query_results[i]['upvotes'] - \
+            query_results[i]['downvotes']
+
+        # Remove user_ids exposed in upvotes and downvotes
+        del query_results[i]['upvote_user_ids']
+        del query_results[i]['downvote_user_ids']
+
+        # Fix the case of [None], into []
+        if query_results[i]['replies'] == [None]:
+            query_results[i]['replies'] = []
+            continue
+
+        for j in range(len(query_results[i]['replies'])):
+            # Add upvote and downvote fields to replies
+            query_results[i]['replies'][j]['is_upvoted'] = False
+            query_results[i]['replies'][j]['is_downvoted'] = False
+
+            # If the user is present in the reply votes, update fields
+            if user_id in query_results[i]['replies'][j]['upvote_user_ids']:
+                query_results[i]['replies'][j]['is_upvoted'] = True
+            elif user_id in query_results[i]['replies'][j]['downvote_user_ids']:
+                query_results[i]['replies'][j]['is_downvoted'] = True
+
+            # Add number of upvotes and downvote fields
+            query_results[i]['replies'][j]['upvotes'] = len(
+                query_results[i]['replies'][j]['upvote_user_ids'])
+            query_results[i]['replies'][j]['downvotes'] = len(
+                query_results[i]['replies'][j]['downvote_user_ids'])
+            query_results[i]['replies'][j]['vote_difference'] = query_results[i]['replies'][j]['upvotes'] - \
+                query_results[i]['replies'][j]['downvotes']
+
+            # Remove upvote and downvote user ids
+            del query_results[i]['replies'][j]['upvote_user_ids']
+            del query_results[i]['replies'][j]['downvote_user_ids']
+
+    # TODO: Sort Weighting
+
+    return {
+        'status': status,
+        'message': message,
+        'comments': query_results
+    }
+
 ################################
 # Please leave all routes here #
 ################################
+
+
 @FORUM_ROUTES.route('/forum/comment', methods=['POST'])
 def submit_comment():
     token = request.headers.get('Authorization')
@@ -235,35 +356,11 @@ def edit_users_comment():
     data = request.get_json()
     result = edit_comment(user_id['id'], data['comment_id'], data['time_stamp'], data['content'])
     return dumps(result)
+@FORUM_ROUTES.route('/forum', methods=['GET'])
+def get_comments():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = get_stock_comments(user_id, data['stockTicker'])
+    return dumps(result)
 
-
-if __name__ == "__main__":
-    #     # Testing Posting Parent Comment
-    #     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #           "Parent 4"))
-    #     print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #           "Parent 5"))
-    #print(post_comment("4fbee696-89f3-11eb-8558-0a4e2d6dea13", "IBM",
-    #      1616810169114, "Parent 6", "505489ae-8f65-11eb-9d86-0a4e2d6dea13"))
-
-    # print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616810169114,
-    #                    "Child 1 D", "275af66c-8ec7-11eb-b34c-0a4e2d6dea13"))
-
-    #print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM",
-    #     1616906592000, "$$$$"))
-    
-    #print(post_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "IBM", time.time() * 1000, "THIS WILL BE EDITED", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13"))
-
-    #print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "6e90bd54-8f81-11eb-a4ac-0a4e2d6dea13",  time.time() * 1000, "Test edit"))
-    #print(edit_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "6ed3656c-8f8d-11eb-a71a-0a4e2d6dea13",  
-        #time.time() * 1000, "edited again content", 'something'))
-
-    #print(post_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "IBM", time.time() * 1000, "TEST 2"))
-    #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "28de170e-8f9d-11eb-b657-0a4e2d6dea13", time.time() * 1000, "EDITED 2"))
-    #print(post_comment("a81f2b16-89e9-11eb-a341-0a4e2d6dea13", "IBM", time.time() * 1000, "CHILD COMMENT TEST 2", "28de170e-8f9d-11eb-b657-0a4e2d6dea13"))
-    #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "1b03ad9c-8f9d-11eb-8f6f-0a4e2d6dea13", time.time() * 1000, "EDITED CHILD COMMENT 2"))
-    #print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", time.time() * 1000, "EDIT PARENT COMMENT"))
-    #print(edit_comment("1b6fe090-8654-11eb-a555-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", time.time() * 1000, "EDIT PARENT COMMENT"))
-    #print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13", 1616993847150, "New content"))
-    #print(post_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "IBM", 1616993847150, "TEST CHILD CONTENT", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13"))
-    print(edit_comment("0ee69cfc-83ce-11eb-8620-0a4e2d6dea13", "596bbec2-9064-11eb-809e-0a4e2d6dea13", 1616993847150, "NEW CHILD CONTENT", "ed8b9202-9042-11eb-86b3-0a4e2d6dea13"))

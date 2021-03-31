@@ -1,76 +1,45 @@
-import { useEffect, useState } from "react";
-import { Alert, Button, Container, Col, Row, Spinner } from "react-bootstrap";
+import { useEffect } from "react";
+import { Container, Col, Row, Alert } from "react-bootstrap";
 import { useParams } from "react-router";
-import portfolioAPI from "../api/portfolio";
 import AddInvestmentForm from "../components/AddInvestmentForm";
 import EditPortfolioForm from "../components/EditPortfolioForm";
 import StockInfo from "../components/StockInfo";
 import ClipLoader from "react-spinners/ClipLoader";
+import investmentActions from "../redux/actions/investmentActions";
+import { connect } from "react-redux";
 
-interface Props {
-  token?: string;
+interface StockParams {
+  investment_id: string;
+  stock_ticker: string;
+  num_shares: number;
+  purchase_date: string;
+  purchase_price: string;
+  total_change: number;
+}
+
+interface StateProps {
+  loading: boolean;
+  error: Object;
+  stocks: Array<StockParams>;
+}
+
+interface DispatchProps {
+  getStocks: (portfolioName: string) => void;
 }
 
 interface RouteMatchParams {
   name: string;
 }
 
-interface StockInfo {
-  investmentID: string;
-  NumShares: number;
-  PurchaseDate: string;
-  PurchasePrice: string;
-  StockTicker: string;
-  TotalChange: number;
-}
-
-const PortfolioPage: React.FC<Props> = (props) => {
-  const { token } = props;
+const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
   const { name } = useParams<RouteMatchParams>();
-  const [authenticated, setAuthenticated] = useState(false);
-  const [addingStock, setAddingStock] = useState(false);
-  const [editingPortfolio, setEditingPortfolio] = useState(false);
-  const [stockData, setStockData] = useState<Array<StockInfo>>([]);
-  const [stockLoading, setStockLoading] = useState(true);
-  const [stockDeleting, setStockDeleting] = useState(false);
+  const { loading, error, stocks, getStocks } = props;
 
   useEffect(() => {
-    portfolioAPI.getStocks(name).then((portfolioStocks) => {
-      setStockData(portfolioStocks.data);
-      setStockLoading(false);
-    });
-  }, []);
+    getStocks(name);
+  }, [getStocks, name]);
 
-  // may be removed soon
-  useEffect(() => {
-    if (token !== "" || window.localStorage.getItem("Token")) {
-      setAuthenticated(true);
-    } else {
-      setAuthenticated(false);
-    }
-  }, [token]);
-
-  const listStocks = stockData.map((stockInfo, id) => (
-    <StockInfo key={id} portfolio_name={name} {...stockInfo} />
-  ));
-
-  const handleDeletePortfolioClick = () => {
-    setStockDeleting(true);
-    const deletePortfolio = async () => {
-      await portfolioAPI.deletePortfolio(name);
-    };
-    deletePortfolio();
-    setStockDeleting(false);
-  };
-
-  const handleInvestmentAdded = () => {
-    portfolioAPI.getStocks(name).then((portfolioStocks) => {
-      setStockData(portfolioStocks.data);
-      setAddingStock(false);
-    });
-  };
-
-  const allowed = () => (
+  return (
     <Container fluid>
       <Row className="justify-content-center my-3">
         <h1>{name}</h1>
@@ -84,65 +53,34 @@ const PortfolioPage: React.FC<Props> = (props) => {
         <Col>Total Change</Col>
         <Col>Delete Stock</Col>
       </Row>
-      {stockLoading ? (
-        <Container fluid className="mt-2">
-          <ClipLoader color="blue" loading={stockLoading} />
-        </Container>
+      {error ? <Alert variant="danger">{error}</Alert> : null}
+      {loading ? (
+        <ClipLoader color="green" loading={loading} />
       ) : (
-        <Container fluid className="px-0">
-          {listStocks}
-        </Container>
+        stocks.map((stockProps, id) => <StockInfo key={id} {...stockProps} />)
       )}
       <Row className="justify-content-center mt-5">
         <Col>
-          {addingStock ? (
-            <AddInvestmentForm handleInvestmentAdded={handleInvestmentAdded} />
-          ) : (
-            <Button variant="primary" onClick={() => setAddingStock(true)}>
-              Add Investment
-            </Button>
-          )}
+          <AddInvestmentForm />
         </Col>
         <Col>
-          {editingPortfolio ? (
-            <EditPortfolioForm
-              handlePortfolioEdited={() => setEditingPortfolio(false)}
-            />
-          ) : (
-            <Button
-              variant="outline-success"
-              onClick={() => setEditingPortfolio(true)}
-            >
-              Edit Portfolio
-            </Button>
-          )}
-        </Col>
-        <Col>
-          {stockDeleting ? (
-            <Spinner animation="border" />
-          ) : (
-            <Button
-              href="/portfolios"
-              variant="outline-danger"
-              onClick={handleDeletePortfolioClick}
-            >
-              Delete Portfolio
-            </Button>
-          )}
+          <EditPortfolioForm />
         </Col>
       </Row>
     </Container>
   );
-
-  const denied = () => (
-    <Row>
-      <Alert variant="danger">
-        <p>You do not have permission to access {name}</p>
-      </Alert>
-    </Row>
-  );
-
-  return <Container fluid>{authenticated ? allowed() : denied()}</Container>;
 };
 
-export default PortfolioPage;
+const mapStateToProps = (state: any) => ({
+  loading: state.investmentReducer.getStocks.loading,
+  stocks: state.investmentReducer.getStocks.stocks,
+});
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    getStocks: (portfolioName: string) =>
+      dispatch(investmentActions.getStocks(portfolioName)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PortfolioPage);

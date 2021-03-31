@@ -3,7 +3,7 @@ import Utils from "./utils";
 
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
-const stockAPI = {
+const investmentAPI = {
   getStockTotalChange: (id) => {
     const endpoint = `/investment/total-change?id=${id}`;
     const options = {
@@ -16,7 +16,8 @@ const stockAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  addStock: (portfolio, stock) => {
+  addStock: (portfolio, stockTicker, numShares, purchaseDate) => {
+    const purchaseUnix = new Date(purchaseDate).getTime() / 1000;
     const endpoint = `/investment?portfolio=${portfolio}`;
     const options = {
       method: "POST",
@@ -25,10 +26,9 @@ const stockAPI = {
         Authorization: Utils.getToken(),
       },
       body: JSON.stringify({
-        purchasePrice: '10',
-        numShares: 1,
-        purchaseDate: new Date().toISOString().slice(0, 10),
-        stockTicker: stock
+        num_shares: numShares,
+        purchase_date: purchaseUnix,
+        stock_ticker: stockTicker,
       }),
     };
 
@@ -46,6 +46,18 @@ const stockAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  getStocks: (portfolioName) => {
+    const endpoint = `/user/investment?portfolio=${portfolioName}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+    };
+
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
 };
 
-export default stockAPI;
+export default investmentAPI;
