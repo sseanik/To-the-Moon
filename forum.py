@@ -316,7 +316,7 @@ def get_stock_comments(user_id, stock_ticker):
             u.username
         ) AS r ON (c.comment_id = r.comment_id) 
         WHERE 
-        c.stock_ticker = 'IBM' 
+        c.stock_ticker = '%s' 
         GROUP BY 
         c.comment_id, 
         u.username
@@ -457,7 +457,7 @@ def edit_users_comment():
 def get_comments():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = get_stock_comments(user_id, data['stockTicker'])
+    stock_ticker = request.args.get('stockTicker')
+    result = get_stock_comments(user_id, stock_ticker)
     return dumps(result)
 
