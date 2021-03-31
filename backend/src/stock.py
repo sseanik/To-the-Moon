@@ -117,9 +117,9 @@ def get_fundamentals(symbol):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM securities_overviews \
-        WHERE stock_ticker='{symbol}'"
-    cur.execute(selectQuery)
+    selectQuery = "SELECT * FROM securities_overviews \
+        WHERE stock_ticker=%s"
+    cur.execute(selectQuery, (symbol,))
     query_result = cur.fetchone()
     result = OrderedDict(query_result) if query_result else None
     result = OrderedDict((k, result[k]) for k in revised_fs_fields)
@@ -131,10 +131,10 @@ def get_income_statement(symbol, num_entries=1):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM income_statements \
-        WHERE stock_ticker='{symbol}' \
-        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
-    cur.execute(selectQuery)
+    selectQuery = "SELECT * FROM income_statements \
+        WHERE stock_ticker=%s \
+        ORDER BY fiscal_date_ending DESC LIMIT %s"
+    cur.execute(selectQuery, (symbol, num_entries,))
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
     for record in result:
@@ -149,10 +149,10 @@ def get_balance_sheet(symbol, num_entries=1):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM balance_sheets \
-        WHERE stock_ticker='{symbol}' \
-        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
-    cur.execute(selectQuery)
+    selectQuery = "SELECT * FROM balance_sheets \
+        WHERE stock_ticker=%s \
+        ORDER BY fiscal_date_ending DESC LIMIT %s"
+    cur.execute(selectQuery, (symbol, num_entries,))
     query_results = cur.fetchall()
     # result = [dict(record) for record in query_results]
     result = []
@@ -180,10 +180,10 @@ def get_cash_flow(symbol, num_entries=1):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM cashflow_statements \
-        WHERE stock_ticker='{symbol}' \
-        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
-    cur.execute(selectQuery)
+    selectQuery = "SELECT * FROM cashflow_statements \
+        WHERE stock_ticker=%s \
+        ORDER BY fiscal_date_ending DESC LIMIT %s"
+    cur.execute(selectQuery, (symbol, num_entries,))
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
     for record in result:
