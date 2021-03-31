@@ -12,7 +12,6 @@ interface Props {
 }
 
 const StockInfo: React.FC<Props> = (props) => {
-  console.log(props);
   const {
     investment_id,
     num_shares,
