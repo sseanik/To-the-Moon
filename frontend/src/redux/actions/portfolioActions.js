@@ -5,9 +5,8 @@ const portfolioActions = {
   createPortfolioPending: () => ({
     type: portfolioConstants.CREATE_PORTFOLIO_PENDING,
   }),
-  createPortfolioSuccess: (response) => ({
+  createPortfolioSuccess: () => ({
     type: portfolioConstants.CREATE_PORTFOLIO_SUCCESS,
-    payload: response,
   }),
   createPortfolioFailure: (error) => ({
     type: portfolioConstants.CREATE_PORTFOLIO_FAILURE,
@@ -17,15 +16,15 @@ const portfolioActions = {
     dispatch(portfolioActions.createPortfolioPending());
     try {
       const { newName } = payload;
-      const res = await portfolioAPI.createPortfolio(newName);
-      if (res.status === 200) {
-        dispatch(portfolioActions.createPortfolioSuccess(res));
+      const { status, error } = await portfolioAPI.createPortfolio(newName);
+      if (status === 200) {
+        dispatch(portfolioActions.createPortfolioSuccess());
         dispatch(portfolioActions.getPortfolios());
       } else {
-        dispatch(portfolioActions.createPortfolioFailure(res.error));
+        dispatch(portfolioActions.createPortfolioFailure(error));
       }
     } catch (error) {
-      dispatch(portfolioActions.createPortfolioFailure(error));
+      dispatch(portfolioActions.createPortfolioFailure(error.message));
     }
   },
   getPortfoliosPending: () => ({
@@ -42,14 +41,14 @@ const portfolioActions = {
   getPortfolios: () => async (dispatch) => {
     dispatch(portfolioActions.getPortfoliosPending());
     try {
-      const res = await portfolioAPI.getPortfolios();
-      if (res.status === 200) {
-        dispatch(portfolioActions.getPortfoliosSuccess(res));
+      const { status, data, error } = await portfolioAPI.getPortfolios();
+      if (status === 200) {
+        dispatch(portfolioActions.getPortfoliosSuccess(data));
       } else {
-        dispatch(portfolioActions.getPortfoliosFailure(res.error));
+        dispatch(portfolioActions.getPortfoliosFailure(error));
       }
     } catch (error) {
-      dispatch(portfolioActions.getPortfoliosFailure(error));
+      dispatch(portfolioActions.getPortfoliosFailure(error.message));
     }
   },
   deletePortfolioPending: (portfolioName) => ({
@@ -68,15 +67,45 @@ const portfolioActions = {
     const { portfolioName } = payload;
     dispatch(portfolioActions.deletePortfolioPending(portfolioName));
     try {
-      const res = await portfolioAPI.deletePortfolio(portfolioName);
-      if (res.status === 200) {
-        dispatch(portfolioActions.deletePortfolioSuccess(res));
+      const { status, data, error } = await portfolioAPI.deletePortfolio(
+        portfolioName
+      );
+      if (status === 200) {
+        dispatch(portfolioActions.deletePortfolioSuccess(data));
         dispatch(portfolioActions.getPortfolios());
       } else {
-        dispatch(portfolioActions.deletePortfolioFailure(res));
+        dispatch(portfolioActions.deletePortfolioFailure(error));
       }
     } catch (error) {
-      dispatch(portfolioActions.deletePortfolioFailure(error));
+      dispatch(portfolioActions.deletePortfolioFailure(error.message));
+    }
+  },
+  editPortfolioPending: () => ({
+    type: portfolioConstants.EDIT_PORTFOLIO_PENDING,
+  }),
+  editPortfolioSuccess: (response) => ({
+    type: portfolioConstants.EDIT_PORTFOLIO_SUCCESS,
+    payload: response,
+  }),
+  editPortfolioFailure: (error) => ({
+    type: portfolioConstants.EDIT_PORTFOLIO_FAILURE,
+    payload: error,
+  }),
+  editPortfolio: (payload) => async (dispatch) => {
+    const { oldName, newName } = payload;
+    dispatch(portfolioActions.editPortfolioPending());
+    try {
+      const { status, message } = await portfolioAPI.editPortfolio(
+        oldName,
+        newName
+      );
+      if (status === 200) {
+        dispatch(portfolioActions.editPortfolioSuccess({ oldName, newName }));
+      } else {
+        dispatch(portfolioActions.editPortfolioFailure(message));
+      }
+    } catch (error) {
+      dispatch(portfolioActions.editPortfolioFailure(error.message));
     }
   },
 };

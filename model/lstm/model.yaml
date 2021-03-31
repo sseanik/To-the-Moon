@@ -1,0 +1,56 @@
+data:
+    filename: "IBM_daily_adjusted.json"
+    sequence_length: 5580
+    normalise: false
+    columns_to_use: ["5. adjusted close"]
+
+training:
+    train_test_split: 0.80
+    epochs: 200
+    batch_size: 4
+    n_features: 1
+    # Note: use if training a CNN or Conv-LSTM
+    n_seq: 6
+    n_steps_cnn: 6
+
+model:
+    save_filename: "lstm_tanh_200e_1step.h5"
+    n_steps: &n_steps 60
+    loss: "mse"
+    optimiser: "adam"
+    save_dir: "./"
+    layers: [
+        {
+            type: "lstm",
+            return_sequences: true,
+            input_shape: [*n_steps, 1],
+        },
+        {
+            type: "lstm", 
+            return_sequences: true,
+        },
+        {
+            type: "dropout",
+            dropout: 0.2,
+        },
+        {
+            type: "lstm",
+            return_sequences: true,
+        },
+        {
+            type: "dropout",
+            dropout: 0.2,
+        },
+        {
+            type: "lstm",
+            return_sequences: true,
+        },
+        {
+            type: "dropout",
+            dropout: 0.2,
+        },
+        {
+            type: "dense",
+            units: 1,
+        },
+    ]

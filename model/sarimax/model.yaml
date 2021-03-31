@@ -1,0 +1,24 @@
+data:
+    filename: "IBM_daily_adjusted.json"
+    sequence_length: 5580
+    normalise: false
+    column_to_use: "5. adjusted close"
+
+training:
+    train_test_split: 0.80
+
+model:
+    loss: "mse"
+    save_dir: "./"
+    save_model_name: "sarimax_model.pickle"
+    save_results_name: "sarimax_results.pickle"
+    params:
+        p: 2
+        d: 2
+        q: 1
+        p_seas: 4
+        d_seas: 1
+        q_seas: 2
+        num_divs: 12
+        enforce_stationarity: false
+        enforce_invertibility: false
