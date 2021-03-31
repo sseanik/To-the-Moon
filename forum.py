@@ -316,7 +316,7 @@ def get_stock_comments(user_id, stock_ticker):
             u.username
         ) AS r ON (c.comment_id = r.comment_id) 
         WHERE 
-        c.stock_ticker = '%s' 
+        c.stock_ticker = %s
         GROUP BY 
         c.comment_id, 
         u.username
