@@ -10,6 +10,8 @@ from token_util import get_id_from_token
 from helpers import TimeSeries, AlphaVantageAPI
 from datetime import datetime
 from stock import retrieve_stock_price_at_date
+from iexfinance.stocks import Stock
+import pandas as pd
 
 PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
 
@@ -183,43 +185,6 @@ def get_trending_investments(num):
 
 
 ############ Additional functions ##############
-'''
-def check_data(data, portfolio_name):
-    for portfolio in data:
-        if portfolio['portfolio_name'] == portfolio_name:
-            return portfolio
-    return {}
-
-
-def getUserPortfolios(user_id):
-    conn = create_DB_connection()
-    cur = conn.cursor()
-    sql_query = "SELECT * FROM Holdings where user_id=%s"
-    cur.execute(sql_query, (user_id, ))
-    query_results = cur.fetchall()
-    data = []
-    for row in query_results:
-        portfolio_name = row[2]
-        new_investment = {
-            'investment_id' : row[0],
-            'purchase_price' : row[3],
-            'num_shares' : row[4],
-            'purchase_date' : row[5],
-            'stock_ticker' : row[6]
-        }
-        present_data = check_data(data, portfolio_name)
-        if present_data:
-            present_data['holdings'].append(new_investment)
-        else:
-            new_portfolio = {
-                'portfolio_name' : portfolio_name,
-                'holdings' : [new_investment]
-            }
-            data.append(new_portfolio)
-
-    conn.close()
-    return data
-'''
 def get_portfolios(user_id):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -255,8 +220,28 @@ def get_investments(user_id, portfolio_name):
     return {'status' : 200, 'data' : data}
 
 
-def get_portfolio_performance():
-    pass
+def get_portfolio_performance(user_id, portfolio_name):
+    response = get_investments(user_id, portfolio_name)
+    data = response['data']
+    if not data:
+        return {'status' : 400, 'error' : 'There is no portfolio called \'' + portfolio_name + '\'.'}
+
+    # Get all the stock tickers
+    stocks = []
+    for investment in data:
+        if investment['stock_ticker'] not in stocks:
+            stocks.append(investment['stock_ticker'])
+
+    # Fetch stock prices
+    batch = Stock(stocks)
+    batch = batch.get_quote()
+    value_change = 0
+    total_value = 0
+    for investment in data:
+        value_change += batch.latestPrice[investment['stock_ticker']] - investment['purchase_price']
+        total_value += investment['purchase_price']
+    return {'status' : 200, 'message' : value_change / total_value}
+
 
 ################################
 # Please leave all routes here #
@@ -363,3 +348,26 @@ def delete_investment_user_portfolio_wrapper():
 # add_investment('7', 'Sally\'s portfolio', '50', 1611061200, 'BHP')
 # get_investment("2380756e-863c-11eb-af93-0a4e2d6dea13")
 # get_trending_investments('10')
+
+# print(total_stock_change("IBM", 100))
+# print(total_stock_change("BHP", 100))
+# print(total_stock_change("LIN", 100))
+# print(total_stock_change("JPM", 100))
+# print(total_stock_change("MA", 100))
+
+
+# stock = "IBM"
+# batch = Stock([stock])
+# batch = batch.get_quote()
+# print(batch.latestPrice[stock])
+# batch = pd.DataFrame(batch)
+# print(batch.loc[stock, "latestPrice"])
+# for key, value in batch.items():
+#     print(key, " : ", value)
+
+create_portfolio()
+# add TSLA, IBM
+get_portfolio_performance
+
+
+
