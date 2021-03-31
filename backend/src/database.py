@@ -291,8 +291,8 @@ if __name__ == "__main__":
     #create_comment_tables()
 
     # Basic materials
-    # fillOverviewAndFinancialTables('BHP')
+    # fill_securities_overview_table('BHP')
 
     # Technology sector
-    #fillOverviewAndFinancialTables('ORCL')
-    #fillOverviewAndFinancialTables('IBM')
+    #fill_securities_overview_table('ORCL')
+    #fill_securities_overview_table('IBM')

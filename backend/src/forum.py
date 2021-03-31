@@ -196,6 +196,86 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     
 
 
+def delete_comment(user_id, comment_id, parent_id=None):
+    """Delete comment from the forum
+    Args:
+        user_id (uuid): The UUID of the User posting the comment.
+        comment_id (uuid): The UUID of the comment row to be deleted.
+        parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
+
+    Returns:
+        if we are deleting a parent object:
+            dict: Status Code, accompanying message, comment object
+        if we are deleting a child object:
+            dict: Status Code, accompanying message
+    """
+    conn = createDBConnection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # If no parent_id is provided, comment is a parent comment (comment)
+        if not parent_id:
+            insert_query = """
+                WITH deleted_comment as (
+                    UPDATE forum_comment SET content=%s, is_deleted=TRUE
+                    WHERE comment_id=%s and author_id=%s
+                    RETURNING * 
+                ) SELECT d.comment_id, d.stock_ticker, u.username, d.time_stamp, d.content, d.is_edited, d.is_deleted, array_to_json(d.upvote_user_ids) AS upvote_user_ids, array_to_json(d.downvote_user_ids) AS downvote_user_ids
+                FROM deleted_comment d
+                JOIN users u on d.author_id = u.id;
+            """.replace("\n", "")
+            values = ("", comment_id, user_id)
+            cur.execute(insert_query, values)   
+            db_reply = cur.fetchall()
+            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+            if not db_reply:
+                response = {
+                    'status' : 400,
+                    'message' : "User does not have permission to edit this comment."
+                }
+            else:
+            # If rows have been updated, return the newly updated row.
+                updated_comment = dict(db_reply[0])
+                updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
+                updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
+                updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+                updated_comment.pop("upvote_user_ids")
+                updated_comment.pop("downvote_user_ids")
+                response = {
+                    'status' : 200,
+                    'message' : "Comment deleted.",
+                    'comment' : updated_comment
+                }
+        # Otherwise, using the provided parent id, it is a child comment (reply)
+        else:
+            insert_query = """
+                DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
+            """.replace("\n", "")
+            values = (comment_id, user_id)
+            cur.execute(insert_query, values) 
+            db_reply = cur.fetchall()
+            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+            if not db_reply:
+                response = {
+                    'status' : 400,
+                    'message' : "User does not have permission to delete this comment."
+                }
+            else:
+                response = {
+                "status" : 200, 
+                "message" : "Child comment deleted."
+                }
+    except:
+        response = {
+            "status" : 400, 
+            "message" : "Something when wrong when trying to delete."
+        }
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    return response
+
+
 def get_stock_comments(user_id, stock_ticker):
     # Open database connection
     conn = create_DB_connection()
@@ -338,6 +418,23 @@ def submit_reply():
     data = request.get_json()
     result = post_comment(
         user_id, data['stockTicker'], int(data['timestamp']), data['content'], data['parentID'])
+    return dumps(result)
+
+
+@FORUM_ROUTES.route('/forum/deleteComment', methods=['DELETE'])
+def delete_user_comment():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = delete_comment(user_id, data['comment_id'])
+    return dumps(result)
+
+@FORUM_ROUTES.route('/forum/deleteReply', methods=['DELETE'])
+def delete_user_reply():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = delete_comment(user_id, data['comment_id'], data['parent_id'])
     return dumps(result)
 
 
