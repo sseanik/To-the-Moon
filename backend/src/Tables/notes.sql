@@ -1,12 +1,12 @@
 CREATE TABLE IF NOT EXISTS Notes (
-    userid UUID,
+    user_id UUID,
     title VARCHAR(300) NOT NULL,
     content VARCHAR(5000),
     stock_symbols TEXT ARRAY,
     portfolio_names TEXT ARRAY,
     external_references TEXT ARRAY,
     internal_references TEXT ARRAY,
-    PRIMARY KEY (userid, title)
+    PRIMARY KEY (user_id, title)
 );
 
 /*

@@ -47,7 +47,7 @@ const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
   const { name } = useParams<RouteMatchParams>();
   initialValues.portfolioName = name;
 
-  const options = Array.from(Array(1000).keys());
+  const options = Array.from(Array(101).keys());
   options.shift();
 
   const formComponent = (
