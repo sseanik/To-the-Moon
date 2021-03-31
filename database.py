@@ -55,6 +55,12 @@ def create_securities_overviewTable():
     conn.commit()
     conn.close()
 
+def create_notes_table():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/notes.sql", "r").read())
+    conn.commit()
+    conn.close()
 
 def create_comment_tables():
     conn = create_DB_connection()
@@ -294,6 +300,7 @@ if __name__ == "__main__":
     #create_balance_sheets_table()
     #create_cashflow_statements_table()
     #create_comment_tables()
+    #create_notes_table()
 
     # Basic materials sector
     #fill_overview_and_financial_tables('BHP')
