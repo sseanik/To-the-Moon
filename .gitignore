@@ -7,3 +7,7 @@ backend/src/.env
 backend/src/TODO
 venv/*
 demo/*.json
+
+*.pickle
+model/*/venv/*
+demo/.ipynb_checkpoints/

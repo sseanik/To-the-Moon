@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Row, Col, Tabs, Tab, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Button, Alert, Badge, Dropdown, DropdownButton } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
@@ -41,23 +41,45 @@ interface getStockBasicParams {
   symbol: string;
 }
 
+interface getPredictionDailyParams {
+  symbol: string;
+}
+
+interface durChoiceParams {
+  [key: string]: {dur: number, display: string, units: string};
+}
+
 interface StateProps {
   loading: boolean;
   error: string;
   company: string;
   priceDataDaily: any;
   priceDataIntraday: any;
+  predictionDaily: any;
+
+  predictionDailyLoading: any;
+  predictionDailyError: any;
 }
 
 interface DispatchProps {
   getStockBasic: (payload: getStockBasicParams) => void;
+  getPredictionDaily: (payload: getPredictionDailyParams) => void;
 }
 
 const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
-  const { company, loading, error, priceDataDaily, priceDataIntraday, getStockBasic } = props;
+  const { company, loading, error, priceDataDaily, priceDataIntraday, predictionDaily, getStockBasic, getPredictionDaily, predictionDailyLoading, predictionDailyError } = props;
 
   const params = useParams<RouteParams>();
   const symbol = params.symbol;
+
+  const durOpts: durChoiceParams = {
+    "durDays3":     {dur: 3, display: "3", units: "days"},
+    "durWeeks1":    {dur: 5, display: "5", units: "days"},
+    "durWeeks2":    {dur: 10, display: "10", units: "days"},
+    "durMonths1":   {dur: 20, display: "20", units: "days"},
+    "durMonths2":   {dur: 40, display: "40", units: "days"},
+    "durMonths3":   {dur: 60, display: "60", units: "days"},
+  };
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
@@ -69,9 +91,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       { data: [] }
     ]
   });
+  const [durChoice, setdurChoice] =  useState<string>("durMonths3");
 
   const fetchStock = () => {
     getStockBasic({ symbol });
+  }
+
+  const fetchPredictDaily = () => {
+    getPredictionDaily({ symbol });
   }
 
   useEffect(() => {
@@ -80,19 +107,25 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     if (displayIntra == true) {
-      const seriesDailyList = Object.entries(priceDataDaily).map(entry => {
-        const [key, value] = entry;
-        return { name: key, data: value }
-      });
-      setGraphOptions((graphOptions: graphOptionsT) => ({ ... graphOptions, series: seriesDailyList }));
-    } else {
       const seriesIntraList = Object.entries(priceDataIntraday).map(entry => {
         const [key, value] = entry;
         return { name: key, data: value }
       });
       setGraphOptions((graphOptions: graphOptionsT) => ({ ... graphOptions, series: seriesIntraList }));
+    } else {
+      const seriesDailyList = Object.entries(priceDataDaily).map(entry => {
+        const [key, value] = entry;
+        return { name: key, data: value }
+      });
+      let predictions = JSON.parse(JSON.stringify(predictionDaily));
+      if (predictions.data) {
+        predictions.data = predictions.data.slice(0, durOpts[durChoice].dur);
+      }
+
+      const displaySeries = predictions ? [ ... seriesDailyList, predictions ] : seriesDailyList;
+      setGraphOptions((graphOptions: graphOptionsT) => ({ ... graphOptions, series: displaySeries }));
     }
-  }, [displayIntra, priceDataDaily, priceDataIntraday]);
+  }, [displayIntra, priceDataDaily, priceDataIntraday, predictionDaily, durChoice]);
 
   const graphComponent = (
     <Container>
@@ -124,6 +157,53 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     error
     ? `${symbol}`
     : `${company} (${symbol})`
+
+  const statusBadgeModifier = (prediction: Array<any>, isLoading: boolean, error: object|null) => {
+    const result = prediction !== null && Object.keys(prediction).length > 0 && !isLoading ? "success"
+    : isLoading ? "primary"
+    : prediction === null || Object.keys(prediction).length === 0 ? "secondary"
+    : error ? "danger"
+    : "danger";
+    return result;
+  };
+
+  const statusBadgeText = (prediction: Array<any>, isLoading: boolean, error: object|null) => {
+    const result = prediction !== null && Object.keys(prediction).length > 0 && !isLoading ? "Fetched"
+    : isLoading ? "Pending"
+    : Object.keys(prediction).length === 0 || prediction === null ? "Not requested"
+    : error !== null ? "Error"
+    : "Error";
+    return result;
+  };
+
+  const predictionControlComponent = (
+    <Container>
+      <hr />
+      <Row>
+        <Col>Prediction Status: </Col>
+        <Col><Badge variant={ statusBadgeModifier(predictionDaily, predictionDailyLoading, predictionDailyError) }>{ statusBadgeText(predictionDaily, predictionDailyLoading, predictionDailyError) }</Badge></Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>Duration: </Col>
+        <Col>
+          <DropdownButton variant="outline-dark" id="dropdown-basic-button" title={ durOpts[durChoice].display + " " + durOpts[durChoice].units}>
+            {Object.entries(durOpts).map(
+              entry => {
+                const [key, value] = entry;
+
+                return <Dropdown.Item href="#/action-1" onClick={() => {setdurChoice(key);}}>{value.display + " " + value.units}</Dropdown.Item>
+            })}
+          </DropdownButton>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Button variant="outline-primary"
+          onClick={() => { fetchPredictDaily() }}>Predict</Button>
+      </Row>
+    </Container>
+  );
 
   return (
     <Container>
@@ -164,6 +244,9 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
                   </Tab>
                 </Tabs>
               </Tab>
+              <Tab eventKey="prediction" title="Market Prediction">
+                { predictionControlComponent }
+              </Tab>
             </Tabs>
           </Container>
         </Col>
@@ -184,7 +267,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               <StockNews stock={symbol} />
             </Tab>
             <Tab eventKey="other" title="Other">
-              
+
             </Tab>
           </Tabs>
         </Container>
@@ -195,15 +278,19 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.basic.loading,
+  predictionDailyLoading: state.stockReducer.predictionDaily.loading,
+  predictionDailyError: state.stockReducer.predictionDaily.error,
   error: state.stockReducer.basic.error,
   company: state.stockReducer.basic.data.fundamentals.stock_name,
   priceDataDaily: state.stockReducer.basic.data.data,
   priceDataIntraday: state.stockReducer.basic.data.data_intraday,
+  predictionDaily: state.stockReducer.predictionDaily.data,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    getStockBasic: (payload: getStockBasicParams) => dispatch(stockActions.getStockBasic(payload))
+    getStockBasic: (payload: getStockBasicParams) => dispatch(stockActions.getStockBasic(payload)),
+    getPredictionDaily: (payload: getPredictionDailyParams) => dispatch(stockActions.getPredictionDaily(payload))
   }
 };
 

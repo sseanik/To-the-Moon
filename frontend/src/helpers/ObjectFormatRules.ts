@@ -18,16 +18,16 @@ export const summaryFormatter: IObjectKeys = {
 };
 
 export const fundamentalsFormatter: IObjectKeys = {
-  stockname: {name: "Company Name"},
+  stock_name: {name: "Company Name"},
   exchange: {name: "Exchange"},
   currency: {name: "Currency"},
-  yearlylow: {name: "Year Low"},
-  yearlyhigh: {name: "Year High"},
-  marketcap: {name: "Market Capitalisation"},
+  yearly_low: {name: "Year Low"},
+  yearly_high: {name: "Year High"},
+  market_cap: {name: "Market Capitalisation"},
   beta: {name: "Beta"},
-  peratio: {name: "PE Ratio"},
+  pe_ratio: {name: "PE Ratio"},
   eps: {name: "EPS"},
-  dividendyield: {name: "Dividend Yield"},
+  dividend_yield: {name: "Dividend Yield"},
 };
 
 export const incomeStatementFormatter: IObjectKeys = {
@@ -61,7 +61,7 @@ export const cashFlowStatementFormatter: IObjectKeys = {
   stock_ticker: {name: "Company Symbol"},
   fiscal_date_ending: {name: "Year Ending"},
   payments_for_operating_activities: {name: "Payments for Operating Activities"},
-  operating_cashflow: {name: "Operating Cash Flow"},
+  operating_cash_flow: {name: "Operating Cash Flow"},
   change_in_operating_liabilities: {name: "Change in Operating Liabilities"},
   change_in_operating_assets: {name: "Change in Operating Assets"},
   depreciation_depletion_and_amortization: {name: "Depreciation Depletion and Amortisation"},
