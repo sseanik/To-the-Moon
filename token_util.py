@@ -24,6 +24,5 @@ def get_id_from_token(token):
     raise Exception('Failed to decode token')
 
 
-#encoded_jwt = generateToken('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19')
 #print(encoded_jwt)
 #print(get_id_from_token(encoded_jwt))
