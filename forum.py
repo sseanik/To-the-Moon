@@ -134,7 +134,7 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     content = profanity.censor(content)
 
     # Open database connection
-    conn = createDBConnection()
+    conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
