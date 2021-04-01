@@ -26,7 +26,7 @@ export interface NewsItem {
 }
 
 const NewsCard: React.FC<NewsItem> = (props) => {
-  const { category, datetime, headline, id, image, related, source, summary, url } = props;
+  const { headline, image, source, summary, url } = props;
 
   return (
     <Row className="justify-content-center mt-2">
