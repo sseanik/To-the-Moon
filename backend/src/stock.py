@@ -43,7 +43,7 @@ local_tz = pytz.timezone("Australia/Sydney")
 ###################################
 def update_stock_required(symbol, data_type="daily_adjusted"):
     filename = get_local_storage_filepath(symbol + "_" + data_type + ".json") if symbol else ""
-
+    import pdb; pdb.set_trace()
     if not os.path.isfile(filename):
         return True
     else:
@@ -56,14 +56,23 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
 
         date_today = datetime.today()
         date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
-        date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
-        # TODO: select based on exchange trading hours
-        # TODO: allow updating on weekends if last fetched on prior weekday
         date_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
         dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
 
-        return date_comp and date_constraint and dow_constraint
+        # If not inside trading hours move to close of last trading day
+        if not (date_constraint and dow_constraint):
+            date_today_aware.hour = 20
+            date_today_aware.minute = 0
+            date_today_aware.second = 0
+            if date_today_aware.weekday() > 4:
+                date_today_aware.day -= date_today_aware.weekday() - 4
+
+        date_comp = (date_today_aware-date_ref_aware).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
+
+        # TODO: select based on exchange trading hours
+
+        return date_comp
 
 def retrieve_stock_data(symbol, data_type="daily_adjusted"):
     try:
