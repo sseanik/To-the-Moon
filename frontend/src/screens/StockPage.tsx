@@ -123,6 +123,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     },
     rangeSelector: RangeSelectorOptions(setDisplayIntra),
     series: [{ data: [] }],
+    legend: { enabled: true, layout: "horizontal"},
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
 
