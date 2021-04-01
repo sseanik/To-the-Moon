@@ -67,7 +67,7 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) =
                 <Row lg={6}>
                   <Col className="text-left" lg={6}>
                     <span>
-                      <b>{formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}</b>
+                      {formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}
                     </span>
                   </Col>
                   <Col className="text-right" lg={6}>
