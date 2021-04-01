@@ -23,6 +23,7 @@ from alpha_vantage.timeseries import TimeSeries
 
 from database import create_DB_connection
 from helpers import JSONLoader, AlphaVantageInfo, get_local_storage_filepath
+from constants.stock_db_schema import summary_bs_components, summary_bs_columns, revised_bs_order
 
 from definitions import local_storage_dir
 
@@ -43,7 +44,6 @@ local_tz = pytz.timezone("Australia/Sydney")
 ###################################
 def update_stock_required(symbol, data_type="daily_adjusted"):
     filename = get_local_storage_filepath(symbol + "_" + data_type + ".json") if symbol else ""
-    import pdb; pdb.set_trace()
     if not os.path.isfile(filename):
         return True
     else:
@@ -70,7 +70,11 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
 
         date_comp = (date_today_aware-date_ref_aware).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
+        print(f"Day difference: {date_today_aware} - {date_ref_aware} = {(date_today_aware-date_ref_aware).days}")
+        print(f"ID  difference: {date_today_aware} - {date_ref_aware} = {(date_today_aware-date_ref_aware).total_seconds()}")
+
         # TODO: select based on exchange trading hours
+        # TODO: keep last refreshed date
 
         return date_comp
 
@@ -155,8 +159,6 @@ def get_income_statement(symbol, num_entries=1):
     conn.close()
     return result
 
-revised_bs_order = ['fiscal_date_ending', 'total_assets', 'total_curr_assets', 'total_ncurr_assets', 'total_liabilities', 'total_curr_liabilities', 'total_ncurr_liabilities', 'total_equity']
-
 def get_balance_sheet(symbol, num_entries=1):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
@@ -171,15 +173,8 @@ def get_balance_sheet(symbol, num_entries=1):
     for entry in query_results:
         record = OrderedDict(entry)
 
-        record['total_curr_assets'] = sum([float(record[x]) for x in ['cash_and_short_term_investments', 'current_net_receivables', 'inventory', 'other_current_assets']])
-        record['total_ncurr_assets'] = sum([float(record[x]) for x in ['property_plant_equipment', 'goodwill', 'intangible_assets', 'long_term_investments', 'other_non_current_assets']]) # last one is a typo
-        record['total_assets'] = record['total_curr_assets'] + record['total_ncurr_assets']
-
-        record['total_curr_liabilities'] = sum([float(record[x]) for x in  ['current_accounts_payable', 'short_term_debt', 'other_current_liabilities']])
-        record['total_ncurr_liabilities'] = sum([float(record[x]) for x in ['long_term_debt', 'other_non_current_liabilities']])
-        record['total_liabilities'] = record['total_curr_liabilities'] + record['total_ncurr_liabilities']
-
-        record['total_equity'] = sum([float(record[x]) for x in ['retained_earnings', 'total_shareholder_equity']])
+        for column in summary_bs_columns:
+            record[column] = sum([float(record[x]) for x in summary_bs_components[column]])
 
         record = OrderedDict((k, record[k]) for k in revised_bs_order)
         record['fiscal_date_ending'] = str(record['fiscal_date_ending'].isoformat())
