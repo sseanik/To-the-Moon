@@ -59,11 +59,11 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) =
   const tableComponent = (
     <Container>
       <Row>
-        {data.map((entry: BalanceSheetEntry) => (
-          <Col>
+        {data.map((entry: BalanceSheetEntry, idx) => (
+          <Col key={idx}>
             <hr />
-            {Object.entries(entry).map(([field, value]) => (
-              <div>
+            {Object.entries(entry).map(([field, value], idx) => (
+              <div key={idx}>
                 <Row lg={6}>
                   <Col className="text-left" lg={6}>
                     <span>

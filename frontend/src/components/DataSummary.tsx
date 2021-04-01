@@ -54,8 +54,8 @@ const DataSummary: React.FC<StateProps> = (props) => {
       <Row>
         <Col>
           <hr />
-          {Object.entries(data).map(([field, value]) => (
-            <div>
+          {Object.entries(data).map(([field, value], idx) => (
+            <div key={idx}>
               <Row lg={6}>
                 <Col className="text-left" lg={6}>
                   <span>

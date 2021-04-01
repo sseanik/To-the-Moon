@@ -52,8 +52,8 @@ const Forum: React.FC<StateProps & DispatchProps & Props> = (props) => {
         {getCommentsLoading ? (
           <ClipLoader color={"green"} loading={getCommentsLoading} />
         ) : (
-          comments.map((commentProps: CommentParams) => {
-            return <Comment {...commentProps}></Comment>;
+          comments.map((commentProps: CommentParams, idx) => {
+            return <Comment key={idx} {...commentProps}></Comment>;
           })
         )}
       </Row>
