@@ -1,5 +1,6 @@
 import sys
 import os
+import pathlib
 import json
 import requests
 from datetime import date
@@ -33,7 +34,8 @@ class JSONLoader:
 
     pass
 
-
+def get_local_storage_filepath(filename):
+    return str(pathlib.PurePath(local_storage_dir, filename))
 
 class AlphaVantageAPI:
     """
