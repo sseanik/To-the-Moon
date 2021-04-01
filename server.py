@@ -3,6 +3,7 @@
 #####################
 
 
+import os
 import sys
 from json import dumps
 
@@ -20,6 +21,7 @@ from notes import NOTE_ROUTES
 APP = Flask(__name__)
 CORS(APP)
 
+from definitions import local_storage_dir
 
 ###################################
 # Please leave all functions here #
@@ -72,7 +74,8 @@ def echo():
     else:
         print("Param undefined")
     return dumps({
-        'data': data
+        'data': data,
+        'storage': local_storage_dir
     })
 
 

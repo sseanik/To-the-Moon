@@ -23,6 +23,8 @@ from alpha_vantage.timeseries import TimeSeries
 from database import create_DB_connection
 from helpers import JSONLoader, AlphaVantageInfo
 
+from definitions import local_storage_dir
+
 MODELSRVPORT = os.getenv("MODELSRVPORT")
 
 STOCK_ROUTES = Blueprint('stock', __name__)
@@ -39,7 +41,7 @@ local_tz = pytz.timezone("Australia/Sydney")
 # Please leave all functions here #
 ###################################
 def update_stock_required(symbol, data_type="daily_adjusted"):
-    filename = "demo/" + symbol + "_" + data_type + ".json" if symbol else ""
+    filename = os.path.join(local_storage_dir, symbol + "_" + data_type + ".json") if symbol else ""
 
     if not os.path.isfile(filename):
         return True
@@ -249,17 +251,17 @@ def get_stock_data():
         sample_df = {}
         sample_metadata = {}
         summary = {}
-
+        # TODO: Check that file exists
         if update_stock_required(symbol, data_type="daily_adjusted"):
             retrieve_stock_data(symbol, data_type="daily_adjusted")
-        filename = "demo/" + symbol + "_daily_adjusted.json" if symbol else ""
+        filename = os.path.join(local_storage_dir, symbol + "_daily_adjusted" + ".json") if symbol else ""
         if os.path.isfile(filename):
             sample_df, sample_metadata = get_stock_value(filename)
             summary = calculate_summary(sample_df)
 
         if update_stock_required(symbol, data_type="intraday"):
             retrieve_stock_data(symbol, data_type="intraday")
-        intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
+        intr_filename = os.path.join(local_storage_dir, symbol + "_intraday" + ".json") if symbol else ""
         intraday = {}
         if os.path.isfile(intr_filename):
             intraday, _ = get_stock_value(intr_filename)
@@ -304,7 +306,7 @@ def get_prediction_daily():
     sample_metadata = {}
     summary = {}
 
-    filename = "demo/" + symbol + "_daily_adjusted.json" if symbol else ""
+    filename = os.path.join(local_storage_dir, symbol + "_daily_adjusted" + ".json") if symbol else ""
     if os.path.isfile(filename):
         sample_df, sample_metadata = get_stock_value(filename)
     # TODO: generate values differently based on inference type
