@@ -52,3 +52,15 @@ div.generic-container-scrolling {
   max-height: 550px;
   height: 550px;
 }
+
+div.financials-subhead-1 {
+  padding-left: 50px;
+}
+
+div.financials-subhead-2 {
+  padding-left: 100px;
+}
+
+div.financials-subhead-3 {
+  padding-left: 125px;
+}

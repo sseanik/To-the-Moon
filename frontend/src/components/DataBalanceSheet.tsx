@@ -43,6 +43,25 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) =
     getStockBalance({ symbol });
   }, []);
 
+  const getTextCSSClass = (format: string) => {
+    const result =
+        format === "bold" ? "font-weight-bold"
+      : format === "italic" ? "font-italic"
+      : format === "normal" ? "font-weight-normal"
+      : format === "light" ? "font-weight-light"
+      : "font-weight-normal";
+    return result;
+  };
+
+  const getTextIndentClass = (level: number) => {
+    return (
+        level === 1 ? "financials-subhead-1"
+      : level === 2 ? "financials-subhead-2"
+      : level === 3 ? "financials-subhead-3"
+      : ""
+    );
+  }
+
   const loadingSpinnerComponent = (
     <div>
       <ClipLoader color={"green"} loading={loading} />
@@ -65,7 +84,14 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) =
             {Object.entries(entry).map(([field, value]) => (
               <div>
                 <Row lg={6}>
-                  <Col className="text-left" lg={6}>
+                  <Col className={ "text-left "
+                    + (formatMap.hasOwnProperty(field)
+                    && formatMap[field].hasOwnProperty("format") ? getTextCSSClass(formatMap[field].format)
+                    : "font-weight-normal") + " "
+                    + (formatMap.hasOwnProperty(field)
+                    && formatMap[field].hasOwnProperty("indent") ? getTextIndentClass(formatMap[field].indent)
+                    : "")
+                  } lg={6}>
                     <span>
                       {formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}
                     </span>
