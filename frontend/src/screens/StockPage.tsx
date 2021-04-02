@@ -255,7 +255,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   };
 
   const predictionControlComponent = (
-    <Container>
+    <Container className="generic-container-scrolling">
       <hr />
       <Row>
         <Col>Prediction Status: </Col>

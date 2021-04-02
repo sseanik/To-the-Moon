@@ -50,7 +50,7 @@ const DataSummary: React.FC<StateProps> = (props) => {
   );
 
   const tableComponent = (
-    <Container>
+    <Container className="generic-container-scrolling">
       <Row>
         <Col>
           <hr />
