@@ -37,6 +37,15 @@
   }
 }
 
+.pane-overlay {
+  z-index: 10;
+  position: relative;
+}
+
+.carousel-caption {
+  z-index: 0;
+}
+
 div.portfolio-info a:hover {
   text-decoration: none;
 }

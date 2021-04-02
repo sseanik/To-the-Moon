@@ -13,4 +13,5 @@ export { default as DataCashFlow } from "./DataCashFlow";
 export { default as StockNews } from "./StockNews";
 export { default as TrendingInvestments } from "./TrendingInvestments";
 export { default as NoteListToggle } from "./NoteListToggle";
+export { default as NoteList } from "./NoteList";
 export { default as Username } from "./Username";
