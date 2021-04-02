@@ -284,11 +284,12 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
             id="dropdown-basic-button"
             title={durOpts[durChoice].display + " " + durOpts[durChoice].units}
           >
-            {Object.entries(durOpts).map((entry) => {
+            {Object.entries(durOpts).map((entry, idx) => {
               const [key, value] = entry;
 
               return (
                 <Dropdown.Item
+                  key={idx}
                   href="#/action-1"
                   onClick={() => {
                     setdurChoice(key);
