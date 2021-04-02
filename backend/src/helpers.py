@@ -1,7 +1,11 @@
 import sys
+import os
+import pathlib
 import json
 import requests
 from datetime import date
+
+from definitions import local_storage_dir
 
 class AlphaVantageInfo:
     """
@@ -17,8 +21,8 @@ class JSONLoader:
     @staticmethod
     def save_json(company_name, data, label=""):
         # with open(f'./{company_name}_{label}_{date.today().strftime("%Y%m%d")}.json', 'w') as outfile:
-        filename = f'./demo/{company_name}_{label}.json' if label \
-            else f'./demo/{company_name}.json'
+        filename = os.path.join(local_storage_dir, company_name + "_" + label + ".json") if label \
+            else os.path.join(local_storage_dir, company_name + ".json")
         with open(filename, 'w') as outfile:
             json.dump(data, outfile)
 
@@ -30,7 +34,8 @@ class JSONLoader:
 
     pass
 
-
+def get_local_storage_filepath(filename):
+    return str(pathlib.PurePath(local_storage_dir, filename))
 
 class AlphaVantageAPI:
     """
@@ -82,7 +87,7 @@ class TimeSeries:
     def _construct_daily_adjusted(symbol, **kwargs):
         return AlphaVantageAPI._construct_url("TIME_SERIES_DAILY_ADJUSTED", \
             symbol=symbol, **kwargs)
-    
+
     @staticmethod
     def _construct_company_overview(symbol, **kwargs):
         return AlphaVantageAPI._construct_url("OVERVIEW", \
@@ -92,12 +97,12 @@ class TimeSeries:
     def _construct_income_statement(symbol, **kwargs):
         return AlphaVantageAPI._construct_url("INCOME_STATEMENT", \
             symbol=symbol, **kwargs)
-    
+
     @staticmethod
     def _construct_balance_sheet(symbol, **kwargs):
         return AlphaVantageAPI._construct_url("BALANCE_SHEET", \
             symbol=symbol, **kwargs)
-            
+
     @staticmethod
     def _construct_cash_flow(symbol, **kwargs):
         return AlphaVantageAPI._construct_url("CASH_FLOW", \
@@ -107,7 +112,7 @@ class TimeSeries:
     def _construct_global_quote(symbol, **kwargs):
         return AlphaVantageAPI._construct_url("GlOBAL_QUOTE", \
             symbol=symbol, **kwargs)
-     
+
     def get_intraday(self, symbol, interval, **kwargs):
         url = TimeSeries._construct_intraday(symbol, interval, **kwargs)
         return AlphaVantageAPI._get_query(url)
@@ -131,7 +136,7 @@ class TimeSeries:
     def get_cash_flow(self, symbol, **kwargs):
         url = TimeSeries._construct_cash_flow(symbol, **kwargs)
         return AlphaVantageAPI._get_query(url)
-    
+
     def get_quick_quote(self, symbol, **kwargs):
         url = TimeSeries._construct_global_quote(symbol, **kwargs)
         return AlphaVantageAPI._get_query(url)
@@ -145,7 +150,7 @@ if __name__ == "__main__":
     ts = TimeSeries()
     #gme = ts.get_intraday("GME", "5min", outputsize="full")
     #AlphaVantageAPI.save_json("GME", gme, label="intraday")
-    
+
     #ibm = ts.get_intraday("IBM", "5min", outputsize="full")
     #AlphaVantageAPI.save_json("IBM", ibm, label="intraday")
 

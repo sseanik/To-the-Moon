@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, Ref } from "react";
 import { useParams } from "react-router-dom";
 import {
   Container,
@@ -92,6 +92,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     predictionDailyError,
   } = props;
 
+  const chartComponent = useRef<any|null>(null);
   const params = useParams<RouteParams>();
   const symbol = params.symbol;
 
@@ -122,6 +123,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     },
     rangeSelector: RangeSelectorOptions(setDisplayIntra),
     series: [{ data: [] }],
+    legend: { enabled: true, layout: "horizontal"},
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
 
@@ -131,6 +133,16 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   const fetchPredictDaily = () => {
     getPredictionDaily({ symbol });
+  };
+
+  // TODO: predefined reset length
+  const resetZoom = () => {
+    if (chartComponent && chartComponent.current && graphOptions.series[0].data) {
+      const seriesLimit = graphOptions.series[0].data.length;
+      const lower = graphOptions.series[0].data[seriesLimit-60-1][0];
+      const upper = graphOptions.series[0].data[seriesLimit-1][0];
+      chartComponent.current.chart.xAxis[0].setExtremes(lower, upper);
+    }
   };
 
   useEffect(() => {
@@ -177,14 +189,20 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const graphComponent = (
     <Container>
       <HighchartsReact
+        ref={chartComponent}
         highcharts={Highcharts}
         constructorType={"stockChart"}
         options={graphOptions}
       />
       <Row className="justify-content-center">
-        <Button variant="outline-info" onClick={fetchStock}>
-          Refresh data
-        </Button>
+        <Col>
+          <Button variant="outline-info" onClick={fetchStock}>
+            Refresh data
+          </Button>
+          <Button variant="outline-info" onClick={resetZoom}>
+            Reset Zoom
+          </Button>
+        </Col>
       </Row>
     </Container>
   );
@@ -237,7 +255,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   };
 
   const predictionControlComponent = (
-    <Container>
+    <Container className="generic-container-scrolling">
       <hr />
       <Row>
         <Col>Prediction Status: </Col>

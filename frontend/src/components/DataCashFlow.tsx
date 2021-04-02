@@ -63,7 +63,7 @@ const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
   );
 
   const tableComponent = (
-    <Container>
+    <Container className="financials-container-scrolling">
       <Row>
         {data.map((entry: CashFlowEntry, idx) => (
           <Col key={idx}>

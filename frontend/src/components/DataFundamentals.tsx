@@ -56,16 +56,16 @@ const DataFundamentals: React.FC<StateProps> = (props) => {
   );
 
   const tableComponent = (
-    <Container>
+    <Container className="generic-container-scrolling">
       <Row>
         <Col>
           <hr />
           {Object.entries(data).map(([field, value], idx) => (
             <div key={idx}>
               <Row lg={6}>
-                <Col className="text-left" lg={6}>
+                <Col className="text-left font-weight-bold" lg={6}>
                   <span>
-                    <b>{formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}</b>
+                    {formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}
                   </span>
                 </Col>
                 <Col className="text-right" lg={6}>
