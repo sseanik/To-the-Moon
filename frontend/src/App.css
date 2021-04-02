@@ -42,13 +42,13 @@ div.portfolio-info a:hover {
 }
 
 div.financials-container-scrolling {
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 500px;
   height: 500px;
 }
 
 div.generic-container-scrolling {
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 550px;
   height: 550px;
 }
