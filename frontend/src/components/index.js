@@ -12,3 +12,5 @@ export { default as DataBalanceSheet } from "./DataBalanceSheet";
 export { default as DataCashFlow } from "./DataCashFlow";
 export { default as StockNews } from "./StockNews";
 export { default as TrendingInvestments } from "./TrendingInvestments";
+export { default as NoteListToggle } from "./NoteListToggle";
+export { default as Username } from "./Username";
