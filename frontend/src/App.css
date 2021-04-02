@@ -40,3 +40,8 @@
 div.portfolio-info a:hover {
   text-decoration: none;
 }
+
+div.financials-container-scrolling {
+  overflow-y: scroll;
+  max-height: 500px;
+}
