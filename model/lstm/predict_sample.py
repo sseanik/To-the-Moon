@@ -20,7 +20,7 @@ company_df = company_df.reindex(index=company_df.index[::-1])
 company_df.index = pd.to_datetime(company_df.index)
 company_df = company_df.asfreq(freq="B")
 
-y_sample = company_df['5. adjusted close'][-60:].values
+y_sample = company_df['5. adjusted close'][-120:].values
 
 for i in np.where(np.isnan(y_sample))[0]:
   y_sample[i] = y_sample[i-1] if not np.isnan(y_sample[i-1]) else 0
@@ -28,7 +28,7 @@ for i in np.where(np.isnan(y_sample))[0]:
 print("Shape: ", y_sample.shape)
 # print("Data: ", json.dumps(y_sample.tolist()))
 
-data = {"inference_mode": "walk_forward", "data": y_sample.tolist()}
+data = {"inference_mode": "multistep_series", "data": y_sample.tolist()}
 headers = { "Content-Type": "application/json", }
 # endpoint = "http://127.0.0.1:5000/model/api/get_prediction"
 endpoint = f"http://{address}:{port}/model/api/get_prediction"
@@ -37,7 +37,7 @@ print("Data: ", json.dumps(data))
 
 r = requests.post(url=endpoint, data=json.dumps(data), headers=headers)
 
-import pdb; pdb.set_trace()
+
 
 print(f"{r.text}")
 print(f"{r.status_code}")
