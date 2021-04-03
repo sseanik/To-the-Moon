@@ -7,6 +7,7 @@ import json
 from math import sqrt
 import datetime
 from datetime import date
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -16,6 +17,8 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers import Dropout
+
+from sklearn.preprocessing import MinMaxScaler
 
 from flask import Flask, request
 
@@ -30,8 +33,16 @@ model = tf.keras.models.load_model(model_filename)
 
 inf_modes = {
     "walk_forward": {"name": "Walk-forward validation", "length": 60},
-    "multistep_series": {"name": "Series", "length": 120}
+    "multistep_series": {"name": "Series", "length": 120},
+    "cnn": {"name": "(Temporary) CNN-LSTM walk-forward", "length": 60}
 }
+
+model_cnn = tf.keras.models.load_model("./cnn_lstm.h5")
+model_cnn_normaliser = MinMaxScaler(feature_range=(0,1))
+normaliser_initial = np.zeros((60, 1))
+normaliser_initial[0,0] = 35.1228303438
+normaliser_initial[59,0] = 159.577350449
+model_cnn_normaliser.fit(normaliser_initial)
 
 def featurise_multistep_series(inf_mode, initial_data, n_steps=60):
     result = []
@@ -44,6 +55,10 @@ def featurise_multistep_series(inf_mode, initial_data, n_steps=60):
 def featurise_single_series(x_input, n_entries=1, n_steps=60, n_features=1):
     return x_input.reshape((n_entries, n_steps, n_features))
 
+def featurise_cnn(x_input, n_entries=1, n_steps=60, n_seq=2, n_features=1):
+    n_steps_cnn = int(n_steps/n_seq)
+    return x_input.reshape((n_entries, n_seq, n_steps_cnn, n_features))
+
 def make_forecast(model, x_input):
     y_pred = model.predict(x_input, verbose=0)
     return y_pred
@@ -51,7 +66,8 @@ def make_forecast(model, x_input):
 def get_walkforward_prediction(model, initial_data, n_steps=60, max_intervals=120):
     predictions = []
     n_features = initial_data.shape[1] if len(initial_data.shape) >= 2 else 1
-    y_data = initial_data[-n_steps:].reshape((1, n_steps, n_features))
+    # y_data = initial_data[-n_steps:].reshape((1, n_steps, n_features))
+    y_data = featurise_single_series(initial_data[-n_steps:], n_entries=1, n_steps=n_steps, n_features=1)
     for i in range(max_intervals):
         y_data = featurise_single_series(y_data, n_entries=1, n_steps=y_data.shape[1])
         y_pred = make_forecast(model)
@@ -62,6 +78,19 @@ def get_walkforward_prediction(model, initial_data, n_steps=60, max_intervals=12
     predictions = np.array(predictions)
     predictions_c = np.concatenate(predictions)
     return predictions_c
+
+def get_walkforward_cnn(model, initial_data, n_steps=60, n_seq=2, max_intervals=120):
+  # pdb.set_trace()
+  predictions = []
+  x_data_i = featurise_single_series(initial_data[-n_steps:], n_entries=1, n_steps=n_steps, n_features=1)
+  for i in range(max_intervals):
+    x_data = featurise_cnn(np.copy(x_data_i), n_entries=1, n_steps=n_steps, n_seq=n_seq, n_features=1)
+    y_pred = model.predict(x_data)
+    predictions.append(y_pred)
+    x_data_i = np.hstack(( x_data_i[:,1:,:], y_pred.reshape((1, 1, 1)) ))
+  predictions = np.array(predictions)
+  predictions_c = np.concatenate(predictions)
+  return predictions_c
 
 @app.route("/status")
 def index():
@@ -86,6 +115,7 @@ def get_prediction():
     data_length = initial_data.shape[0]
 
     result = {}
+    # TODO: change inf_mode to generic model descriptor
     if inf_mode in inf_modes and data_length >= inf_modes[inf_mode]["length"]:
         req_len = inf_modes[inf_mode]["length"]
         initial_data = initial_data[-req_len:] if data_length > req_len else initial_data
@@ -98,6 +128,11 @@ def get_prediction():
             feed_data = featurise_multistep_series(inf_mode, initial_data)
             predictions = make_forecast(model, feed_data)
             predictions = predictions.reshape((predictions.shape[0]))
+        elif inf_mode == "cnn":
+            # TODO: Get the original normaliser working or retrain the model with non scaled data
+            feed_data = model_cnn_normaliser.transform(initial_data.reshape(-1, 1))
+            predictions = get_walkforward_cnn(model_cnn, feed_data)
+            predictions = model_cnn_normaliser.inverse_transform(predictions).reshape(-1)
 
         predictions = predictions.tolist()
         result = {"data": predictions}
