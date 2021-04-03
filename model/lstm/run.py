@@ -25,17 +25,26 @@ with open("./model.yaml", "r") as stream:
     config = yaml.safe_load(stream)
 
 model_filename = config["model"]["save_filename"]
+# TODO: Model dictionary
 model = tf.keras.models.load_model(model_filename)
 
-def make_forecast(model, x_input, n_entries=1, n_steps=60, n_features=1):
-    # print("Prediction shape: ", x_input.shape)
-    x_input = x_input.reshape((n_entries, n_steps, n_features))
-    # print("Prediction shape: ", x_input.shape)
-    y_pred = model.predict(x_input, verbose=0)[0]
-    return y_pred
+inf_modes = {
+    "walk_forward": {"name": "Walk-forward validation", "length": 60},
+    "multistep_series": {"name": "Series", "length": 120}
+}
 
-def make_forecast_multistep(model, x_input, n_entries=1, n_steps=60, n_features=1):
-    x_input = x_input.reshape((n_entries, n_steps, n_features))
+def featurise_multistep_series(inf_mode, initial_data, n_steps=60):
+    result = []
+    for i in range(n_steps, inf_modes[inf_mode]["length"]):
+        result.append(initial_data[i-n_steps:i])
+    result = np.array(result)
+    result = np.reshape(result, (result.shape[0], result.shape[1], 1))
+    return result
+
+def featurise_single_series(x_input, n_entries=1, n_steps=60, n_features=1):
+    return x_input.reshape((n_entries, n_steps, n_features))
+
+def make_forecast(model, x_input):
     y_pred = model.predict(x_input, verbose=0)
     return y_pred
 
@@ -44,7 +53,9 @@ def get_walkforward_prediction(model, initial_data, n_steps=60, max_intervals=12
     n_features = initial_data.shape[1] if len(initial_data.shape) >= 2 else 1
     y_data = initial_data[-n_steps:].reshape((1, n_steps, n_features))
     for i in range(max_intervals):
-        y_pred = make_forecast(model, y_data, n_entries=1, n_steps=y_data.shape[1])
+        y_data = featurise_single_series(y_data, n_entries=1, n_steps=y_data.shape[1])
+        y_pred = make_forecast(model)
+        y_pred = y_pred[0]
         predictions.append(y_pred)
         y_data = np.hstack(( y_data[:,1:,:], y_pred.reshape((1, 1, 1)) ))
 
@@ -55,11 +66,6 @@ def get_walkforward_prediction(model, initial_data, n_steps=60, max_intervals=12
 @app.route("/status")
 def index():
     return {"status": "ready"}
-
-inf_modes = {
-    "walk_forward": {"name": "Walk-forward validation", "length": 60},
-    "multistep_series": {"name": "Series", "length": 120}
-}
 
 @app.route("/model/api/get_prediction", methods=["POST"])
 def get_prediction():
@@ -89,11 +95,8 @@ def get_prediction():
             feed_data = initial_data
             predictions = get_walkforward_prediction(model, feed_data)
         elif inf_mode == "multistep_series":
-            for i in range(60, inf_modes[inf_mode]["length"]):
-                feed_data.append(initial_data[i-60:i])
-            feed_data = np.array(feed_data)
-            feed_data = np.reshape(feed_data, (feed_data.shape[0], feed_data.shape[1], 1))
-            predictions = make_forecast_multistep(model, feed_data, n_entries=60)
+            feed_data = featurise_multistep_series(inf_mode, initial_data)
+            predictions = make_forecast(model, feed_data)
             predictions = predictions.reshape((predictions.shape[0]))
 
         predictions = predictions.tolist()
