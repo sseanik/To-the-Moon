@@ -91,9 +91,9 @@ def get_walkforward_cnn(model, initial_data, n_steps=60, n_seq=2, max_intervals=
   predictions_c = model_cnn_normaliser.inverse_transform(predictions_c).reshape(-1)
   return predictions_c
 
-def get_multistep_vanilla(inf_mode, initial_data):
+def get_multistep_vanilla(model, inf_mode, initial_data):
     feed_data = featurise_multistep_series(inf_mode, initial_data)
-    predictions = make_forecast(models["lstm_vanilla"], feed_data)
+    predictions = make_forecast(model, feed_data)
     predictions = predictions.reshape((predictions.shape[0]))
     return predictions
 
@@ -128,9 +128,8 @@ def get_prediction():
         if inf_mode == "walk_forward":
             predictions = get_walkforward_prediction(models["lstm_vanilla"], initial_data)
         elif inf_mode == "multistep_series":
-            predictions = get_multistep_vanilla(inf_mode, initial_data)
+            predictions = get_multistep_vanilla(models["lstm_vanilla"], inf_mode, initial_data)
         elif inf_mode == "cnn":
-            # TODO: Get the original normaliser working or retrain the model with non scaled data
             predictions = get_walkforward_cnn(models["lstm_cnn"], initial_data)
 
         predictions = predictions.tolist()
