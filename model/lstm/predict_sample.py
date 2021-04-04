@@ -28,7 +28,7 @@ for i in np.where(np.isnan(y_sample))[0]:
 print("Shape: ", y_sample.shape)
 # print("Data: ", json.dumps(y_sample.tolist()))
 
-data = {"inference_mode": "multistep_series", "data": y_sample.tolist()}
+data = {"inference_mode": "cnn", "data": y_sample.tolist()}
 headers = { "Content-Type": "application/json", }
 # endpoint = "http://127.0.0.1:5000/model/api/get_prediction"
 endpoint = f"http://{address}:{port}/model/api/get_prediction"
