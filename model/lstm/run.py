@@ -27,17 +27,24 @@ app = Flask(__name__)
 with open("./model.yaml", "r") as stream:
     config = yaml.safe_load(stream)
 
-model_filename = config["model"]["save_filename"]
-# TODO: Model dictionary
-model = tf.keras.models.load_model(model_filename)
+models = {}
+models_info = config["models"]
+for k in models_info.keys():
+     filename = models_info[k]["save_filename"]
+     models[k] = tf.keras.models.load_model(filename)
+# # TODO: change schema
+# model_filename = config["model"]["save_filename"]
+# # TODO: Model dictionary
+# model = tf.keras.models.load_model(model_filename)
 
-inf_modes = {
-    "walk_forward": {"name": "Walk-forward validation", "length": 60},
-    "multistep_series": {"name": "Series", "length": 120},
-    "cnn": {"name": "(Temporary) CNN-LSTM walk-forward", "length": 60}
-}
+# inf_modes = {
+#     "walk_forward": {"name": "Walk-forward validation", "length": 60},
+#     "multistep_series": {"name": "Series", "length": 120},
+#     "cnn": {"name": "(Temporary) CNN-LSTM walk-forward", "length": 60}
+# }
+inf_modes = config["prediction_modes"]
 
-model_cnn = tf.keras.models.load_model("./cnn_lstm.h5")
+# model_cnn = tf.keras.models.load_model("./cnn_lstm.h5")
 model_cnn_normaliser = MinMaxScaler(feature_range=(0,1))
 normaliser_initial = np.zeros((60, 1))
 normaliser_initial[0,0] = 35.1228303438
@@ -70,7 +77,7 @@ def get_walkforward_prediction(model, initial_data, n_steps=60, max_intervals=12
     y_data = featurise_single_series(initial_data[-n_steps:], n_entries=1, n_steps=n_steps, n_features=1)
     for i in range(max_intervals):
         y_data = featurise_single_series(y_data, n_entries=1, n_steps=y_data.shape[1])
-        y_pred = make_forecast(model)
+        y_pred = make_forecast(model, y_data)
         y_pred = y_pred[0]
         predictions.append(y_pred)
         y_data = np.hstack(( y_data[:,1:,:], y_pred.reshape((1, 1, 1)) ))
@@ -123,15 +130,15 @@ def get_prediction():
         predictions = []
         if inf_mode == "walk_forward":
             feed_data = initial_data
-            predictions = get_walkforward_prediction(model, feed_data)
+            predictions = get_walkforward_prediction(models["lstm_vanilla"], feed_data)
         elif inf_mode == "multistep_series":
             feed_data = featurise_multistep_series(inf_mode, initial_data)
-            predictions = make_forecast(model, feed_data)
+            predictions = make_forecast(models["lstm_vanilla"], feed_data)
             predictions = predictions.reshape((predictions.shape[0]))
         elif inf_mode == "cnn":
             # TODO: Get the original normaliser working or retrain the model with non scaled data
             feed_data = model_cnn_normaliser.transform(initial_data.reshape(-1, 1))
-            predictions = get_walkforward_cnn(model_cnn, feed_data)
+            predictions = get_walkforward_cnn(models["lstm_cnn"], feed_data)
             predictions = model_cnn_normaliser.inverse_transform(predictions).reshape(-1)
 
         predictions = predictions.tolist()
