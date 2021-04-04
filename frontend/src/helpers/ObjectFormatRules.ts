@@ -6,6 +6,16 @@ interface AttributeValues {
   name: string;
 }
 
+interface IObjectKeysE {
+  [key: string]: AttributeValuesE;
+}
+
+interface AttributeValuesE {
+  name: string;
+  format: string;
+  indent: number;
+}
+
 export const summaryFormatter: IObjectKeys = {
   previous_close: {name: "Previous Close"},
   open: {name: "Open"},
@@ -46,15 +56,15 @@ export const incomeStatementFormatter: IObjectKeys = {
   net_income: {name: "Net Income"},
 };
 
-export const balanceSheetFormatter: IObjectKeys = {
-  fiscal_date_ending: {name: "Year Ending"},
-  total_assets: {name: "Total Assets"},
-  total_curr_assets: {name: "Total Current Assets"},
-  total_ncurr_assets: {name: "Total Non-Current Assets"},
-  total_liabilities: {name: "Total Liabilities"},
-  total_curr_liabilities: {name: "Total Current Liabilities"},
-  total_ncurr_liabilities: {name: "Total Non-Current Liabilities"},
-  total_equity: {name: "Total Equity"},
+export const balanceSheetFormatter: IObjectKeysE = {
+  fiscal_date_ending: {name: "Year Ending", format: "bold", indent: 0},
+  total_assets: {name: "Total Assets", format: "bold", indent: 0},
+  total_curr_assets: {name: "Total Current Assets", format: "normal", indent: 1},
+  total_ncurr_assets: {name: "Total Non-Current Assets", format: "normal", indent: 1},
+  total_liabilities: {name: "Total Liabilities", format: "bold", indent: 0},
+  total_curr_liabilities: {name: "Total Current Liabilities", format: "normal", indent: 1},
+  total_ncurr_liabilities: {name: "Total Non-Current Liabilities", format: "normal", indent: 1},
+  total_equity: {name: "Total Equity", format: "normal", indent: 0},
 };
 
 export const cashFlowStatementFormatter: IObjectKeys = {

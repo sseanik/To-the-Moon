@@ -1,5 +1,5 @@
 
-function RangeSelectorOptions(setDisplayIntra) { 
+function RangeSelectorOptions(setDisplayIntra) {
   return {
     allButtonsEnabled: true,
     selected: undefined,
