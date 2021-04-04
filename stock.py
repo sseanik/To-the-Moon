@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import sys
 import os
+
 from collections import OrderedDict
 from datetime import datetime
 import pytz
@@ -21,7 +22,10 @@ import psycopg2.extensions
 from alpha_vantage.timeseries import TimeSeries
 
 from database import create_DB_connection
-from helpers import JSONLoader, AlphaVantageInfo
+from helpers import JSONLoader, AlphaVantageInfo, get_local_storage_filepath
+from constants.stock_db_schema import summary_bs_components, summary_bs_columns, revised_bs_order
+
+from definitions import local_storage_dir
 
 MODELSRVPORT = os.getenv("MODELSRVPORT")
 
@@ -39,8 +43,7 @@ local_tz = pytz.timezone("Australia/Sydney")
 # Please leave all functions here #
 ###################################
 def update_stock_required(symbol, data_type="daily_adjusted"):
-    filename = "demo/" + symbol + "_" + data_type + ".json" if symbol else ""
-
+    filename = get_local_storage_filepath(symbol + "_" + data_type + ".json") if symbol else ""
     if not os.path.isfile(filename):
         return True
     else:
@@ -53,14 +56,27 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
 
         date_today = datetime.today()
         date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
-        date_comp = (date_today-date_ref).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
-        # TODO: select based on exchange trading hours
-        # TODO: allow updating on weekends if last fetched on prior weekday
         date_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
         dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
 
-        return date_comp and date_constraint and dow_constraint
+        # If not inside trading hours move to close of last trading day
+        if not (date_constraint and dow_constraint):
+            date_today_aware.hour = 20
+            date_today_aware.minute = 0
+            date_today_aware.second = 0
+            if date_today_aware.weekday() > 4:
+                date_today_aware.day -= date_today_aware.weekday() - 4
+
+        date_comp = (date_today_aware-date_ref_aware).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
+
+        print(f"Day difference: {date_today_aware} - {date_ref_aware} = {(date_today_aware-date_ref_aware).days}")
+        print(f"ID  difference: {date_today_aware} - {date_ref_aware} = {(date_today_aware-date_ref_aware).total_seconds()}")
+
+        # TODO: select based on exchange trading hours
+        # TODO: keep last refreshed date
+
+        return date_comp
 
 def retrieve_stock_data(symbol, data_type="daily_adjusted"):
     try:
@@ -117,9 +133,9 @@ def get_fundamentals(symbol):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM securities_overviews \
-        WHERE stock_ticker='{symbol}'"
-    cur.execute(selectQuery)
+    selectQuery = "SELECT * FROM securities_overviews \
+        WHERE stock_ticker=%s"
+    cur.execute(selectQuery, (symbol,))
     query_result = cur.fetchone()
     result = OrderedDict(query_result) if query_result else None
     result = OrderedDict((k, result[k]) for k in revised_fs_fields)
@@ -131,10 +147,10 @@ def get_income_statement(symbol, num_entries=1):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM income_statements \
-        WHERE stock_ticker='{symbol}' \
-        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
-    cur.execute(selectQuery)
+    selectQuery = "SELECT * FROM income_statements \
+        WHERE stock_ticker=%s \
+        ORDER BY fiscal_date_ending DESC LIMIT %s"
+    cur.execute(selectQuery, (symbol, num_entries,))
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
     for record in result:
@@ -143,31 +159,22 @@ def get_income_statement(symbol, num_entries=1):
     conn.close()
     return result
 
-revised_bs_order = ['fiscal_date_ending', 'total_assets', 'total_curr_assets', 'total_ncurr_assets', 'total_liabilities', 'total_curr_liabilities', 'total_ncurr_liabilities', 'total_equity']
-
 def get_balance_sheet(symbol, num_entries=1):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM balance_sheets \
-        WHERE stock_ticker='{symbol}' \
-        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
-    cur.execute(selectQuery)
+    selectQuery = "SELECT * FROM balance_sheets \
+        WHERE stock_ticker=%s \
+        ORDER BY fiscal_date_ending DESC LIMIT %s"
+    cur.execute(selectQuery, (symbol, num_entries,))
     query_results = cur.fetchall()
     # result = [dict(record) for record in query_results]
     result = []
     for entry in query_results:
         record = OrderedDict(entry)
 
-        record['total_curr_assets'] = sum([float(record[x]) for x in ['cash_and_short_term_investments', 'current_net_receivables', 'inventory', 'other_current_assets']])
-        record['total_ncurr_assets'] = sum([float(record[x]) for x in ['property_plant_equipment', 'goodwill', 'intangible_assets', 'long_term_investments', 'other_non_current_assets']]) # last one is a typo
-        record['total_assets'] = record['total_curr_assets'] + record['total_ncurr_assets']
-
-        record['total_curr_liabilities'] = sum([float(record[x]) for x in  ['current_accounts_payable', 'short_term_debt', 'other_current_liabilities']])
-        record['total_ncurr_liabilities'] = sum([float(record[x]) for x in ['long_term_debt', 'other_non_current_liabilities']])
-        record['total_liabilities'] = record['total_curr_liabilities'] + record['total_ncurr_liabilities']
-
-        record['total_equity'] = sum([float(record[x]) for x in ['retained_earnings', 'total_shareholder_equity']])
+        for column in summary_bs_columns:
+            record[column] = sum([float(record[x]) for x in summary_bs_components[column]])
 
         record = OrderedDict((k, record[k]) for k in revised_bs_order)
         record['fiscal_date_ending'] = str(record['fiscal_date_ending'].isoformat())
@@ -180,10 +187,10 @@ def get_cash_flow(symbol, num_entries=1):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    selectQuery = f"SELECT * FROM cashflow_statements \
-        WHERE stock_ticker='{symbol}' \
-        ORDER BY fiscal_date_ending DESC LIMIT {num_entries}"
-    cur.execute(selectQuery)
+    selectQuery = "SELECT * FROM cashflow_statements \
+        WHERE stock_ticker=%s \
+        ORDER BY fiscal_date_ending DESC LIMIT %s"
+    cur.execute(selectQuery, (symbol, num_entries,))
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
     for record in result:
@@ -249,17 +256,17 @@ def get_stock_data():
         sample_df = {}
         sample_metadata = {}
         summary = {}
-
+        # TODO: Check that file exists
         if update_stock_required(symbol, data_type="daily_adjusted"):
             retrieve_stock_data(symbol, data_type="daily_adjusted")
-        filename = "demo/" + symbol + "_daily_adjusted.json" if symbol else ""
+        filename = get_local_storage_filepath(symbol + "_daily_adjusted" + ".json") if symbol else ""
         if os.path.isfile(filename):
             sample_df, sample_metadata = get_stock_value(filename)
             summary = calculate_summary(sample_df)
 
         if update_stock_required(symbol, data_type="intraday"):
             retrieve_stock_data(symbol, data_type="intraday")
-        intr_filename = "demo/" + symbol + "_intraday.json" if symbol else ""
+        intr_filename = get_local_storage_filepath(symbol + "_intraday" + ".json") if symbol else ""
         intraday = {}
         if os.path.isfile(intr_filename):
             intraday, _ = get_stock_value(intr_filename)
@@ -304,7 +311,8 @@ def get_prediction_daily():
     sample_metadata = {}
     summary = {}
 
-    filename = "demo/" + symbol + "_daily_adjusted.json" if symbol else ""
+    filename = get_local_storage_filepath(symbol + "_daily_adjusted" + ".json") if symbol else ""
+
     if os.path.isfile(filename):
         sample_df, sample_metadata = get_stock_value(filename)
     # TODO: generate values differently based on inference type
