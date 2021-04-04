@@ -55,10 +55,15 @@ interface getStockBasicParams {
 
 interface getPredictionDailyParams {
   symbol: string;
+  predictionType: string;
 }
 
 interface durChoiceParams {
   [key: string]: { dur: number; display: string; units: string };
+}
+
+interface predictionModeParams {
+  [key: string]: { idtype: string; name: string; };
 }
 
 interface StateProps {
@@ -107,6 +112,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     };
   }, []);
 
+  const predictOpts: predictionModeParams = useMemo(() => {
+    return {
+      lstm_wlf: { idtype: "walk_forward", name: "Vanilla LSTM (Walk-Forward)" },
+      lstm_ser: { idtype: "multistep_series", name: "Vanilla LSTM (Series)" },
+      lcnn_wlf: { idtype: "cnn", name: "CNN-LSTM (Walk-Forward)" },
+    };
+  }, []);
+
   /* const durOpts: durChoiceParams = {
     durDays3: { dur: 3, display: "3", units: "days" },
     durWeeks1: { dur: 5, display: "5", units: "days" },
@@ -126,13 +139,15 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     legend: { enabled: true, layout: "horizontal"},
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
+  const [preChoice, setPreChoice] = useState<string>("lstm_wlf");
 
   const fetchStock = useCallback(() => {
     getStockBasic({ symbol });
   }, [getStockBasic, symbol]);
 
   const fetchPredictDaily = () => {
-    getPredictionDaily({ symbol });
+    const predictionType = predictOpts[preChoice].idtype;
+    getPredictionDaily({ symbol, predictionType });
   };
 
   // TODO: predefined reset length
@@ -300,6 +315,33 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               );
             })}
           </DropdownButton>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>Model: </Col>
+        <Col>
+        <DropdownButton
+          variant="outline-dark"
+          id="dropdown-basic-button"
+          title={predictOpts[preChoice].name}
+        >
+          {Object.entries(predictOpts).map((entry, idx) => {
+            const [key, value] = entry;
+
+            return (
+              <Dropdown.Item
+                key={idx}
+                href="#/action-1"
+                onClick={() => {
+                  setPreChoice(key);
+                }}
+              >
+                {value.name}
+              </Dropdown.Item>
+            );
+          })}
+        </DropdownButton>
         </Col>
       </Row>
       <hr />
