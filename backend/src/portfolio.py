@@ -2,7 +2,7 @@
 #   Portfolio Module   #
 ########################
 
-
+import time
 from flask import Blueprint, request
 from json import dumps
 from database import create_DB_connection
@@ -10,6 +10,8 @@ from token_util import get_id_from_token
 from helpers import TimeSeries, AlphaVantageAPI
 from datetime import datetime
 from stock import retrieve_stock_price_at_date
+from iexfinance.stocks import Stock
+import pandas as pd
 
 PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
 
@@ -183,43 +185,6 @@ def get_trending_investments(num):
 
 
 ############ Additional functions ##############
-'''
-def check_data(data, portfolio_name):
-    for portfolio in data:
-        if portfolio['portfolio_name'] == portfolio_name:
-            return portfolio
-    return {}
-
-
-def getUserPortfolios(user_id):
-    conn = create_DB_connection()
-    cur = conn.cursor()
-    sql_query = "SELECT * FROM Holdings where user_id=%s"
-    cur.execute(sql_query, (user_id, ))
-    query_results = cur.fetchall()
-    data = []
-    for row in query_results:
-        portfolio_name = row[2]
-        new_investment = {
-            'investment_id' : row[0],
-            'purchase_price' : row[3],
-            'num_shares' : row[4],
-            'purchase_date' : row[5],
-            'stock_ticker' : row[6]
-        }
-        present_data = check_data(data, portfolio_name)
-        if present_data:
-            present_data['holdings'].append(new_investment)
-        else:
-            new_portfolio = {
-                'portfolio_name' : portfolio_name,
-                'holdings' : [new_investment]
-            }
-            data.append(new_portfolio)
-
-    conn.close()
-    return data
-'''
 def get_portfolios(user_id):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -231,6 +196,7 @@ def get_portfolios(user_id):
         data.append(tupl[0])
     conn.close()
     return {'status' : 200, 'data' : data}
+
 
 def get_investments(user_id, portfolio_name):
     conn = create_DB_connection()
@@ -252,6 +218,55 @@ def get_investments(user_id, portfolio_name):
 
     conn.close()
     return {'status' : 200, 'data' : data}
+
+
+def get_portfolio_performance(user_id, portfolio_name):
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    sql_query = "SELECT * FROM Holdings WHERE user_id=%s AND portfolio_name=%s"
+    try:
+        cur.execute(sql_query, (user_id, portfolio_name))
+    except:
+        return {'status' : 400, 'error' : 'Something went wrong while searching Holdings table for user_id = \'' + str(user_id) + '\' and portfolio_name = \'' + str(portfolio_name) + '\'.'}
+    query_results = cur.fetchall()
+    if not query_results:
+        return {'status' : 400, 'error' : 'There are no investments in a portfolio called \'' + portfolio_name + '\'.'}
+    conn.close()
+    
+    # Fill the data dictionary with investments and collect the stock tickers for a batch API call
+    data = {'investments' : []}
+    stocks = []
+    for row in query_results:
+        stock_ticker = row[6]
+        if stock_ticker not in stocks:
+            stocks.append(stock_ticker)
+
+        new_investment = {
+            'investment_id': row[0],
+            'purchase_price': str(row[3]),
+            'num_shares': row[4],
+            'purchase_date': row[5].strftime("%Y-%m-%d"),
+            'stock_ticker': stock_ticker
+        }
+        data['investments'].append(new_investment)
+
+    # Fetch stock prices
+    batch = Stock(stocks)
+    batch = batch.get_quote()
+    total_value_change = 0
+    total_invested_capital = 0
+    for investment in data['investments']:
+        value_change = batch.latestPrice[investment['stock_ticker']] - float(investment['purchase_price'])
+        investment['total_change'] = (value_change * 100) / float(investment['purchase_price'])
+        total_value_change += value_change
+        total_invested_capital += float(investment['purchase_price'])
+
+    data['portfolio_change'] = (total_value_change * 100) / total_invested_capital
+    response = {
+        'status' : 200, 
+        'message' : 'Successfully calculated the performance of portfolio \'' + portfolio_name + '\', as well as its individual investments.', 
+        'data' : data}
+    return response
 
 
 ################################
@@ -348,6 +363,14 @@ def delete_investment_user_portfolio_wrapper():
     return dumps(delete_investment(investment_id))
 
 
+# Get the performance of a portfolio and its individual investments.
+@PORTFOLIO_ROUTES.route('/user/portfolio/performance', methods=['GET'])
+def get_portfolio_performance_wrapper():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    portfolio_name = request.args.get('name')
+    response = get_portfolio_performance(user_id, portfolio_name)
+    return dumps(response)
 
 
 ############ Tests #############
@@ -359,3 +382,27 @@ def delete_investment_user_portfolio_wrapper():
 # add_investment('7', 'Sally\'s portfolio', '50', 1611061200, 'BHP')
 # get_investment("2380756e-863c-11eb-af93-0a4e2d6dea13")
 # get_trending_investments('10')
+
+# print(total_stock_change("IBM", 100))
+# print(total_stock_change("BHP", 100))
+# print(total_stock_change("LIN", 100))
+# print(total_stock_change("JPM", 100))
+# print(total_stock_change("MA", 100))
+
+
+# stock = "IBM"
+# batch = Stock([stock])
+# batch = batch.get_quote()
+# print(batch.latestPrice[stock])
+# batch = pd.DataFrame(batch)
+# print(batch.loc[stock, "latestPrice"])
+# for key, value in batch.items():
+#     print(key, " : ", value)
+
+#create_portfolio("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test")
+# add TSLA, IBM
+#add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
+#add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "ORCL")
+#dd_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
+# test 
+print(get_portfolio_performance("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test"))
