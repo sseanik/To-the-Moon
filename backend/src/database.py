@@ -140,6 +140,11 @@ def fill_income_statements(symbol):
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
+
+        for key, value in annualReport.items():
+            if (value == "None"):
+                annualReport[key] = None
+
         cur.execute(insertQuery, (
             symbol,
             annualReport['fiscalDateEnding'],
@@ -210,7 +215,7 @@ def fill_balance_sheets(symbol):
             annualReport['goodwill'],
             annualReport['intangibleAssets'],
             annualReport['longTermInvestments'],
-            annualReport['otherNonCurrentAssets'],
+            annualReport['otherNonCurrrentAssets'],
             annualReport['currentAccountsPayable'],
             annualReport['shortTermDebt'],
             annualReport['otherCurrentLiabilities'],
@@ -280,14 +285,14 @@ def fill_cashflow_statements(symbol):
 
 
 def fill_overview_and_financial_tables(symbol):
-    fillSecuritiesOverviewTable(symbol)
-    fillIncomeStatements(symbol)
-    fillBalanceSheets(symbol)
-    fillCashflowStatements(symbol)
+    fill_securities_overview_table(symbol)
+    fill_income_statements(symbol)
+    fill_balance_sheets(symbol)
+    fill_cashflow_statements(symbol)
 
 
 if __name__ == "__main__":
-    create_user_table()
+    #create_user_table()
     #create_portfolios_table()
     #create_holdings_table()
     #create_securities_overviewTable()
@@ -298,8 +303,45 @@ if __name__ == "__main__":
     #create_notes_table()
 
     # Basic materials
-    # fill_securities_overview_table('BHP')
+    #fill_securities_overview_table('BHP')
+    #fill_overview_and_financial_tables('LIN')
+
+    # Financial services sector
+    #fill_overview_and_financial_tables('JPM')
+    #fill_overview_and_financial_tables('MA')
+
+    # Consumer defence sector
+    #fill_overview_and_financial_tables('WMT')
+    #fill_overview_and_financial_tables('KO')
+
+    # Utilities sector
+    #fill_overview_and_financial_tables('NEE')
+    #fill_overview_and_financial_tables('DUK')
+
+    # Energy sector
+    #fill_overview_and_financial_tables('XOM')
+    #fill_overview_and_financial_tables('CVX')
 
     # Technology sector
     #fill_securities_overview_table('ORCL')
     #fill_securities_overview_table('IBM')
+
+    # Consumer cyclical sector
+    #fill_overview_and_financial_tables('NKE')
+    #fill_overview_and_financial_tables('TM')
+
+    # Real estate sector
+    #fill_overview_and_financial_tables('AMT')
+    #fill_overview_and_financial_tables('PLD')
+
+    # Healthcare sector
+    #fill_overview_and_financial_tables('JNJ')
+    #fill_overview_and_financial_tables('UNH')
+
+    # Communication services sector
+    #fill_overview_and_financial_tables('T')
+    #fill_overview_and_financial_tables('VZ')
+
+    # Industrials sector
+    #fill_overview_and_financial_tables('BA')
+    fill_overview_and_financial_tables('CAT')
