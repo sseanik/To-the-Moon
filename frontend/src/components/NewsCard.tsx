@@ -5,13 +5,13 @@ const newsItemStyle = {
   width: "60vw",
   height: "auto",
   margin: "20px",
-}
+};
 
 const imageStyle = {
   display: "block",
   height: "auto",
-  width: "20vw"
-}
+  width: "20vw",
+};
 
 export interface NewsItem {
   category: string;
@@ -33,15 +33,15 @@ const NewsCard: React.FC<NewsItem> = (props) => {
       <a href={url}>
         <Card style={newsItemStyle}>
           <Card.Header>{headline}</Card.Header>
-          <Image className="mx-auto" src={image} style={imageStyle}/>
+          <Image className="mx-auto" src={image} style={imageStyle} />
           <Card.Body>
             <Card.Title>{source}</Card.Title>
             <Card.Text>{summary}</Card.Text>
           </Card.Body>
         </Card>
       </a>
-    </Row> 
-  )
-}
+    </Row>
+  );
+};
 
 export default NewsCard;
