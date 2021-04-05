@@ -311,5 +311,22 @@ if __name__ == "__main__":
     #fill_overview_and_financial_tables('IBM')
 
     # Consumer defence sector
-    fill_overview_and_financial_tables('WMT')
+    #fill_overview_and_financial_tables('WMT')
     #fill_overview_and_financial_tables('KO')
+
+    # Utilities sector
+    fill_overview_and_financial_tables('NEE')
+
+    # Energy sector
+
+    # Technology sector
+
+    # Consumer cyclical sector
+
+    # Real estate sector
+
+    # Healthcare sector
+
+    # Communication services sector
+
+    # Industrials sector
