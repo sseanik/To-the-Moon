@@ -224,7 +224,10 @@ def get_portfolio_performance(user_id, portfolio_name):
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "SELECT * FROM Holdings WHERE user_id=%s AND portfolio_name=%s"
-    cur.execute(sql_query, (user_id, portfolio_name))
+    try:
+        cur.execute(sql_query, (user_id, portfolio_name))
+    except:
+        return {'status' : 400, 'error' : 'Something went wrong while searching Holdings table for user_id = \'' + str(user_id) + '\' and portfolio_name = \'' + str(portfolio_name) + '\'.'}
     query_results = cur.fetchall()
     if not query_results:
         return {'status' : 400, 'error' : 'There are no investments in a portfolio called \'' + portfolio_name + '\'.'}
@@ -259,7 +262,11 @@ def get_portfolio_performance(user_id, portfolio_name):
         total_invested_capital += float(investment['purchase_price'])
 
     data['portfolio_change'] = (total_value_change * 100) / total_invested_capital
-    return data
+    response = {
+        'status' : 200, 
+        'message' : 'Successfully calculated the performance of portfolio \'' + portfolio_name + '\', as well as its individual investments.', 
+        'data' : data}
+    return response
 
 
 ################################
@@ -399,4 +406,3 @@ def get_portfolio_performance_wrapper():
 #dd_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
 # test 
 print(get_portfolio_performance("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test"))
-
