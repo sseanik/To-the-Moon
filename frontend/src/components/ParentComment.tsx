@@ -4,6 +4,12 @@ import { faThumbsUp, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
 import AddChildForm from "./AddChildForm";
 import { useState } from "react";
 import ChildComment from "./ChildComment";
+import EditParentForm from "./EditParentForm";
+import { connect } from "react-redux";
+
+interface StateProps {
+  currentUsername: string;
+}
 
 interface Props {
   comment_id: string;
@@ -37,8 +43,9 @@ interface ReplyParams {
   vote_difference: number;
 }
 
-const ParentComment: React.FC<Props> = (props) => {
+const ParentComment: React.FC<StateProps & Props> = (props) => {
   const {
+    currentUsername,
     comment_id,
     stock_ticker,
     username,
@@ -53,10 +60,11 @@ const ParentComment: React.FC<Props> = (props) => {
   } = props;
 
   const [replying, setReplying] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   return (
     <Row className="my-1 w-100">
-      <Container fluid className="border rounded pt-2">
+      <Container fluid className="border border-secondary rounded pt-2">
         {is_deleted ? (
           <Row>
             <Col md={2}>
@@ -68,14 +76,14 @@ const ParentComment: React.FC<Props> = (props) => {
             <Col md={2}>
               <p className="font-weight-bold text-left">{username}</p>
             </Col>
-            <Col md={1}>
+            <Col md={2}>
               <p className="text-muted">
                 {new Date(time_stamp).toLocaleDateString()}
               </p>
             </Col>
             {is_edited ? (
               <Col md={1}>
-                <p className="text-muted">edited</p>
+                <p className="text-muted">(edited)</p>
               </Col>
             ) : null}
           </Row>
@@ -120,6 +128,34 @@ const ParentComment: React.FC<Props> = (props) => {
               </Button>
             </Col>
           )}
+          {/* {currentUsername === username ? (
+            editing ? (
+              <Col md={1}>
+                <Button variant="light" onClick={() => setEditing(false)}>
+                  Cancel
+                </Button>
+              </Col>
+            ) : (
+              <Col md={1}>
+                <Button variant="light" onClick={() => setEditing(true)}>
+                  Edit
+                </Button>
+              </Col>
+            )
+          ) : null} */}
+          {editing ? (
+            <Col md={1}>
+              <Button variant="light" onClick={() => setEditing(false)}>
+                Cancel
+              </Button>
+            </Col>
+          ) : (
+            <Col md={1}>
+              <Button variant="light" onClick={() => setEditing(true)}>
+                Edit
+              </Button>
+            </Col>
+          )}
         </Row>
       </Container>
       <Container fluid>
@@ -127,11 +163,18 @@ const ParentComment: React.FC<Props> = (props) => {
           <AddChildForm stockTicker={stock_ticker} parentID={comment_id} />
         ) : null}
       </Container>
-      {replies.map((replyProps: ReplyParams, idx) => {
+      <Container fluid>
+        {editing ? <EditParentForm commentID={comment_id} /> : null}
+      </Container>
+      {replies.map((replyProps: ReplyParams, idx: number) => {
         return <ChildComment key={idx} {...replyProps} />;
       })}
     </Row>
   );
 };
 
-export default ParentComment;
+const mapStateToProps = (state: any) => ({
+  currentUsername: state.userReducer.username,
+});
+
+export default connect(mapStateToProps)(ParentComment);

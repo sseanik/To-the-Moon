@@ -13,6 +13,14 @@ const initialState = {
     loading: false,
     error: null,
   },
+  editParent: {
+    editing: [],
+    error: null,
+  },
+  editChild: {
+    editing: [],
+    error: null,
+  },
   comments: [],
 };
 
@@ -93,6 +101,82 @@ const forumReducer = (state = initialState, action) => {
         ...state,
         getComments: { loading: false, error: action.payload },
         comments: [],
+      };
+    case forumConstants.EDIT_PARENT_PENDING:
+      return {
+        ...state,
+        editParent: {
+          error: null,
+          editing: [...state.editParent.editing, action.payload.commentID],
+        },
+      };
+    case forumConstants.EDIT_PARENT_SUCCESS:
+      return {
+        ...state,
+        editParent: {
+          error: null,
+          editing: state.editParent.editing.filter(
+            (commentID) => commentID === action.payload
+          ),
+        },
+        comments: state.comments.map((comment) =>
+          comment.comment_id === action.payload.comment_id
+            ? { ...comment, content: action.payload.content }
+            : comment
+        ),
+      };
+    case forumConstants.EDIT_PARENT_FAILURE:
+      return {
+        ...state,
+        editParent: {
+          error: null,
+          editing: state.editParent.editing.filter(
+            (commentID) => commentID === action.payload
+          ),
+        },
+      };
+    case forumConstants.EDIT_CHILD_PENDING:
+      return {
+        ...state,
+        editChild: {
+          error: null,
+          editing: [...state.editChild.editing, action.payload.commentID],
+        },
+      };
+    case forumConstants.EDIT_CHILD_SUCCESS:
+      return {
+        ...state,
+        editChild: {
+          error: null,
+          editing: state.editChild.editing.filter(
+            (commentID) => commentID === action.payload
+          ),
+        },
+        comments: state.comments.map((comment) =>
+          comment.comment_id === action.payload.parent_id
+            ? {
+                ...comment,
+                replies: comment.replies.map((reply) =>
+                  reply.reply_id === action.payload.comment_id
+                    ? {
+                        ...reply,
+                        content: action.payload.content,
+                      }
+                    : reply
+                ),
+              }
+            : comment
+        ),
+      };
+    case forumConstants.EDIT_CHILD_FAILURE:
+      return {
+        ...state,
+        editChild: {
+          error: null,
+          editing: state.editChild.editing.filter(
+            (commentID) => commentID === action.payload
+          ),
+        },
       };
     default:
       return state;
