@@ -6,8 +6,8 @@ const initialState = {
     error: null,
   },
   addChild: {
-    loading: false,
     error: null,
+    adding: [],
   },
   getComments: {
     loading: false,
@@ -21,7 +21,10 @@ const forumReducer = (state = initialState, action) => {
     case forumConstants.ADD_PARENT_PENDING:
       return {
         ...state,
-        addParent: { loading: true, error: null },
+        addParent: {
+          loading: true,
+          error: null,
+        },
       };
     case forumConstants.ADD_PARENT_SUCCESS:
       return {
@@ -30,31 +33,49 @@ const forumReducer = (state = initialState, action) => {
           loading: false,
           error: null,
         },
-        comments: [...state.comments, action.payload],
+        comments: [action.payload, ...state.comments],
       };
     case forumConstants.ADD_PARENT_FAILURE:
       return {
         ...state,
-        addParent: { loading: false, error: action.payload },
+        addParent: {
+          loading: false,
+          error: action.payload,
+        },
       };
     case forumConstants.ADD_CHILD_PENDING:
       return {
         ...state,
-        addChild: { loading: true, error: null },
+        addChild: {
+          error: null,
+          adding: [...state.addChild.adding, action.payload],
+        },
       };
     case forumConstants.ADD_CHILD_SUCCESS:
       return {
         ...state,
         addChild: {
-          loading: false,
           error: null,
+          adding: state.addChild.adding.filter(
+            (commentID) => commentID === action.payload
+          ),
         },
-        comments: [...state.comments, action.payload],
+        // insert the new reply first temporarily
+        comments: state.comments.map((comment) =>
+          comment.comment_id === action.payload.comment_id
+            ? { ...comment, replies: [action.payload, ...comment.replies] }
+            : comment
+        ),
       };
     case forumConstants.ADD_CHILD_FAILURE:
       return {
         ...state,
-        addChild: { loading: false, error: action.payload },
+        addChild: {
+          error: action.payload,
+          adding: state.addChild.adding.filter(
+            (commentID) => commentID === action.payload
+          ),
+        },
       };
     case forumConstants.GET_COMMENTS_PENDING:
       return {

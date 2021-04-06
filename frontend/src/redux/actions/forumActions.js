@@ -31,8 +31,9 @@ const forumActions = {
       dispatch(forumActions.addParentFailure(error));
     }
   },
-  addChildPending: () => ({
+  addChildPending: (parentID) => ({
     type: forumConstants.ADD_CHILD_PENDING,
+    payload: parentID,
   }),
   addChildSuccess: (response) => ({
     type: forumConstants.ADD_CHILD_SUCCESS,
@@ -43,9 +44,9 @@ const forumActions = {
     payload: error,
   }),
   addChild: (payload) => async (dispatch) => {
-    dispatch(forumActions.addChildPending());
+    const { stockTicker, timestamp, content, parentID } = payload;
+    dispatch(forumActions.addChildPending(parentID));
     try {
-      const { stockTicker, timestamp, content, parentID } = payload;
       const { status, message, comment } = await forumAPI.addChild(
         stockTicker,
         timestamp,

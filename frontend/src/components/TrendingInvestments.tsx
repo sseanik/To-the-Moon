@@ -28,7 +28,7 @@ const TrendingInvestments: React.FC<StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     getTrendingStocks({ n: 5 });
-  }, []);
+  }, [getTrendingStocks]);
 
   const loadingSpinnerComponent = (
     <div>

@@ -396,6 +396,7 @@ def get_stock_comments(user_id, stock_ticker):
         'comments': query_results
     }
 
+
 ################################
 # Please leave all routes here #
 ################################
@@ -429,6 +430,7 @@ def delete_user_comment():
     result = delete_comment(user_id, data['comment_id'])
     return dumps(result)
 
+
 @FORUM_ROUTES.route('/forum/deleteReply', methods=['DELETE'])
 def delete_user_reply():
     token = request.headers.get('Authorization')
@@ -446,6 +448,7 @@ def edit_users_reply():
     result = edit_comment(user_id['id'], data['comment_id'], data['time_stamp'], data['content'], data['parent_id'])
     return dumps(result)
 
+
 @FORUM_ROUTES.route('/forum/editComment', methods=['PUT'])
 def edit_users_comment():
     token = request.headers.get('Authorization')
@@ -453,6 +456,8 @@ def edit_users_comment():
     data = request.get_json()
     result = edit_comment(user_id['id'], data['comment_id'], data['time_stamp'], data['content'])
     return dumps(result)
+
+
 @FORUM_ROUTES.route('/forum', methods=['GET'])
 def get_comments():
     token = request.headers.get('Authorization')
@@ -460,4 +465,3 @@ def get_comments():
     stock_ticker = request.args.get('stockTicker')
     result = get_stock_comments(user_id, stock_ticker)
     return dumps(result)
-

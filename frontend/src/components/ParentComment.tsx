@@ -1,6 +1,9 @@
-import { Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThumbsUp, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
+import AddChildForm from "./AddChildForm";
+import { useState } from "react";
+import ChildComment from "./ChildComment";
 
 interface Props {
   comment_id: string;
@@ -15,12 +18,29 @@ interface Props {
   upvotes: number;
   downvotes: number;
   vote_difference: number;
-  replies?: Array<string>;
-  parent_id?: string;
+  replies: Array<ReplyParams>;
 }
 
-const Comment: React.FC<Props> = (props) => {
+interface ReplyParams {
+  comment_id: string;
+  reply_id: string;
+  stock_ticker: string;
+  username: string;
+  time_stamp: number;
+  content: string;
+  is_edited: boolean;
+  is_deleted: boolean;
+  is_upvoted: boolean;
+  is_downvoted: boolean;
+  upvotes: number;
+  downvotes: number;
+  vote_difference: number;
+}
+
+const ParentComment: React.FC<Props> = (props) => {
   const {
+    comment_id,
+    stock_ticker,
     username,
     time_stamp,
     content,
@@ -29,15 +49,14 @@ const Comment: React.FC<Props> = (props) => {
     is_upvoted,
     is_downvoted,
     vote_difference,
-    parent_id,
+    replies,
   } = props;
+
+  const [replying, setReplying] = useState(false);
 
   return (
     <Row className="my-1 w-100">
-      <Container
-        fluid
-        className={`border rounded pt-2 ${parent_id ? "pl-5" : ""}`}
-      >
+      <Container fluid className="border rounded pt-2">
         {is_deleted ? (
           <Row>
             <Col md={2}>
@@ -66,7 +85,7 @@ const Comment: React.FC<Props> = (props) => {
             <p className="text-left">{is_deleted ? "Deleted" : content}</p>
           </Col>
         </Row>
-        <Row className="justify-content-start">
+        <Row className="justify-content-start mb-1 align-items-center">
           <Col md={1}>
             <FontAwesomeIcon
               icon={faThumbsUp}
@@ -75,7 +94,9 @@ const Comment: React.FC<Props> = (props) => {
           </Col>
           <Col md={1}>
             <p
-              className={vote_difference >= 0 ? "text-success" : "text-danger"}
+              className={
+                vote_difference >= 0 ? "text-success m-0" : "text-danger m-0"
+              }
             >
               {vote_difference}
             </p>
@@ -86,10 +107,31 @@ const Comment: React.FC<Props> = (props) => {
               className={is_downvoted ? "text-danger" : ""}
             />
           </Col>
+          {replying ? (
+            <Col md={1}>
+              <Button variant="light" onClick={() => setReplying(false)}>
+                Cancel
+              </Button>
+            </Col>
+          ) : (
+            <Col md={1}>
+              <Button variant="light" onClick={() => setReplying(true)}>
+                Reply
+              </Button>
+            </Col>
+          )}
         </Row>
       </Container>
+      <Container fluid>
+        {replying ? (
+          <AddChildForm stockTicker={stock_ticker} parentID={comment_id} />
+        ) : null}
+      </Container>
+      {replies.map((replyProps: ReplyParams, idx) => {
+        return <ChildComment key={idx} {...replyProps} />;
+      })}
     </Row>
   );
 };
 
-export default Comment;
+export default ParentComment;

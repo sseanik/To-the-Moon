@@ -28,12 +28,10 @@ const Username: React.FC<StateProps & DispatchProps> = (props) => {
       logout();
       history.push("/");
     }
-  }, []);
+  }, [getUsername, history, logout, token, username]);
 
   const usernameComponent = (
-    <Navbar.Text className="mr-sm-2">
-      Signed in as: {username}
-    </Navbar.Text>
+    <Navbar.Text className="mr-sm-2">Signed in as: {username}</Navbar.Text>
   );
 
   const loadingSpinnerComponent = (
@@ -57,7 +55,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     logout: () => dispatch(userActions.logout()),
     getUsername: () => dispatch(userActions.getUsername()),
-  }
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Username);

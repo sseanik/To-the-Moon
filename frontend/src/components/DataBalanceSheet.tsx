@@ -3,9 +3,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import { Container, Row, Col, Alert } from "react-bootstrap";
 import stockActions from "../redux/actions/stockActions";
-import {
-  balanceSheetFormatter as formatMap
-} from "../helpers/ObjectFormatRules";
+import { balanceSheetFormatter as formatMap } from "../helpers/ObjectFormatRules";
 
 interface BalanceSheetEntry {
   fiscaldateending: string;
@@ -36,31 +34,38 @@ interface DispatchProps {
   getStockBalance: (payload: getStockBalanceParams) => void;
 }
 
-const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) => {
+const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (
+  props
+) => {
   const { symbol, loading, error, data, getStockBalance } = props;
 
   useEffect(() => {
     getStockBalance({ symbol });
-  }, []);
+  }, [getStockBalance, symbol]);
 
   const getTextCSSClass = (format: string) => {
     const result =
-        format === "bold" ? "font-weight-bold"
-      : format === "italic" ? "font-italic"
-      : format === "normal" ? "font-weight-normal"
-      : format === "light" ? "font-weight-light"
-      : "font-weight-normal";
+      format === "bold"
+        ? "font-weight-bold"
+        : format === "italic"
+        ? "font-italic"
+        : format === "normal"
+        ? "font-weight-normal"
+        : format === "light"
+        ? "font-weight-light"
+        : "font-weight-normal";
     return result;
   };
 
   const getTextIndentClass = (level: number) => {
-    return (
-        level === 1 ? "financials-subhead-1"
-      : level === 2 ? "financials-subhead-2"
-      : level === 3 ? "financials-subhead-3"
-      : ""
-    );
-  }
+    return level === 1
+      ? "financials-subhead-1"
+      : level === 2
+      ? "financials-subhead-2"
+      : level === 3
+      ? "financials-subhead-3"
+      : "";
+  };
 
   const loadingSpinnerComponent = (
     <div>
@@ -69,11 +74,7 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) =
     </div>
   );
 
-  const alertComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
+  const alertComponent = <Alert variant="danger">{error}</Alert>;
 
   const tableComponent = (
     <Container className="financials-container-scrolling">
@@ -84,16 +85,26 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) =
             {Object.entries(entry).map(([field, value], idx) => (
               <div key={idx}>
                 <Row lg={6}>
-                  <Col className={ "text-left "
-                    + (formatMap.hasOwnProperty(field)
-                    && formatMap[field].hasOwnProperty("format") ? getTextCSSClass(formatMap[field].format)
-                    : "font-weight-normal") + " "
-                    + (formatMap.hasOwnProperty(field)
-                    && formatMap[field].hasOwnProperty("indent") ? getTextIndentClass(formatMap[field].indent)
-                    : "")
-                  } lg={6}>
+                  <Col
+                    className={
+                      "text-left " +
+                      (formatMap.hasOwnProperty(field) &&
+                      formatMap[field].hasOwnProperty("format")
+                        ? getTextCSSClass(formatMap[field].format)
+                        : "font-weight-normal") +
+                      " " +
+                      (formatMap.hasOwnProperty(field) &&
+                      formatMap[field].hasOwnProperty("indent")
+                        ? getTextIndentClass(formatMap[field].indent)
+                        : "")
+                    }
+                    lg={6}
+                  >
                     <span>
-                      {formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}
+                      {formatMap.hasOwnProperty(field) &&
+                      formatMap[field].hasOwnProperty("name")
+                        ? formatMap[field].name
+                        : field}
                     </span>
                   </Col>
                   <Col className="text-right" lg={6}>
@@ -111,8 +122,12 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (props) =
     </Container>
   );
 
-  return loading ? loadingSpinnerComponent : (error ? alertComponent : tableComponent);
-}
+  return loading
+    ? loadingSpinnerComponent
+    : error
+    ? alertComponent
+    : tableComponent;
+};
 
 const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.balance.loading,
@@ -121,7 +136,8 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getStockBalance: (payload: getStockBalanceParams) => dispatch(stockActions.getStockBalance(payload))
-})
+  getStockBalance: (payload: getStockBalanceParams) =>
+    dispatch(stockActions.getStockBalance(payload)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataBalanceSheet);
