@@ -2,7 +2,7 @@ import { Container, Row } from "react-bootstrap";
 import { connect } from "react-redux";
 import forumActions from "../redux/actions/forumActions";
 import ClipLoader from "react-spinners/ClipLoader";
-import Comment from "./Comment";
+import ParentComment from "./ParentComment";
 import { useEffect } from "react";
 import AddParentForm from "./AddParentForm";
 
@@ -19,8 +19,23 @@ interface CommentParams {
   upvotes: number;
   downvotes: number;
   vote_difference: number;
-  replies?: Array<string>;
-  parent_id?: string;
+  replies: Array<ReplyParams>;
+}
+
+interface ReplyParams {
+  comment_id: string;
+  reply_id: string;
+  stock_ticker: string;
+  username: string;
+  time_stamp: number;
+  content: string;
+  is_edited: boolean;
+  is_deleted: boolean;
+  is_upvoted: boolean;
+  is_downvoted: boolean;
+  upvotes: number;
+  downvotes: number;
+  vote_difference: number;
 }
 
 interface StateProps {
@@ -49,16 +64,16 @@ const Forum: React.FC<StateProps & DispatchProps & Props> = (props) => {
         <h2>Forum</h2>
       </Row>
       <Row className="my-2">
+        <AddParentForm stockTicker={stockTicker} />
+      </Row>
+      <Row className="my-2">
         {getCommentsLoading ? (
           <ClipLoader color={"green"} loading={getCommentsLoading} />
         ) : (
           comments.map((commentProps: CommentParams, idx) => {
-            return <Comment key={idx} {...commentProps}></Comment>;
+            return <ParentComment key={idx} {...commentProps} />;
           })
         )}
-      </Row>
-      <Row className="my-2">
-        <AddParentForm stockTicker={stockTicker} />
       </Row>
     </Container>
   );

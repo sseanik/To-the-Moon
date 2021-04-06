@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef, Ref } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
   Container,
@@ -55,10 +55,15 @@ interface getStockBasicParams {
 
 interface getPredictionDailyParams {
   symbol: string;
+  predictionType: string;
 }
 
 interface durChoiceParams {
   [key: string]: { dur: number; display: string; units: string };
+}
+
+interface predictionModeParams {
+  [key: string]: { idtype: string; name: string; };
 }
 
 interface StateProps {
@@ -92,7 +97,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     predictionDailyError,
   } = props;
 
-  const chartComponent = useRef<any|null>(null);
+  const chartComponent = useRef<any | null>(null);
   const params = useParams<RouteParams>();
   const symbol = params.symbol;
 
@@ -107,14 +112,13 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     };
   }, []);
 
-  /* const durOpts: durChoiceParams = {
-    durDays3: { dur: 3, display: "3", units: "days" },
-    durWeeks1: { dur: 5, display: "5", units: "days" },
-    durWeeks2: { dur: 10, display: "10", units: "days" },
-    durMonths1: { dur: 20, display: "20", units: "days" },
-    durMonths2: { dur: 40, display: "40", units: "days" },
-    durMonths3: { dur: 60, display: "60", units: "days" },
-  }; */
+  const predictOpts: predictionModeParams = useMemo(() => {
+    return {
+      lstm_wlf: { idtype: "walk_forward", name: "Vanilla LSTM (Walk-Forward)" },
+      lstm_ser: { idtype: "multistep_series", name: "Vanilla LSTM (Series)" },
+      lcnn_wlf: { idtype: "cnn", name: "CNN-LSTM (Walk-Forward)" },
+    };
+  }, []);
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
@@ -123,24 +127,30 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     },
     rangeSelector: RangeSelectorOptions(setDisplayIntra),
     series: [{ data: [] }],
-    legend: { enabled: true, layout: "horizontal"},
+    legend: { enabled: true, layout: "horizontal" },
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
+  const [preChoice, setPreChoice] = useState<string>("lstm_wlf");
 
   const fetchStock = useCallback(() => {
     getStockBasic({ symbol });
   }, [getStockBasic, symbol]);
 
   const fetchPredictDaily = () => {
-    getPredictionDaily({ symbol });
+    const predictionType = predictOpts[preChoice].idtype;
+    getPredictionDaily({ symbol, predictionType });
   };
 
   // TODO: predefined reset length
   const resetZoom = () => {
-    if (chartComponent && chartComponent.current && graphOptions.series[0].data) {
+    if (
+      chartComponent &&
+      chartComponent.current &&
+      graphOptions.series[0].data
+    ) {
       const seriesLimit = graphOptions.series[0].data.length;
-      const lower = graphOptions.series[0].data[seriesLimit-60-1][0];
-      const upper = graphOptions.series[0].data[seriesLimit-1][0];
+      const lower = graphOptions.series[0].data[seriesLimit - 60 - 1][0];
+      const upper = graphOptions.series[0].data[seriesLimit - 1][0];
       chartComponent.current.chart.xAxis[0].setExtremes(lower, upper);
     }
   };
@@ -300,6 +310,33 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               );
             })}
           </DropdownButton>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>Model: </Col>
+        <Col>
+        <DropdownButton
+          variant="outline-dark"
+          id="dropdown-basic-button"
+          title={predictOpts[preChoice].name}
+        >
+          {Object.entries(predictOpts).map((entry, idx) => {
+            const [key, value] = entry;
+
+            return (
+              <Dropdown.Item
+                key={idx}
+                href="#/action-1"
+                onClick={() => {
+                  setPreChoice(key);
+                }}
+              >
+                {value.name}
+              </Dropdown.Item>
+            );
+          })}
+        </DropdownButton>
         </Col>
       </Row>
       <hr />

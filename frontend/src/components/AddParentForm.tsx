@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import forumActions from "../redux/actions/forumActions";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { Alert, Button, Form } from "react-bootstrap";
+import { Alert, Button, Col, Form } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 
 interface AddParentFormParams {
@@ -26,7 +26,7 @@ interface Props {
 
 const initialValues: AddParentFormParams = {
   stockTicker: "",
-  timestamp: 0,
+  timestamp: new Date().getTime(),
   content: "",
 };
 
@@ -39,7 +39,6 @@ const schema = Yup.object({
 const AddParentForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
   const { loading, error, addParent, stockTicker } = props;
   initialValues.stockTicker = stockTicker;
-  initialValues.timestamp = new Date().getTime();
 
   const formComponent = (
     <Formik
@@ -58,32 +57,36 @@ const AddParentForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="w-100">
             {error ? <Alert variant="danger">{error}</Alert> : null}
-            <Form.Label>Add a Comment</Form.Label>
-            <Form.Control
-              type="text"
-              name="content"
-              placeholder="Your comment here"
-              value={values.content}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              isInvalid={!!errors.content && touched.content}
-            />
-            {errors.content ? (
-              <Form.Control.Feedback type="invalid">
-                {errors.content}
-              </Form.Control.Feedback>
-            ) : null}
+            <Form.Row className="justify-content-between align-content-center">
+              <Col md={8}>
+                <Form.Control
+                  type="text"
+                  name="content"
+                  placeholder="Your comment here"
+                  value={values.content}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isInvalid={!!errors.content && touched.content}
+                />
+                {errors.content ? (
+                  <Form.Control.Feedback type="invalid">
+                    {errors.content}
+                  </Form.Control.Feedback>
+                ) : null}
+              </Col>
 
-            <Button
-              variant="outline-primary"
-              type="submit"
-              className="my-2"
-              onClick={() => {
-                values.timestamp = new Date().getTime();
-              }}
-            >
-              Add Comment
-            </Button>
+              <Col md={2}>
+                <Button
+                  variant="outline-primary"
+                  type="submit"
+                  onClick={() => {
+                    values.timestamp = new Date().getTime();
+                  }}
+                >
+                  Add Comment
+                </Button>
+              </Col>
+            </Form.Row>
           </Form>
         );
       }}

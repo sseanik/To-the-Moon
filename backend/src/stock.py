@@ -62,11 +62,9 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
 
         # If not inside trading hours move to close of last trading day
         if not (date_constraint and dow_constraint):
-            date_today_aware.hour = 20
-            date_today_aware.minute = 0
-            date_today_aware.second = 0
+            date_today_aware.replace(hour=20, minute=0, second=0)
             if date_today_aware.weekday() > 4:
-                date_today_aware.day -= date_today_aware.weekday() - 4
+                date_today_aware.replace(day=date_today_aware.weekday()-4)
 
         date_comp = (date_today_aware-date_ref_aware).total_seconds() > 900 if data_type=="intraday" else (date_today_aware-date_ref_aware).days >= 1
 
@@ -306,6 +304,8 @@ def get_stock_data():
 @STOCK_ROUTES.route('/stock/get_prediction_daily', methods=['GET'])
 def get_prediction_daily():
     symbol = request.args.get('symbol')
+    prediction_type = request.args.get('prediction_type')
+    dispatch_data = {}
 
     sample_df = {}
     sample_metadata = {}
@@ -315,48 +315,56 @@ def get_prediction_daily():
 
     if os.path.isfile(filename):
         sample_df, sample_metadata = get_stock_value(filename)
-    # TODO: generate values differently based on inference type
-    close_data = sample_df["4. close"][-60:].values
-    for i in np.where(np.isnan(close_data))[0]:
-        close_data[i] = close_data[i-1] if not np.isnan(close_data[i-1]) else 0
+    data_needed = 120 if prediction_type == "multistep_series" else 60
 
-    data = {"inference_mode": "walk_forward", "data": close_data.tolist()}
-    headers = { "Content-Type": "application/json", }
-    endpoint = f"http://127.0.0.1:{MODELSRVPORT}/model/api/get_prediction"
-
-    status = 0
-    dispatch_data = {}
-    try:
-        r = requests.post(url=endpoint, data=dumps(data), headers=headers)
-
-        # TODO: cleanup processing, this is really ugly.
-        # Ideally auto-limit sequence sizes
-        prediction_result = []
-        if r.status_code == requests.codes.ok:
-            prediction_result = r.json()
-        prediction_data = np.array(prediction_result['data'])
-        if prediction_data.shape[0] > 60:
-            prediction_data = prediction_data[:60]
-
-        prediction_start = sample_df["4. close"][-1:].index
-        # print("Start: ", prediction_start, type(prediction_start))
-        prediction_end = prediction_start + pd.tseries.offsets.BDay(60)
-        # print("End: ", prediction_end, type(prediction_end))
-
-        prediction_range = (pd.date_range(start=prediction_start.array[0], end=prediction_end.array[0], freq="B") - pd.Timestamp("1970-01-01")) // pd.Timedelta(milliseconds=1)
-        if prediction_range.shape[0] > 60:
-            prediction_range = prediction_range[:60]
-
-        prediction_data_s = [[int(timestamp), value] for timestamp, value in zip(prediction_range.tolist(), prediction_data)]
-
-        status = 200
+    if prediction_type is None or \
+        prediction_type not in ["walk_forward", "multistep_series", "cnn"]:
         dispatch_data = {
-            'name': "Prediction (daily)",
-            'data': prediction_data_s
+            'error': f"Prediction type: {prediction_type} not supported"
         }
-    except Exception as e:
-        status = 500
-        dispatch_data = {}
+    elif data_needed > sample_df["4. close"].shape[0]:
+        dispatch_data = {
+            'error': f"Not enough data available: sample has {sample_df['4. close'].shape[0]} but predictor needs {data_needed}"
+        }
+    else:
+        close_data = sample_df["4. close"][-data_needed:].values
+        for i in np.where(np.isnan(close_data))[0]:
+            close_data[i] = close_data[i-1] if not np.isnan(close_data[i-1]) else 0
+
+        data = {"inference_mode": prediction_type, "data": close_data.tolist()}
+        headers = { "Content-Type": "application/json", }
+        endpoint = f"http://127.0.0.1:{MODELSRVPORT}/model/api/get_prediction"
+
+        status = 0
+        try:
+            r = requests.post(url=endpoint, data=dumps(data), headers=headers)
+
+            # TODO: cleanup processing, this is really ugly.
+            # Ideally auto-limit sequence sizes
+            prediction_result = []
+            if r.status_code == requests.codes.ok:
+                prediction_result = r.json()
+            prediction_data = np.array(prediction_result['data'])
+            if prediction_data.shape[0] > 60:
+                prediction_data = prediction_data[:60]
+
+            prediction_start = sample_df["4. close"][-1:].index
+            prediction_end = prediction_start + pd.tseries.offsets.BDay(60)
+
+            prediction_range = (pd.date_range(start=prediction_start.array[0], end=prediction_end.array[0], freq="B") - pd.Timestamp("1970-01-01")) // pd.Timedelta(milliseconds=1)
+            if prediction_range.shape[0] > 60:
+                prediction_range = prediction_range[:60]
+
+            prediction_data_s = [[int(timestamp), value] for timestamp, value in zip(prediction_range.tolist(), prediction_data)]
+
+            status = 200
+            dispatch_data = {
+                'name': "Prediction (daily)",
+                'data': prediction_data_s
+            }
+        except Exception as e:
+            status = 500
+            dispatch_data = {}
 
     return dumps({
         'status': status,
