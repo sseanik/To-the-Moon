@@ -53,7 +53,7 @@ const NoteAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   editNote: (old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references) => {
-    const endpoint = "/notes";
+    const endpoint = `/notes?note=${old_title}`;
     const options = {
       method: "PUT",
       headers: {
@@ -61,7 +61,6 @@ const NoteAPI = {
         Authorization: Utils.getToken(),
       },
       body: JSON.stringify({
-        old_title,
         new_title,
         content,
         stock_symbols,

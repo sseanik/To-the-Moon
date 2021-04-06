@@ -14,13 +14,16 @@ const initialState = {
   },
   createNote: {
     loading: false,
+    message: "",
     error: null,
   },
   editNote: {
+    note: null,
     loading: false,
     error: null,
   },
   deleteNote: {
+    note: null,
     loading: false,
     error: null,
   },
@@ -35,7 +38,7 @@ const noteReducer = (state = initialState, action) => {
         allNotes: {
           ...state.allNotes,
           show: !state.allNotes.show,
-        }
+        },
       };
     // User notes
     case noteConstants.GET_USER_NOTES_PENDING:
@@ -46,6 +49,14 @@ const noteReducer = (state = initialState, action) => {
           loading: true,
           error: null,
         },
+        editNote: {
+          ...state.editNote,
+          error: null,
+        },
+        deleteNote: {
+          ...state.editNote,
+          error: null,
+        }
       };
     case noteConstants.GET_USER_NOTES_SUCCESS:
       return {
@@ -100,6 +111,7 @@ const noteReducer = (state = initialState, action) => {
         createNote: {
           ...state.createNote,
           loading: true,
+          message: null,
           error: null,
         },
       };
@@ -108,6 +120,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         createNote: {
           ...state.createNote,
+          message: action.payload.message,
           loading: false,
         },
       };
@@ -126,6 +139,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         editNote: {
           ...state.editNote,
+          note: action.payload.old_title,
           loading: true,
           error: null,
         },
@@ -135,6 +149,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         editNote: {
           ...state.editNote,
+          note: null,
           loading: false,
         },
       };
@@ -143,6 +158,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         editNote: {
           ...state.editNote,
+          note: null,
           loading: false,
           error: action.payload,
         },
@@ -153,6 +169,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         deleteNote: {
           ...state.deleteNote,
+          note: action.payload.title,
           loading: true,
           error: null,
         },
@@ -162,6 +179,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         deleteNote: {
           ...state.deleteNote,
+          note: null,
           loading: false,
         },
       };
@@ -170,6 +188,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         deleteNote: {
           ...state.deleteNote,
+          note: null,
           loading: false,
           error: action.payload,
         },

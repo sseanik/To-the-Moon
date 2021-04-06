@@ -2,6 +2,7 @@ import { connect } from "react-redux";
 import SlidingPane from "react-sliding-pane";
 import noteActions from "../redux/actions/noteActions";
 import "react-sliding-pane/dist/react-sliding-pane.css";
+import { NoteListBody } from ".";
 
 interface StateProps {
   show: boolean;
@@ -22,7 +23,7 @@ const NoteList: React.FC<StateProps & DispatchProps> = (props) => {
       onRequestClose={toggleNoteList}
       from="right"
     >
-      <div>Placeholder</div>
+      <NoteListBody />
     </SlidingPane>
   );
 };
