@@ -4,6 +4,7 @@ import { faThumbsUp, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   comment_id: string;
+  reply_id: string;
   stock_ticker: string;
   username: string;
   time_stamp: number;
@@ -15,11 +16,9 @@ interface Props {
   upvotes: number;
   downvotes: number;
   vote_difference: number;
-  replies?: Array<string>;
-  parent_id?: string;
 }
 
-const Comment: React.FC<Props> = (props) => {
+const ChildComment: React.FC<Props> = (props) => {
   const {
     username,
     time_stamp,
@@ -29,15 +28,11 @@ const Comment: React.FC<Props> = (props) => {
     is_upvoted,
     is_downvoted,
     vote_difference,
-    parent_id,
   } = props;
 
   return (
     <Row className="my-1 w-100">
-      <Container
-        fluid
-        className={`border rounded pt-2 ${parent_id ? "pl-5" : ""}`}
-      >
+      <Container fluid className="border rounded pt-2 ml-5">
         {is_deleted ? (
           <Row>
             <Col md={2}>
@@ -66,7 +61,7 @@ const Comment: React.FC<Props> = (props) => {
             <p className="text-left">{is_deleted ? "Deleted" : content}</p>
           </Col>
         </Row>
-        <Row className="justify-content-start">
+        <Row className="justify-content-start mb-1 align-items-center">
           <Col md={1}>
             <FontAwesomeIcon
               icon={faThumbsUp}
@@ -75,7 +70,9 @@ const Comment: React.FC<Props> = (props) => {
           </Col>
           <Col md={1}>
             <p
-              className={vote_difference >= 0 ? "text-success" : "text-danger"}
+              className={
+                vote_difference >= 0 ? "text-success m-0" : "text-danger m-0"
+              }
             >
               {vote_difference}
             </p>
@@ -92,4 +89,4 @@ const Comment: React.FC<Props> = (props) => {
   );
 };
 
-export default Comment;
+export default ChildComment;

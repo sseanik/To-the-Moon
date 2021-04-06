@@ -3,9 +3,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import { Container, Row, Col, Alert } from "react-bootstrap";
 import stockActions from "../redux/actions/stockActions";
-import {
-  incomeStatementFormatter as formatMap
-} from "../helpers/ObjectFormatRules";
+import { incomeStatementFormatter as formatMap } from "../helpers/ObjectFormatRules";
 
 interface IncomeStatementEntry {
   stockticker: string;
@@ -41,12 +39,14 @@ interface DispatchProps {
   getStockIncome: (payload: getStockIncomeParams) => void;
 }
 
-const DataIncomeStatement: React.FC<Props & StateProps & DispatchProps> = (props) => {
+const DataIncomeStatement: React.FC<Props & StateProps & DispatchProps> = (
+  props
+) => {
   const { symbol, loading, error, data, getStockIncome } = props;
 
   useEffect(() => {
     getStockIncome({ symbol });
-  }, []);
+  }, [getStockIncome, symbol]);
 
   const loadingSpinnerComponent = (
     <div>
@@ -55,11 +55,7 @@ const DataIncomeStatement: React.FC<Props & StateProps & DispatchProps> = (props
     </div>
   );
 
-  const alertComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
+  const alertComponent = <Alert variant="danger">{error}</Alert>;
 
   const tableComponent = (
     <Container className="financials-container-scrolling">
@@ -72,7 +68,12 @@ const DataIncomeStatement: React.FC<Props & StateProps & DispatchProps> = (props
                 <Row lg={6}>
                   <Col className="text-left" lg={6}>
                     <span>
-                      <b>{formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}</b>
+                      <b>
+                        {formatMap.hasOwnProperty(field) &&
+                        formatMap[field].hasOwnProperty("name")
+                          ? formatMap[field].name
+                          : field}
+                      </b>
                     </span>
                   </Col>
                   <Col className="text-right" lg={6}>
@@ -90,8 +91,12 @@ const DataIncomeStatement: React.FC<Props & StateProps & DispatchProps> = (props
     </Container>
   );
 
-  return loading ? loadingSpinnerComponent : (error ? alertComponent : tableComponent);
-}
+  return loading
+    ? loadingSpinnerComponent
+    : error
+    ? alertComponent
+    : tableComponent;
+};
 
 const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.income.loading,
@@ -100,7 +105,11 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getStockIncome: (payload: getStockIncomeParams) => dispatch(stockActions.getStockIncome(payload))
-})
+  getStockIncome: (payload: getStockIncomeParams) =>
+    dispatch(stockActions.getStockIncome(payload)),
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(DataIncomeStatement);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DataIncomeStatement);

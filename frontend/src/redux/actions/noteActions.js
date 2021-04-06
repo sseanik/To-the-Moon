@@ -27,15 +27,17 @@ const noteActions = {
   createNotePending: () => ({
     type: noteConstants.CREATE_NOTE_PENDING,
   }),
-  createNoteSuccess: () => ({
+  createNoteSuccess: (response) => ({
     type: noteConstants.CREATE_NOTE_SUCCESS,
+    payload: response,
   }),
   createNoteFailure: (error) => ({
     type: noteConstants.CREATE_NOTE_FAILURE,
     payload: error,
   }),
-  editNotePending: () => ({
+  editNotePending: (payload) => ({
     type: noteConstants.EDIT_NOTE_PENDING,
+    payload,
   }),
   editNoteSuccess: () => ({
     type: noteConstants.EDIT_NOTE_SUCCESS,
@@ -44,8 +46,9 @@ const noteActions = {
     type: noteConstants.EDIT_NOTE_FAILURE,
     payload: error,
   }),
-  deleteNotePending: () => ({
+  deleteNotePending: (payload) => ({
     type: noteConstants.DELETE_NOTE_PENDING,
+    payload,
   }),
   deleteNoteSuccess: () => ({
     type: noteConstants.DELETE_NOTE_SUCCESS,
@@ -74,7 +77,10 @@ const noteActions = {
     dispatch(noteActions.getRelevantNotesPending());
     try {
       const { stock_symbols, portfolio_names } = payload;
-      const res = await NoteAPI.getRelevantNotes(stock_symbols, portfolio_names);
+      const res = await NoteAPI.getRelevantNotes(
+        stock_symbols,
+        portfolio_names
+      );
       if (res.status === 200) {
         dispatch(noteActions.getRelevantNotesSuccess(res));
       } else {
@@ -105,6 +111,7 @@ const noteActions = {
       );
       if (res.status === 200) {
         dispatch(noteActions.createNoteSuccess(res));
+        dispatch(noteActions.getUserNotes());
       } else {
         dispatch(noteActions.createNoteFailure(res.error));
       }
@@ -113,7 +120,7 @@ const noteActions = {
     }
   },
   editNote: (payload) => async (dispatch) => {
-    dispatch(noteActions.editNotePending());
+    dispatch(noteActions.editNotePending(payload));
     try {
       const {
         old_title,
@@ -135,6 +142,7 @@ const noteActions = {
       );
       if (res.status === 200) {
         dispatch(noteActions.editNoteSuccess(res));
+        dispatch(noteActions.getUserNotes());
       } else {
         dispatch(noteActions.editNoteFailure(res.error));
       }
@@ -143,12 +151,13 @@ const noteActions = {
     }
   },
   deleteNote: (payload) => async (dispatch) => {
-    dispatch(noteActions.deleteNotePending());
+    dispatch(noteActions.deleteNotePending(payload));
     try {
       const { title } = payload;
       const res = await NoteAPI.deleteNote(title);
       if (res.status === 200) {
         dispatch(noteActions.deleteNoteSuccess(res));
+        dispatch(noteActions.getUserNotes());
       } else {
         dispatch(noteActions.deleteNoteFailure(res.error));
       }
