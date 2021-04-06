@@ -1,14 +1,8 @@
-import {
-  Navbar,
-  Nav,
-  NavDropdown,
-  Button,
-  Image,
-} from "react-bootstrap";
+import { Navbar, Nav, NavDropdown, Button, Image } from "react-bootstrap";
 import { connect } from "react-redux";
 import { useHistory } from "react-router-dom";
 import userActions from "../redux/actions/userActions";
-import Username from "./Username";
+import { Username, NoteListToggle } from ".";
 import logo from "../resources/shuttle.png";
 
 const logoStyle = {
@@ -27,20 +21,20 @@ interface LinkItem {
 }
 
 const privateNavBarLinks: Array<LinkItem> = [
-  { href: "/", name: "Home"},
+  { href: "/", name: "Home" },
   { href: "/dashboard", name: "Dashboard" },
-  { href: "/portfolios", name: "My Portfolios"},
+  { href: "/portfolios", name: "My Portfolios" },
 ];
 
 const publicNavBarLinks: Array<LinkItem> = [
-  { href: "/signup", name: "Sign up"},
-  { href: "/login", name: "Login"},
-]
+  { href: "/signup", name: "Sign up" },
+  { href: "/login", name: "Login" },
+];
 
 const dropdownNavLinks: Array<LinkItem> = [
-  { href: "/stock", name: "Stocks"},
-  { href: "/watchlist", name: "Watchlists"},
-  { href: "/screener", name: "Screeners"},
+  { href: "/stock", name: "Stocks" },
+  { href: "/watchlist", name: "Watchlists" },
+  { href: "/screener", name: "Screeners" },
 ];
 
 interface StateProps {
@@ -63,8 +57,8 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
   const handleRedirect = (href: string | null) => {
     if (href) {
       history.push(href);
-    };
-  }
+    }
+  };
 
   const privateNav = (
     <Navbar.Collapse id="basic-navbar-nav">
@@ -102,7 +96,8 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
   const privateUserNav = (
     <Navbar.Collapse className="justify-content-end">
       <Username />
-      <Button variant="light" type="button" onClick={handleLogout}>
+      <NoteListToggle />
+      <Button variant="secondary" type="button" onClick={handleLogout}>
         Logout
       </Button>
     </Navbar.Collapse>
@@ -110,9 +105,7 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
 
   const publicUserNav = (
     <Navbar.Collapse className="justify-content-end">
-      <Nav
-        onSelect={(selectedKey) => handleRedirect(selectedKey)}
-      >
+      <Nav onSelect={(selectedKey) => handleRedirect(selectedKey)}>
         {publicNavBarLinks.map((link, idx) => (
           <Nav.Link key={idx} eventKey={link.href}>
             {link.name}
@@ -124,7 +117,11 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
 
   return (
     <Navbar bg="dark" expand="lg" variant="dark">
-      <Nav.Link onClick={() => handleRedirect("/")} className="justify-content" style={brandStyle}>
+      <Nav.Link
+        onClick={() => handleRedirect("/")}
+        className="justify-content"
+        style={brandStyle}
+      >
         <Image src={logo} style={logoStyle}></Image>
         <Navbar.Brand>To The Moon</Navbar.Brand>
       </Nav.Link>
@@ -142,7 +139,7 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => {
   return {
     logout: () => dispatch(userActions.logout()),
-  }
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header);

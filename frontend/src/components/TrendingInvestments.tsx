@@ -16,7 +16,7 @@ interface TrendingStockEntry {
 interface StateProps {
   loading: boolean;
   error: string;
-  data: Array<TrendingStockEntry>
+  data: Array<TrendingStockEntry>;
 }
 
 interface DispatchProps {
@@ -37,36 +37,40 @@ const TrendingInvestments: React.FC<StateProps & DispatchProps> = (props) => {
     </div>
   );
 
-  const alertComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
+  const alertComponent = <Alert variant="danger">{error}</Alert>;
 
-  const trendingStockComponent = (trending: TrendingStockEntry, idx: number) => (
-    <Card>
+  const trendingStockComponent = (
+    trending: TrendingStockEntry,
+    idx: number
+  ) => (
+    <Card key={idx}>
       <Card.Body>
         <Card.Title>{trending.stock}</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">{`#${idx + 1} Most Popular with Investors`}</Card.Subtitle>
+        <Card.Subtitle className="mb-2 text-muted">{`#${
+          idx + 1
+        } Most Popular with Investors`}</Card.Subtitle>
         <Card.Text>
           {trending.count === 1
             ? `${trending.count} user is investing in or watching ${trending.stock} shares`
-            : `${trending.count} users are investing in or watching ${trending.stock} shares`
-          }
+            : `${trending.count} users are investing in or watching ${trending.stock} shares`}
         </Card.Text>
-        <Card.Link href={`/stock/${trending.stock}`}>{`Explore ${trending.stock} statistics`}</Card.Link>
+        <Card.Link
+          href={`/stock/${trending.stock}`}
+        >{`Explore ${trending.stock} statistics`}</Card.Link>
       </Card.Body>
     </Card>
   );
 
   return (
     <Container>
-      { loading ? loadingSpinnerComponent : null }
-      { error ? alertComponent : null }
-      {data.map((trendingStock, idx) => trendingStockComponent(trendingStock, idx))}
+      {loading ? loadingSpinnerComponent : null}
+      {error ? alertComponent : null}
+      {data.map((trendingStock, idx) =>
+        trendingStockComponent(trendingStock, idx)
+      )}
     </Container>
-  )
-}
+  );
+};
 
 const mapStateToProps = (state: any) => ({
   loading: state.trendReducer.loading,
@@ -76,8 +80,12 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    getTrendingStocks: (payload: TrendingStocksParams) => dispatch(trendActions.getTrendingInvestments(payload))
-  }
+    getTrendingStocks: (payload: TrendingStocksParams) =>
+      dispatch(trendActions.getTrendingInvestments(payload)),
+  };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(TrendingInvestments);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TrendingInvestments);

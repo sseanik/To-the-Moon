@@ -7,7 +7,7 @@ import newsActions from "../redux/actions/newsActions";
 
 const carouselStyle = {
   width: "100%",
-  boxShadow: "5px 10px 8px #888888"
+  boxShadow: "5px 10px 8px #888888",
 };
 
 const bgStyle = {
@@ -24,8 +24,8 @@ const textStyle = {
 };
 
 interface StateProps {
-  loading: boolean,
-  articles: Array<NewsItem>
+  loading: boolean;
+  articles: Array<NewsItem>;
 }
 
 interface DispatchProps {
@@ -75,8 +75,8 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    getGeneralNews: () => dispatch(newsActions.getGeneralNews())
-  }
+    getGeneralNews: () => dispatch(newsActions.getGeneralNews()),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewsCarousel);

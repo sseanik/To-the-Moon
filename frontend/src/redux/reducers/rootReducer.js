@@ -6,6 +6,7 @@ import forumReducer from "./forumReducer";
 import investmentReducer from "./investmentReducer";
 import stockReducer from "./stockReducer";
 import trendReducer from "./trendReducer";
+import noteReducer from "./noteReducer";
 export default combineReducers({
   userReducer,
   portfolioReducer,
@@ -14,5 +15,6 @@ export default combineReducers({
   forumReducer,
   stockReducer,
   investmentReducer,
-  trendReducer
+  trendReducer,
+  noteReducer,
 });
