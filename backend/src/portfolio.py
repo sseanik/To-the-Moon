@@ -76,6 +76,7 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
             'status': 200,
             'message' : '\'' + old_portfolio_name + "\' has been changed to \'" + new_portfolio_name + "\'."
         }
+        # TODO: update notes table
     else:
         response = {
             'status' : 400,

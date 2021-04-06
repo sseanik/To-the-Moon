@@ -179,7 +179,7 @@ def create_users_note_wrapper():
 def edit_users_note_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
-    old_title = request.args.get('old_title')
+    old_title = request.args.get('note')
     data = request.get_json()
     new_title = data['new_title']
     content = data['content']
