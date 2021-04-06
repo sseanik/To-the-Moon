@@ -6,8 +6,8 @@ import { connect } from "react-redux";
 import { useEffect } from "react";
 
 interface StateProps {
-  loading: boolean,
-  articles: Array<NewsItem>
+  loading: boolean;
+  articles: Array<NewsItem>;
 }
 
 interface DispatchProps {
@@ -20,20 +20,22 @@ interface Props {
 
 const StockNews: React.FC<StateProps & DispatchProps & Props> = (props) => {
   const { stock, loading, articles, getStockNews } = props;
-  
+
   useEffect(() => {
     getStockNews(stock);
-  }, []);
+  }, [getStockNews, stock]);
 
   return (
     <Container>
       <ClipLoader color={"green"} loading={loading}>
         <span className="sr-only">Loading...</span>
       </ClipLoader>
-      {articles.map((news, idx) => <NewsCard key={idx} {...news} />)}
+      {articles.map((news, idx) => (
+        <NewsCard key={idx} {...news} />
+      ))}
     </Container>
   );
-}
+};
 
 const mapStateToProps = (state: any) => ({
   loading: state.landingNewsReducer.loading,
@@ -42,8 +44,9 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    getStockNews: (stock: string) => dispatch(newsActions.getNewsByStock(stock))
-  }
+    getStockNews: (stock: string) =>
+      dispatch(newsActions.getNewsByStock(stock)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(StockNews);

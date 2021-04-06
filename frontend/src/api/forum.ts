@@ -4,7 +4,7 @@ import Utils from "./utils";
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const forumAPI = {
-  addParent: (stockTicker, timestamp, content) => {
+  addParent: (stockTicker: string, timestamp: number, content: string) => {
     const endpoint = "/forum/comment";
     const options = {
       method: "POST",
@@ -18,10 +18,14 @@ const forumAPI = {
         content,
       }),
     };
-
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  addChild: (stockTicker, timestamp, content, parentID) => {
+  addChild: (
+    stockTicker: string,
+    timestamp: number,
+    content: string,
+    parentID: string
+  ) => {
     const endpoint = "/forum/reply";
     const options = {
       method: "POST",
@@ -36,10 +40,9 @@ const forumAPI = {
         parentID,
       }),
     };
-
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getComments: (stockTicker) => {
+  getComments: (stockTicker: string) => {
     const endpoint = `/forum?stockTicker=${stockTicker}`;
     const options = {
       method: "GET",
@@ -48,7 +51,44 @@ const forumAPI = {
         Authorization: Utils.getToken(),
       },
     };
-
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  editParent: (comment_id: string, time_stamp: number, content: string) => {
+    const endpoint = "/forum/editComment";
+    const options = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        comment_id,
+        time_stamp,
+        content,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  editChild: (
+    comment_id: string,
+    time_stamp: number,
+    content: string,
+    parent_id: string
+  ) => {
+    const endpoint = "/forum/editReply";
+    const options = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        comment_id,
+        time_stamp,
+        content,
+        parent_id,
+      }),
+    };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
 };

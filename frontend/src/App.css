@@ -37,6 +37,22 @@
   }
 }
 
+.pane-overlay {
+  z-index: 10;
+  position: relative;
+  max-width: 500px;
+}
+
+.carousel {
+  z-index: 0;
+}
+
+.popover-body {
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
 div.portfolio-info a:hover {
   text-decoration: none;
 }

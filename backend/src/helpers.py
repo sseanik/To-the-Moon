@@ -160,7 +160,7 @@ if __name__ == "__main__":
     #aeo = ts.get_intraday("AEO", "5min", outputsize="full")
     #AlphaVantageAPI.save_json("AEO", aeo, label="intraday")
 
-'''
+    '''
     ibm = ts.get_quick_quote("IBM")
     AlphaVantageAPI.save_json("IBM", ibm, label="quick_quote")
 
@@ -175,4 +175,4 @@ if __name__ == "__main__":
 
     ibm = ts.get_cash_flow("IBM")
     AlphaVantageAPI.save_json("IBM", ibm, label="cash_flow")
-'''
+    '''
