@@ -1,4 +1,4 @@
-import { OverlayTrigger, Popover, Button, Form, Alert } from "react-bootstrap";
+import { OverlayTrigger, Popover, Button, Alert } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import noteActions from "../redux/actions/noteActions";

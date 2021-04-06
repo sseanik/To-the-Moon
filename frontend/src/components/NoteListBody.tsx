@@ -31,7 +31,7 @@ const NoteListBody: React.FC<StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     getNotes();
-  }, []);
+  }, [getNotes]);
 
   const errorComponent = (error: string) => (
     <Alert variant="danger">{error}</Alert>
