@@ -100,6 +100,8 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         inserted_comment['upvotes'] = 0
         inserted_comment['downvotes'] = 0
         inserted_comment['vote_difference'] = 0
+        if not parent_id:
+            inserted_comment['replies'] = []
     except:
         status = 400
         message = "Invalid data was provided to the Database"
