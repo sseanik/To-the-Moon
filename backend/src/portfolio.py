@@ -265,7 +265,8 @@ def get_portfolio_performance(user_id, portfolio_name):
     response = {
         'status' : 200, 
         'message' : 'Successfully calculated the performance of portfolio \'' + portfolio_name + '\', as well as its individual investments.', 
-        'data' : data}
+        'data' : data
+    }
     return response
 
 
@@ -405,4 +406,4 @@ def get_portfolio_performance_wrapper():
 #add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "ORCL")
 #dd_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
 # test 
-print(get_portfolio_performance("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test"))
+# print(get_portfolio_performance("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test"))
