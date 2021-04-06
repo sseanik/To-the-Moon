@@ -163,7 +163,7 @@ def get_username(user_id):
             'error': 'Token error, no user registered under user ID'
         }
 
-    username = user_info
+    username = user_info[0]
         
     # close database connection
     conn.commit()
