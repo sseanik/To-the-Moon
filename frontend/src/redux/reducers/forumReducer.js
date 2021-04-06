@@ -124,11 +124,11 @@ const forumReducer = (state = initialState, action) => {
         editParent: {
           error: null,
           editing: state.editParent.editing.filter(
-            (commentID) => commentID === action.payload
+            (commentID) => commentID !== action.payload.comment_id
           ),
         },
         comments: state.comments.map((comment) =>
-          comment.comment_id !== action.payload.comment_id
+          comment.comment_id === action.payload.comment_id
             ? { ...comment, content: action.payload.content }
             : comment
         ),
@@ -157,15 +157,15 @@ const forumReducer = (state = initialState, action) => {
         editChild: {
           error: null,
           editing: state.editChild.editing.filter(
-            (commentID) => commentID !== action.payload.comment_id
+            (commentID) => commentID !== action.payload.reply_id
           ),
         },
         comments: state.comments.map((comment) =>
-          comment.comment_id === action.payload.parent_id
+          comment.comment_id === action.payload.comment_id
             ? {
                 ...comment,
                 replies: comment.replies.map((reply) =>
-                  reply.reply_id === action.payload.comment_id
+                  reply.reply_id === action.payload.reply_id
                     ? {
                         ...reply,
                         content: action.payload.content,
@@ -200,7 +200,7 @@ const forumReducer = (state = initialState, action) => {
         deleteParent: {
           error: null,
           deleting: state.deleteParent.deleting.filter(
-            (commentID) => commentID !== action.payload
+            (commentID) => commentID !== action.payload.comment_id
           ),
         },
         comments: state.comments.map((comment) =>
