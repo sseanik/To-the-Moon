@@ -49,7 +49,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
             'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
             'comment': {}
         }
-        
+
     # If the timestamp is not between yesterday or tomorrow
     if not validate_timestamp(timestamp):
         return {
@@ -477,5 +477,3 @@ def get_comments():
     return dumps(result)
 
 
-
-print(edit_comment("67d51442-8ab8-11eb-aee7-0a4e2d6dea13",  "0bbd6a26-9524-11eb-8f72-0a4e2d6dea13", time.time()*1000, "Just an edit test", "409a372c-9508-11eb-8364-0a4e2d6dea13"))
