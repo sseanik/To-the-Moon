@@ -445,7 +445,7 @@ def edit_users_reply():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     data = request.get_json()
-    result = edit_comment(user_id['id'], data['comment_id'], data['time_stamp'], data['content'], data['parent_id'])
+    result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'], data['parent_id'])
     return dumps(result)
 
 
@@ -454,7 +454,7 @@ def edit_users_comment():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     data = request.get_json()
-    result = edit_comment(user_id['id'], data['comment_id'], data['time_stamp'], data['content'])
+    result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'])
     return dumps(result)
 
 
