@@ -122,7 +122,7 @@ def fill_income_statements(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
     Statement = TimeSeries().get_income_statement(symbol)
-    for annualReport in Statement['annualReports']:
+    for annual_report in Statement['annualReports']:
         insertQuery = '''INSERT INTO income_statements (
             stock_ticker,
             fiscal_date_ending,
@@ -140,25 +140,25 @@ def fill_income_statements(symbol):
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
-
-        for key, value in annualReport.items():
+        # Convert "None" values to None so cur.execute converts it to NULL.
+        for key, value in annual_report.items():
             if (value == "None"):
-                annualReport[key] = None
+                annual_report[key] = None
 
         cur.execute(insertQuery, (
             symbol,
-            annualReport['fiscalDateEnding'],
-            annualReport['totalRevenue'],
-            annualReport['costOfRevenue'],
-            annualReport['grossProfit'],
-            annualReport['operatingExpenses'],
-            annualReport['operatingIncome'],
-            annualReport['incomeBeforeTax'],
-            annualReport['interestIncome'],
-            annualReport['netInterestIncome'],
-            annualReport['ebit'],
-            annualReport['ebitda'],
-            annualReport['netIncome']
+            annual_report['fiscalDateEnding'],
+            annual_report['totalRevenue'],
+            annual_report['costOfRevenue'],
+            annual_report['grossProfit'],
+            annual_report['operatingExpenses'],
+            annual_report['operatingIncome'],
+            annual_report['incomeBeforeTax'],
+            annual_report['interestIncome'],
+            annual_report['netInterestIncome'],
+            annual_report['ebit'],
+            annual_report['ebitda'],
+            annual_report['netIncome']
         ))
     conn.commit()
     conn.close()
@@ -176,7 +176,7 @@ def fill_balance_sheets(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
     Statement = TimeSeries().get_balance_sheet(symbol)
-    for annualReport in Statement['annualReports']:
+    for annual_report in Statement['annualReports']:
         insertQuery = '''INSERT INTO balance_sheets (
             stock_ticker,
             fiscal_date_ending,
@@ -200,29 +200,29 @@ def fill_balance_sheets(symbol):
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
         # Convert "None" values to None so cur.execute converts it to NULL.
-        for key, value in annualReport.items():
+        for key, value in annual_report.items():
             if (value == "None"):
-                annualReport[key] = None
+                annual_report[key] = None
 
         cur.execute(insertQuery, (
             symbol,
-            annualReport['fiscalDateEnding'],
-            annualReport['cashAndShortTermInvestments'],
-            annualReport['currentNetReceivables'],
-            annualReport['inventory'],
-            annualReport['otherCurrentAssets'],
-            annualReport['propertyPlantEquipment'],
-            annualReport['goodwill'],
-            annualReport['intangibleAssets'],
-            annualReport['longTermInvestments'],
-            annualReport['otherNonCurrrentAssets'],
-            annualReport['currentAccountsPayable'],
-            annualReport['shortTermDebt'],
-            annualReport['otherCurrentLiabilities'],
-            annualReport['longTermDebt'],
-            annualReport['otherNonCurrentLiabilities'],
-            annualReport['retainedEarnings'],
-            annualReport['totalShareholderEquity']
+            annual_report['fiscalDateEnding'],
+            annual_report['cashAndShortTermInvestments'],
+            annual_report['currentNetReceivables'],
+            annual_report['inventory'],
+            annual_report['otherCurrentAssets'],
+            annual_report['propertyPlantEquipment'],
+            annual_report['goodwill'],
+            annual_report['intangibleAssets'],
+            annual_report['longTermInvestments'],
+            annual_report['otherNonCurrrentAssets'],
+            annual_report['currentAccountsPayable'],
+            annual_report['shortTermDebt'],
+            annual_report['otherCurrentLiabilities'],
+            annual_report['longTermDebt'],
+            annual_report['otherNonCurrentLiabilities'],
+            annual_report['retainedEarnings'],
+            annual_report['totalShareholderEquity']
         ))
     conn.commit()
     conn.close()
@@ -240,7 +240,7 @@ def fill_cashflow_statements(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
     Statement = TimeSeries().get_cash_flow(symbol)
-    for annualReport in Statement['annualReports']:
+    for annual_report in Statement['annualReports']:
         insertQuery = '''INSERT INTO cashflow_statements (
             stock_ticker,
             fiscal_date_ending,
@@ -260,25 +260,25 @@ def fill_cashflow_statements(symbol):
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
         '''
         # Convert "None" values to None so cur.execute converts it to NULL.
-        for key, value in annualReport.items():
+        for key, value in annual_report.items():
             if (value == "None"):
-                annualReport[key] = None
+                annual_report[key] = None
 
         cur.execute(insertQuery, (
             symbol,
-            annualReport['fiscalDateEnding'],
-            annualReport['operatingCashflow'],
-            annualReport['paymentsForOperatingActivities'],
-            annualReport['changeInOperatingLiabilities'],
-            annualReport['changeInOperatingAssets'],
-            annualReport['depreciationDepletionAndAmortization'],
-            annualReport['changeInInventory'],
-            annualReport['cashflowFromInvestment'],
-            annualReport['cashflowFromFinancing'],
-            annualReport['dividendPayout'],
-            annualReport['proceedsFromRepurchaseOfEquity'],
-            annualReport['changeInCashAndCashEquivalents'],
-            annualReport['netIncome']
+            annual_report['fiscalDateEnding'],
+            annual_report['operatingCashflow'],
+            annual_report['paymentsForOperatingActivities'],
+            annual_report['changeInOperatingLiabilities'],
+            annual_report['changeInOperatingAssets'],
+            annual_report['depreciationDepletionAndAmortization'],
+            annual_report['changeInInventory'],
+            annual_report['cashflowFromInvestment'],
+            annual_report['cashflowFromFinancing'],
+            annual_report['dividendPayout'],
+            annual_report['proceedsFromRepurchaseOfEquity'],
+            annual_report['changeInCashAndCashEquivalents'],
+            annual_report['netIncome']
         ))
     conn.commit()
     conn.close()
