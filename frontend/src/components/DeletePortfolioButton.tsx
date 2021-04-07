@@ -28,10 +28,9 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   const deleteButton = (
     <Button
       variant="danger"
-      className="rounded-circle"
       onClick={() => deletePortfolio({ portfolioName })}
     >
-      -
+      🗑 Delete
     </Button>
   );
 

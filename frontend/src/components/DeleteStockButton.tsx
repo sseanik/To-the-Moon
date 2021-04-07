@@ -40,11 +40,10 @@ const DeleteStockButton: React.FC<StateProps & DispatchProps & Props> = (
         <ClipLoader color={"green"} loading={loading} />
       ) : (
         <Button
-          className="rounded-circle"
           variant="danger"
           onClick={() => deleteStock({ investmentID, portfolioName })}
         >
-          -
+          🗑️ Delete
         </Button>
       )}
     </Container>
