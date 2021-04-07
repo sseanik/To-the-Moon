@@ -34,7 +34,7 @@ const publicNavBarLinks: Array<LinkItem> = [
 const dropdownNavLinks: Array<LinkItem> = [
   { href: "/stock", name: "Stocks" },
   { href: "/watchlist", name: "Watchlists" },
-  { href: "/screener", name: "Screeners" },
+  { href: "/screeners", name: "Screeners" },
 ];
 
 interface StateProps {
