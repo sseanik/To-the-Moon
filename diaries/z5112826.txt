@@ -34,3 +34,21 @@ Implemented:
 - Select refactors on code standards
 
 Did some planning on machine learning tasks for share price prediction user story.
+
+Week 6
+======
+Implemented: 
+- Partial refactor of company information page, add loading indicators 
+- SARIMAX prediction model 
+- Vanilla LSTM prediction model 
+
+Did some planning on further model improvements and serving. 
+
+Week 7 
+======
+Implemented: 
+- Model serving architecture - Docker container
+- Further refactors of company information page - results storage in Redux
+- Integration of prediction results into share price view
+
+Did some investigation into how to implement screeners and further prediction models to implement e.g. sentiment analysis. 
