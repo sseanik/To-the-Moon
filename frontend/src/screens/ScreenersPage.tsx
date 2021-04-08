@@ -1,5 +1,5 @@
 import { Container, Row } from "react-bootstrap";
-import { SearchStockForm } from "../components";
+import { ScreenersQueryForm } from "../components";
 
 const ScreenersPage: React.FC = () => {
   return (
@@ -8,7 +8,7 @@ const ScreenersPage: React.FC = () => {
         <h1>Screeners</h1>
       </Row>
       <Row className="justify-content-center">
-        <span>Screeners go here</span>
+        <ScreenersQueryForm />
       </Row>
     </Container>
   );
