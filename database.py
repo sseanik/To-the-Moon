@@ -88,7 +88,14 @@ def fill_securities_overview_table(symbol):
         beta,
         pe_ratio,
         eps,
-        dividend_yield
+        dividend_yield,
+        sector, 
+        industry,
+        book_value,
+        EBITDA,
+        payout_ratio,
+        revenue_TTM,
+        gross_profit_TTM
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (stock_ticker) DO NOTHING
     '''
@@ -104,7 +111,14 @@ def fill_securities_overview_table(symbol):
         Overview['Beta'],
         Overview['PERatio'],
         Overview['EPS'],
-        Overview['DividendYield']
+        Overview['DividendYield'],
+        Overview['Sector'],
+        Overview['Industry'],
+        Overview['BookValue'],
+        Overview['EBITDA'],
+        Overview['PayoutRatio'],
+        Overview['RevenueTTM'],
+        Overview['GrossProfitTTM']
     ))
     conn.commit()
     conn.close()
@@ -295,10 +309,10 @@ if __name__ == "__main__":
     #create_user_table()
     #create_portfolios_table()
     #create_holdings_table()
-    #create_securities_overviewTable()
-    #create_income_statementsTable()
-    #create_balance_sheets_table()
-    #create_cashflow_statements_table()
+    create_securities_overviewTable()
+    create_income_statementsTable()
+    create_balance_sheets_table()
+    create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
 
@@ -308,14 +322,14 @@ if __name__ == "__main__":
 
     # Technology sector
     #fill_overview_and_financial_tables('ORCL')
-    #fill_overview_and_financial_tables('IBM')
+    fill_overview_and_financial_tables('IBM')
 
     # Consumer defence sector
     #fill_overview_and_financial_tables('WMT')
     #fill_overview_and_financial_tables('KO')
 
     # Utilities sector
-    fill_overview_and_financial_tables('NEE')
+    #fill_overview_and_financial_tables('NEE')
 
     # Energy sector
 
