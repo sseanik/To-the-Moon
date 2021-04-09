@@ -23,6 +23,12 @@ SCREENER_ROUTES = Blueprint('screener', __name__)
 ###################################
 
 def screen_stocks(parameters):
+    if not isinstance(parameters, dict):
+        rtrn = {
+            'status' : 400,
+            'error' : 'Parameters must be a dictionary.'
+        }
+
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -51,14 +57,12 @@ def screen_stocks(parameters):
     overviews_query = overviews_query[:-5]
     values = tuple(values)
     cur.execute(overviews_query, values)
+    
     rtrn = cur.fetchall()
-
-    print(overviews_query)
-    print(values)
     if not rtrn:
         data = {
-            "status" : 200, 
-            "message" : "There are not stocks which fit those parameters."
+            "status" : 400, 
+            "error" : "There are not stocks which fit those parameters."
             }
     else:
         stocks = []
@@ -67,7 +71,7 @@ def screen_stocks(parameters):
         batch = Stock(stocks)
         batch = batch.get_quote()
         data = {
-            "status" : 400,
+            "status" : 200,
             "message" : "Screen successfull.",
             "data" : []
         }
