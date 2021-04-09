@@ -21,16 +21,34 @@ SCREENER_ROUTES = Blueprint('screener', __name__)
 # Please leave all functions here #
 ###################################
 
-def screener_save(screener_title, user_id, parameters):
+def screener_save(screener_name, user_id, parameters):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "INSERT INTO screeners "
-
-
+    sql_query = "INSERT INTO screeners (screener_name, user_id, parameters) VALUES (%s, %s, %s)"
+    try:
+        cur.execute(sql_query, (screener_name, user_id, str(parameters)))
+        rtrn = {
+            'status' : 200,
+            'message' : 'Parameters saved under the name \'' + screener_name + '\'.'
+        }
+    except:
+        rtrn = {
+            'status' : 200,
+            'error' : 'Something went wrong while inserting.'
+        }
     conn.commit()
     conn.close()
+    return rtrn
+
 
 def screener_load(parameters):
+    
+    pass
+
+def screener_edit():
+    pass
+
+def screener_delete():
     pass
 
 ################################
