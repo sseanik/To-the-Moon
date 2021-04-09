@@ -1,6 +1,14 @@
-import { Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThumbsUp, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
+import { connect } from "react-redux";
+import { useState } from "react";
+import DeleteChildButton from "./DeleteChildButton";
+import EditChildForm from "./EditChildForm";
+
+interface StateProps {
+  currentUsername: string;
+}
 
 interface Props {
   comment_id: string;
@@ -18,8 +26,11 @@ interface Props {
   vote_difference: number;
 }
 
-const ChildComment: React.FC<Props> = (props) => {
+const ChildComment: React.FC<StateProps & Props> = (props) => {
   const {
+    currentUsername,
+    comment_id,
+    reply_id,
     username,
     time_stamp,
     content,
@@ -29,6 +40,8 @@ const ChildComment: React.FC<Props> = (props) => {
     is_downvoted,
     vote_difference,
   } = props;
+
+  const [editing, setEditing] = useState(false);
 
   return (
     <Row className="my-1 w-100">
@@ -83,10 +96,39 @@ const ChildComment: React.FC<Props> = (props) => {
               className={is_downvoted ? "text-danger" : ""}
             />
           </Col>
+          {currentUsername === username ? (
+            editing ? (
+              <Col md={1}>
+                <Button variant="light" onClick={() => setEditing(false)}>
+                  Cancel
+                </Button>
+              </Col>
+            ) : (
+              <Col md={1}>
+                <Button variant="light" onClick={() => setEditing(true)}>
+                  Edit
+                </Button>
+              </Col>
+            )
+          ) : null}
+          {currentUsername === username ? (
+            <Col md={1}>
+              <DeleteChildButton commentID={reply_id} parentID={comment_id} />
+            </Col>
+          ) : null}
         </Row>
+      </Container>
+      <Container fluid>
+        {editing ? (
+          <EditChildForm commentID={reply_id} parentID={comment_id} />
+        ) : null}
       </Container>
     </Row>
   );
 };
 
-export default ChildComment;
+const mapStateToProps = (state: any) => ({
+  currentUsername: state.userReducer.username,
+});
+
+export default connect(mapStateToProps)(ChildComment);

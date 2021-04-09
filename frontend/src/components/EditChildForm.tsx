@@ -56,7 +56,7 @@ const EditChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
         touched,
       }) => {
         return (
-          <Form noValidate onSubmit={handleSubmit} className="w-100 mt-2">
+          <Form noValidate onSubmit={handleSubmit} className="w-100 mt-2 ml-5">
             {error ? <Alert variant="danger">{error}</Alert> : null}
             <Form.Row className="justify-content-between align-content-center">
               <Col md={8}>

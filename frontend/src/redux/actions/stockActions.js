@@ -125,8 +125,8 @@ const stockActions = {
     return async (dispatch) => {
       dispatch(stockActions.getPredictionDailyPending());
       try {
-        const { symbol } = payload;
-        const res = await StockAPI.getPredictionDaily(symbol);
+        const { symbol, predictionType } = payload;
+        const res = await StockAPI.getPredictionDaily(symbol, predictionType);
         if (res.status === 200) {
           dispatch(stockActions.getPredictionDailySuccess(res));
         } else {
