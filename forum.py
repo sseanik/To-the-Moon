@@ -42,6 +42,13 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     Returns:
         dict: Status Code, accompanying message, comment object
     """
+    # Check that the content is not too large
+    if len(content) >= 5000:
+        return {
+            'status':400,
+            'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
+            'comment': {}
+        }
 
     # If the timestamp is not between yesterday or tomorrow
     if not validate_timestamp(timestamp):
@@ -93,6 +100,8 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         inserted_comment['upvotes'] = 0
         inserted_comment['downvotes'] = 0
         inserted_comment['vote_difference'] = 0
+        if not parent_id:
+            inserted_comment['replies'] = []
     except:
         status = 400
         message = "Invalid data was provided to the Database"
@@ -123,6 +132,14 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
         dict: Status Code, accompanying message, comment object    
 
     """
+    # Check that the content is not too large
+    if len(content) >= 5000:
+        return {
+            'status':400,
+            'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
+            'comment': {}
+        }
+
     # If the timestamp is not between yesterday or tomorrow
     if not validate_timestamp(timestamp):
         return {
@@ -139,54 +156,54 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
     
-    # try:
-    if not parent_id:
-        sqlQuery = '''
-            WITH edited_comment as (
-                UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
-                WHERE comment_id=%s AND author_id=%s
-                RETURNING *
-            ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
-            FROM edited_comment e
-            JOIN users u on e.author_id = u.id;
-        '''
-    else:
-        sqlQuery = '''
-            WITH edited_comment as (
-                UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
-                WHERE reply_id=%s AND author_id=%s
-                RETURNING *
-            ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
-            FROM edited_comment e
-            JOIN users u on e.author_id = u.id;
-        '''
-    values = (timestamp, content, comment_id, user_id)
-    cur.execute(sqlQuery, values)
-    db_reply = cur.fetchall()
-    # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
-    if not db_reply:
+    try:
+        if not parent_id:
+            sqlQuery = '''
+                WITH edited_comment as (
+                    UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
+                    WHERE comment_id=%s AND author_id=%s
+                    RETURNING *
+                ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
+                FROM edited_comment e
+                JOIN users u on e.author_id = u.id;
+            '''
+        else:
+            sqlQuery = '''
+                WITH edited_comment as (
+                    UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
+                    WHERE reply_id=%s AND author_id=%s
+                    RETURNING *
+                ) SELECT e.reply_id, e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
+                FROM edited_comment e
+                JOIN users u on e.author_id = u.id;
+            '''
+        values = (timestamp, content, comment_id, user_id)
+        cur.execute(sqlQuery, values)
+        db_reply = cur.fetchall()
+        # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+        if not db_reply:
+            response = {
+                'status' : 400,
+                'message' : "User does not have permission to edit this comment."
+            }
+        else:
+        # If rows have been updated, return the newly updated row.
+            updated_comment = dict(db_reply[0])
+            updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
+            updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
+            updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+            updated_comment.pop("upvote_user_ids")
+            updated_comment.pop("downvote_user_ids")
+            response = {
+                'status' : 200,
+                'message' : "Comment updated",
+                'comment' : updated_comment
+            }
+    except:
         response = {
             'status' : 400,
-            'message' : "User does not have permission to edit this comment."
+            'message' : 'Something went wrong when editing.'
         }
-    else:
-    # If rows have been updated, return the newly updated row.
-        updated_comment = dict(db_reply[0])
-        updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
-        updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
-        updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
-        updated_comment.pop("upvote_user_ids")
-        updated_comment.pop("downvote_user_ids")
-        response = {
-            'status' : 200,
-            'message' : "Comment updated",
-            'comment' : updated_comment
-        }
-    # except:
-    #     response = {
-    #         'status' : 400,
-    #         'message' : 'Something went wrong when editing'
-    #     }
     
     conn.commit()
     cur.close()
@@ -211,64 +228,64 @@ def delete_comment(user_id, comment_id, parent_id=None):
     """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    try:
-        # If no parent_id is provided, comment is a parent comment (comment)
-        if not parent_id:
-            insert_query = """
-                WITH deleted_comment as (
-                    UPDATE forum_comment SET content=%s, is_deleted=TRUE
-                    WHERE comment_id=%s and author_id=%s
-                    RETURNING * 
-                ) SELECT d.comment_id, d.stock_ticker, u.username, d.time_stamp, d.content, d.is_edited, d.is_deleted, array_to_json(d.upvote_user_ids) AS upvote_user_ids, array_to_json(d.downvote_user_ids) AS downvote_user_ids
-                FROM deleted_comment d
-                JOIN users u on d.author_id = u.id;
-            """.replace("\n", "")
-            values = ("", comment_id, user_id)
-            cur.execute(insert_query, values)   
-            db_reply = cur.fetchall()
-            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
-            if not db_reply:
-                response = {
-                    'status' : 400,
-                    'message' : "User does not have permission to edit this comment."
-                }
-            else:
-            # If rows have been updated, return the newly updated row.
-                updated_comment = dict(db_reply[0])
-                updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
-                updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
-                updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
-                updated_comment.pop("upvote_user_ids")
-                updated_comment.pop("downvote_user_ids")
-                response = {
-                    'status' : 200,
-                    'message' : "Comment deleted.",
-                    'comment' : updated_comment
-                }
-        # Otherwise, using the provided parent id, it is a child comment (reply)
+# try:
+    # If no parent_id is provided, comment is a parent comment (comment)
+    if not parent_id:
+        insert_query = """
+            WITH deleted_comment as (
+                UPDATE forum_comment SET content=%s, is_deleted=TRUE
+                WHERE comment_id=%s and author_id=%s
+                RETURNING * 
+            ) SELECT d.comment_id, d.stock_ticker, u.username, d.time_stamp, d.content, d.is_edited, d.is_deleted, array_to_json(d.upvote_user_ids) AS upvote_user_ids, array_to_json(d.downvote_user_ids) AS downvote_user_ids
+            FROM deleted_comment d
+            JOIN users u on d.author_id = u.id;
+        """.replace("\n", "")
+        values = ("", comment_id, user_id)
+        cur.execute(insert_query, values)   
+        db_reply = cur.fetchall()
+        # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+        if not db_reply:
+            response = {
+                'status' : 400,
+                'message' : "User does not have permission to edit this comment."
+            }
         else:
-            insert_query = """
-                DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
-            """.replace("\n", "")
-            values = (comment_id, user_id)
-            cur.execute(insert_query, values) 
-            db_reply = cur.fetchall()
-            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
-            if not db_reply:
-                response = {
-                    'status' : 400,
-                    'message' : "User does not have permission to delete this comment."
-                }
-            else:
-                response = {
-                "status" : 200, 
-                "message" : "Child comment deleted."
-                }
-    except:
-        response = {
-            "status" : 400, 
-            "message" : "Something when wrong when trying to delete."
-        }
+        # If rows have been updated, return the newly updated row.
+            updated_comment = dict(db_reply[0])
+            updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
+            updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
+            updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+            updated_comment.pop("upvote_user_ids")
+            updated_comment.pop("downvote_user_ids")
+            response = {
+                'status' : 200,
+                'message' : "Comment deleted.",
+                'comment' : updated_comment
+            }
+    # Otherwise, using the provided parent id, it is a child comment (reply)
+    else:
+        insert_query = """
+            DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
+        """.replace("\n", "")
+        values = (comment_id, user_id)
+        cur.execute(insert_query, values) 
+        db_reply = cur.fetchall()
+        # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+        if not db_reply:
+            response = {
+                'status' : 400,
+                'message' : "User does not have permission to delete this comment."
+            }
+        else:
+            response = {
+            "status" : 200, 
+            "message" : "Child comment deleted."
+            }
+    # except:
+    #     response = {
+    #         "status" : 400, 
+    #         "message" : "Something when wrong when trying to delete."
+    #     }
 
     conn.commit()
     cur.close()
@@ -465,3 +482,6 @@ def get_comments():
     stock_ticker = request.args.get('stockTicker')
     result = get_stock_comments(user_id, stock_ticker)
     return dumps(result)
+
+
+print(delete_comment("67d51442-8ab8-11eb-aee7-0a4e2d6dea13", "ae445f20-9501-11eb-98e4-0a4e2d6dea13", "a3c9bba4-94fb-11eb-bb41-0a4e2d6dea13"))

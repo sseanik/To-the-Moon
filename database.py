@@ -1,5 +1,6 @@
 import psycopg2
 from dotenv import load_dotenv
+import time
 from helpers import TimeSeries, AlphaVantageAPI
 import os
 import json
@@ -88,10 +89,22 @@ def fill_securities_overview_table(symbol):
         beta,
         pe_ratio,
         eps,
-        dividend_yield
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        dividend_yield,
+        sector, 
+        industry,
+        book_value,
+        EBITDA,
+        payout_ratio,
+        revenue_TTM,
+        gross_profit_TTM
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (stock_ticker) DO NOTHING
     '''
+    # Convert "None" values to None so cur.execute converts it to NULL.
+    for key, value in Overview.items():
+        if (value == "None"):
+            Overview[key] = None
+
     cur.execute(insertQuery, (
         Overview['Symbol'],
         Overview['Name'],
@@ -104,7 +117,14 @@ def fill_securities_overview_table(symbol):
         Overview['Beta'],
         Overview['PERatio'],
         Overview['EPS'],
-        Overview['DividendYield']
+        Overview['DividendYield'],
+        Overview['Sector'],
+        Overview['Industry'],
+        Overview['BookValue'],
+        Overview['EBITDA'],
+        Overview['PayoutRatio'],
+        Overview['RevenueTTM'],
+        Overview['GrossProfitTTM']
     ))
     conn.commit()
     conn.close()
@@ -290,58 +310,47 @@ def fill_overview_and_financial_tables(symbol):
     fill_balance_sheets(symbol)
     fill_cashflow_statements(symbol)
 
+def fill_all_companies():
+    companies = [
+        'BHP',
+        'LIN',
+        'JPM',
+        'MA',
+        'WMT',
+        'KO',
+        'NEE',
+        'DUK',
+        'XOM',
+        'CVX',
+        'ORCL',
+        'IBM',
+        'NKE',
+        'TM',
+        'AMT',
+        'PLD',
+        'JNJ',
+        'UNH',
+        'T',
+        'VZ',
+        'BA',
+        'CAT'
+    ]
+    for company in companies:
+        fill_overview_and_financial_tables(company)
+        print("Inserted ", company)
+        time.sleep(60)
+
 
 if __name__ == "__main__":
     #create_user_table()
     #create_portfolios_table()
     #create_holdings_table()
-    #create_securities_overviewTable()
-    #create_income_statementsTable()
-    #create_balance_sheets_table()
-    #create_cashflow_statements_table()
+    # create_securities_overviewTable()
+    # create_income_statementsTable()
+    # create_balance_sheets_table()
+    # create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
 
-    # Basic materials
-    #fill_securities_overview_table('BHP')
-    #fill_overview_and_financial_tables('LIN')
-
-    # Financial services sector
-    #fill_overview_and_financial_tables('JPM')
-    #fill_overview_and_financial_tables('MA')
-
-    # Consumer defence sector
-    #fill_overview_and_financial_tables('WMT')
-    #fill_overview_and_financial_tables('KO')
-
-    # Utilities sector
-    #fill_overview_and_financial_tables('NEE')
-    #fill_overview_and_financial_tables('DUK')
-
-    # Energy sector
-    #fill_overview_and_financial_tables('XOM')
-    #fill_overview_and_financial_tables('CVX')
-
-    # Technology sector
-    #fill_securities_overview_table('ORCL')
-    #fill_securities_overview_table('IBM')
-
-    # Consumer cyclical sector
-    #fill_overview_and_financial_tables('NKE')
-    #fill_overview_and_financial_tables('TM')
-
-    # Real estate sector
-    #fill_overview_and_financial_tables('AMT')
-    #fill_overview_and_financial_tables('PLD')
-
-    # Healthcare sector
-    #fill_overview_and_financial_tables('JNJ')
-    #fill_overview_and_financial_tables('UNH')
-
-    # Communication services sector
-    #fill_overview_and_financial_tables('T')
-    #fill_overview_and_financial_tables('VZ')
-
-    # Industrials sector
-    #fill_overview_and_financial_tables('BA')
-    fill_overview_and_financial_tables('CAT')
+    
+    fill_all_companies()
