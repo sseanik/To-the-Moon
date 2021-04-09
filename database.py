@@ -71,6 +71,12 @@ def create_comment_tables():
     conn.commit()
     conn.close()
 
+def create_screeners_table():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/screeners.sql", "r").read())
+    conn.commit()
+
 
 def fill_securities_overview_table(symbol):
     conn = create_DB_connection()
@@ -301,6 +307,7 @@ if __name__ == "__main__":
     #create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
+    create_screeners_table()
 
     # Basic materials sector
     #fill_overview_and_financial_tables('BHP')
@@ -315,7 +322,7 @@ if __name__ == "__main__":
     #fill_overview_and_financial_tables('KO')
 
     # Utilities sector
-    fill_overview_and_financial_tables('NEE')
+    #fill_overview_and_financial_tables('NEE')
 
     # Energy sector
 
