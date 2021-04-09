@@ -11,9 +11,13 @@ interface Props {
 const PortfolioInfo: React.FC<Props> = (props) => {
   const { portfolioName } = props;
   return (
-    <Col className="border rounded mx-1 p-4 portfolio-info" md={3}>
+    <Col
+      className="border rounded mx-1 p-4 portfolio-info bg-light"
+      lg={4}
+      md={6}
+    >
       <h2 className="my-2">{portfolioName}</h2>
-      <Container className="w-50">
+      <Container className="w-75">
         <Row>
           <Col className="align-middle">
             <a href={`/portfolio/${portfolioName}`}>
