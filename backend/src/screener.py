@@ -62,7 +62,7 @@ def screen_stocks(parameters):
     if not rtrn:
         data = {
             "status" : 400, 
-            "error" : "There are not stocks which fit those parameters."
+            "error" : "There are no stocks which fit those parameters."
             }
     else:
         stocks = []
