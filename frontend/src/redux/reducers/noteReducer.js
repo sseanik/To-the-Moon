@@ -28,8 +28,8 @@ const initialState = {
     error: null,
   },
   touched: {
-    allNotes: false,
-    relevantNotes: false,
+    allNotes: true,
+    relevantNotes: true,
   },
 };
 
