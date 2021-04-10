@@ -32,6 +32,7 @@ import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 import Forum from "../components/Forum";
+require("highcharts/modules/annotations")(Highcharts);
 
 interface seriesT {
   name: string;
@@ -145,7 +146,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       text: "Share Price",
     },
     rangeSelector: RangeSelectorOptions(setDisplayIntra),
-    series: [{ data: [] }],
+    series: [{ data: [] }, ],
     legend: { enabled: true, layout: "horizontal" },
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
@@ -155,7 +156,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     initial_cash: 100000,
     commission: 0.01,
     strategy: "LSIStack",
-    fromdate: "2020-07-01",
+    fromdate: "2020-03-01",
     todate: "2021-04-07",
   });
 
@@ -186,6 +187,29 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     }
   };
 
+  const setZoom = (lower: number, upper: number) => {
+    if (chartComponent && chartComponent.current) {
+      chartComponent.current.chart.xAxis[0].setExtremes(lower, upper);
+    }
+  };
+
+  const makePlotFlags = (orderList: Array<any>, orderType: string) => {
+    let result: Array<any> = [];
+    for (let i = 0; i < orderList.length; i++) {
+      const order = orderList[i];
+      if (order['type'] === orderType) {
+        let flag = {
+          x: order['time'],
+          y: order['price'],
+          title: `${order['type']}`,
+          text: `${order['name']} ${order['type']} of ${order['size']}`,
+        };
+        result.push(flag);
+      }
+    }
+    return result;
+  };
+
   useEffect(() => {
     fetchStock();
   }, [fetchStock]);
@@ -212,13 +236,34 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
       let papertrades = JSON.parse(JSON.stringify(paperTradingResults));
       let indicator = papertrades.indicator ? {name: "Strategy Indicator", data: papertrades.indicator} : null;
+      let papertradeData = papertrades.orders ? papertrades.orders : null;
 
       let displaySeries = predictions
         ? [...seriesDailyList, predictions]
         : seriesDailyList;
       displaySeries = indicator ? [... displaySeries, indicator] : displaySeries;
 
-      console.log(displaySeries);
+      if (papertradeData) {
+        let buyOrders = makePlotFlags(papertradeData, "Buy");
+        let buyFlags = {
+          type: 'flags',
+          name: 'Buy orders',
+          data: buyOrders,
+          onSeries: '4. close',
+          shape: 'squarepin',
+          width: 40,
+        };
+        let sellOrders = makePlotFlags(papertradeData, "Sell");
+        let sellFlags = {
+          type: 'flags',
+          name: 'Sell orders',
+          data: sellOrders,
+          onSeries: '4. close',
+          shape: 'circlepin',
+          width: 40,
+        };
+        displaySeries = [...displaySeries, buyFlags, sellFlags];
+      }
 
       setGraphOptions((graphOptions: graphOptionsT) => ({
         ...graphOptions,

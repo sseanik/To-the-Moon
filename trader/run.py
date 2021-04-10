@@ -7,10 +7,13 @@ from strategies.RSIStack import RSIStack
 from strategies.SMACrossOver2 import SMACrossOver2
 import datetime
 
+import math
 from flask import Flask, request
+from flask_cors import CORS
 from cerberus import Validator, TypeDefinition
 
 app = Flask(__name__)
+CORS(app)
 
 allowed_strats = {"RSIStack": RSIStack, "SMACrossOver2": SMACrossOver2}
 
@@ -51,7 +54,7 @@ def index():
 
 @app.route("/get_backtest", methods=["POST"])
 def get_prediction():
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     request_data = request.get_json()
     print(f"Validation (schema): {v.validate(request_data)}")
 
@@ -108,10 +111,13 @@ def get_prediction():
         results = results_array[0]
 
         indicator = results.get_indicator()
+        # import pdb; pdb.set_trace()
+        indicator = [0 if math.isnan(x) else x for x in indicator]
         timestamps = results.get_timestamps()
         indicator_graph = [list(x) for x in zip(timestamps, indicator)]
         orders = results.get_formatted_trades()
         final_value = cerebro.broker.getvalue()
+
 
         result = {"status": 200, "indicator": indicator_graph, "orders": orders, "final_value": final_value}
     else:
