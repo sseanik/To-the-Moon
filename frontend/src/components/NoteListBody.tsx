@@ -28,7 +28,15 @@ interface DispatchProps {
 }
 
 const NoteListBody: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, notes, error, touched, editError, deleteError, getNotes } = props;
+  const {
+    loading,
+    notes,
+    error,
+    touched,
+    editError,
+    deleteError,
+    getNotes,
+  } = props;
 
   useEffect(() => {
     if (touched) {

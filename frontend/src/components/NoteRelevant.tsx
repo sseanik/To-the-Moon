@@ -20,7 +20,8 @@ interface RelevantNotesParams {
 }
 
 interface Props {
-  stock: string;
+  stock?: string;
+  portfolio?: string;
 }
 
 interface StateProps {
@@ -37,13 +38,25 @@ interface DispatchProps {
 }
 
 const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
-  const { stock, loading, notes, touched, error, editError, deleteError, getRelevantNotes } = props;
+  const {
+    stock,
+    portfolio,
+    loading,
+    notes,
+    touched,
+    error,
+    editError,
+    deleteError,
+    getRelevantNotes,
+  } = props;
 
   useEffect(() => {
+    let stock_symbols = stock ? [stock] : [];
+    let portfolio_names = portfolio ? [portfolio] : [];
     if (touched) {
-      getRelevantNotes({ stock_symbols: [stock], portfolio_names: [] });
+      getRelevantNotes({ stock_symbols, portfolio_names });
     }
-  }, [getRelevantNotes, stock, touched]);
+  }, [getRelevantNotes, stock, portfolio, touched]);
 
   const errorComponent = (error: string) => (
     <Alert variant="danger">{error}</Alert>
@@ -94,7 +107,8 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    getRelevantNotes: (payload: RelevantNotesParams) => dispatch(noteActions.getRelevantNotes(payload)),
+    getRelevantNotes: (payload: RelevantNotesParams) =>
+      dispatch(noteActions.getRelevantNotes(payload)),
   };
 };
 

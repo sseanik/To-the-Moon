@@ -418,7 +418,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
                 <NoteRelevant stock={symbol} />
               </Row>
             </Tab>
-            <Tab eventKey="other" title="Other"></Tab>
           </Tabs>
         </Container>
       </Row>
