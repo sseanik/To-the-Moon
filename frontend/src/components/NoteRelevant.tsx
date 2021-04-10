@@ -97,10 +97,10 @@ const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
 };
 
 const mapStateToProps = (state: any) => ({
-  loading: state.noteReducer.stockNotes.loading,
-  notes: state.noteReducer.stockNotes.data,
-  error: state.noteReducer.stockNotes.error,
-  touched: state.noteReducer.touched.stockNotes,
+  loading: state.noteReducer.relevantNotes.loading,
+  notes: state.noteReducer.relevantNotes.data,
+  error: state.noteReducer.relevantNotes.error,
+  touched: state.noteReducer.touched.relevantNotes,
   editError: state.noteReducer.editNote.error,
   deleteError: state.noteReducer.deleteNote.error,
 });

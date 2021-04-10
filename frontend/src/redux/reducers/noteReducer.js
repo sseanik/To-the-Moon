@@ -7,7 +7,7 @@ const initialState = {
     data: [],
     error: null,
   },
-  stockNotes: {
+  relevantNotes: {
     loading: false,
     data: [],
     error: null,
@@ -29,7 +29,7 @@ const initialState = {
   },
   touched: {
     allNotes: false,
-    stockNotes: false,
+    relevantNotes: false,
   },
 };
 
@@ -88,8 +88,8 @@ const noteReducer = (state = initialState, action) => {
     case noteConstants.GET_RELEVANT_NOTES_PENDING:
       return {
         ...state,
-        stockNotes: {
-          ...state.stockNotes,
+        relevantNotes: {
+          ...state.relevantNotes,
           loading: true,
           error: null,
         },
@@ -99,10 +99,10 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         touched: {
           ...state.touched,
-          stockNotes: false,
+          relevantNotes: false,
         },
-        stockNotes: {
-          ...state.stockNotes,
+        relevantNotes: {
+          ...state.relevantNotes,
           loading: false,
           data: action.payload.data,
         },
@@ -110,8 +110,8 @@ const noteReducer = (state = initialState, action) => {
     case noteConstants.GET_RELEVANT_NOTES_FAILURE:
       return {
         ...state,
-        stockNotes: {
-          ...state.stockNotes,
+        relevantNotes: {
+          ...state.relevantNotes,
           loading: false,
           error: action.payload,
         },
@@ -132,7 +132,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         touched: {
           ...state.touched,
-          stockNotes: true,
+          relevantNotes: true,
           allNotes: true,
         },
         createNote: {
@@ -166,7 +166,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         touched: {
           ...state.touched,
-          stockNotes: true,
+          relevantNotes: true,
           allNotes: true,
         },
         editNote: {
@@ -201,7 +201,7 @@ const noteReducer = (state = initialState, action) => {
         ...state,
         touched: {
           ...state.touched,
-          stockNotes: true,
+          relevantNotes: true,
           allNotes: true,
         },
         deleteNote: {
