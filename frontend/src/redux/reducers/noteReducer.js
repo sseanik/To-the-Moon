@@ -27,6 +27,10 @@ const initialState = {
     loading: false,
     error: null,
   },
+  touched: {
+    allNotes: false,
+    stockNotes: false,
+  },
 };
 
 const noteReducer = (state = initialState, action) => {
@@ -61,6 +65,10 @@ const noteReducer = (state = initialState, action) => {
     case noteConstants.GET_USER_NOTES_SUCCESS:
       return {
         ...state,
+        touched: {
+          ...state.touched,
+          allNotes: false,
+        },
         allNotes: {
           ...state.allNotes,
           loading: false,
@@ -89,6 +97,10 @@ const noteReducer = (state = initialState, action) => {
     case noteConstants.GET_RELEVANT_NOTES_SUCCESS:
       return {
         ...state,
+        touched: {
+          ...state.touched,
+          stockNotes: false,
+        },
         stockNotes: {
           ...state.stockNotes,
           loading: false,
@@ -118,6 +130,11 @@ const noteReducer = (state = initialState, action) => {
     case noteConstants.CREATE_NOTE_SUCCESS:
       return {
         ...state,
+        touched: {
+          ...state.touched,
+          stockNotes: true,
+          allNotes: true,
+        },
         createNote: {
           ...state.createNote,
           message: action.payload.message,
@@ -147,6 +164,11 @@ const noteReducer = (state = initialState, action) => {
     case noteConstants.EDIT_NOTE_SUCCESS:
       return {
         ...state,
+        touched: {
+          ...state.touched,
+          stockNotes: true,
+          allNotes: true,
+        },
         editNote: {
           ...state.editNote,
           note: null,
@@ -177,6 +199,11 @@ const noteReducer = (state = initialState, action) => {
     case noteConstants.DELETE_NOTE_SUCCESS:
       return {
         ...state,
+        touched: {
+          ...state.touched,
+          stockNotes: true,
+          allNotes: true,
+        },
         deleteNote: {
           ...state.deleteNote,
           note: null,

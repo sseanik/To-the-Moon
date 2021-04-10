@@ -23,6 +23,7 @@ import {
   DataBalanceSheet,
   DataCashFlow,
   StockNews,
+  NoteRelevant,
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
@@ -410,6 +411,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
             <Tab eventKey="forum" title="Forum">
               <Row className="justify-content-start my-2">
                 <Forum stockTicker={symbol} />
+              </Row>
+            </Tab>
+            <Tab eventKey="notes" title="Relevant Notes">
+              <Row>
+                <NoteRelevant stock={symbol} />
               </Row>
             </Tab>
             <Tab eventKey="other" title="Other"></Tab>

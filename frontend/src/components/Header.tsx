@@ -116,7 +116,7 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
   );
 
   return (
-    <Navbar bg="dark" expand="lg" variant="dark">
+    <Navbar bg="dark" expand="lg" variant="dark" fixed="top">
       <Nav.Link
         onClick={() => handleRedirect("/")}
         className="justify-content"
