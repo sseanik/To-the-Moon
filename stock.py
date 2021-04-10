@@ -371,6 +371,47 @@ def get_prediction_daily():
         'data': dispatch_data
     })
 
+@STOCK_ROUTES.route('/stock/get_backtest', methods=['GET'])
+def get_paper_trade():
+    symbol = request.args.get('symbol')
+    initial_cash = request.args.get('initial_cash')
+    commission = request.args.get('commission')
+    strategy = request.args.get('strategy')
+    fromdate = request.args.get('fromdate')
+    todate = request.args.get('todate')
+    # import pdb; pdb.set_trace()
+    status = 200
+    dispatch_data = {}
+    data = {
+        'tickers': [symbol],
+        'timeframes': { '1D': 1, },
+        'timeframe_units': "Days",
+        'initial_cash': float(initial_cash),
+        'commission': float(commission),
+        'timezone': "US/Eastern",
+        'strategy': strategy,
+        'fromdate': fromdate,
+        'todate': todate,
+    }
+
+    headers = { "Content-Type": "application/json", }
+    address = "127.0.0.1"
+    port = 5002
+    endpoint = f"http://{address}:{port}/get_backtest"
+
+    try:
+        r = requests.post(url=endpoint, data=dumps(data), headers=headers)
+        status = 200
+        dispatch_data = r.json()
+    except Exception as e:
+        status = 500
+        dispatch_data = {}
+
+    return dumps({
+        'status': status,
+        'data': dispatch_data
+    })
+
 @STOCK_ROUTES.route('/stock/income_statement', methods=['GET'])
 def get_income_statement_data():
     symbol = request.args.get('symbol')
