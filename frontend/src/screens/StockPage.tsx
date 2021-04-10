@@ -200,7 +200,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       if (order['type'] === orderType) {
         let flag = {
           x: order['time'],
-          y: order['price'],
+          // y: order['price'],
           title: `${order['type']}`,
           text: `${order['name']} ${order['type']} of ${order['size']}`,
         };
@@ -227,7 +227,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     } else {
       const seriesDailyList = Object.entries(priceDataDaily).map((entry) => {
         const [key, value] = entry;
-        return { name: key, data: value };
+        return { name: key, id: key, data: value };
       });
       let predictions = JSON.parse(JSON.stringify(predictionDaily));
       if (predictions.data) {
@@ -257,6 +257,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         let sellFlags = {
           type: 'flags',
           name: 'Sell orders',
+          y: 30, 
           data: sellOrders,
           onSeries: '4. close',
           shape: 'circlepin',
