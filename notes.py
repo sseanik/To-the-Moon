@@ -209,7 +209,7 @@ def get_users_notes_wrapper():
 
 
 # Add route for get relevant notes
-@NOTE_ROUTES.route('/notes/relevant', methods=['GET'])
+@NOTE_ROUTES.route('/notes/relevant', methods=['POST'])
 def get_users_relevant_notes_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
