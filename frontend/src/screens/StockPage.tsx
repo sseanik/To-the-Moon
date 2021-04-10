@@ -11,6 +11,8 @@ import {
   Badge,
   Dropdown,
   DropdownButton,
+  InputGroup,
+  FormControl,
 } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
@@ -58,6 +60,15 @@ interface getPredictionDailyParams {
   predictionType: string;
 }
 
+interface getPaperTradingParams {
+  symbol: string;
+  initial_cash: number;
+  commission: number;
+  strategy: string;
+  fromdate: string;
+  todate: string;
+}
+
 interface durChoiceParams {
   [key: string]: { dur: number; display: string; units: string };
 }
@@ -73,6 +84,7 @@ interface StateProps {
   priceDataDaily: any;
   priceDataIntraday: any;
   predictionDaily: any;
+  paperTradingResults: any;
 
   predictionDailyLoading: any;
   predictionDailyError: any;
@@ -81,6 +93,7 @@ interface StateProps {
 interface DispatchProps {
   getStockBasic: (payload: getStockBasicParams) => void;
   getPredictionDaily: (payload: getPredictionDailyParams) => void;
+  getPaperTradingResults: (payload: getPaperTradingParams) => void;
 }
 
 const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
@@ -91,8 +104,10 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     priceDataDaily,
     priceDataIntraday,
     predictionDaily,
+    paperTradingResults,
     getStockBasic,
     getPredictionDaily,
+    getPaperTradingResults,
     predictionDailyLoading,
     predictionDailyError,
   } = props;
@@ -120,6 +135,10 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     };
   }, []);
 
+  const tradeStratOpts: Array<string> = useMemo(() => {
+    return ["LSIStack"];
+  }, []);
+
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
     title: {
@@ -131,6 +150,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
   const [preChoice, setPreChoice] = useState<string>("lstm_wlf");
+  const [paperTradeParams, setPaperTradeParams] = useState<object | any>({
+    symbol: symbol,
+    initial_cash: 100000,
+    commission: 0.01,
+    strategy: "LSIStack",
+    fromdate: "2020-07-01",
+    todate: "2021-04-07",
+  });
 
   const fetchStock = useCallback(() => {
     getStockBasic({ symbol });
@@ -140,6 +167,10 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     const predictionType = predictOpts[preChoice].idtype;
     getPredictionDaily({ symbol, predictionType });
   };
+
+  const fetchPaperTrades = () => {
+    getPaperTradingResults({ ... paperTradeParams });
+  }
 
   // TODO: predefined reset length
   const resetZoom = () => {
@@ -179,9 +210,16 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         predictions.data = predictions.data.slice(0, durOpts[durChoice].dur);
       }
 
-      const displaySeries = predictions
+      let papertrades = JSON.parse(JSON.stringify(paperTradingResults));
+      let indicator = papertrades.indicator ? {name: "Strategy Indicator", data: papertrades.indicator} : null;
+
+      let displaySeries = predictions
         ? [...seriesDailyList, predictions]
         : seriesDailyList;
+      displaySeries = indicator ? [... displaySeries, indicator] : displaySeries;
+
+      console.log(displaySeries);
+
       setGraphOptions((graphOptions: graphOptionsT) => ({
         ...graphOptions,
         series: displaySeries,
@@ -192,6 +230,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     priceDataDaily,
     priceDataIntraday,
     predictionDaily,
+    paperTradingResults,
     durChoice,
     durOpts,
   ]);
@@ -353,6 +392,101 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     </Container>
   );
 
+  const paperTradeControlComponent = (
+    <Container className="generic-container-scrolling">
+      <hr />
+      <Row>
+        <Col>Initial Value ($): </Col>
+        <Col>
+          <InputGroup className="mb-3">
+            <FormControl
+              placeholder="xxxxxx"
+              aria-label="initialValue"
+              aria-describedby="basic-addon1"
+              value={paperTradeParams.initial_cash}
+            />
+          </InputGroup>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>Commission: </Col>
+        <Col>
+          <InputGroup className="mb-3">
+            <FormControl
+              placeholder="xxxxxx"
+              aria-label="commission"
+              aria-describedby="basic-addon1"
+              value={paperTradeParams.commission}
+            />
+          </InputGroup>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>Strategy: </Col>
+        <Col>
+          <DropdownButton
+            variant="outline-dark"
+            id="dropdown-basic-button"
+            title={tradeStratOpts}
+          >
+            {tradeStratOpts.map((entry, idx) => {
+
+              return (
+                <Dropdown.Item
+                  key={entry}
+                  href="#/action-1"
+                >
+                  {entry}
+                </Dropdown.Item>
+              );
+            })}
+          </DropdownButton>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>From: </Col>
+        <Col>
+          <InputGroup className="mb-3">
+            <FormControl
+              placeholder="YYYY-MM-DD"
+              aria-label="fromdate"
+              aria-describedby="basic-addon1"
+              value={paperTradeParams.fromdate}
+            />
+          </InputGroup>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>To: </Col>
+        <Col>
+          <InputGroup className="mb-3">
+            <FormControl
+              placeholder="YYYY-MM-DD"
+              aria-label="todate"
+              aria-describedby="basic-addon1"
+              value={paperTradeParams.todate}
+            />
+          </InputGroup>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Button
+          variant="outline-primary"
+          onClick={() => {
+            fetchPaperTrades();
+          }}
+        >
+          Simulate
+        </Button>
+      </Row>
+    </Container>
+  );
+
   return (
     <Container>
       <Row className="justify-content-center mt-2">
@@ -393,6 +527,9 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               <Tab eventKey="prediction" title="Market Prediction">
                 {predictionControlComponent}
               </Tab>
+              <Tab eventKey="paperTrading" title="Paper Trading">
+                {paperTradeControlComponent}
+              </Tab>
             </Tabs>
           </Container>
         </Col>
@@ -427,6 +564,7 @@ const mapStateToProps = (state: any) => ({
   priceDataDaily: state.stockReducer.basic.data.data,
   priceDataIntraday: state.stockReducer.basic.data.data_intraday,
   predictionDaily: state.stockReducer.predictionDaily.data,
+  paperTradingResults: state.stockReducer.paperTradingResults.data,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -435,6 +573,8 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(stockActions.getStockBasic(payload)),
     getPredictionDaily: (payload: getPredictionDailyParams) =>
       dispatch(stockActions.getPredictionDaily(payload)),
+    getPaperTradingResults: (payload: getPaperTradingParams) =>
+      dispatch(stockActions.getPaperTradingResults(payload)),
   };
 };
 
