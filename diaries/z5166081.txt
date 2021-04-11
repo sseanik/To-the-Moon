@@ -52,3 +52,4 @@ Implemented the frontend for the Notes feature including:
 Week 8
 
 Implmented relevant notes on Stock Page and Portfolio Page.
+Added portfolio performance to Portfolios Page to show individual performance of each portfolio.
