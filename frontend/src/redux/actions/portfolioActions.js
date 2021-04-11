@@ -68,17 +68,17 @@ const portfolioActions = {
     try {
       const promises = names.map(name => portfolioAPI.getPortfolioPerformance(name));
       const responses = (await Promise.all(promises));
-      let hasError = false;
       const perfData = {};
+      const perfErrors = {};
       for (const { status, data, portfolio, error } of responses) {
         if (status !== 200) {
-          dispatch(portfolioActions.getPortfolioPerfFailure(error));
+          perfErrors[portfolio] = { error };
           perfData[portfolio] = { error };
-          hasError = true;
         } else {
           perfData[portfolio] = data;
         }
       }
+      dispatch(portfolioActions.getPortfolioPerfFailure(perfErrors));
       dispatch(portfolioActions.getPortfolioPerfSuccess(perfData));
     } catch (error) {
       dispatch(portfolioActions.getPortfolioPerfFailure(error.message));

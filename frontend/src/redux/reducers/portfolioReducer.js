@@ -11,7 +11,7 @@ const initialState = {
   },
   getPortfolioPerf: {
     loading: false,
-    error: null,
+    error: {},
     data: {},
   },
   deletePortfolio: {
