@@ -57,6 +57,11 @@ div.portfolio-info a:hover {
   text-decoration: none;
 }
 
+.portfolio-controls {
+  height: 50px;
+  width: 60px;
+}
+
 div.financials-container-scrolling {
   overflow-y: auto;
   max-height: 500px;

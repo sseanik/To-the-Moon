@@ -1,31 +1,67 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignInAlt } from "@fortawesome/free-solid-svg-icons";
-import React from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row, Alert, Button } from "react-bootstrap";
 import DeletePortfolioButton from "./DeletePortfolioButton";
+import { connect } from "react-redux";
+import ClipLoader from "react-spinners/ClipLoader";
 
 interface Props {
-  portfolioName: string;
+  name: string;
 }
 
-const PortfolioInfo: React.FC<Props> = (props) => {
-  const { portfolioName } = props;
+interface StateProps {
+  loading: boolean;
+  perf: PerformanceEntry;
+}
+
+export interface PerformanceEntry {
+  [key: string]: any;
+}
+
+const PortfolioInfo: React.FC<Props & StateProps> = (props) => {
+  const { name, loading, perf } = props;
+
+  const error =
+    perf.hasOwnProperty(name) && perf[name].hasOwnProperty("error")
+      ? perf[name].error
+      : "";
+  const performance =
+    perf.hasOwnProperty(name) && perf[name].hasOwnProperty("portfolio_change")
+      ? perf[name].portfolio_change
+      : "0";
+
+  const performanceComponent = error ? (
+    <Alert variant="danger">{error}</Alert>
+  ) : (
+    <Row className="my-2">
+      <Col>
+        <b>Performance</b>
+      </Col>
+      <Col>{performance}</Col>
+    </Row>
+  );
+
   return (
     <Col
       className="border rounded mx-1 p-4 portfolio-info bg-light"
       lg={4}
       md={6}
     >
-      <h2 className="my-2">{portfolioName}</h2>
-      <Container className="w-75">
+      <h2 className="my-2">{name}</h2>
+      {loading ? (
+        <ClipLoader color="green" loading={loading} />
+      ) : (
+        performanceComponent
+      )}
+      <Container fluid className="w-75">
         <Row>
           <Col className="align-middle">
-            <a href={`/portfolio/${portfolioName}`}>
+            <Button className="portfolio-controls" href={`/portfolio/${name}`}>
               <FontAwesomeIcon icon={faSignInAlt} size="2x" />
-            </a>
+            </Button>
           </Col>
           <Col>
-            <DeletePortfolioButton portfolioName={portfolioName} />
+            <DeletePortfolioButton portfolioName={name} />
           </Col>
         </Row>
       </Container>
@@ -33,4 +69,9 @@ const PortfolioInfo: React.FC<Props> = (props) => {
   );
 };
 
-export default PortfolioInfo;
+const mapStateToProps = (state: any) => ({
+  loading: state.portfolioReducer.getPortfolioPerf.loading,
+  perf: state.portfolioReducer.getPortfolioPerf.data,
+});
+
+export default connect(mapStateToProps)(PortfolioInfo);
