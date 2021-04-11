@@ -51,6 +51,39 @@ const portfolioActions = {
       dispatch(portfolioActions.getPortfoliosFailure(error.message));
     }
   },
+  getPortfolioPerfPending: () => ({
+    type: portfolioConstants.GET_PORTFOLIO_PERF_PENDING,
+  }),
+  getPortfolioPerfSuccess: (response) => ({
+    type: portfolioConstants.GET_PORTFOLIO_PERF_SUCCESS,
+    payload: response,
+  }),
+  getPortfolioPerfFailure: (error) => ({
+    type: portfolioConstants.GET_PORTFOLIO_PERF_SUCCESS,
+    payload: error,
+  }),
+  getPortfolioPerf: (payload) => async (dispatch) => {
+    const { names } = payload;
+    dispatch(portfolioActions.getPortfolioPerfPending());
+    try {
+      const promises = names.map(name => portfolioAPI.getPortfolioPerformance(name));
+      const responses = (await Promise.all(promises));
+      let hasError = false;
+      const perfData = {};
+      for (const { status, data, portfolio, error } of responses) {
+        if (status !== 200) {
+          dispatch(portfolioActions.getPortfolioPerfFailure(error));
+          perfData[portfolio] = { error };
+          hasError = true;
+        } else {
+          perfData[portfolio] = data;
+        }
+      }
+      dispatch(portfolioActions.getPortfolioPerfSuccess(perfData));
+    } catch (error) {
+      dispatch(portfolioActions.getPortfolioPerfFailure(error.message));
+    }
+  },
   deletePortfolioPending: (portfolioName) => ({
     type: portfolioConstants.DELETE_PORTFOLIO_PENDING,
     payload: portfolioName,
