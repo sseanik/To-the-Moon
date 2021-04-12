@@ -142,7 +142,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   const tradeStratOpts: tradeStratParams = useMemo(() => {
     return {
-      "LSIStack": { idtype: "RSIStack", name: "Relative Strength Index"},
+      "RSIStack": { idtype: "RSIStack", name: "Relative Strength Index"},
       "SMACrossOver2": { idtype: "SMACrossOver2", name: "Simple MA Crossover" }
     };
   }, []);
@@ -162,7 +162,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     symbol: symbol,
     initial_cash: 100000,
     commission: 0.01,
-    strategy: "LSIStack",
+    strategy: "RSIStack",
     fromdate: "2020-03-01",
     todate: "2021-04-07",
   });
