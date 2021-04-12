@@ -8,7 +8,7 @@ class SMACrossOver2(StrategyHelper):
     )
 
     def __init__(self):
-        super(SmaCross, self).__init__()
+        super(SMACrossOver2, self).__init__()
         for d in self.datas:
             self.inds[d] = {}
             self.inds[d]['sma1'] = bt.ind.SMA(period=self.p.fast)

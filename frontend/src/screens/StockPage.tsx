@@ -78,6 +78,10 @@ interface predictionModeParams {
   [key: string]: { idtype: string; name: string; };
 }
 
+interface tradeStratParams {
+  [key: string]: { idtype: string, name: string };
+}
+
 interface StateProps {
   loading: boolean;
   error: string;
@@ -136,8 +140,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     };
   }, []);
 
-  const tradeStratOpts: Array<string> = useMemo(() => {
-    return ["LSIStack"];
+  const tradeStratOpts: tradeStratParams = useMemo(() => {
+    return {
+      "LSIStack": { idtype: "RSIStack", name: "Relative Strength Index"},
+      "SMACrossOver2": { idtype: "SMACrossOver2", name: "Simple MA Crossover" }
+    };
   }, []);
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
@@ -257,7 +264,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         let sellFlags = {
           type: 'flags',
           name: 'Sell orders',
-          y: 30, 
+          y: 30,
           data: sellOrders,
           onSeries: '4. close',
           shape: 'circlepin',
@@ -475,16 +482,20 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
           <DropdownButton
             variant="outline-dark"
             id="dropdown-basic-button"
-            title={tradeStratOpts}
+            title={tradeStratOpts[paperTradeParams.strategy].name}
           >
-            {tradeStratOpts.map((entry, idx) => {
-
+            {Object.entries(tradeStratOpts).map((entry, idx) => {
+              const [key, value] = entry;
               return (
                 <Dropdown.Item
-                  key={entry}
+                  key={key}
                   href="#/action-1"
+                  onClick={() => {
+                    setPaperTradeParams({...paperTradeParams,
+                      strategy: tradeStratOpts[key].idtype})
+                  }}
                 >
-                  {entry}
+                  {value.name}
                 </Dropdown.Item>
               );
             })}
