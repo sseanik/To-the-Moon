@@ -149,6 +149,61 @@ const forumActions = {
       dispatch(forumActions.editChildFailure(error));
     }
   },
+  deleteParentPending: (commentID) => ({
+    type: forumConstants.DELETE_PARENT_PENDING,
+    payload: commentID,
+  }),
+  deleteParentSuccess: (response) => ({
+    type: forumConstants.DELETE_PARENT_SUCCESS,
+    payload: response,
+  }),
+  deleteParentFailure: (error) => ({
+    type: forumConstants.DELETE_PARENT_FAILURE,
+    payload: error,
+  }),
+  deleteParent: (payload) => async (dispatch) => {
+    const { commentID } = payload;
+    dispatch(forumActions.deleteParentPending(commentID));
+    try {
+      const { status, message } = await forumAPI.deleteParent(commentID);
+      if (status === 200) {
+        dispatch(forumActions.deleteParentSuccess(commentID));
+      } else {
+        dispatch(forumActions.deleteParentFailure(message));
+      }
+    } catch (error) {
+      dispatch(forumActions.deleteParentFailure(error));
+    }
+  },
+  deleteChildPending: (commentID) => ({
+    type: forumConstants.DELETE_CHILD_PENDING,
+    payload: commentID,
+  }),
+  deleteChildSuccess: (response) => ({
+    type: forumConstants.DELETE_CHILD_SUCCESS,
+    payload: response,
+  }),
+  deleteChildFailure: (error) => ({
+    type: forumConstants.DELETE_CHILD_FAILURE,
+    payload: error,
+  }),
+  deleteChild: (payload) => async (dispatch) => {
+    const { commentID, parentID } = payload;
+    dispatch(forumActions.deleteChildPending(commentID));
+    try {
+      const { status, message } = await forumAPI.deleteChild(
+        commentID,
+        parentID
+      );
+      if (status === 200) {
+        dispatch(forumActions.deleteChildSuccess(payload));
+      } else {
+        dispatch(forumActions.deleteChildFailure(message));
+      }
+    } catch (error) {
+      dispatch(forumActions.deleteChildFailure(error));
+    }
+  },
 };
 
 export default forumActions;

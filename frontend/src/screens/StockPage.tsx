@@ -592,9 +592,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         </Col>
         <Col>{loading ? loadingSpinnerComponent : graphComponent}</Col>
       </Row>
-      <Row className="justify-content-start my-2">
-        <Forum stockTicker={symbol} />
-      </Row>
       <Row>
         <Container>
           <Tabs className="justify-content-center mt-2" defaultActiveKey="news">
@@ -603,6 +600,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
                 <h3>{`News related to ${symbol.toUpperCase()}`}</h3>
               </Row>
               <StockNews stock={symbol} />
+            </Tab>
+            <Tab eventKey="forum" title="Forum">
+              <Row className="justify-content-start my-2">
+                <Forum stockTicker={symbol} />
+              </Row>
             </Tab>
             <Tab eventKey="other" title="Other"></Tab>
           </Tabs>

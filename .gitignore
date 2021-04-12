@@ -9,6 +9,7 @@ venv/*
 */venv/*
 */__pycache__/*
 demo/*.json
+storage/*
 
 *.pickle
 model/*/venv/*

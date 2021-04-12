@@ -6,6 +6,7 @@ import { useState } from "react";
 import ChildComment from "./ChildComment";
 import EditParentForm from "./EditParentForm";
 import { connect } from "react-redux";
+import DeleteParentButton from "./DeleteParentButton";
 
 interface StateProps {
   currentUsername: string;
@@ -93,70 +94,64 @@ const ParentComment: React.FC<StateProps & Props> = (props) => {
             <p className="text-left">{is_deleted ? "Deleted" : content}</p>
           </Col>
         </Row>
-        <Row className="justify-content-start mb-1 align-items-center">
-          <Col md={1}>
-            <FontAwesomeIcon
-              icon={faThumbsUp}
-              className={is_upvoted ? "text-success" : ""}
-            />
-          </Col>
-          <Col md={1}>
-            <p
-              className={
-                vote_difference >= 0 ? "text-success m-0" : "text-danger m-0"
-              }
-            >
-              {vote_difference}
-            </p>
-          </Col>
-          <Col md={1}>
-            <FontAwesomeIcon
-              icon={faThumbsDown}
-              className={is_downvoted ? "text-danger" : ""}
-            />
-          </Col>
-          {replying ? (
+        {is_deleted ? null : (
+          <Row className="justify-content-start mb-1 align-items-center">
             <Col md={1}>
-              <Button variant="light" onClick={() => setReplying(false)}>
-                Cancel
-              </Button>
+              <FontAwesomeIcon
+                icon={faThumbsUp}
+                className={is_upvoted ? "text-success" : ""}
+              />
             </Col>
-          ) : (
             <Col md={1}>
-              <Button variant="light" onClick={() => setReplying(true)}>
-                Reply
-              </Button>
+              <p
+                className={
+                  vote_difference >= 0 ? "text-success m-0" : "text-danger m-0"
+                }
+              >
+                {vote_difference}
+              </p>
             </Col>
-          )}
-          {/* {currentUsername === username ? (
-            editing ? (
+            <Col md={1}>
+              <FontAwesomeIcon
+                icon={faThumbsDown}
+                className={is_downvoted ? "text-danger" : ""}
+              />
+            </Col>
+            {replying ? (
               <Col md={1}>
-                <Button variant="light" onClick={() => setEditing(false)}>
+                <Button variant="light" onClick={() => setReplying(false)}>
                   Cancel
                 </Button>
               </Col>
             ) : (
               <Col md={1}>
-                <Button variant="light" onClick={() => setEditing(true)}>
-                  Edit
+                <Button variant="light" onClick={() => setReplying(true)}>
+                  Reply
                 </Button>
               </Col>
-            )
-          ) : null} */}
-          {editing ? (
-            <Col md={1}>
-              <Button variant="light" onClick={() => setEditing(false)}>
-                Cancel
-              </Button>
-            </Col>
-          ) : (
-            <Col md={1}>
-              <Button variant="light" onClick={() => setEditing(true)}>
-                Edit
-              </Button>
-            </Col>
-          )}
-        </Row>
+            )}
+            {currentUsername === username ? (
+              editing ? (
+                <Col md={1}>
+                  <Button variant="light" onClick={() => setEditing(false)}>
+                    Cancel
+                  </Button>
+                </Col>
+              ) : (
+                <Col md={1}>
+                  <Button variant="light" onClick={() => setEditing(true)}>
+                    Edit
+                  </Button>
+                </Col>
+              )
+            ) : null}
+            {currentUsername === username ? (
+              <Col md={1}>
+                <DeleteParentButton commentID={comment_id} />
+              </Col>
+            ) : null}
+          </Row>
+        )}
       </Container>
       <Container fluid>
         {replying ? (
