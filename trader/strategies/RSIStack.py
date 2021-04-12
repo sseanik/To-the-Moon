@@ -2,11 +2,12 @@ import alpaca_backtrader_api as alpaca
 import backtrader as bt
 import pandas as pd
 import datetime
+from strategies.StrategyHelper import StrategyHelper
 
 # Adapted from Leo Smigel - Alpaca & Backtrader: Tools of the Trade
 #    - Part Two (2020)
 # https://alpaca.markets/learn/backtrader-02/
-class RSIStack(bt.Strategy):
+class RSIStack(StrategyHelper):
     params = dict(
         rsi_overbought=70,
         rsi_oversold=30,
@@ -15,7 +16,7 @@ class RSIStack(bt.Strategy):
 
     def __init__(self, timeframes={'1D': 1}):
         self.orefs = None
-        self.inds = {}
+        super(RSIStack, self).__init__()
         self.timeframes = timeframes
         for d in self.datas:
             self.inds[d] = {}
@@ -24,9 +25,7 @@ class RSIStack(bt.Strategy):
             self.inds[d]['rsios'] = self.inds[d]['rsi'] <= self.p.rsi_oversold
         for i in range(len(self.timeframes)-1, len(self.datas), len(self.timeframes)):
             self.inds[self.datas[i]]['atr'] = bt.ind.ATR(self.datas[i])
-        self.orders = []
-        self.completed_orders = []
-        self.ind_keys = list(self.inds.keys())
+        self.make_ind_keys()
 
     def start(self):
         # Timeframes must be entered from highest to lowest frequency.
@@ -87,18 +86,6 @@ class RSIStack(bt.Strategy):
                                               limitprice=reward)
                         self.orefs = [o.ref for o in os]
 
-
-    def log(self, txt, dt=None):
-        ''' Logging function fot this strategy'''
-        dt = dt or self.data.datetime[0]
-        if isinstance(dt, float):
-            dt = bt.num2date(dt)
-        print(f'{dt.isoformat()}: {txt}')
-
-    def notify_trade(self, trade):
-        if not trade.size:
-            print(f'Trade PNL: ${trade.pnlcomm:.2f}')
-
     def notify_order(self, order):
         self.log(f'Order - {order.getordername()} {order.ordtypename()} {order.getstatusname()} for {order.size} shares @ ${order.price:.2f}')
 
@@ -117,13 +104,3 @@ class RSIStack(bt.Strategy):
 
     def get_indicator(self, index=0):
         return self.inds[self.ind_keys[index]]['rsi'].array
-
-    def get_timestamps(self):
-        result = list(map(bt.num2date, self.data.datetime.array))
-        result = list(map(lambda x: \
-            (x - datetime.datetime.fromtimestamp(0)).total_seconds() * 1000, \
-            result))
-        return result
-
-    def get_formatted_trades(self):
-        return self.completed_orders

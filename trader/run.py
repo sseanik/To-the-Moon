@@ -118,6 +118,7 @@ def get_prediction():
         orders = results.get_formatted_trades()
         final_value = cerebro.broker.getvalue()
 
+        # orders_sample = [{'time': 1591725600000.0, 'name': 'Limit', 'type': 'Sell', 'status': 'Completed', 'size': -311.0, 'price': 320.81}, {'time': 1591812000000.0, 'name': 'Limit', 'type': 'Buy', 'status': 'Completed', 'size': 311.0, 'price': 308.8920530837094}, {'time': 1598896800000.0, 'name': 'Limit', 'type': 'Sell', 'status': 'Completed', 'size': -297.0, 'price': 349.34}, {'time': 1598983200000.0, 'name': 'Stop', 'type': 'Buy', 'status': 'Completed', 'size': 297.0, 'price': 352.643301166782}]
 
         result = {"status": 200, "indicator": indicator_graph, "orders": orders, "final_value": final_value}
     else:
