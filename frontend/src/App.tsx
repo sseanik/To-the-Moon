@@ -52,7 +52,7 @@ function App() {
               <Route path="/stock/:symbol" component={StockPage} />
               <Route path="/portfolios" component={PortfoliosPage} />
               <Route path="/watchlists" component={WatchlistsPage} />
-              <Route path="/watchlist/:id" component={WatchlistPage} />
+              <Route path="/watchlist/:watchlistID" component={WatchlistPage} />
             </Switch>
             <NoteList />
           </Container>
