@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import investmentActions from "../redux/actions/investmentActions";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useParams } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 interface DeleteStockParams {
   investmentID: string;
@@ -41,9 +43,10 @@ const DeleteStockButton: React.FC<StateProps & DispatchProps & Props> = (
       ) : (
         <Button
           variant="danger"
+          className="my-1"
           onClick={() => deleteStock({ investmentID, portfolioName })}
         >
-          🗑️ Delete
+          <FontAwesomeIcon icon={faTrash} />
         </Button>
       )}
     </Container>

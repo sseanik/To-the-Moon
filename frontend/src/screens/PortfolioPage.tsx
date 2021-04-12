@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Container, Col, Row, Alert } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Container, Col, Row, Alert, Button } from "react-bootstrap";
 import { useParams } from "react-router";
 import AddInvestmentForm from "../components/AddInvestmentForm";
 import EditPortfolioForm from "../components/EditPortfolioForm";
@@ -35,6 +35,9 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
   const { name } = useParams<RouteMatchParams>();
   const { loading, error, stocks, getStocks } = props;
 
+  const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState(false);
+
   useEffect(() => {
     getStocks(name);
   }, [getStocks, name]);
@@ -44,7 +47,6 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
       <Row className="justify-content-center my-3">
         <h1>{name}</h1>
       </Row>
-      <Row></Row>
       <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
         <Col>Stock Name</Col>
         <Col># Shares</Col>
@@ -59,13 +61,33 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
       ) : (
         stocks.map((stockProps, id) => <StockInfo key={id} {...stockProps} />)
       )}
-      <Row className="justify-content-center mt-5">
+      <Row className="justify-content-center mt-4">
         <Col>
-          <AddInvestmentForm />
+          {adding ? (
+            <Button variant="light" onClick={() => setAdding(false)}>
+              Cancel
+            </Button>
+          ) : (
+            <Button variant="light" onClick={() => setAdding(true)}>
+              Add Investment
+            </Button>
+          )}
         </Col>
         <Col>
-          <EditPortfolioForm />
+          {editing ? (
+            <Button variant="light" onClick={() => setEditing(false)}>
+              Cancel
+            </Button>
+          ) : (
+            <Button variant="light" onClick={() => setEditing(true)}>
+              Edit Portfolio
+            </Button>
+          )}
         </Col>
+      </Row>
+      <Row className="justify-content-center mt-4">
+        <Col>{adding ? <AddInvestmentForm /> : null}</Col>
+        <Col>{editing ? <EditPortfolioForm /> : null}</Col>
       </Row>
     </Container>
   );
