@@ -2,6 +2,8 @@ import { Alert, Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import portfolioActions from "../redux/actions/portfolioActions";
 import ClipLoader from "react-spinners/ClipLoader";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 interface DeletePortfolioParams {
   portfolioName: string;
@@ -28,10 +30,9 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   const deleteButton = (
     <Button
       variant="danger"
-      className="rounded-circle"
       onClick={() => deletePortfolio({ portfolioName })}
     >
-      -
+      <FontAwesomeIcon icon={faTrash} />
     </Button>
   );
 
