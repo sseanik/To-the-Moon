@@ -26,6 +26,8 @@ interface DeletingState extends SimpleReduxState {
 
 interface InitialState {
   getWatchlists: WatchlistState;
+  addWatchlist: SimpleReduxState;
+  deleteWatchlist: DeletingState;
   getFollowing: FollowingState;
   addFollowing: SimpleReduxState;
   deleteFollowing: DeletingState;
@@ -36,6 +38,15 @@ const initialState: InitialState = {
     loading: false,
     error: "",
     watchlists: [],
+  },
+  addWatchlist: {
+    loading: false,
+    error: "",
+  },
+  deleteWatchlist: {
+    loading: false,
+    error: "",
+    deleting: [],
   },
   getFollowing: {
     loading: false,
@@ -79,6 +90,59 @@ const watchlistReducer = (state = initialState, action: Action) => {
           loading: false,
           error: action.payload,
           watchlists: [],
+        },
+      };
+    case watchlistConstants.ADD_WATCHLIST_PENDING:
+      return {
+        ...state,
+        addWatchlist: {
+          loading: true,
+          error: "",
+        },
+      };
+    case watchlistConstants.ADD_WATCHLIST_SUCCESS:
+      return {
+        ...state,
+        addWatchlist: {
+          loading: false,
+          error: "",
+        },
+      };
+    case watchlistConstants.ADD_WATCHLIST_FAILURE:
+      return {
+        ...state,
+        addWatchlist: {
+          loading: false,
+          error: action.payload,
+        },
+      };
+    case watchlistConstants.DELETE_WATCHLIST_PENDING:
+      return {
+        ...state,
+        deleteWatchlist: {
+          loading: true,
+          error: "",
+          deleting: [...state.deleteWatchlist.deleting, action.payload],
+        },
+      };
+    case watchlistConstants.DELETE_WATCHLIST_SUCCESS:
+      return {
+        ...state,
+        deleteWatchlist: {
+          loading: false,
+          error: "",
+          deleting: state.deleteWatchlist.deleting.filter(
+            (name) => name !== action.payload
+          ),
+        },
+      };
+    case watchlistConstants.DELETE_WATCHLIST_FAILURE:
+      return {
+        ...state,
+        deleteWatchlist: {
+          loading: false,
+          error: action.payload,
+          deleting: [],
         },
       };
     case watchlistConstants.GET_FOLLOWING_PENDING:
