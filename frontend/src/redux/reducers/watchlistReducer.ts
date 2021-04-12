@@ -10,23 +10,31 @@ interface SimpleReduxState {
   error: string;
 }
 
-interface WatchlistState {
-  getWatchlists: SimpleReduxState;
-  getFollowing: SimpleReduxState;
-  addFollowing: SimpleReduxState;
-  deleteFollowing: SimpleReduxState;
+interface WatchlistState extends SimpleReduxState {
   watchlists: string[];
+}
+
+interface FollowingState extends SimpleReduxState {
   following: string[];
 }
 
-const initialState: WatchlistState = {
+interface InitialState {
+  getWatchlists: WatchlistState;
+  getFollowing: FollowingState;
+  addFollowing: SimpleReduxState;
+  deleteFollowing: SimpleReduxState;
+}
+
+const initialState: InitialState = {
   getWatchlists: {
     loading: false,
     error: "",
+    watchlists: [],
   },
   getFollowing: {
     loading: false,
     error: "",
+    following: [],
   },
   addFollowing: {
     loading: false,
@@ -36,8 +44,6 @@ const initialState: WatchlistState = {
     loading: false,
     error: "",
   },
-  watchlists: [],
-  following: [],
 };
 
 const watchlistReducer = (state = initialState, action: Action) => {
@@ -56,8 +62,8 @@ const watchlistReducer = (state = initialState, action: Action) => {
         getWatchlists: {
           loading: false,
           error: "",
+          watchlists: action.payload,
         },
-        watchlists: action.payload,
       };
     case watchlistConstants.GET_WATCHLISTS_FAILURE:
       return {
@@ -65,8 +71,34 @@ const watchlistReducer = (state = initialState, action: Action) => {
         getWatchlists: {
           loading: false,
           error: action.payload,
+          watchlists: [],
         },
-        watchlists: [],
+      };
+    case watchlistConstants.GET_FOLLOWING_PENDING:
+      return {
+        ...state,
+        getFollowing: {
+          loading: true,
+          error: "",
+        },
+      };
+    case watchlistConstants.GET_FOLLOWING_SUCCESS:
+      return {
+        ...state,
+        getFollowing: {
+          loading: false,
+          error: "",
+          following: action.payload,
+        },
+      };
+    case watchlistConstants.GET_FOLLOWING_FAILURE:
+      return {
+        ...state,
+        getFollowing: {
+          loading: false,
+          error: action.payload,
+          following: [],
+        },
       };
     default:
       return state;
