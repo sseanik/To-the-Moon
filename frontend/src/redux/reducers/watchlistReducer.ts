@@ -1,10 +1,12 @@
 import watchlistConstants from "../constants/watchlistConstants";
 
+// should be set in another file, will be used across all reducers
 interface Action {
   type: string;
-  payload: Object;
+  payload?: Object;
 }
 
+// same as above
 interface SimpleReduxState {
   loading: boolean;
   error: string;
@@ -18,11 +20,15 @@ interface FollowingState extends SimpleReduxState {
   following: string[];
 }
 
+interface DeletingState extends SimpleReduxState {
+  deleting: string[];
+}
+
 interface InitialState {
   getWatchlists: WatchlistState;
   getFollowing: FollowingState;
   addFollowing: SimpleReduxState;
-  deleteFollowing: SimpleReduxState;
+  deleteFollowing: DeletingState;
 }
 
 const initialState: InitialState = {
@@ -43,6 +49,7 @@ const initialState: InitialState = {
   deleteFollowing: {
     loading: false,
     error: "",
+    deleting: [],
   },
 };
 
@@ -98,6 +105,59 @@ const watchlistReducer = (state = initialState, action: Action) => {
           loading: false,
           error: action.payload,
           following: [],
+        },
+      };
+    case watchlistConstants.ADD_FOLLOWING_PENDING:
+      return {
+        ...state,
+        addFollowing: {
+          loading: true,
+          error: "",
+        },
+      };
+    case watchlistConstants.ADD_FOLLOWING_SUCCESS:
+      return {
+        ...state,
+        addFollowing: {
+          loading: false,
+          error: "",
+        },
+      };
+    case watchlistConstants.ADD_FOLLOWING_FAILURE:
+      return {
+        ...state,
+        addFollowing: {
+          loading: false,
+          error: action.payload,
+        },
+      };
+    case watchlistConstants.DELETE_FOLLOWING_PENDING:
+      return {
+        ...state,
+        deleteFollowing: {
+          loading: true,
+          error: "",
+          deleting: [...state.deleteFollowing.deleting, action.payload],
+        },
+      };
+    case watchlistConstants.DELETE_FOLLOWING_SUCCESS:
+      return {
+        ...state,
+        deleteFollowing: {
+          loading: false,
+          error: "",
+          deleting: state.deleteFollowing.deleting.filter(
+            (name) => name !== action.payload
+          ),
+        },
+      };
+    case watchlistConstants.DELETE_FOLLOWING_FAILURE:
+      return {
+        ...state,
+        deleteFollowing: {
+          loading: false,
+          error: action.payload,
+          deleting: [],
         },
       };
     default:

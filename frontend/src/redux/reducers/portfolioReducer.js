@@ -98,9 +98,7 @@ const portfolioReducer = (state = initialState, action) => {
         deletePortfolio: {
           loading: false,
           error: action.payload.error,
-          deleting: state.deletePortfolio.deleting.filter(
-            (name) => name === action.payload
-          ),
+          deleting: [],
         },
       };
     case portfolioConstants.EDIT_PORTFOLIO_PENDING:
