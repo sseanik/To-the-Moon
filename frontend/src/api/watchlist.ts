@@ -17,7 +17,19 @@ interface Options {
 const watchlistAPI = {
   getWatchlists: () => {
     // will change
-    const endpoint = "/user/watchlist";
+    const endpoint = "/user/watchlists";
+    const options: Options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  getFollowing: () => {
+    // will change
+    const endpoint = "/user/following";
     const options: Options = {
       method: "GET",
       headers: {
