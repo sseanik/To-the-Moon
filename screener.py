@@ -26,7 +26,7 @@ def screener_save(screener_name, user_id, parameters):
 
     if len(screener_name) > 30:
         rtrn = {
-            'status' : 200,
+            'status' : 400,
             'error' : 'Screener name cannot be more than 30 characters. Try a new name.'
         }
         return rtrn
@@ -37,7 +37,7 @@ def screener_save(screener_name, user_id, parameters):
     try:
         cur.execute(sql_query, (screener_name, user_id, str(parameters)))
         rtrn = {
-            'status' : 400,
+            'status' : 200,
             'message' : 'Parameters saved under the name \'' + screener_name + '\'.'
         }
     except psycopg2.errors.UniqueViolation:
@@ -47,7 +47,7 @@ def screener_save(screener_name, user_id, parameters):
         }
     except:
         rtrn = {
-            'status' : 200,
+            'status' : 400,
             'error' : 'Something went wrong while inserting.'
         }
     conn.commit()
