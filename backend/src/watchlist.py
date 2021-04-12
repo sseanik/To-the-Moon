@@ -2,17 +2,15 @@
 #   Watchlist Module   #
 ########################
 
-import time
+import psycopg2
 from flask import Blueprint, request
 from json import dumps
 from database import create_DB_connection
 from token_util import get_id_from_token
-from helpers import TimeSeries, AlphaVantageAPI
-from datetime import datetime
-from stock import retrieve_stock_price_at_date
 from iexfinance.stocks import Stock
-from portfolio import get_investments
-import pandas as pd
+import simplejson
+from decimal import Decimal
+
 
 from flask import Blueprint
 
@@ -143,10 +141,10 @@ def delete_watchlist(user_id, watchlist_id):
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "DELETE FROM subscriptions s, watchlists w WHERE user_id=%s AND watchlist_id=%s"
-    cur.execute(sql_query, (user_id, title))
+    cur.execute(sql_query, (user_id, watchlist_id))
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Note removed"}
+    return {'status' : 200, 'message' : "Watchlist removed"}
 
 
 
@@ -183,7 +181,8 @@ def get_all_watchlists():
     if not response:
         rtrn = {
             'status' : 200,
-            'message' : 'There are no watchlists available.'
+            'message' : 'There are no watchlists available.',
+            'data' : []
         }
     else:
         stocks = []
@@ -196,8 +195,8 @@ def get_all_watchlists():
         data = []
         for watchlist_id, username, watchlist_name, description, companies, proportions in response:
             new_watchlist = {
-                'watchlist id' : watchlist_id,
-                'watchlist name' : username,
+                'watchlist_id' : watchlist_id,
+                'watchlist_name' : username,
                 'description' : description,
                 'stocks' : []
             }
@@ -205,13 +204,13 @@ def get_all_watchlists():
                 company = companies[i]
                 proportion = proportions[i]
                 new_stock = {
-                    'stock ticker' : company,
-                    'proportion' : proportion,
+                    'stock_ticker' : company,
+                    'proportion' : Decimal(proportion),
                     'price' : batch.latestPrice[company],
-                    'price change percentage' : batch.changePercent[company],
+                    'price_change_percentage' : batch.changePercent[company],
                     'volume' : batch.volume[company],
-                    'market capitalization' : batch.marketCap[company],
-                    'PE ratio' : batch.peRatio[company]
+                    'market_capitalization' : batch.marketCap[company],
+                    'PE_ratio' : batch.peRatio[company]
                 }
                 new_watchlist['stocks'].append(new_stock)
             data.append(new_watchlist)
@@ -253,15 +252,16 @@ def unsubscribe_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     data = request.get_json()
-    result = unsubcribe(user_id, data['watchlist_id'])
+    result = unsubscribe(user_id, data['watchlist_id'])
     return dumps(result)
 
 
 # get all watchlists
 @WATCHLIST_ROUTES.route('/watchlist', methods=['GET'])
-def get_all_notes_wrapper():
-    result = get_all_notes()
-    return dumps(result)
+def get_all_watchlists_wrapper():
+    result = get_all_watchlists()
+    print(simplejson.dumps(result))
+    return simplejson.dumps(result)
     
 
 # get users watchlists
@@ -280,14 +280,3 @@ def delete_watchlist_wrapper():
     data = request.get_json()
     result = delete_watchlist(user_id, data['watchlist_id'])
     return dumps(result)
-
-
-
-
-#print(publish_watchlist("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", "random description"))
-#print(publish_watchlist("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test1", "random description"))
-res = get_all_watchlists()
-for line in res['data']:
-    print(line)
-
-
