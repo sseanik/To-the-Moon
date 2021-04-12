@@ -1,33 +1,18 @@
-import { useState } from "react";
-import { Button, Container } from "react-bootstrap";
+import { Tab, Tabs } from "react-bootstrap";
 
 const WatchlistsPage: React.FC = () => {
-  const [following, setFollowing] = useState(false);
   return (
-    <Container fluid>
-      {following ? (
-        <Button
-          onClick={() => {
-            setFollowing(false);
-          }}
-        >
-          View All
-        </Button>
-      ) : (
-        <Button
-          onClick={() => {
-            setFollowing(true);
-          }}
-        >
-          View Following
-        </Button>
-      )}
-      {following ? (
-        <p>Displaying only followed watchlists</p>
-      ) : (
-        <p>Displaying all watchlists</p>
-      )}
-    </Container>
+    <Tabs defaultActiveKey="following" className="justify-content-center">
+      <Tab eventKey="following" title="Followed Watchlists">
+        Following Watchlists
+      </Tab>
+      <Tab eventKey="my" title="My Watchlists">
+        My Watchlists
+      </Tab>
+      <Tab eventKey="all" title="All Watchlists">
+        All Watchlists
+      </Tab>
+    </Tabs>
   );
 };
 
