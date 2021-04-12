@@ -62,6 +62,17 @@ def create_notes_table():
     conn.commit()
     conn.close()
 
+
+def create_watchlist_tables():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/subscriptions.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/watchlists.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+
 def create_comment_tables():
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -70,6 +81,8 @@ def create_comment_tables():
     cur.execute(open("Tables/forum_reply.sql", "r").read())
     conn.commit()
     conn.close()
+
+    
 
 
 def fill_securities_overview_table(symbol):
@@ -301,6 +314,7 @@ if __name__ == "__main__":
     #create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
+    create_watchlist_tables()
 
     # Basic materials sector
     #fill_overview_and_financial_tables('BHP')
@@ -315,7 +329,7 @@ if __name__ == "__main__":
     #fill_overview_and_financial_tables('KO')
 
     # Utilities sector
-    fill_overview_and_financial_tables('NEE')
+    #fill_overview_and_financial_tables('NEE')
 
     # Energy sector
 
