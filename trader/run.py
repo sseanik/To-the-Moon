@@ -77,13 +77,18 @@ def get_prediction():
         todate = pd.Timestamp(request_data['todate']) if request_data['todate'] else pd.Timestamp(2020,8,17)
 
         # TODO: add strategies by list in request
-        run_strategy = RSIStack
+        # run_strategy = RSIStack
+        run_strategy = allowed_strats[strategy] if strategy in allowed_strats \
+            else RSIStack
+        run_strategy_args = {}
+        if strategy == "RSIStack":
+            run_strategy_args = {"timeframes": timeframes}
         # TODO: adjust timeframe based on request
         timeframe_units = bt.TimeFrame.Days
 
         # TODO: Add strategy selector
         cerebro = bt.Cerebro()
-        cerebro.addstrategy(run_strategy, timeframes=timeframes)
+        cerebro.addstrategy(run_strategy, **run_strategy_args)
         cerebro.broker.setcash(initial_portfolio_value)
         cerebro.broker.setcommission(commission=commission)
 
