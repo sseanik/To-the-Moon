@@ -49,8 +49,11 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
     <Tabs defaultActiveKey="following" className="justify-content-center">
       <Tab eventKey="following" title="Followed Watchlists">
         <Row className="my-2 justify-content-center">
-          {watchlistLoading ? (
-            <ClipLoader color={"green"} loading={watchlistLoading} />
+          {watchlistLoading || followingLoading ? (
+            <ClipLoader
+              color={"green"}
+              loading={watchlistLoading || followingLoading}
+            />
           ) : (
             watchlists.filter((watchlistInfo: WatchlistParams) =>
               following.includes(watchlistInfo.watchlist_id)
@@ -60,11 +63,8 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Tab>
       <Tab eventKey="my" title="My Watchlists">
         <Row className="my-2 justify-content-center">
-          {watchlistLoading || followingLoading ? (
-            <ClipLoader
-              color={"green"}
-              loading={watchlistLoading || followingLoading}
-            />
+          {watchlistLoading ? (
+            <ClipLoader color={"green"} loading={watchlistLoading} />
           ) : (
             watchlists
               .filter(
