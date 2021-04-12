@@ -29,24 +29,25 @@ const watchlistActions = {
     }
   },
   addWatchlistPending: () => ({
-    type: watchlistConstants.GET_WATCHLISTS_PENDING,
+    type: watchlistConstants.ADD_WATCHLIST_PENDING,
   }),
-  addWatchlistSuccess: (payload: any) => ({
-    type: watchlistConstants.GET_WATCHLISTS_SUCCESS,
-    payload,
+  addWatchlistSuccess: () => ({
+    type: watchlistConstants.ADD_WATCHLIST_SUCCESS,
   }),
   addWatchlistFailure: (payload: any) => ({
-    type: watchlistConstants.GET_WATCHLISTS_FAILURE,
+    type: watchlistConstants.ADD_WATCHLIST_FAILURE,
     payload,
   }),
   addWatchlist: (payload: any) => async (dispatch: Dispatch) => {
     dispatch(watchlistActions.addWatchlistPending());
     try {
-      const { status, watchlists, error } = await watchlistAPI.addWatchlist(
-        payload
+      const { portfolioName, description } = payload;
+      const { status, error } = await watchlistAPI.addWatchlist(
+        portfolioName,
+        description
       );
       if (status === 200) {
-        dispatch(watchlistActions.addWatchlistSuccess(watchlists));
+        dispatch(watchlistActions.addWatchlistSuccess());
       } else {
         dispatch(watchlistActions.addWatchlistFailure(error));
       }

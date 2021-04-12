@@ -26,16 +26,16 @@ const watchlistAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  addWatchlist: (payload: any) => {
+  addWatchlist: (portfolio_name: string, description: string) => {
     // will change
-    const endpoint = "/user/watchlists";
+    const endpoint = "/watchlist";
     const options: Options = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
-      body: JSON.stringify({ payload }),
+      body: JSON.stringify({ portfolio_name, description }),
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
