@@ -46,7 +46,7 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
     <Tabs defaultActiveKey="following" className="justify-content-center">
       <Tab eventKey="following" title="Followed Watchlists">
         <Row className="my-2 justify-content-center">
-          {following.map((watchlistInfo, idx) => (
+          {following.map((watchlistInfo: WatchlistParams, idx: number) => (
             <WatchlistInfo key={idx} {...watchlistInfo} />
           ))}
         </Row>
@@ -58,14 +58,14 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
               (watchListInfo: WatchlistParams) =>
                 watchListInfo.author === username
             )
-            .map((watchlistInfo, idx) => (
+            .map((watchlistInfo: WatchlistParams, idx: number) => (
               <WatchlistInfo key={idx} {...watchlistInfo} />
             ))}
         </Row>
       </Tab>
       <Tab eventKey="all" title="All Watchlists">
         <Row className="my-2 justify-content-center">
-          {watchlists.map((watchlistInfo, idx) => (
+          {watchlists.map((watchlistInfo: WatchlistParams, idx: number) => (
             <WatchlistInfo key={idx} {...watchlistInfo} />
           ))}
         </Row>
@@ -75,12 +75,12 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
 };
 
 const mapStateToProps = (state: any) => ({
-  watchlistLoading: state.watchlistReducer.getWatchlists.watchlists,
+  watchlistLoading: state.watchlistReducer.getWatchlists.loading,
   watchlistError: state.watchlistReducer.getWatchlists.error,
   watchlists: state.watchlistReducer.getWatchlists.watchlists,
-  followingLoading: state.watchlistReducer.getFollowing.following,
+  followingLoading: state.watchlistReducer.getFollowing.loading,
   followingError: state.watchlistReducer.getFollowing.error,
-  following: state.watchlistReducer.getWatchlists.following,
+  following: state.watchlistReducer.getFollowing.following,
   username: state.userReducer.username,
 });
 
