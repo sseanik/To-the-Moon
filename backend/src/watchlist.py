@@ -196,8 +196,9 @@ def get_all_watchlists():
         for watchlist_id, username, watchlist_name, description, companies, proportions in response:
             new_watchlist = {
                 'watchlist_id' : watchlist_id,
-                'watchlist_name' : username,
+                'watchlist_name' : watchlist_name,
                 'description' : description,
+                'author' : username,
                 'stocks' : []
             }
             for i in range(len(companies)):
@@ -232,7 +233,7 @@ def publish_watchlist_wrapper():
     user_id = get_id_from_token(token)
     portfolio_name = request.args.get('name')
     data = request.get_json()
-    result = publish_watchlist(user_id, portfolio_name, data['description'])
+    result = publish_watchlist(user_id, data['portfolio_name'], data['description'])
     return dumps(result)
 
 
