@@ -16,8 +16,7 @@ interface Options {
 
 const watchlistAPI = {
   getWatchlists: () => {
-    // will change
-    const endpoint = "/user/watchlists";
+    const endpoint = "/watchlist";
     const options: Options = {
       method: "GET",
       headers: {
@@ -40,22 +39,20 @@ const watchlistAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  deleteWatchlist: (payload: any) => {
-    // will change
-    const endpoint = "/user/watchlists";
+  deleteWatchlist: (watchlist_id: string) => {
+    const endpoint = "/watchlist";
     const options: Options = {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
-      body: JSON.stringify({ payload }),
+      body: JSON.stringify({ watchlist_id }),
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getFollowing: () => {
-    // will change
-    const endpoint = "/user/following";
+    const endpoint = "/watchlist/userslist";
     const options: Options = {
       method: "GET",
       headers: {
@@ -65,29 +62,27 @@ const watchlistAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  addFollowing: (payload: any) => {
-    // will change
-    const endpoint = "/user/following";
+  addFollowing: (watchlist_id: string) => {
+    const endpoint = "/watchlist/subscribe";
     const options: Options = {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
-      body: JSON.stringify({ payload }),
+      body: JSON.stringify({ watchlist_id }),
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  deleteFollowing: (payload: any) => {
-    // will change
-    const endpoint = "/user/following";
+  deleteFollowing: (watchlist_id: string) => {
+    const endpoint = "/watchlist/subscribe";
     const options: Options = {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
-      body: JSON.stringify({ payload }),
+      body: JSON.stringify({ watchlist_id }),
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },

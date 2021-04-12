@@ -3,10 +3,11 @@ import { Row, Tab, Tabs } from "react-bootstrap";
 import { connect } from "react-redux";
 import WatchlistInfo from "../components/WatchlistInfo";
 import watchlistActions from "../redux/actions/watchlistActions";
+import ClipLoader from "react-spinners/ClipLoader";
 
 interface WatchlistParams {
-  watchlistName: string;
-  watchlistID: string;
+  watchlist_name: string;
+  watchlist_id: string;
   author: string;
 }
 
@@ -16,7 +17,7 @@ interface StateProps {
   watchlists: WatchlistParams[];
   followingLoading: boolean;
   followingError: string;
-  following: WatchlistParams[];
+  following: string[];
   username: string;
 }
 
@@ -27,7 +28,9 @@ interface DispatchProps {
 
 const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
   const {
+    watchlistLoading,
     watchlists,
+    followingLoading,
     following,
     username,
     getWatchlists,
@@ -46,28 +49,43 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
     <Tabs defaultActiveKey="following" className="justify-content-center">
       <Tab eventKey="following" title="Followed Watchlists">
         <Row className="my-2 justify-content-center">
-          {following.map((watchlistInfo: WatchlistParams, idx: number) => (
-            <WatchlistInfo key={idx} {...watchlistInfo} />
-          ))}
+          {watchlistLoading ? (
+            <ClipLoader color={"green"} loading={watchlistLoading} />
+          ) : (
+            watchlists.filter((watchlistInfo: WatchlistParams) =>
+              following.includes(watchlistInfo.watchlist_id)
+            )
+          )}
         </Row>
       </Tab>
       <Tab eventKey="my" title="My Watchlists">
         <Row className="my-2 justify-content-center">
-          {watchlists
-            .filter(
-              (watchListInfo: WatchlistParams) =>
-                watchListInfo.author === username
-            )
-            .map((watchlistInfo: WatchlistParams, idx: number) => (
-              <WatchlistInfo key={idx} {...watchlistInfo} />
-            ))}
+          {watchlistLoading || followingLoading ? (
+            <ClipLoader
+              color={"green"}
+              loading={watchlistLoading || followingLoading}
+            />
+          ) : (
+            watchlists
+              .filter(
+                (watchListInfo: WatchlistParams) =>
+                  watchListInfo.author === username
+              )
+              .map((watchlistInfo: WatchlistParams, idx: number) => (
+                <WatchlistInfo key={idx} {...watchlistInfo} />
+              ))
+          )}
         </Row>
       </Tab>
       <Tab eventKey="all" title="All Watchlists">
         <Row className="my-2 justify-content-center">
-          {watchlists.map((watchlistInfo: WatchlistParams, idx: number) => (
-            <WatchlistInfo key={idx} {...watchlistInfo} />
-          ))}
+          {watchlistLoading ? (
+            <ClipLoader color={"green"} loading={watchlistLoading} />
+          ) : (
+            watchlists.map((watchlistInfo: WatchlistParams, idx: number) => (
+              <WatchlistInfo key={idx} {...watchlistInfo} />
+            ))
+          )}
         </Row>
       </Tab>
     </Tabs>

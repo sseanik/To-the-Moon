@@ -17,9 +17,10 @@ const watchlistActions = {
   getWatchlists: () => async (dispatch: Dispatch) => {
     dispatch(watchlistActions.getWatchlistsPending());
     try {
-      const { status, watchlists, error } = await watchlistAPI.getWatchlists();
+      const { status, data, error } = await watchlistAPI.getWatchlists();
+      console.log(data);
       if (status === 200) {
-        dispatch(watchlistActions.getWatchlistsSuccess(watchlists));
+        dispatch(watchlistActions.getWatchlistsSuccess(data));
       } else {
         dispatch(watchlistActions.getWatchlistsFailure(error));
       }
