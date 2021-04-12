@@ -27,6 +27,19 @@ const watchlistAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  addWatchlist: (payload: any) => {
+    // will change
+    const endpoint = "/user/watchlists";
+    const options: Options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({ payload }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
   getFollowing: () => {
     // will change
     const endpoint = "/user/following";
@@ -36,6 +49,19 @@ const watchlistAPI = {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  addFollowing: (payload: any) => {
+    // will change
+    const endpoint = "/user/following";
+    const options: Options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({ payload }),
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
