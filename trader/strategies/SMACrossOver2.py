@@ -1,4 +1,5 @@
 import backtrader as bt
+from strategies.StrategyHelper import StrategyHelper
 
 class SMACrossOver2(StrategyHelper):
     params = dict(
