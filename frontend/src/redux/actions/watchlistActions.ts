@@ -53,6 +53,32 @@ const watchlistActions = {
       dispatch(watchlistActions.addWatchlistFailure(error));
     }
   },
+  deleteWatchlistPending: () => ({
+    type: watchlistConstants.DELETE_WATCHLIST_PENDING,
+  }),
+  deleteWatchlistSuccess: (payload: any) => ({
+    type: watchlistConstants.DELETE_WATCHLIST_SUCCESS,
+    payload,
+  }),
+  deleteWatchlistFailure: (payload: any) => ({
+    type: watchlistConstants.DELETE_WATCHLIST_FAILURE,
+    payload,
+  }),
+  deleteWatchlist: (payload: any) => async (dispatch: Dispatch) => {
+    dispatch(watchlistActions.deleteWatchlistPending());
+    try {
+      const { status, watchlists, error } = await watchlistAPI.deleteWatchlist(
+        payload
+      );
+      if (status === 200) {
+        dispatch(watchlistActions.deleteWatchlistSuccess(watchlists));
+      } else {
+        dispatch(watchlistActions.deleteWatchlistFailure(error));
+      }
+    } catch (error) {
+      dispatch(watchlistActions.deleteWatchlistFailure(error));
+    }
+  },
   getFollowingPending: () => ({
     type: watchlistConstants.GET_FOLLOWING_PENDING,
   }),
@@ -78,14 +104,14 @@ const watchlistActions = {
     }
   },
   addFollowingPending: () => ({
-    type: watchlistConstants.GET_WATCHLISTS_PENDING,
+    type: watchlistConstants.ADD_FOLLOWING_PENDING,
   }),
   addFollowingSuccess: (payload: any) => ({
-    type: watchlistConstants.GET_WATCHLISTS_SUCCESS,
+    type: watchlistConstants.ADD_FOLLOWING_SUCCESS,
     payload,
   }),
   addFollowingFailure: (payload: any) => ({
-    type: watchlistConstants.GET_WATCHLISTS_FAILURE,
+    type: watchlistConstants.ADD_FOLLOWING_FAILURE,
     payload,
   }),
   addFollowing: (payload: any) => async (dispatch: Dispatch) => {
@@ -101,6 +127,32 @@ const watchlistActions = {
       }
     } catch (error) {
       dispatch(watchlistActions.addFollowingFailure(error));
+    }
+  },
+  deleteFollowingPending: () => ({
+    type: watchlistConstants.DELETE_FOLLOWING_PENDING,
+  }),
+  deleteFollowingSuccess: (payload: any) => ({
+    type: watchlistConstants.DELETE_FOLLOWING_SUCCESS,
+    payload,
+  }),
+  deleteFollowingFailure: (payload: any) => ({
+    type: watchlistConstants.DELETE_FOLLOWING_FAILURE,
+    payload,
+  }),
+  deleteFollowing: (payload: any) => async (dispatch: Dispatch) => {
+    dispatch(watchlistActions.deleteFollowingPending());
+    try {
+      const { status, watchlists, error } = await watchlistAPI.deleteFollowing(
+        payload
+      );
+      if (status === 200) {
+        dispatch(watchlistActions.deleteFollowingSuccess(watchlists));
+      } else {
+        dispatch(watchlistActions.deleteFollowingFailure(error));
+      }
+    } catch (error) {
+      dispatch(watchlistActions.deleteFollowingFailure(error));
     }
   },
 };
