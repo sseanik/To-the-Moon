@@ -19,7 +19,7 @@ const WatchlistInfo: React.FC<Props> = (props) => {
       <Container className="w-75">
         <Row>
           <Col className="align-middle">
-            <a href={`/portfolio/${watchlistID}`}>
+            <a href={`/watchlist/${watchlistID}`}>
               <FontAwesomeIcon icon={faSignInAlt} size="2x" />
             </a>
           </Col>
