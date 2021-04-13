@@ -20,10 +20,6 @@ interface FollowingState extends SimpleReduxState {
   following: string[];
 }
 
-interface DeletingState extends SimpleReduxState {
-  deleting: string[];
-}
-
 interface WatchlistState extends SimpleReduxState {
   watchlist?: Object;
 }
@@ -31,10 +27,10 @@ interface WatchlistState extends SimpleReduxState {
 interface InitialState {
   getWatchlists: WatchlistsState;
   addWatchlist: SimpleReduxState;
-  deleteWatchlist: DeletingState;
+  deleteWatchlist: SimpleReduxState;
   getFollowing: FollowingState;
   addFollowing: SimpleReduxState;
-  deleteFollowing: DeletingState;
+  deleteFollowing: SimpleReduxState;
   getWatchlist: WatchlistState;
 }
 
@@ -51,7 +47,6 @@ const initialState: InitialState = {
   deleteWatchlist: {
     loading: false,
     error: "",
-    deleting: [],
   },
   getFollowing: {
     loading: false,
@@ -65,7 +60,6 @@ const initialState: InitialState = {
   deleteFollowing: {
     loading: false,
     error: "",
-    deleting: [],
   },
   getWatchlist: {
     loading: false,
@@ -138,7 +132,6 @@ const watchlistReducer = (state = initialState, action: Action) => {
         deleteWatchlist: {
           loading: true,
           error: "",
-          deleting: [...state.deleteWatchlist.deleting, action.payload],
         },
       };
     case watchlistConstants.DELETE_WATCHLIST_SUCCESS:
@@ -147,9 +140,6 @@ const watchlistReducer = (state = initialState, action: Action) => {
         deleteWatchlist: {
           loading: false,
           error: "",
-          deleting: state.deleteWatchlist.deleting.filter(
-            (name) => name !== action.payload
-          ),
         },
       };
     case watchlistConstants.DELETE_WATCHLIST_FAILURE:
@@ -158,7 +148,6 @@ const watchlistReducer = (state = initialState, action: Action) => {
         deleteWatchlist: {
           loading: false,
           error: action.payload,
-          deleting: [],
         },
       };
     case watchlistConstants.GET_FOLLOWING_PENDING:
@@ -202,6 +191,11 @@ const watchlistReducer = (state = initialState, action: Action) => {
           loading: false,
           error: "",
         },
+        getFollowing: {
+          loading: false,
+          error: "",
+          following: [...state.getFollowing.following, action.payload],
+        },
       };
     case watchlistConstants.ADD_FOLLOWING_FAILURE:
       return {
@@ -217,7 +211,6 @@ const watchlistReducer = (state = initialState, action: Action) => {
         deleteFollowing: {
           loading: true,
           error: "",
-          deleting: [...state.deleteFollowing.deleting, action.payload],
         },
       };
     case watchlistConstants.DELETE_FOLLOWING_SUCCESS:
@@ -226,8 +219,12 @@ const watchlistReducer = (state = initialState, action: Action) => {
         deleteFollowing: {
           loading: false,
           error: "",
-          deleting: state.deleteFollowing.deleting.filter(
-            (name) => name !== action.payload
+        },
+        getFollowing: {
+          loading: false,
+          error: "",
+          following: state.getFollowing.following.filter(
+            (id) => id !== action.payload
           ),
         },
       };
@@ -237,7 +234,6 @@ const watchlistReducer = (state = initialState, action: Action) => {
         deleteFollowing: {
           loading: false,
           error: action.payload,
-          deleting: [],
         },
       };
     case watchlistConstants.GET_WATCHLIST_PENDING:

@@ -95,9 +95,9 @@ const watchlistActions = {
   getFollowing: () => async (dispatch: Dispatch) => {
     dispatch(watchlistActions.getFollowingPending());
     try {
-      const { status, following, error } = await watchlistAPI.getFollowing();
+      const { status, data, error } = await watchlistAPI.getFollowing();
       if (status === 200) {
-        dispatch(watchlistActions.getFollowingSuccess(following));
+        dispatch(watchlistActions.getFollowingSuccess(data));
       } else {
         dispatch(watchlistActions.getFollowingFailure(error));
       }
@@ -119,11 +119,10 @@ const watchlistActions = {
   addFollowing: (payload: any) => async (dispatch: Dispatch) => {
     dispatch(watchlistActions.addFollowingPending());
     try {
-      const { status, watchlists, error } = await watchlistAPI.addFollowing(
-        payload
-      );
+      const { watchlistID } = payload;
+      const { status, error } = await watchlistAPI.addFollowing(watchlistID);
       if (status === 200) {
-        dispatch(watchlistActions.addFollowingSuccess(watchlists));
+        dispatch(watchlistActions.addFollowingSuccess(watchlistID));
       } else {
         dispatch(watchlistActions.addFollowingFailure(error));
       }
@@ -145,11 +144,10 @@ const watchlistActions = {
   deleteFollowing: (payload: any) => async (dispatch: Dispatch) => {
     dispatch(watchlistActions.deleteFollowingPending());
     try {
-      const { status, watchlists, error } = await watchlistAPI.deleteFollowing(
-        payload
-      );
+      const { watchlistID } = payload;
+      const { status, error } = await watchlistAPI.deleteFollowing(watchlistID);
       if (status === 200) {
-        dispatch(watchlistActions.deleteFollowingSuccess(watchlists));
+        dispatch(watchlistActions.deleteFollowingSuccess(watchlistID));
       } else {
         dispatch(watchlistActions.deleteFollowingFailure(error));
       }
