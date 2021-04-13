@@ -150,25 +150,6 @@ def delete_watchlist(user_id, watchlist_id):
 
 # TEST this
 def get_all_watchlists():
-    """
-    returns a list containing dictionaries of each watchlist
-    {
-        watchlist_id:
-        watchlist_name:
-        watchlist_description:
-        stocks: [{
-                stock_ticker: 
-                price:
-                price change percentage:
-                market_capitalisation:
-                PE ratio:
-                volume:
-                portfolio proportion:
-            }, ...]
-            
-
-    }
-    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query="""
@@ -197,8 +178,8 @@ def get_all_watchlists():
             new_watchlist = {
                 'watchlist_id' : watchlist_id,
                 'watchlist_name' : watchlist_name,
+                'author_username' : username,
                 'description' : description,
-                'author' : username,
                 'stocks' : []
             }
             for i in range(len(companies)):
@@ -224,6 +205,59 @@ def get_all_watchlists():
     return rtrn
 
 
+def get_watchlist(watchlist_id):
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    sql_query="""
+        SELECT w.watchlist_id, u.username, w.watchlist_name, w.watchlist_description, w.stock_tickers, w.proportions
+        FROM watchlists w, users u
+        WHERE u.id = w.user_id AND w.watchlist_id = %s
+    """
+    cur.execute(sql_query, (watchlist_id, ))
+    response = cur.fetchall()[0]
+    if not response:
+        rtrn = {
+            'status' : 200,
+            'message' : 'There are no watchlists with ID \'' + str(watchlist_id) + '\'.'
+        }
+    else:
+        stocks = []
+        companies = response[4]
+        proportions = response[5]
+        for s in companies:
+            if s not in stocks:
+                stocks.append(s)
+        batch = Stock(stocks)
+        batch = batch.get_quote()
+        watchlist = {
+                'watchlist_id' : response[0],
+                'author_username' : response[1],
+                'watchlist_name' : response[2],
+                'description' : response[3],
+                'stocks' : []
+            }
+        for i in range(len(companies)):
+            company = companies[i]
+            proportion = proportions[i]
+            new_stock = {
+                'stock_ticker' : company,
+                'proportion' : proportion,
+                'price' : batch.latestPrice[company],
+                'price_change_percentage' : batch.changePercent[company],
+                'volume' : batch.volume[company],
+                'market_capitalization' : batch.marketCap[company],
+                'PE_ratio' : batch.peRatio[company]
+            }
+            watchlist['stocks'].append(new_stock)
+        rtrn = {
+            'status' : 200,
+            'message' : 'Successfully fetched the watchlists.',
+            'data' : watchlist
+        }
+    conn.close()
+    return rtrn
+
+
 ################################
 # Please leave all routes here #
 ################################
@@ -231,7 +265,6 @@ def get_all_watchlists():
 def publish_watchlist_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
-    portfolio_name = request.args.get('name')
     data = request.get_json()
     result = publish_watchlist(user_id, data['portfolio_name'], data['description'])
     return dumps(result)
@@ -258,12 +291,19 @@ def unsubscribe_wrapper():
 
 
 # get all watchlists
-@WATCHLIST_ROUTES.route('/watchlist', methods=['GET'])
+@WATCHLIST_ROUTES.route('/watchlist/get_all', methods=['GET'])
 def get_all_watchlists_wrapper():
     result = get_all_watchlists()
-    print(simplejson.dumps(result))
     return simplejson.dumps(result)
-    
+
+
+# get a single watchlist
+@WATCHLIST_ROUTES.route('/watchlist/get_watchlist', methods=['GET'])
+def get_watchlist_wrapper():
+    data = request.get_json()
+    result = get_watchlist(data['watchlist_id'])
+    return simplejson.dumps(result)
+
 
 # get users watchlists
 @WATCHLIST_ROUTES.route('/watchlist/userslist', methods=['GET'])
