@@ -17,6 +17,7 @@ from stock import STOCK_ROUTES
 from user import USER_ROUTES
 from watchlist import WATCHLIST_ROUTES
 from notes import NOTE_ROUTES
+from dashboard import DASHBOARD_ROUTES
 
 APP = Flask(__name__)
 CORS(APP)
@@ -55,6 +56,7 @@ APP.register_blueprint(STOCK_ROUTES)
 APP.register_blueprint(USER_ROUTES)
 APP.register_blueprint(WATCHLIST_ROUTES)
 APP.register_blueprint(NOTE_ROUTES)
+APP.register_blueprint(DASHBOARD_ROUTES)
 
 #############################
 # Flask App setup and start #
