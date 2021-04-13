@@ -220,8 +220,7 @@ def screener_delete_wrapper():
     result = screener_delete(screener_name, user_id)
     return dumps(result)
 
-
-SCREENER_ROUTES.route('\screener', methods=['GET'])
+@SCREENER_ROUTES.route('/screener', methods=['GET'])
 def screen_stocks_wrapper():
     data = request.get_json()
     parameters = data['parameters']
