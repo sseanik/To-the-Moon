@@ -16,7 +16,18 @@ interface Options {
 
 const watchlistAPI = {
   getWatchlists: () => {
-    const endpoint = "/watchlist";
+    const endpoint = "/watchlist/get_all";
+    const options: Options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  getWatchlist: (watchlist_id: string) => {
+    const endpoint = `/watchlist/get_watchlist?watchlist_id=${watchlist_id}`;
     const options: Options = {
       method: "GET",
       headers: {
@@ -27,7 +38,6 @@ const watchlistAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   addWatchlist: (portfolio_name: string, description: string) => {
-    // will change
     const endpoint = "/watchlist";
     const options: Options = {
       method: "POST",
