@@ -94,7 +94,7 @@ def screen_stocks(parameters):
 ################################
 # Please leave all routes here #
 ################################
-@SCREENER_ROUTES.route('\screener', methods=['GET'])
+@SCREENER_ROUTES.route('/screener', methods=['GET'])
 def screen_stocks_wrapper():
     data = request.get_json()
     parameters = data['parameters']
