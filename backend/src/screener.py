@@ -135,7 +135,7 @@ def screener_save_wrapper():
     return dumps(result)
 
 
-@SCREENER_ROUTES.route('/screener', methods=['GET'])
+@SCREENER_ROUTES.route('/screener/load', methods=['GET'])
 def screener_load_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
