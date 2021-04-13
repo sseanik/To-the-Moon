@@ -6,7 +6,6 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { Alert, Col, Container, Row } from "react-bootstrap";
 import WatchlistStockInfo from "../components/WatchlistStockInfo";
 import FollowWatchlistButton from "../components/FollowWatchlistButton";
-import DeleteWatchlistButton from "../components/DeleteWatchlistButton";
 
 interface RouteMatchParams {
   watchlistID: string;
@@ -43,7 +42,7 @@ interface DispatchProps {
 
 const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
   const { watchlistID } = useParams<RouteMatchParams>();
-  const { loading, error, watchlist, username, getWatchlist } = props;
+  const { loading, error, watchlist, getWatchlist } = props;
 
   useEffect(() => {
     getWatchlist(watchlistID);
@@ -67,11 +66,6 @@ const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
         <Col>
           <FollowWatchlistButton watchlistID={watchlistID} />
         </Col>
-        {watchlist.author_username === username ? (
-          <Col>
-            <DeleteWatchlistButton />
-          </Col>
-        ) : null}
       </Row>
       <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold">
         <Col>Stock Name</Col>

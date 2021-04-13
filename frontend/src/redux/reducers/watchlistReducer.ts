@@ -6,14 +6,37 @@ interface Action {
   payload?: Object;
 }
 
+interface StockParams {
+  stock_ticker: string;
+  proportion: number;
+  price: number;
+  price_change_percentage: number;
+  volume: number;
+  market_capitalization: number;
+  PE_ratio: number;
+}
+
+interface WatchlistParams {
+  watchlist_id: string;
+  watchlist_name: string;
+  author_username: string;
+  description: string;
+  stocks: StockParams[];
+}
+
 // same as above
 interface SimpleReduxState {
   loading: boolean;
   error: string;
 }
 
+interface MultipleDeleteReduxState {
+  deleting: string[];
+  error: string;
+}
+
 interface WatchlistsState extends SimpleReduxState {
-  watchlists: string[];
+  watchlists: WatchlistParams[];
 }
 
 interface FollowingState extends SimpleReduxState {
@@ -27,7 +50,7 @@ interface WatchlistState extends SimpleReduxState {
 interface InitialState {
   getWatchlists: WatchlistsState;
   addWatchlist: SimpleReduxState;
-  deleteWatchlist: SimpleReduxState;
+  deleteWatchlist: MultipleDeleteReduxState;
   getFollowing: FollowingState;
   addFollowing: SimpleReduxState;
   deleteFollowing: SimpleReduxState;
@@ -45,7 +68,7 @@ const initialState: InitialState = {
     error: "",
   },
   deleteWatchlist: {
-    loading: false,
+    deleting: [],
     error: "",
   },
   getFollowing: {
@@ -130,7 +153,7 @@ const watchlistReducer = (state = initialState, action: Action) => {
       return {
         ...state,
         deleteWatchlist: {
-          loading: true,
+          deleting: [...state.deleteWatchlist.deleting, action.payload],
           error: "",
         },
       };
@@ -138,15 +161,24 @@ const watchlistReducer = (state = initialState, action: Action) => {
       return {
         ...state,
         deleteWatchlist: {
+          deleting: state.deleteWatchlist.deleting.filter(
+            (id) => id !== action.payload
+          ),
+          error: "",
+        },
+        getWatchlists: {
           loading: false,
           error: "",
+          watchlists: state.getWatchlists.watchlists.filter(
+            (watchlistInfo) => watchlistInfo.watchlist_id !== action.payload
+          ),
         },
       };
     case watchlistConstants.DELETE_WATCHLIST_FAILURE:
       return {
         ...state,
         deleteWatchlist: {
-          loading: false,
+          deleting: [],
           error: action.payload,
         },
       };

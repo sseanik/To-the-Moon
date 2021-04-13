@@ -1,14 +1,21 @@
 import { faSignInAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Col, Container, Row } from "react-bootstrap";
+import { connect } from "react-redux";
+import DeleteWatchlistButton from "./DeleteWatchlistButton";
+
+interface StateProps {
+  username: string;
+}
 
 interface Props {
   watchlist_name: string;
   watchlist_id: string;
+  author_username: string;
 }
 
-const WatchlistInfo: React.FC<Props> = (props) => {
-  const { watchlist_name, watchlist_id } = props;
+const WatchlistInfo: React.FC<StateProps & Props> = (props) => {
+  const { username, watchlist_name, watchlist_id, author_username } = props;
   return (
     <Col
       className="border rounded mx-1 my-2 p-4 portfolio-info bg-light"
@@ -23,10 +30,19 @@ const WatchlistInfo: React.FC<Props> = (props) => {
               <FontAwesomeIcon icon={faSignInAlt} size="2x" />
             </a>
           </Col>
+          {username === author_username ? (
+            <Col>
+              <DeleteWatchlistButton watchlistID={watchlist_id} />
+            </Col>
+          ) : null}
         </Row>
       </Container>
     </Col>
   );
 };
 
-export default WatchlistInfo;
+const mapStateToProps = (state: any) => ({
+  username: state.userReducer.username,
+});
+
+export default connect(mapStateToProps)(WatchlistInfo);

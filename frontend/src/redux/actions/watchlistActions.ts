@@ -55,8 +55,9 @@ const watchlistActions = {
       dispatch(watchlistActions.addWatchlistFailure(error));
     }
   },
-  deleteWatchlistPending: () => ({
+  deleteWatchlistPending: (payload: any) => ({
     type: watchlistConstants.DELETE_WATCHLIST_PENDING,
+    payload,
   }),
   deleteWatchlistSuccess: (payload: any) => ({
     type: watchlistConstants.DELETE_WATCHLIST_SUCCESS,
@@ -67,13 +68,12 @@ const watchlistActions = {
     payload,
   }),
   deleteWatchlist: (payload: any) => async (dispatch: Dispatch) => {
-    dispatch(watchlistActions.deleteWatchlistPending());
+    const { watchlistID } = payload;
+    dispatch(watchlistActions.deleteWatchlistPending(watchlistID));
     try {
-      const { status, watchlists, error } = await watchlistAPI.deleteWatchlist(
-        payload
-      );
+      const { status, error } = await watchlistAPI.deleteWatchlist(watchlistID);
       if (status === 200) {
-        dispatch(watchlistActions.deleteWatchlistSuccess(watchlists));
+        dispatch(watchlistActions.deleteWatchlistSuccess(watchlistID));
       } else {
         dispatch(watchlistActions.deleteWatchlistFailure(error));
       }
