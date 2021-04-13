@@ -61,6 +61,8 @@ def publish_watchlist(user_id, portfolio_name, description):
             'status' : 400,
             'error' : 'Something went wrong while inserting.'
         }
+
+    conn.commit()
     conn.close()
     return rtrn
 
@@ -72,7 +74,7 @@ def subcribe(user_id, watchlist_id):
         INSERT INTO subscriptions (watchlist_id, user_id) VALUES (%s, %s)
     """
     try:
-        cur.execute(sql_query, (user_id, watchlist_id))
+        cur.execute(sql_query, (watchlist_id, user_id))
         rtrn = {
             'status' : 200,
             'message' : 'User has been successfully subscribed.'
@@ -87,6 +89,8 @@ def subcribe(user_id, watchlist_id):
             'status' : 400,
             'error' : 'Something went wrong while subscribing.'
         }
+
+    conn.commit()
     conn.close()
     return rtrn
 
@@ -110,6 +114,7 @@ def unsubscribe(user_id, watchlist_id):
             'error' : 'Something went wrong while unsubscribing.'
         }
 
+    conn.commit()
     conn.close()
     return rtrn
 
@@ -126,7 +131,7 @@ def get_user_subscriptions(user_id):
         rtrn = {
             'status' : 200,
             'message' : 'Subscription fetching successful.',
-            'data' : response
+            'data' : list(map(lambda x: x[0], response))
         }
     except:
         rtrn = {
@@ -135,6 +140,7 @@ def get_user_subscriptions(user_id):
         }
 
     conn.close()
+    return rtrn
 
 
 def delete_watchlist(user_id, watchlist_id):
@@ -201,6 +207,7 @@ def get_all_watchlists():
             'message' : 'Successfully fetched all watchlists.',
             'data' : data
         }
+
     conn.close()
     return rtrn
 
@@ -254,6 +261,7 @@ def get_watchlist(watchlist_id):
             'message' : 'Successfully fetched the watchlists.',
             'data' : watchlist
         }
+
     conn.close()
     return rtrn
 
@@ -271,7 +279,7 @@ def publish_watchlist_wrapper():
 
 
 # subscribe
-@WATCHLIST_ROUTES.route('/watchlist/subscribe', methods=['PUT'])
+@WATCHLIST_ROUTES.route('/watchlist/subscribe', methods=['POST'])
 def subcribe_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
