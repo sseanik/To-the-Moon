@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Container, Col, Row, Alert, Button } from "react-bootstrap";
+import { Container, Col, Row, Alert, Button, Tabs, Tab } from "react-bootstrap";
 import { useParams } from "react-router";
+import { NoteRelevant } from "../components";
 import AddInvestmentForm from "../components/AddInvestmentForm";
 import EditPortfolioForm from "../components/EditPortfolioForm";
 import StockInfo from "../components/StockInfo";
@@ -88,6 +89,17 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
       <Row className="justify-content-center mt-4">
         <Col>{adding ? <AddInvestmentForm /> : null}</Col>
         <Col>{editing ? <EditPortfolioForm /> : null}</Col>
+      </Row>
+      <Row>
+        <Container>
+          <Tabs className="justify-content-center mt-2" defaultActiveKey="notes">
+            <Tab eventKey="notes" title="Relevant Notes">
+              <Row>
+                <NoteRelevant portfolio={[name]} />
+              </Row>
+            </Tab>
+          </Tabs>
+        </Container>
       </Row>
     </Container>
   );
