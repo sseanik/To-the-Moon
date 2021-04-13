@@ -157,6 +157,33 @@ const watchlistActions = {
       dispatch(watchlistActions.deleteFollowingFailure(error));
     }
   },
+  getWatchlistPending: () => ({
+    type: watchlistConstants.GET_WATCHLIST_PENDING,
+  }),
+  getWatchlistSuccess: (payload: any) => ({
+    type: watchlistConstants.GET_WATCHLIST_SUCCESS,
+    payload,
+  }),
+  getWatchlistFailure: (payload: any) => ({
+    type: watchlistConstants.GET_WATCHLIST_FAILURE,
+    payload,
+  }),
+  getWatchlist: (payload: any) => async (dispatch: Dispatch) => {
+    dispatch(watchlistActions.getWatchlistPending());
+    try {
+      const { watchlistID } = payload;
+      const { status, message, data } = await watchlistAPI.getWatchlist(
+        watchlistID
+      );
+      if (status === 200) {
+        dispatch(watchlistActions.getWatchlistSuccess(data));
+      } else {
+        dispatch(watchlistActions.getWatchlistFailure(message));
+      }
+    } catch (error) {
+      dispatch(watchlistActions.getWatchlistFailure(error));
+    }
+  },
 };
 
 export default watchlistActions;

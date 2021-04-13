@@ -12,7 +12,7 @@ interface SimpleReduxState {
   error: string;
 }
 
-interface WatchlistState extends SimpleReduxState {
+interface WatchlistsState extends SimpleReduxState {
   watchlists: string[];
 }
 
@@ -24,13 +24,18 @@ interface DeletingState extends SimpleReduxState {
   deleting: string[];
 }
 
+interface WatchlistState extends SimpleReduxState {
+  watchlist?: Object;
+}
+
 interface InitialState {
-  getWatchlists: WatchlistState;
+  getWatchlists: WatchlistsState;
   addWatchlist: SimpleReduxState;
   deleteWatchlist: DeletingState;
   getFollowing: FollowingState;
   addFollowing: SimpleReduxState;
   deleteFollowing: DeletingState;
+  getWatchlist: WatchlistState;
 }
 
 const initialState: InitialState = {
@@ -61,6 +66,17 @@ const initialState: InitialState = {
     loading: false,
     error: "",
     deleting: [],
+  },
+  getWatchlist: {
+    loading: false,
+    error: "",
+    watchlist: {
+      watchlist_id: "",
+      watchlist_name: "",
+      author_username: "",
+      description: "",
+      stocks: [],
+    },
   },
 };
 
@@ -222,6 +238,33 @@ const watchlistReducer = (state = initialState, action: Action) => {
           loading: false,
           error: action.payload,
           deleting: [],
+        },
+      };
+    case watchlistConstants.GET_WATCHLIST_PENDING:
+      return {
+        ...state,
+        getWatchlist: {
+          loading: true,
+          error: "",
+          watchlist: undefined,
+        },
+      };
+    case watchlistConstants.GET_WATCHLIST_SUCCESS:
+      return {
+        ...state,
+        getWatchlist: {
+          loading: false,
+          error: "",
+          watchlist: action.payload,
+        },
+      };
+    case watchlistConstants.GET_WATCHLIST_FAILURE:
+      return {
+        ...state,
+        getWatchlist: {
+          loading: false,
+          error: action.payload,
+          watchlist: undefined,
         },
       };
     default:
