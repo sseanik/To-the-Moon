@@ -300,8 +300,8 @@ def get_all_watchlists_wrapper():
 # get a single watchlist
 @WATCHLIST_ROUTES.route('/watchlist/get_watchlist', methods=['GET'])
 def get_watchlist_wrapper():
-    data = request.get_json()
-    result = get_watchlist(data['watchlist_id'])
+    watchlist_id = request.args.get('watchlist_id')
+    result = get_watchlist(watchlist_id)
     return simplejson.dumps(result)
 
 
