@@ -146,12 +146,12 @@ def get_user_subscriptions(user_id):
 def delete_watchlist(user_id, watchlist_id):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "DELETE FROM subscriptions s, watchlists w WHERE user_id=%s AND watchlist_id=%s"
-    cur.execute(sql_query, (user_id, watchlist_id))
+    sql_query = """DELETE FROM subscriptions WHERE user_id=%s AND watchlist_id=%s;
+    DELETE FROM watchlists WHERE user_id=%s AND watchlist_id=%s"""
+    cur.execute(sql_query, (user_id, watchlist_id, user_id, watchlist_id))
     conn.commit()
     conn.close()
     return {'status' : 200, 'message' : "Watchlist removed"}
-
 
 
 # TEST this
