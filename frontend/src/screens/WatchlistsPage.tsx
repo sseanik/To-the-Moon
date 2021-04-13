@@ -8,7 +8,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 interface WatchlistParams {
   watchlist_name: string;
   watchlist_id: string;
-  author: string;
+  author_username: string;
 }
 
 interface StateProps {
@@ -55,9 +55,13 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
               loading={watchlistLoading || followingLoading}
             />
           ) : (
-            watchlists.filter((watchlistInfo: WatchlistParams) =>
-              following.includes(watchlistInfo.watchlist_id)
-            )
+            watchlists
+              .filter((watchlistInfo: WatchlistParams) =>
+                following.includes(watchlistInfo.watchlist_id)
+              )
+              .map((watchlistInfo: WatchlistParams, idx: number) => (
+                <WatchlistInfo key={idx} {...watchlistInfo} />
+              ))
           )}
         </Row>
       </Tab>
@@ -69,7 +73,7 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
             watchlists
               .filter(
                 (watchListInfo: WatchlistParams) =>
-                  watchListInfo.author === username
+                  watchListInfo.author_username === username
               )
               .map((watchlistInfo: WatchlistParams, idx: number) => (
                 <WatchlistInfo key={idx} {...watchlistInfo} />

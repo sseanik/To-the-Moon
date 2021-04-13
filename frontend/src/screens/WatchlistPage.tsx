@@ -5,6 +5,8 @@ import watchlistActions from "../redux/actions/watchlistActions";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Alert, Col, Container, Row } from "react-bootstrap";
 import WatchlistStockInfo from "../components/WatchlistStockInfo";
+import FollowWatchlistButton from "../components/FollowWatchlistButton";
+import DeleteWatchlistButton from "../components/DeleteWatchlistButton";
 
 interface RouteMatchParams {
   watchlistID: string;
@@ -32,6 +34,7 @@ interface StateProps {
   loading: boolean;
   error: string;
   watchlist: WatchlistParams;
+  username: string;
 }
 
 interface DispatchProps {
@@ -40,7 +43,7 @@ interface DispatchProps {
 
 const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
   const { watchlistID } = useParams<RouteMatchParams>();
-  const { loading, error, watchlist, getWatchlist } = props;
+  const { loading, error, watchlist, username, getWatchlist } = props;
 
   useEffect(() => {
     getWatchlist(watchlistID);
@@ -59,7 +62,17 @@ const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
           Published by <b>{watchlist.author_username}</b>
         </p>
       </Row>
-      <Row className="justify-content-center mb-3">{watchlist.description}</Row>
+      <Row className="justify-content-center">{watchlist.description}</Row>
+      <Row className="my-3">
+        <Col>
+          <FollowWatchlistButton watchlistID={watchlistID} />
+        </Col>
+        {watchlist.author_username === username ? (
+          <Col>
+            <DeleteWatchlistButton />
+          </Col>
+        ) : null}
+      </Row>
       <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold">
         <Col>Stock Name</Col>
         <Col>Proportion</Col>
@@ -69,7 +82,7 @@ const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
         <Col>PE Ratio</Col>
       </Row>
       {watchlist.stocks.map((stockProps: StockParams, idx: number) => (
-        <WatchlistStockInfo {...stockProps} />
+        <WatchlistStockInfo key={idx} {...stockProps} />
       ))}
     </Container>
   );
@@ -79,6 +92,7 @@ const mapStateToProps = (state: any) => ({
   loading: state.watchlistReducer.getWatchlist.loading,
   error: state.watchlistReducer.getWatchlist.error,
   watchlist: state.watchlistReducer.getWatchlist.watchlist,
+  username: state.userReducer.username,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

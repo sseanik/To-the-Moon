@@ -1,6 +1,6 @@
-import { faSignInAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSignInAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 
 interface Props {
   watchlist_name: string;
@@ -22,11 +22,6 @@ const WatchlistInfo: React.FC<Props> = (props) => {
             <a href={`/watchlist/${watchlist_id}`}>
               <FontAwesomeIcon icon={faSignInAlt} size="2x" />
             </a>
-          </Col>
-          <Col>
-            <Button variant="danger">
-              <FontAwesomeIcon icon={faTrash} />
-            </Button>
           </Col>
         </Row>
       </Container>
