@@ -75,7 +75,7 @@ const watchlistAPI = {
   addFollowing: (watchlist_id: string) => {
     const endpoint = "/watchlist/subscribe";
     const options: Options = {
-      method: "PUT",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
