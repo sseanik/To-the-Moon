@@ -152,25 +152,6 @@ def delete_watchlist(user_id, watchlist_id):
 
 # TEST this
 def get_all_watchlists():
-    """
-    returns a list containing dictionaries of each watchlist
-    {
-        watchlist_id:
-        watchlist_name:
-        watchlist_description:
-        stocks: [{
-                stock_ticker: 
-                price:
-                price change percentage:
-                market_capitalisation:
-                PE ratio:
-                volume:
-                portfolio proportion:
-            }, ...]
-            
-
-    }
-    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query="""
@@ -197,7 +178,8 @@ def get_all_watchlists():
         for watchlist_id, username, watchlist_name, description, companies, proportions in response:
             new_watchlist = {
                 'watchlist id' : watchlist_id,
-                'watchlist name' : username,
+                'watchlist name' : watchlist_name,
+                'author username' : username,
                 'description' : description,
                 'stocks' : []
             }
@@ -219,6 +201,59 @@ def get_all_watchlists():
             'status' : 200,
             'message' : 'Successfully fetched all watchlists.',
             'data' : data
+        }
+    conn.close()
+    return rtrn
+
+
+def get_watchlist(watchlist_id):
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    sql_query="""
+        SELECT w.watchlist_id, u.username, w.watchlist_name, w.watchlist_description, w.stock_tickers, w.proportions
+        FROM watchlists w, users u
+        WHERE u.id = w.user_id AND w.watchlist_id = %s
+    """
+    cur.execute(sql_query, (watchlist_id, ))
+    response = cur.fetchall()[0]
+    if not response:
+        rtrn = {
+            'status' : 200,
+            'message' : 'There are no watchlists with ID \'' + str(watchlist_id) + '\'.'
+        }
+    else:
+        stocks = []
+        companies = response[4]
+        proportions = response[5]
+        for s in companies:
+            if s not in stocks:
+                stocks.append(s)
+        batch = Stock(stocks)
+        batch = batch.get_quote()
+        watchlist = {
+                'watchlist id' : response[0],
+                'author username' : response[1],
+                'watchlist name' : response[2],
+                'description' : response[3],
+                'stocks' : []
+            }
+        for i in range(len(companies)):
+            company = companies[i]
+            proportion = proportions[i]
+            new_stock = {
+                'stock ticker' : company,
+                'proportion' : proportion,
+                'price' : batch.latestPrice[company],
+                'price change percentage' : batch.changePercent[company],
+                'volume' : batch.volume[company],
+                'market capitalization' : batch.marketCap[company],
+                'PE ratio' : batch.peRatio[company]
+            }
+            watchlist['stocks'].append(new_stock)
+        rtrn = {
+            'status' : 200,
+            'message' : 'Successfully fetched the watchlists.',
+            'data' : watchlist
         }
     conn.close()
     return rtrn
@@ -258,11 +293,19 @@ def unsubscribe_wrapper():
 
 
 # get all watchlists
-@WATCHLIST_ROUTES.route('/watchlist', methods=['GET'])
+@WATCHLIST_ROUTES.route('/watchlist/get_all', methods=['GET'])
 def get_all_notes_wrapper():
     result = get_all_notes()
     return dumps(result)
-    
+
+
+# get a single watchlist
+@WATCHLIST_ROUTES.route('/watchlist/get_watchlist', methods=['GET'])
+def get_all_notes_wrapper():
+    data = request.get_json()
+    result = get_watchlist(data['watchlist_id'])
+    return dumps(result)
+
 
 # get users watchlists
 @WATCHLIST_ROUTES.route('/watchlist/userslist', methods=['GET'])
@@ -286,8 +329,8 @@ def delete_watchlist_wrapper():
 
 #print(publish_watchlist("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", "random description"))
 #print(publish_watchlist("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test1", "random description"))
-res = get_all_watchlists()
-for line in res['data']:
-    print(line)
+# res = get_all_watchlists()
+# for line in res['data']:
+#     print(line)
 
-
+print(get_watchlist("47c570c0-9b8e-11eb-94f6-0a4e2d6dea13"))
