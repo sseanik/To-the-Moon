@@ -72,6 +72,20 @@ def create_comment_tables():
     conn.close()
 
 
+def create_vote_plpgsql_functions():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/Functions/upvote_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/downvote_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/upvote_reply.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/downvote_reply.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+
 def fill_securities_overview_table(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -318,6 +332,23 @@ if __name__ == "__main__":
     fill_overview_and_financial_tables('NEE')
 
     # Energy sector
+    pass
+    # create_vote_plpgsql_functions()
+    # create_comment_tables()
+    # createDBConnection()
+    # createPortfolioTable()
+    # createHoldingsTable()
+    # createSecuritiesOverviewTable()
+    # fillSecuritiesOverviewTable('IBM')
+    # createIncomeStatementsTable()
+    # fillIncomeStatements('IBM')
+    # createBalanceSheetsTable()
+    # fillBalanceSheets('IBM')
+    # createCashflowStatementsTable()
+    # fillCashflowStatements('IBM')
+
+    # Basic materials
+    # fillOverviewAndFinancialTables('BHP')
 
     # Technology sector
 
