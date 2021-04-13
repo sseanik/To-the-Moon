@@ -95,7 +95,7 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
           <Tabs className="justify-content-center mt-2" defaultActiveKey="notes">
             <Tab eventKey="notes" title="Relevant Notes">
               <Row>
-                <NoteRelevant portfolio={name} />
+                <NoteRelevant portfolio={[name]} />
               </Row>
             </Tab>
           </Tabs>

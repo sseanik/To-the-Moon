@@ -415,7 +415,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
             </Tab>
             <Tab eventKey="notes" title="Relevant Notes">
               <Row>
-                <NoteRelevant stock={symbol} />
+                <NoteRelevant stock={[symbol]} />
               </Row>
             </Tab>
           </Tabs>

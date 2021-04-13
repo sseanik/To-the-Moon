@@ -20,8 +20,8 @@ interface RelevantNotesParams {
 }
 
 interface Props {
-  stock?: string;
-  portfolio?: string;
+  stock?: Array<string>;
+  portfolio?: Array<string>;
 }
 
 interface StateProps {
@@ -39,8 +39,8 @@ interface DispatchProps {
 
 const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
   const {
-    stock,
-    portfolio,
+    stock = [],
+    portfolio = [],
     loading,
     notes,
     touched,
@@ -51,10 +51,8 @@ const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
   } = props;
 
   useEffect(() => {
-    let stock_symbols = stock ? [stock] : [];
-    let portfolio_names = portfolio ? [portfolio] : [];
     if (touched) {
-      getRelevantNotes({ stock_symbols, portfolio_names });
+      getRelevantNotes({ stock_symbols: stock, portfolio_names: portfolio });
     }
   }, [getRelevantNotes, stock, portfolio, touched]);
 
