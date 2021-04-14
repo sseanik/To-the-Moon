@@ -262,9 +262,10 @@ def delete_comment(user_id, comment_id, parent_id=None):
         else:
             insert_query = """
                 DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
+                RETURNING TRUE
             """.replace("\n", "")
             values = (comment_id, user_id)
-            cur.execute(insert_query, values) 
+            cur.execute(insert_query, values)
             db_reply = cur.fetchall()
             # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
             if not db_reply:
@@ -569,49 +570,4 @@ def edit_users_comment():
     user_id = get_id_from_token(token)
     data = request.get_json()
     result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'])
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum', methods=['GET'])
-def get_comments():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    stock_ticker = request.args.get('stockTicker')
-    result = get_stock_comments(user_id, stock_ticker)
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum/comment/upvote', methods=['PUT'])
-def comment_upvote():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = vote_on_comment(user_id, data['comment_id'])
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum/comment/downvote', methods=['PUT'])
-def comment_downvote():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = vote_on_comment(user_id, data['comment_id'], upvote=False)
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum/reply/upvote', methods=['PUT'])
-def reply_upvote():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = vote_on_reply(user_id, data['reply_id'])
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum/reply/downvote', methods=['PUT'])
-def reply_downvote():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = vote_on_reply(user_id, data['reply_id'], upvote=False)
     return dumps(result)
