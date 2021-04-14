@@ -263,10 +263,9 @@ def delete_comment(user_id, comment_id, parent_id=None):
         # Otherwise, using the provided parent id, it is a child comment (reply)
         else:
             insert_query = """
-                DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s RETURNING TRUE
-            """.replace(
-                "\n", ""
-            )
+                DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
+                RETURNING TRUE
+            """.replace("\n", "")
             values = (comment_id, user_id)
             cur.execute(insert_query, values)
             db_reply = cur.fetchall()
@@ -477,6 +476,7 @@ def vote_on_reply(user_id, reply_id, upvote=True):
     cur.close()
     conn.close()
 
+<<<<<<< HEAD
     return {"message": "Submitted successfully", "comment": voted_comment}
 
 
@@ -657,3 +657,80 @@ class DownvoteReply(Resource):
         data = request.get_json()
         result = vote_on_reply(user_id, data["reply_id"], upvote=False)
         return Response(dumps(result), status=200)
+=======
+    return {
+        'status': status,
+        'message': message,
+        'comment': comment
+    }
+
+
+################################
+# Please leave all routes here #
+################################
+
+
+@FORUM_ROUTES.route('/forum', methods=['GET'])
+def get_comments():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = get_stock_comments(user_id, data['stockTicker'])
+    return dumps(result)
+
+
+@FORUM_ROUTES.route('/forum/comment', methods=['POST'])
+def submit_comment():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = post_comment(
+        user_id, data['stockTicker'], data['timestamp'], data['content'])
+    return dumps(result)
+
+
+@FORUM_ROUTES.route('/forum/reply', methods=['POST'])
+def submit_reply():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = post_comment(
+        user_id, data['stockTicker'], int(data['timestamp']), data['content'], data['parentID'])
+    return dumps(result)
+
+
+@FORUM_ROUTES.route('/forum/deleteComment', methods=['DELETE'])
+def delete_user_comment():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = delete_comment(user_id, data['comment_id'])
+    return dumps(result)
+
+
+@FORUM_ROUTES.route('/forum/deleteReply', methods=['DELETE'])
+def delete_user_reply():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = delete_comment(user_id, data['comment_id'], data['parent_id'])
+    return dumps(result)
+
+
+@FORUM_ROUTES.route('/forum/editReply', methods=['PUT'])
+def edit_users_reply():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'], data['parent_id'])
+    return dumps(result)
+
+
+@FORUM_ROUTES.route('/forum/editComment', methods=['PUT'])
+def edit_users_comment():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'])
+    return dumps(result)
+>>>>>>> a095f4be4420e565fcabf01eb4730c49a8d03471
