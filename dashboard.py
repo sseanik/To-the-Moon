@@ -78,7 +78,7 @@ def create_user_dashboard(user_id):
     res = {
         'message' : 'Dashboard created'
     }
-    return res, 200
+    return res, 201
 
 
 def edit_user_dashboard(dashboard_id, content):
@@ -106,7 +106,11 @@ def edit_user_dashboard(dashboard_id, content):
     finally:
         conn.close()
     res = {
-        'message' : 'Dashboard edited'
+        'message' : 'Dashboard edited',
+        'data': {
+            'id': query_result[0][0],
+            'content': query_result[0][1]
+        }
     }
     return res, 200
 
