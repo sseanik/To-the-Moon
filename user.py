@@ -173,7 +173,7 @@ class Register(Resource):
         return dumps(result)
 
 
-@USER_NS.route("/login", methods=["POST"])
+@USER_NS.route("/login")
 class Login(Resource):
     # def login_user_wrapper():
     def post(self):
@@ -184,7 +184,7 @@ class Login(Resource):
         return dumps(result)
 
 
-@USER_NS.route("/", methods=["GET"])
+@USER_NS.route("")
 class User(Resource):
     # Given a user token, return a user's username
     # def get_user_wrapper():

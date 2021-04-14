@@ -84,7 +84,7 @@ def get_general_news(num_articles):
 ################################
 
 
-@NEWS_NS.route("/")
+@NEWS_NS.route("")
 class News(Resource):
     # def getSingularStockNews():
     def get(self):
@@ -106,7 +106,7 @@ class Portfolio(Resource):
         return dumps(result)
 
 
-@NEWS_NS.route("/general", methods=["GET"])
+@NEWS_NS.route("/general")
 class General(Resource):
     # def getGeneralStockNews():
     def get(self):

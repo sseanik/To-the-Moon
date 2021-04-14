@@ -329,7 +329,7 @@ def get_portfolio_performance(user_id, portfolio_name):
 ################################
 
 
-@PORTFOLIO_NS.route("/")
+@PORTFOLIO_NS.route("")
 class Portfolio(Resource):
     # Get the list of portfolios owned by a user
     # def get_user_portfolios_wrapper():

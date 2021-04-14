@@ -8,7 +8,7 @@ from json import dumps
 from definitions import local_storage_dir
 from flask import Flask, request
 from flask_cors import CORS
-from flask_restx import Api
+from flask_restx import Api, Namespace, Resource
 from forum import FORUM_NS
 from news import NEWS_NS
 from notes import NOTES_NS
@@ -80,16 +80,18 @@ APP.config["TRAP_HTTP_EXCEPTIONS"] = True
 APP.config["TEMPLATES_AUTO_RELOAD"] = True
 APP.register_error_handler(Exception, default_handler)
 
+DUMMY = Namespace("echo", "Testing Endpoint")
+API.add_namespace(DUMMY)
 
-@APP.route("/echo", methods=["GET"])
-def echo():
-    # an echo route just for testing
-    data = request.args.get("data")
-    if data:
-        print("Param supplied: {}".format(data))
-    else:
-        print("Param undefined")
-    return dumps({"data": data, "storage": local_storage_dir})
+
+@DUMMY.route("/<string:data>")
+class Echo(Resource):
+    def get(self, data):
+        if data:
+            print("Param supplied: {}".format(data))
+        else:
+            print("Param undefined")
+        return dumps({"data": data, "storage": local_storage_dir})
 
 
 if __name__ == "__main__":
