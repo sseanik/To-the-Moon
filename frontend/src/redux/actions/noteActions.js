@@ -111,7 +111,6 @@ const noteActions = {
       );
       if (res.status === 200) {
         dispatch(noteActions.createNoteSuccess(res));
-        dispatch(noteActions.getUserNotes());
       } else {
         dispatch(noteActions.createNoteFailure(res.error));
       }
@@ -142,7 +141,6 @@ const noteActions = {
       );
       if (res.status === 200) {
         dispatch(noteActions.editNoteSuccess(res));
-        dispatch(noteActions.getUserNotes());
       } else {
         dispatch(noteActions.editNoteFailure(res.error));
       }
@@ -157,7 +155,6 @@ const noteActions = {
       const res = await NoteAPI.deleteNote(title);
       if (res.status === 200) {
         dispatch(noteActions.deleteNoteSuccess(res));
-        dispatch(noteActions.getUserNotes());
       } else {
         dispatch(noteActions.deleteNoteFailure(res.error));
       }

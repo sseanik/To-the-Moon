@@ -33,7 +33,7 @@ const publicNavBarLinks: Array<LinkItem> = [
 
 const dropdownNavLinks: Array<LinkItem> = [
   { href: "/stock", name: "Stocks" },
-  { href: "/watchlist", name: "Watchlists" },
+  { href: "/watchlists", name: "Watchlists" },
   { href: "/screeners", name: "Screeners" },
 ];
 
@@ -116,7 +116,7 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
   );
 
   return (
-    <Navbar bg="dark" expand="lg" variant="dark">
+    <Navbar bg="dark" expand="lg" variant="dark" fixed="top">
       <Nav.Link
         onClick={() => handleRedirect("/")}
         className="justify-content"

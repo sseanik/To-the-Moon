@@ -9,10 +9,13 @@ from token_util import get_id_from_token
 from better_profanity import profanity
 from json import dumps
 from flask import Blueprint, request
-import psycopg2.extras
-
 
 FORUM_ROUTES = Blueprint('forum', __name__)
+
+
+###################################
+# Please leave all functions here #
+###################################
 
 
 def validate_timestamp(timestamp):
@@ -24,21 +27,14 @@ def validate_timestamp(timestamp):
     return False if (timestamp < yesterday or timestamp > tomorrow) else True
 
 
-###################################
-# Please leave all functions here #
-###################################
-
-
 def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     """Posting either a parent or child comment in the provided stock's forum
-
     Args:
         user_id (uuid): The UUID of the User posting the comment
         stock_ticker (string): The Stock symbol
         timestamp (big int): Timestamp in Milliseconds since epoch UTC
         content (string): The Comment's text content
         parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
-
     Returns:
         dict: Status Code, accompanying message, comment object
     """
@@ -69,8 +65,8 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     if not parent_id:
         insert_query = """
             WITH inserted_comment as (
-            INSERT INTO forum_comment (stock_ticker, author_id, time_stamp, content) 
-            VALUES (%s, %s, %s, %s) 
+            INSERT INTO forum_comment (stock_ticker, author_id, time_stamp, content)
+            VALUES (%s, %s, %s, %s)
             RETURNING *
             ) SELECT i.comment_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.is_deleted
             FROM inserted_comment i
@@ -81,8 +77,8 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     else:
         insert_query = """
             WITH inserted_reply as (
-            INSERT INTO forum_reply (comment_id, stock_ticker, author_id, time_stamp, content) 
-            VALUES (%s, %s, %s, %s, %s) 
+            INSERT INTO forum_reply (comment_id, stock_ticker, author_id, time_stamp, content)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING *
             ) SELECT i.reply_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.comment_id
             FROM inserted_reply i
@@ -90,7 +86,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         """.replace("\n", "")
         values = (parent_id, stock_ticker, user_id, timestamp, content)
 
-    
+
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
     try:
         cur.execute(insert_query, values)
@@ -107,7 +103,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         message = "Invalid data was provided to the Database"
         inserted_comment = {}
 
-    
+
     conn.commit()
     cur.close()
     conn.close()
@@ -129,7 +125,7 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
         parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
 
     Returns:
-        dict: Status Code, accompanying message, comment object    
+        dict: Status Code, accompanying message, comment object
 
     """
     # Check that the content is not too large
@@ -155,7 +151,7 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
-    
+
     try:
         if not parent_id:
             sqlQuery = '''
@@ -204,13 +200,13 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
             'status' : 400,
             'message' : 'Something went wrong when editing.'
         }
-    
+
     conn.commit()
     cur.close()
     conn.close()
     return response
 
-    
+
 
 
 def delete_comment(user_id, comment_id, parent_id=None):
@@ -228,20 +224,29 @@ def delete_comment(user_id, comment_id, parent_id=None):
     """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-# try:
-    # If no parent_id is provided, comment is a parent comment (comment)
-    if not parent_id:
-        insert_query = """
-            WITH deleted_comment as (
-                UPDATE forum_comment SET content=%s, is_deleted=TRUE
-                WHERE comment_id=%s and author_id=%s
-                RETURNING * 
-            ) SELECT d.comment_id, d.stock_ticker, u.username, d.time_stamp, d.content, d.is_edited, d.is_deleted, array_to_json(d.upvote_user_ids) AS upvote_user_ids, array_to_json(d.downvote_user_ids) AS downvote_user_ids
-            FROM deleted_comment d
-            JOIN users u on d.author_id = u.id;
-        """.replace("\n", "")
-        values = ("", comment_id, user_id)
-        cur.execute(insert_query, values)   
+    try:
+        if not parent_id:
+            sqlQuery = '''
+                WITH edited_comment as (
+                    UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
+                    WHERE comment_id=%s AND author_id=%s
+                    RETURNING *
+                ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
+                FROM edited_comment e
+                JOIN users u on e.author_id = u.id;
+            '''
+        else:
+            sqlQuery = '''
+                WITH edited_comment as (
+                    UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
+                    WHERE reply_id=%s AND author_id=%s
+                    RETURNING *
+                ) SELECT e.reply_id, e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
+                FROM edited_comment e
+                JOIN users u on e.author_id = u.id;
+            '''
+        values = (timestamp, content, comment_id, user_id)
+        cur.execute(sqlQuery, values)
         db_reply = cur.fetchall()
         # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
         if not db_reply:
@@ -259,33 +264,14 @@ def delete_comment(user_id, comment_id, parent_id=None):
             updated_comment.pop("downvote_user_ids")
             response = {
                 'status' : 200,
-                'message' : "Comment deleted.",
+                'message' : "Comment updated",
                 'comment' : updated_comment
             }
-    # Otherwise, using the provided parent id, it is a child comment (reply)
-    else:
-        insert_query = """
-            DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
-        """.replace("\n", "")
-        values = (comment_id, user_id)
-        cur.execute(insert_query, values) 
-        db_reply = cur.fetchall()
-        # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
-        if not db_reply:
-            response = {
-                'status' : 400,
-                'message' : "User does not have permission to delete this comment."
-            }
-        else:
-            response = {
-            "status" : 200, 
-            "message" : "Child comment deleted."
-            }
-    # except:
-    #     response = {
-    #         "status" : 400, 
-    #         "message" : "Something when wrong when trying to delete."
-    #     }
+    except:
+        response = {
+            'status' : 400,
+            'message' : 'Something went wrong when editing.'
+        }
 
     conn.commit()
     cur.close()
@@ -300,42 +286,42 @@ def get_stock_comments(user_id, stock_ticker):
 
     # Select Query returning parent comments and their children
     select_query = """
-        SELECT 
-        c.comment_id, 
-        c.stock_ticker, 
-        u.username, 
-        c.time_stamp, 
-        c.content, 
-        array_to_json(c.upvote_user_ids) AS upvote_user_ids, 
+        SELECT
+        c.comment_id,
+        c.stock_ticker,
+        u.username,
+        c.time_stamp,
+        c.content,
+        array_to_json(c.upvote_user_ids) AS upvote_user_ids,
         array_to_json(c.downvote_user_ids) AS downvote_user_ids,
-        c.is_edited, 
-        c.is_deleted, 
-        COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies 
-        FROM 
-        forum_comment c 
-        JOIN users u ON (c.author_id = u.id) 
+        c.is_edited,
+        c.is_deleted,
+        COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies
+        FROM
+        forum_comment c
+        JOIN users u ON (c.author_id = u.id)
         LEFT JOIN(
-            SELECT 
-            f.reply_id, 
-            f.stock_ticker, 
-            u.username, 
-            f.time_stamp, 
-            f.content, 
-            f.upvote_user_ids, 
-            f.downvote_user_ids, 
-            f.is_edited, 
-            f.comment_id 
-            FROM 
-            forum_reply f 
-            LEFT JOIN users u ON (f.author_id = u.id) 
-            GROUP BY 
-            f.reply_id, 
+            SELECT
+            f.reply_id,
+            f.stock_ticker,
+            u.username,
+            f.time_stamp,
+            f.content,
+            f.upvote_user_ids,
+            f.downvote_user_ids,
+            f.is_edited,
+            f.comment_id
+            FROM
+            forum_reply f
+            LEFT JOIN users u ON (f.author_id = u.id)
+            GROUP BY
+            f.reply_id,
             u.username
-        ) AS r ON (c.comment_id = r.comment_id) 
-        WHERE 
+        ) AS r ON (c.comment_id = r.comment_id)
+        WHERE
         c.stock_ticker = %s
-        GROUP BY 
-        c.comment_id, 
+        GROUP BY
+        c.comment_id,
         u.username
     """.replace("\n", "")
 
@@ -414,9 +400,110 @@ def get_stock_comments(user_id, stock_ticker):
     }
 
 
+
+def vote_on_comment(user_id, comment_id, upvote=True):
+    # Open database connection
+    conn = create_DB_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Pick the execution query based off upvote boolean
+    if upvote:
+        execute_query = "SELECT * FROM upvote_comment(%s, %s)"
+    else:
+        execute_query = "SELECT * FROM downvote_comment(%s, %s)"
+
+    try:
+        cur.execute(execute_query, (user_id, comment_id))
+        # Function returns the edited row
+        voted_comment = dict(cur.fetchall()[0])
+        # Calculate the new amount of upvotes and downvotes
+        voted_comment['upvotes'] = len(voted_comment['upvote_user_ids'])
+        voted_comment['downvotes'] = len(voted_comment['downvote_user_ids'])
+        voted_comment['vote_difference'] = voted_comment['upvotes'] - \
+            voted_comment['downvotes']
+        # Remove columns that contain exposed user ids
+        del voted_comment['upvote_user_ids']
+        del voted_comment['downvote_user_ids']
+        # Success strings
+        status = 200
+        message = "Submitted successfully"
+    # If the user attempts to vote on a deleted comment
+    except psycopg2.errors.InternalError:
+        status = 400
+        message = "Cannot vote on a deleted comment"
+        comment = {}
+    # If the data provided is invalid
+    except:
+        status = 400
+        message = "Invalid data provided to the database"
+        comment = {}
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status': status,
+        'message': message,
+        'comment': comment
+    }
+
+
+def vote_on_reply(user_id, reply_id, upvote=True):
+    # Open database connection
+    conn = create_DB_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Pick the execution query based off upvote boolean
+    if upvote:
+        execute_query = "SELECT * FROM upvote_reply(%s, %s)"
+    else:
+        execute_query = "SELECT * FROM downvote_reply(%s, %s)"
+
+    try:
+        cur.execute(execute_query, (user_id, reply_id))
+        # Function returns the edited row
+        voted_comment = dict(cur.fetchall()[0])
+        # Calculate the new amount of upvotes and downvotes
+        voted_comment['upvotes'] = len(voted_comment['upvote_user_ids'])
+        voted_comment['downvotes'] = len(voted_comment['downvote_user_ids'])
+        voted_comment['vote_difference'] = voted_comment['upvotes'] - \
+            voted_comment['downvotes']
+        # Remove columns that contain exposed user ids
+        del voted_comment['upvote_user_ids']
+        del voted_comment['downvote_user_ids']
+        # Success strings
+        status = 200
+        message = "Submitted successfully"
+    # If the data provided is invalid
+    except:
+        status = 400
+        message = "Invalid data provided to the database"
+        comment = {}
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status': status,
+        'message': message,
+        'comment': comment
+    }
+
+
 ################################
 # Please leave all routes here #
 ################################
+
+
+@FORUM_ROUTES.route('/forum', methods=['GET'])
+def get_comments():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = get_stock_comments(user_id, data['stockTicker'])
+    return dumps(result)
 
 
 @FORUM_ROUTES.route('/forum/comment', methods=['POST'])
@@ -473,15 +560,3 @@ def edit_users_comment():
     data = request.get_json()
     result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'])
     return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum', methods=['GET'])
-def get_comments():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    stock_ticker = request.args.get('stockTicker')
-    result = get_stock_comments(user_id, stock_ticker)
-    return dumps(result)
-
-
-print(delete_comment("67d51442-8ab8-11eb-aee7-0a4e2d6dea13", "ae445f20-9501-11eb-98e4-0a4e2d6dea13", "a3c9bba4-94fb-11eb-bb41-0a4e2d6dea13"))
