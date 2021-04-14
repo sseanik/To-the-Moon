@@ -308,7 +308,7 @@ if __name__ == "__main__":
     #create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
-    # create_dashboard_table()
+    create_dashboard_table()
 
     # Basic materials sector
     #fill_overview_and_financial_tables('BHP')
