@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef, Ref } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
   Container,
@@ -23,6 +23,7 @@ import {
   DataBalanceSheet,
   DataCashFlow,
   StockNews,
+  NoteRelevant,
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
@@ -97,7 +98,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     predictionDailyError,
   } = props;
 
-  const chartComponent = useRef<any|null>(null);
+  const chartComponent = useRef<any | null>(null);
   const params = useParams<RouteParams>();
   const symbol = params.symbol;
 
@@ -120,15 +121,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     };
   }, []);
 
-  /* const durOpts: durChoiceParams = {
-    durDays3: { dur: 3, display: "3", units: "days" },
-    durWeeks1: { dur: 5, display: "5", units: "days" },
-    durWeeks2: { dur: 10, display: "10", units: "days" },
-    durMonths1: { dur: 20, display: "20", units: "days" },
-    durMonths2: { dur: 40, display: "40", units: "days" },
-    durMonths3: { dur: 60, display: "60", units: "days" },
-  }; */
-
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
   const [graphOptions, setGraphOptions] = useState<graphOptionsT | any>({
     title: {
@@ -136,7 +128,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     },
     rangeSelector: RangeSelectorOptions(setDisplayIntra),
     series: [{ data: [] }],
-    legend: { enabled: true, layout: "horizontal"},
+    legend: { enabled: true, layout: "horizontal" },
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
   const [preChoice, setPreChoice] = useState<string>("lstm_wlf");
@@ -152,10 +144,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   // TODO: predefined reset length
   const resetZoom = () => {
-    if (chartComponent && chartComponent.current && graphOptions.series[0].data) {
+    if (
+      chartComponent &&
+      chartComponent.current &&
+      graphOptions.series[0].data
+    ) {
       const seriesLimit = graphOptions.series[0].data.length;
-      const lower = graphOptions.series[0].data[seriesLimit-60-1][0];
-      const upper = graphOptions.series[0].data[seriesLimit-1][0];
+      const lower = graphOptions.series[0].data[seriesLimit - 60 - 1][0];
+      const upper = graphOptions.series[0].data[seriesLimit - 1][0];
       chartComponent.current.chart.xAxis[0].setExtremes(lower, upper);
     }
   };
@@ -403,9 +399,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         </Col>
         <Col>{loading ? loadingSpinnerComponent : graphComponent}</Col>
       </Row>
-      <Row className="justify-content-start my-2">
-        <Forum stockTicker={symbol} />
-      </Row>
       <Row>
         <Container>
           <Tabs className="justify-content-center mt-2" defaultActiveKey="news">
@@ -415,7 +408,16 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               </Row>
               <StockNews stock={symbol} />
             </Tab>
-            <Tab eventKey="other" title="Other"></Tab>
+            <Tab eventKey="forum" title="Forum">
+              <Row className="justify-content-start my-2">
+                <Forum stockTicker={symbol} />
+              </Row>
+            </Tab>
+            <Tab eventKey="notes" title="Relevant Notes">
+              <Row>
+                <NoteRelevant stock={[symbol]} />
+              </Row>
+            </Tab>
           </Tabs>
         </Container>
       </Row>

@@ -16,18 +16,21 @@ const NoteAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getRelevantNotes: (stock_symbols, portfolio_names) => {
-    const endpoint = "/notes/relevant";
+  getRelevantNotes: (stocks, portfolios) => {
+    let endpoint = `/notes/relevant?`;
+    for (const stock of stocks) {
+      endpoint += `stock=${stock}&`
+    }
+    for (const portfolio of portfolios) {
+      endpoint += `portfolio=${portfolio}&portfolio=lol&`
+    }
+    endpoint = endpoint.slice(0, -1)
     const options = {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
-      body: JSON.stringify({
-        stock_symbols,
-        portfolio_names,
-      }),
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
@@ -53,7 +56,7 @@ const NoteAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   editNote: (old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references) => {
-    const endpoint = "/notes";
+    const endpoint = `/notes?note=${old_title}`;
     const options = {
       method: "PUT",
       headers: {
@@ -61,7 +64,6 @@ const NoteAPI = {
         Authorization: Utils.getToken(),
       },
       body: JSON.stringify({
-        old_title,
         new_title,
         content,
         stock_symbols,

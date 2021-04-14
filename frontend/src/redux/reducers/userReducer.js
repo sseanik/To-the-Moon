@@ -106,7 +106,7 @@ const userReducer = (state = initialState, action) => {
           ...state.user,
           loading: false,
         },
-        username: action.payload
+        username: action.payload,
       };
     case userConstants.GET_USERNAME_FAILURE:
       return {
@@ -115,8 +115,8 @@ const userReducer = (state = initialState, action) => {
           ...state.user,
           loading: false,
         },
-        username: ""
-      }
+        username: "",
+      };
     default:
       return state;
   }

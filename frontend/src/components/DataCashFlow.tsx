@@ -3,9 +3,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import { Container, Row, Col, Alert } from "react-bootstrap";
 import stockActions from "../redux/actions/stockActions";
-import {
-  cashFlowStatementFormatter as formatMap
-} from "../helpers/ObjectFormatRules";
+import { cashFlowStatementFormatter as formatMap } from "../helpers/ObjectFormatRules";
 
 interface CashFlowEntry {
   stockticker: string;
@@ -47,7 +45,7 @@ const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     getStockCashFlow({ symbol });
-  }, []);
+  }, [getStockCashFlow, symbol]);
 
   const loadingSpinnerComponent = (
     <div>
@@ -56,11 +54,7 @@ const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
     </div>
   );
 
-  const alertComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
+  const alertComponent = <Alert variant="danger">{error}</Alert>;
 
   const tableComponent = (
     <Container className="financials-container-scrolling">
@@ -73,7 +67,12 @@ const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
                 <Row lg={6}>
                   <Col className="text-left" lg={6}>
                     <span>
-                      <b>{formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}</b>
+                      <b>
+                        {formatMap.hasOwnProperty(field) &&
+                        formatMap[field].hasOwnProperty("name")
+                          ? formatMap[field].name
+                          : field}
+                      </b>
                     </span>
                   </Col>
                   <Col className="text-right" lg={6}>
@@ -91,8 +90,12 @@ const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
     </Container>
   );
 
-  return loading ? loadingSpinnerComponent : (error ? alertComponent : tableComponent);
-}
+  return loading
+    ? loadingSpinnerComponent
+    : error
+    ? alertComponent
+    : tableComponent;
+};
 
 const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.cashFlow.loading,
@@ -101,7 +104,8 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getStockCashFlow: (payload: getStockCashFlowParams) => dispatch(stockActions.getStockCashFlow(payload))
-})
+  getStockCashFlow: (payload: getStockCashFlowParams) =>
+    dispatch(stockActions.getStockCashFlow(payload)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataCashFlow);

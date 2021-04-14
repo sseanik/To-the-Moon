@@ -37,7 +37,7 @@ const NewsCarousel: React.FC<StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     getGeneralNews();
-  }, []);
+  }, [getGeneralNews]);
 
   const newsItem = (props: NewsItem, idx: number) => (
     <Carousel.Item key={idx}>

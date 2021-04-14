@@ -1,34 +1,30 @@
 import { connect } from "react-redux";
 import forumActions from "../redux/actions/forumActions";
 import * as Yup from "yup";
+import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
 import { Alert, Button, Col, Form } from "react-bootstrap";
-import ClipLoader from "react-spinners/ClipLoader";
 
-interface AddParentFormParams {
-  stockTicker: string;
+interface EditChildFormParams {
+  commentID: string;
   timestamp: number;
   content: string;
+  parentID: string;
 }
 
 interface StateProps {
-  loading: boolean;
+  editing: Array<string>;
   error: string;
 }
 
 interface DispatchProps {
-  addParent: (payload: AddParentFormParams) => void;
+  editChild: (payload: EditChildFormParams) => void;
 }
 
 interface Props {
-  stockTicker: string;
+  commentID: string;
+  parentID: string;
 }
-
-const initialValues: AddParentFormParams = {
-  stockTicker: "",
-  timestamp: new Date().getTime(),
-  content: "",
-};
 
 const schema = Yup.object({
   content: Yup.string()
@@ -36,13 +32,18 @@ const schema = Yup.object({
     .max(3000, "Comment cannot exceed 3000 characters"),
 });
 
-const AddParentForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
-  const { loading, error, addParent, stockTicker } = props;
-  initialValues.stockTicker = stockTicker;
+const EditChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
+  const { editing, error, editChild, commentID, parentID } = props;
+  const initialValues: EditChildFormParams = {
+    commentID,
+    timestamp: new Date().getTime(),
+    content: "",
+    parentID,
+  };
 
   const formComponent = (
     <Formik
-      onSubmit={addParent}
+      onSubmit={editChild}
       initialValues={initialValues}
       validationSchema={schema}
     >
@@ -55,7 +56,7 @@ const AddParentForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
         touched,
       }) => {
         return (
-          <Form noValidate onSubmit={handleSubmit} className="w-100">
+          <Form noValidate onSubmit={handleSubmit} className="w-100 mt-2 ml-5">
             {error ? <Alert variant="danger">{error}</Alert> : null}
             <Form.Row className="justify-content-between align-content-center">
               <Col md={8}>
@@ -77,13 +78,13 @@ const AddParentForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
 
               <Col md={2}>
                 <Button
-                  variant="outline-primary"
+                  variant="outline-dark"
                   type="submit"
                   onClick={() => {
                     values.timestamp = new Date().getTime();
                   }}
                 >
-                  Add Comment
+                  Edit Comment
                 </Button>
               </Col>
             </Form.Row>
@@ -93,24 +94,24 @@ const AddParentForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
     </Formik>
   );
 
-  return loading ? (
-    <ClipLoader color={"green"} loading={loading} />
+  return editing.includes(commentID) ? (
+    <ClipLoader color={"green"} loading={editing.includes(commentID)} />
   ) : (
     formComponent
   );
 };
 
 const mapStateToProps = (state: any) => ({
-  loading: state.forumReducer.addParent.loading,
-  error: state.forumReducer.addParent.error,
+  editing: state.forumReducer.editChild.editing,
+  error: state.forumReducer.editChild.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    addParent: (payload: AddParentFormParams) => {
-      dispatch(forumActions.addParent(payload));
+    editChild: (payload: EditChildFormParams) => {
+      dispatch(forumActions.editChild(payload));
     },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddParentForm);
+export default connect(mapStateToProps, mapDispatchToProps)(EditChildForm);
