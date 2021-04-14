@@ -5,6 +5,7 @@
 
 import os
 import jwt
+from flask_restx import abort
 
 # comment this line out for local solution
 from dotenv import load_dotenv
@@ -22,7 +23,8 @@ def get_id_from_token(token):
         decoded_token = jwt.decode(token, os.getenv("JWT_SECRET"), algorithms=["HS256"])
         return decoded_token["id"]
     except:
-        raise Exception("Failed to decode token")
+        abort(400, "Failed to decode token")
+        # raise Exception("Failed to decode token")
 
 
 # print(encoded_jwt)

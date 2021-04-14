@@ -1,23 +1,31 @@
-####################
-#   Notes Module   #
-####################
+# ---------------------------------------------------------------------------- #
+#                                 Notes Module                                 #
+# ---------------------------------------------------------------------------- #
 
 
 from json import dumps
-from flask import request
+from flask import request, Response
 from flask_restx import Namespace, Resource, abort
 import psycopg2
 from database import create_DB_connection
 from token_util import get_id_from_token
+from models import (
+    token_parser,
+    notes_relevant_parser,
+    notes_model,
+    notes_edit_model,
+    notes_edit_parser,
+    notes_delete_parser,
+)
 
 NOTES_NS = Namespace(
     "notes", "Note taking feature that a User can access from any page"
 )
 
 
-###################################
-# Please leave all functions here #
-###################################
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 
 def add_note(
@@ -30,22 +38,22 @@ def add_note(
     internal_references,
 ):
     if len(title) >= 300 or len(title) == 0:
-        return {
-            "status": 400,
-            "error": (
+        abort(
+            400,
+            (
                 "The note title must be at least 1 character ",
                 "and no more than 300 characters. Try a new title.",
             ),
-        }
+        )
 
     if len(content) >= 5000 or len(content) == 0:
-        return {
-            "status": 400,
-            "error": (
+        abort(
+            400,
+            (
                 "The note contents must be more than 1 character ",
                 "and less than 5000 characters. Please adjust content.",
             ),
-        }
+        )
 
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -68,18 +76,19 @@ def add_note(
         )
         conn.commit()
         response = {
-            "status": 200,
             "message": "Note called '" + title + "' has been created.",
         }
     except psycopg2.errors.UniqueViolation:
-        response = {
-            "status": 400,
-            "error": "There is already a note called '"
-            + title
-            + "'. Try another title name.",
-        }
+        conn.close()
+        abort(
+            400,
+            "There is already a note called '" + title + "'. Try another title name.",
+        )
+
     except:
-        response = {"status": 400, "error": "Something went wrong when inserting"}
+        conn.close()
+        abort(400, "Something went wrong when inserting")
+
     conn.close()
     return response
 
@@ -95,22 +104,22 @@ def edit_note(
     internal_references,
 ):
     if len(new_title) >= 300 or len(new_title) == 0:
-        return {
-            "status": 400,
-            "error": (
+        abort(
+            400,
+            (
                 "The note title must be at least 1 character and ",
                 "no more than 300 characters. Try a new title.",
             ),
-        }
+        )
 
     if len(content) >= 5000 or len(content) == 0:
-        return {
-            "status": 400,
-            "error": (
+        abort(
+            400,
+            (
                 "The note contents must be more than 1 character and ",
                 "less than 5000 characters. Please adjust content.",
             ),
-        }
+        )
 
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -134,7 +143,6 @@ def edit_note(
         )
         conn.commit()
         response = {
-            "status": 200,
             "message": "Note called '"
             + old_title
             + "' has been changed to '"
@@ -142,14 +150,18 @@ def edit_note(
             + "'.",
         }
     except psycopg2.errors.UniqueViolation:
-        response = {
-            "status": 400,
-            "error": "There is already a note called '"
+        conn.close()
+        abort(
+            400,
+            "There is already a note called '"
             + new_title
             + "'. Try another title name.",
-        }
+        )
+
     except:
-        response = {"status": 400, "error": "Something went wrong when updating"}
+        conn.close()
+        abort(400, "Something went wrong when updating")
+
     conn.close()
     return response
 
@@ -161,7 +173,7 @@ def delete_note(user_id, title):
     cur.execute(sql_query, (user_id, title))
     conn.commit()
     conn.close()
-    return {"status": 200, "message": "Note removed"}
+    return {"message": "Note removed"}
 
 
 def get_note(user_id, title):
@@ -179,7 +191,7 @@ def get_note(user_id, title):
         "internal_references": query_results[6],
     }
     conn.close()
-    return {"status": 200, "data": note}
+    return {"data": note}
 
 
 def get_relevant_notes(user_id, stock_symbols, portfolio_names):
@@ -203,7 +215,7 @@ def get_relevant_notes(user_id, stock_symbols, portfolio_names):
         }
         notes.append(new_data)
     conn.close()
-    return {"status": 200, "data": notes}
+    return {"data": notes}
 
 
 def get_all_notes(user_id):
@@ -224,17 +236,20 @@ def get_all_notes(user_id):
         }
         notes.append(new_data)
     conn.close()
-    return {"status": 200, "data": notes}
+    return {"data": notes}
 
 
-################################
-# Please leave all routes here #
-################################
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
 
 @NOTES_NS.route("")
 class Notes(Resource):
-    # def create_users_note_wrapper():
+    @NOTES_NS.doc(description="Create a note")
+    @NOTES_NS.expect(token_parser(NOTES_NS), notes_model(NOTES_NS), validate=True)
+    @NOTES_NS.response(200, "Successfully created note")
+    @NOTES_NS.response(404, "Invalid data was provided")
     def post(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
@@ -254,11 +269,17 @@ class Notes(Resource):
             external_references,
             internal_references,
         )
-        if response["status"] != 200:
-            abort(response["status"], response["error"])
-        return dumps(response)
+        return Response(dumps(response), status=201)
 
-    # def edit_users_note_wrapper():
+    @NOTES_NS.doc(description="Edit an existing note")
+    @NOTES_NS.expect(
+        token_parser(NOTES_NS),
+        notes_edit_model(NOTES_NS),
+        notes_edit_parser(NOTES_NS),
+        validate=True,
+    )
+    @NOTES_NS.response(200, "Successfully edited note")
+    @NOTES_NS.response(400, "Invalid data was provided")
     def put(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
@@ -280,43 +301,44 @@ class Notes(Resource):
             external_references,
             internal_references,
         )
-        if response["status"] != 200:
-            abort(response["status"], response["error"])
-        return dumps(response)
+        return Response(dumps(response), status=200)
 
-    # def delete_users_note_wrapper():
+    @NOTES_NS.doc(description="Delete an existing note")
+    @NOTES_NS.expect(
+        token_parser(NOTES_NS), notes_delete_parser(NOTES_NS), validate=True
+    )
+    @NOTES_NS.response(200, "Successfully deleted note")
     def delete(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         title = request.args.get("title")
         response = delete_note(user_id, title)
-        if response["status"] != 200:
-            abort(response["status"], response["error"])
-        return dumps(response)
+        return Response(dumps(response), status=200)
 
-    # def get_users_notes_wrapper():
+    @NOTES_NS.doc(description="Fetch all notes by a user")
+    @NOTES_NS.expect(token_parser(NOTES_NS), validate=True)
+    @NOTES_NS.response(200, "Successfully fetched notes")
     def get(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         response = get_all_notes(user_id)
-        if response["status"] != 200:
-            abort(response["status"], response["error"])
-        return dumps(response)
+        return Response(dumps(response), status=200)
 
 
 @NOTES_NS.route("/relevant")
 class RelevantNotes(Resource):
-    # Add route for get relevant notes
-    # def get_users_relevant_notes_wrapper():
+    @NOTES_NS.doc(description="Fetch all relevant notes")
+    @NOTES_NS.expect(
+        token_parser(NOTES_NS), notes_relevant_parser(NOTES_NS), validate=True
+    )
+    @NOTES_NS.response(200, "Successfully fetched notes")
     def get(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         stock_symbols = request.args.getlist("stock")
         portfolio_names = request.args.getlist("portfolio")
         response = get_relevant_notes(user_id, stock_symbols, portfolio_names)
-        if response["status"] != 200:
-            abort(response["status"], response["error"])
-        return dumps(response)
+        return Response(dumps(response), status=200)
 
 
 ################################

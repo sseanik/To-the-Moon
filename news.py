@@ -1,27 +1,28 @@
-###################
-#   News Module   #
-###################
+# ---------------------------------------------------------------------------- #
+#                                  News Module                                 #
+# ---------------------------------------------------------------------------- #
 
 from datetime import datetime, timedelta
 from json import dumps
 import os
 import requests
-from flask import request
+from flask import request, Response
 from flask_restx import Namespace, Resource, abort
 from dotenv import load_dotenv
+from models import news_count_parser, news_parser, news_stocks_parser
 
-#######################
-# GLOBAL DECLARATIONS #
-#######################
+# ---------------------------------------------------------------------------- #
+#                              Global Declarations                             #
+# ---------------------------------------------------------------------------- #
 
 load_dotenv()
 NEWS_API_TOKEN = os.getenv("NEWS_TOKEN")
 NEWS_NS = Namespace("news", "Relevant News Articles related to each Stock")
 DEFAULT_NUM_ARTICLES = 10
 
-###################################
-# Please leave all functions here #
-###################################
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 # Given a stock symbol, return a list of news articles related to that stock
 def get_stock_news(stock_symbol, article_count):
@@ -37,9 +38,9 @@ def get_stock_news(stock_symbol, article_count):
     }
     response = requests.request("GET", url, params=querystring)
     if response.status_code == 200:
-        return {"status": 200, "articles": response.json()[:article_count]}
+        return {"articles": response.json()[:article_count]}
     else:
-        return {"status": 404, "articles": [], "error": "Unable to fetch news"}
+        abort(404, "Unable to fetch news")
 
 
 # Given a list of stock symbols, return a list of num_articles amount of related news articles
@@ -57,13 +58,9 @@ def get_portfolio_news(stock_symbols, num_articles):
     for symbol in unique_stocks:
         news_articles += get_stock_news(symbol, article_count)["articles"]
     if len(news_articles) == article_count * len(unique_stocks):
-        return {"status": 200, "articles": news_articles}
+        return {"articles": news_articles}
     else:
-        return {
-            "status": 400,
-            "articles": news_articles,
-            "error": "Unable to fetch news",
-        }
+        abort(404, "Unable to fetch news")
 
 
 # Given a number of articles, return a list of general finance news articles
@@ -74,44 +71,49 @@ def get_general_news(num_articles):
     querystring = {"category": "general", "token": NEWS_API_TOKEN}
     response = requests.request("GET", url, params=querystring)
     if response.status_code == 200:
-        return {"status": 200, "articles": response.json()[: int(num_articles)]}
+        return {"articles": response.json()[: int(num_articles)]}
     else:
-        return {"status": 404, "articles": [], "error": "Unable to fetch news"}
+        abort(404, "Unable to fetch news")
 
 
-################################
-# Please leave all routes here #
-################################
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
 
 @NEWS_NS.route("")
 class News(Resource):
-    # def getSingularStockNews():
+    @NEWS_NS.doc(description="Fetch news article related to a Stock Symbol.")
+    @NEWS_NS.expect(news_parser(NEWS_NS), validate=True)
+    @NEWS_NS.response(200, "Successfully fetched news")
+    @NEWS_NS.response(404, "News API Not Available")
     def get(self):
         stock_symbol = request.args.get("symbol")
         result = get_stock_news(stock_symbol, DEFAULT_NUM_ARTICLES)
-        if result["status"] != 200:
-            abort(result["status"], result["error"])
-        return dumps(result)
+        return Response(dumps(result), status=200)
 
 
 @NEWS_NS.route("/portfolio")
 class Portfolio(Resource):
-    # def getPortfolioStockNews():
+    @NEWS_NS.doc(
+        description="Fetch all news articles related to each stock in a portfolio."
+    )
+    @NEWS_NS.expect(news_stocks_parser(NEWS_NS), validate=True)
+    @NEWS_NS.response(200, "Successfully fetched news")
+    @NEWS_NS.response(404, "News API Not Available")
     def get(self):
-        data = request.get_json()
-        result = get_portfolio_news(data["stocks"], DEFAULT_NUM_ARTICLES)
-        if result["status"] != 200:
-            abort(result["status"], result["error"])
-        return dumps(result)
+        data = request.args.getlist("stocks")
+        result = get_portfolio_news(data, DEFAULT_NUM_ARTICLES)
+        return Response(dumps(result), status=200)
 
 
 @NEWS_NS.route("/general")
 class General(Resource):
-    # def getGeneralStockNews():
+    @NEWS_NS.doc(description="Fetch general finance news articles.")
+    @NEWS_NS.expect(news_count_parser(NEWS_NS), validate=True)
+    @NEWS_NS.response(200, "Successfully fetched news")
+    @NEWS_NS.response(404, "News API Not Available")
     def get(self):
         num_articles = request.args.get("count")
         result = get_general_news(num_articles)
-        if result["status"] != 200:
-            abort(result["status"], result["error"])
-        return dumps(result)
+        return Response(dumps(result), status=200)
