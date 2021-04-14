@@ -232,7 +232,7 @@ def get_all_notes(user_id):
 ################################
 
 
-@NOTES_NS.route("/")
+@NOTES_NS.route("")
 class Notes(Resource):
     # def create_users_note_wrapper():
     def post(self):

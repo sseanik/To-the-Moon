@@ -507,7 +507,7 @@ def vote_on_reply(user_id, reply_id, upvote=True):
 ################################
 
 
-@FORUM_NS.route("/")
+@FORUM_NS.route("")
 class Forum(Resource):
     # def get_comments():
     # def get(self):

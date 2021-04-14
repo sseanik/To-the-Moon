@@ -322,7 +322,7 @@ def get_financials_data(symbol, func):
 ################################
 # Please leave all routes here #
 ################################
-@STOCK_NS.route("/")
+@STOCK_NS.route("")
 class Stock(Resource):
     # def get_stock_data():
     def get(self):
