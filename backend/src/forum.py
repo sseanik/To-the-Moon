@@ -9,9 +9,9 @@ from token_util import get_id_from_token
 from better_profanity import profanity
 from json import dumps
 from flask import Blueprint, request
+from flask_restx import Namespace, Resource
 
-FORUM_ROUTES = Blueprint('forum', __name__)
-
+FORUM_NS = Namespace('forum', 'User discussion on Stock Pages')
 
 ###################################
 # Please leave all functions here #
@@ -41,7 +41,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     # Check that the content is not too large
     if len(content) >= 5000:
         return {
-            'status':400,
+            'status': 400,
             'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
             'comment': {}
         }
@@ -86,7 +86,6 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         """.replace("\n", "")
         values = (parent_id, stock_ticker, user_id, timestamp, content)
 
-    
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
     try:
         cur.execute(insert_query, values)
@@ -103,7 +102,6 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         message = "Invalid data was provided to the Database"
         inserted_comment = {}
 
-    
     conn.commit()
     cur.close()
     conn.close()
@@ -113,6 +111,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         'message': message,
         'comment': inserted_comment
     }
+
 
 def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     """Edit the contents of a comment.
@@ -131,7 +130,7 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     # Check that the content is not too large
     if len(content) >= 5000:
         return {
-            'status':400,
+            'status': 400,
             'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
             'comment': {}
         }
@@ -151,7 +150,7 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
-    
+
     try:
         if not parent_id:
             sqlQuery = '''
@@ -179,34 +178,35 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
         # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
         if not db_reply:
             response = {
-                'status' : 400,
-                'message' : "User does not have permission to edit this comment."
+                'status': 400,
+                'message': "User does not have permission to edit this comment."
             }
         else:
-        # If rows have been updated, return the newly updated row.
+            # If rows have been updated, return the newly updated row.
             updated_comment = dict(db_reply[0])
-            updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
-            updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
-            updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+            updated_comment['upvotes'] = len(
+                updated_comment['upvote_user_ids'])
+            updated_comment['downvotes'] = len(
+                updated_comment['downvote_user_ids'])
+            updated_comment['vote difference'] = updated_comment['upvotes'] - \
+                updated_comment['downvotes']
             updated_comment.pop("upvote_user_ids")
             updated_comment.pop("downvote_user_ids")
             response = {
-                'status' : 200,
-                'message' : "Comment updated",
-                'comment' : updated_comment
+                'status': 200,
+                'message': "Comment updated",
+                'comment': updated_comment
             }
     except:
         response = {
-            'status' : 400,
-            'message' : 'Something went wrong when editing.'
+            'status': 400,
+            'message': 'Something went wrong when editing.'
         }
-    
+
     conn.commit()
     cur.close()
     conn.close()
     return response
-
-    
 
 
 def delete_comment(user_id, comment_id, parent_id=None):
@@ -237,26 +237,29 @@ def delete_comment(user_id, comment_id, parent_id=None):
                 JOIN users u on d.author_id = u.id;
             """.replace("\n", "")
             values = ("", comment_id, user_id)
-            cur.execute(insert_query, values)   
+            cur.execute(insert_query, values)
             db_reply = cur.fetchall()
             # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
             if not db_reply:
                 response = {
-                    'status' : 400,
-                    'message' : "User does not have permission to edit this comment."
+                    'status': 400,
+                    'message': "User does not have permission to edit this comment."
                 }
             else:
-            # If rows have been updated, return the newly updated row.
+                # If rows have been updated, return the newly updated row.
                 updated_comment = dict(db_reply[0])
-                updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
-                updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
-                updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+                updated_comment['upvotes'] = len(
+                    updated_comment['upvote_user_ids'])
+                updated_comment['downvotes'] = len(
+                    updated_comment['downvote_user_ids'])
+                updated_comment['vote difference'] = updated_comment['upvotes'] - \
+                    updated_comment['downvotes']
                 updated_comment.pop("upvote_user_ids")
                 updated_comment.pop("downvote_user_ids")
                 response = {
-                    'status' : 200,
-                    'message' : "Comment deleted.",
-                    'comment' : updated_comment
+                    'status': 200,
+                    'message': "Comment deleted.",
+                    'comment': updated_comment
                 }
         # Otherwise, using the provided parent id, it is a child comment (reply)
         else:
@@ -264,23 +267,23 @@ def delete_comment(user_id, comment_id, parent_id=None):
                 DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
             """.replace("\n", "")
             values = (comment_id, user_id)
-            cur.execute(insert_query, values) 
+            cur.execute(insert_query, values)
             db_reply = cur.fetchall()
             # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
             if not db_reply:
                 response = {
-                    'status' : 400,
-                    'message' : "User does not have permission to delete this comment."
+                    'status': 400,
+                    'message': "User does not have permission to delete this comment."
                 }
             else:
                 response = {
-                "status" : 200, 
-                "message" : "Child comment deleted."
+                    "status": 200,
+                    "message": "Child comment deleted."
                 }
     except:
         response = {
-            "status" : 400, 
-            "message" : "Something when wrong when trying to delete."
+            "status": 400,
+            "message": "Something when wrong when trying to delete."
         }
 
     conn.commit()
@@ -410,7 +413,6 @@ def get_stock_comments(user_id, stock_ticker):
     }
 
 
-
 def vote_on_comment(user_id, comment_id, upvote=True):
     # Open database connection
     conn = create_DB_connection()
@@ -507,111 +509,128 @@ def vote_on_reply(user_id, reply_id, upvote=True):
 ################################
 
 
-@FORUM_ROUTES.route('/forum', methods=['GET'])
-def get_comments():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = get_stock_comments(user_id, data['stockTicker'])
-    return dumps(result)
+@FORUM_NS.route('/forum')
+class Forum(Resource):
+    # def get_comments():
+    def get(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = get_stock_comments(user_id, data['stockTicker'])
+        return dumps(result)
+
+    # @FORUM_ROUTES.route('/forum', methods=['GET'])
+    # def get_comments():
+    #     token = request.headers.get('Authorization')
+    #     user_id = get_id_from_token(token)
+    #     stock_ticker = request.args.get('stockTicker')
+    #     result = get_stock_comments(user_id, stock_ticker)
+    #     return dumps(result)
 
 
-@FORUM_ROUTES.route('/forum/comment', methods=['POST'])
-def submit_comment():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = post_comment(
-        user_id, data['stockTicker'], data['timestamp'], data['content'])
-    return dumps(result)
+@FORUM_NS.route('/forum/comment')
+class Comment(Resource):
+    # def submit_comment():
+    def post(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = post_comment(
+            user_id, data['stockTicker'], data['timestamp'], data['content'])
+        return dumps(result)
+
+    # @FORUM_NS.route('/forum/deleteComment', methods=['DELETE'])
+    # def delete_user_comment():
+    def delete(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = delete_comment(user_id, data['comment_id'])
+        return dumps(result)
+
+    # @FORUM_NS.route('/forum/editComment', methods=['PUT'])
+    # def edit_users_comment():
+    def put(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = edit_comment(
+            user_id, data['comment_id'], data['time_stamp'], data['content'])
+        return dumps(result)
 
 
-@FORUM_ROUTES.route('/forum/reply', methods=['POST'])
-def submit_reply():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = post_comment(
-        user_id, data['stockTicker'], int(data['timestamp']), data['content'], data['parentID'])
-    return dumps(result)
+@FORUM_NS.route('/forum/reply')
+class Reply(Resource):
+    # def submit_reply():
+    def post(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = post_comment(
+            user_id, data['stockTicker'], int(data['timestamp']), data['content'], data['parentID'])
+        return dumps(result)
+
+    # @FORUM_NS.route('/forum/deleteReply', methods=['DELETE'])
+    # def delete_user_reply():
+
+    def delete(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = delete_comment(user_id, data['comment_id'], data['parent_id'])
+        return dumps(result)
+
+    # @FORUM_NS.route('/forum/editReply', methods=['PUT'])
+    # def edit_users_reply():
+
+    def put(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = edit_comment(
+            user_id, data['comment_id'], data['time_stamp'], data['content'], data['parent_id'])
+        return dumps(result)
 
 
-@FORUM_ROUTES.route('/forum/deleteComment', methods=['DELETE'])
-def delete_user_comment():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = delete_comment(user_id, data['comment_id'])
-    return dumps(result)
+@FORUM_NS.route('/forum/comment/upvote')
+class Upvote_Comment(Resource):
+    # def comment_upvote():
+    def put(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = vote_on_comment(user_id, data['comment_id'])
+        return dumps(result)
 
 
-@FORUM_ROUTES.route('/forum/deleteReply', methods=['DELETE'])
-def delete_user_reply():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = delete_comment(user_id, data['comment_id'], data['parent_id'])
-    return dumps(result)
+@FORUM_NS.route('/forum/comment/downvote')
+class Downvote_Comment(Resource):
+    # def comment_downvote():
+    def put(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = vote_on_comment(user_id, data['comment_id'], upvote=False)
+        return dumps(result)
 
 
-@FORUM_ROUTES.route('/forum/editReply', methods=['PUT'])
-def edit_users_reply():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'], data['parent_id'])
-    return dumps(result)
+@FORUM_NS.route('/forum/reply/upvote')
+class Upvote_Reply(Resource):
+    # def reply_upvote():
+    def put(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = vote_on_reply(user_id, data['reply_id'])
+        return dumps(result)
 
 
-@FORUM_ROUTES.route('/forum/editComment', methods=['PUT'])
-def edit_users_comment():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'])
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum', methods=['GET'])
-def get_comments():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    stock_ticker = request.args.get('stockTicker')
-    result = get_stock_comments(user_id, stock_ticker)
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum/comment/upvote', methods=['PUT'])
-def comment_upvote():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = vote_on_comment(user_id, data['comment_id'])
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum/comment/downvote', methods=['PUT'])
-def comment_downvote():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = vote_on_comment(user_id, data['comment_id'], upvote=False)
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum/reply/upvote', methods=['PUT'])
-def reply_upvote():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = vote_on_reply(user_id, data['reply_id'])
-    return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum/reply/downvote', methods=['PUT'])
-def reply_downvote():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = vote_on_reply(user_id, data['reply_id'], upvote=False)
-    return dumps(result)
+@FORUM_NS.route('/forum/reply/downvote')
+class Downvote_reply(Resource):
+    # def reply_downvote():
+    def put(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = vote_on_reply(user_id, data['reply_id'], upvote=False)
+        return dumps(result)

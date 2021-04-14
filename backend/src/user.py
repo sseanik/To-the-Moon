@@ -9,15 +9,14 @@ from json import dumps
 from flask import Blueprint, request
 from database import create_DB_connection
 from token_util import generate_token, get_id_from_token
-
+from flask_restx import Namespace, Resource
 
 #######################
 # GLOBAL DECLARATIONS #
 #######################
 
 
-USER_ROUTES = Blueprint('user', __name__)
-
+USER_NS = Namespace('user', 'Authentication and Authorisation of Users')
 
 ###################################
 # Please leave all functions here #
@@ -36,7 +35,6 @@ def register_user(first_name, last_name, email, username, password):
             'error': 'Not a valid email format'
         }
 
-    
     # minimum length of username
     if len(username) < 3:
         return {
@@ -86,7 +84,8 @@ def register_user(first_name, last_name, email, username, password):
 
     # insert user into database
     insert_query = "insert into Users (username, first_name, last_name, email, password) values (%s, %s, %s, %s, %s)"
-    cur.execute(insert_query, (username, first_name, last_name, email, hashed_password))
+    cur.execute(insert_query, (username, first_name,
+                last_name, email, hashed_password))
 
     # extract user id
     cur.execute(user_query)
@@ -131,7 +130,7 @@ def login_user(email, password):
             'status': 404,
             'error': 'Incorrect password'
         }
-        
+
     # close database connection
     conn.commit()
     cur.close()
@@ -164,7 +163,7 @@ def get_username(user_id):
         }
 
     username = user_info[0]
-        
+
     # close database connection
     conn.commit()
     cur.close()
@@ -178,31 +177,39 @@ def get_username(user_id):
     }
 
 
-
-
 ################################
 # Please leave all routes here #
 ################################
 
 
-@USER_ROUTES.route('/register', methods=['POST'])
-def register_user_wrapper():
-    data = request.get_json()
-    result = register_user(data['first_name'], data['last_name'], data['email'], data['username'], data['password'])
-    return dumps(result)
+@USER_NS.route('/register')
+class Register(Resource):
+    @USER_NS.doc(description="")
+    @USER_NS.response(200, "")
+    @USER_NS.response(404, "")
+    # register_user
+    def post(self):
+        data = request.get_json()
+        result = register_user(data['first_name'], data['last_name'],
+                               data['email'], data['username'], data['password'])
+        return dumps(result)
 
 
-@USER_ROUTES.route('/login', methods=['POST'])
-def login_user_wrapper():
-    data = request.get_json()
-    result = login_user(data['email'], data['password'])
-    return dumps(result)
+@USER_NS.route('/login', methods=['POST'])
+class Login(Resource):
+    # def login_user_wrapper():
+    def post(self):
+        data = request.get_json()
+        result = login_user(data['email'], data['password'])
+        return dumps(result)
 
 
 # Given a user token, return a user's username
-@USER_ROUTES.route('/user', methods=['GET'])
-def get_user_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    result = get_username(user_id)
-    return dumps(result)
+@USER_NS.route('/user', methods=['GET'])
+class User(Resource):
+    # def get_user_wrapper():
+    def get(self):
+        token = request.headers.get('Authorization')
+        user_id = get_id_from_token(token)
+        result = get_username(user_id)
+        return dumps(result)
