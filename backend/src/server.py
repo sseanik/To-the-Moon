@@ -6,9 +6,9 @@
 import sys
 from json import dumps
 from definitions import local_storage_dir
-from flask import Flask, request
+from flask import Flask, request, Response
 from flask_cors import CORS
-from flask_restx import Api, Namespace, Resource
+from flask_restx import Api, Namespace, Resource, abort
 from forum import FORUM_NS
 from news import NEWS_NS
 from notes import NOTES_NS
@@ -34,6 +34,7 @@ API.add_namespace(SCREENER_NS)
 API.add_namespace(STOCK_NS)
 API.add_namespace(USER_NS)
 API.add_namespace(WATCHLIST_NS)
+
 
 ###################################
 # Please leave all functions here #
@@ -80,7 +81,7 @@ APP.config["TRAP_HTTP_EXCEPTIONS"] = True
 APP.config["TEMPLATES_AUTO_RELOAD"] = True
 APP.register_error_handler(Exception, default_handler)
 
-DUMMY = Namespace("echo", "Testing Endpoint")
+DUMMY = Namespace("dummy", "Testing Endpoint")
 API.add_namespace(DUMMY)
 
 
@@ -92,6 +93,18 @@ class Echo(Resource):
         else:
             print("Param undefined")
         return dumps({"data": data, "storage": local_storage_dir})
+
+
+@DUMMY.route("abort")
+class ErrorAbort(Resource):
+    def get(self):
+        abort(500, "This is an Error Message")
+
+
+@DUMMY.route("response")
+class ErrorResponse(Resource):
+    def get(self):
+        return Response(dumps({"error": "This is an Error Message"}), status=500)
 
 
 if __name__ == "__main__":
