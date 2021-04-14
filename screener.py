@@ -134,8 +134,10 @@ def screen_stocks(parameters):
     overviews_query = "SELECT stock_ticker FROM securities_overviews WHERE "
     values = []
     for key, item in parameters['securities_overviews'].items():
+        if key in ["region", "sector", "industry"]:
+            continue
         new_param = ""
-        if isinstance(item, str):
+        if isinstance(item, str) or isinstance(item, (int, long, float)):
             new_param = "{key}=%s".format(key=key)
             values.append(item)
         else:
@@ -194,13 +196,13 @@ def screen_stocks(parameters):
 # Please leave all routes here #
 ################################
 
-@SCREENER_ROUTES.route('/screener', methods=['POST'])
+@SCREENER_ROUTES.route('/screener/save', methods=['POST'])
 def screener_save_wrapper():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
     screener_name = request.args.get('name')
     data = request.get_json()
-    result = screener_save(screener_name, user_id, data['parameters'])
+    result = shttp://localhost:3000/screeners/?region=United%20States&market_capcreener_save(screener_name, user_id, data['parameters'])
     return dumps(result)
 
 
@@ -222,20 +224,22 @@ def screener_delete_wrapper():
 
 @SCREENER_ROUTES.route('/screener', methods=['GET'])
 def screen_stocks_wrapper():
+    import pdb; pdb.set_trace()
     data = request.get_json()
     parameters = data['parameters']
     return dumps(screen_stocks(parameters))
 
 
 
+if __name__ == "__main__":
+    test = {
+        'securities_overviews' : {
+            # 'sector': ["Technology", "Consumer Cyclical"],
+            'eps' : (4, None),
+            'beta' : (1, 3),
+            'payout_ratio' : (None, 0.3)
 
-test = {
-    'securities_overviews' : {
-        'eps' : (4, None),
-        'beta' : (1, 3),
-        'payout_ratio' : (None, 0.3)
-
+        }
     }
-}
-
-print(screen_stocks(test))
+    # import pdb; pdb.set_trace()
+    print(screen_stocks(test))
