@@ -71,8 +71,8 @@ const screenerActions = {
     return async (dispatch) => {
       dispatch(screenerActions.getScreenerResultsPending());
       try {
-        const { name, parameters } = payload;
-        const res = await ScreenerAPI.getData(name, parameters);
+        const { parameters } = payload;
+        const res = await ScreenerAPI.getData(parameters);
         if (res.status === 200) {
           dispatch(screenerActions.getScreenerResultsSuccess(res));
         } else {

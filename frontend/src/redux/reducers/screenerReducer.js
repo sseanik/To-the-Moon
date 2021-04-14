@@ -24,7 +24,7 @@ const initialState = {
     loading: false,
     error: null,
     data: [
-      {},
+      // {"stock ticker": "TEST", "price": 694.20, 'price change': 2.34, 'price change percentage': 0.00619, 'volume': 2429302, 'market capitalization': 374434639073, 'PE ratio': 59.67},
     ],
   },
   // screener list

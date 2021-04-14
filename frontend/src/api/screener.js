@@ -5,7 +5,7 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const ScreenerAPI = {
   save: (name, parameters) => {
-    const endpoint = `/screener?name=${name}`;
+    const endpoint = `/screener/save?name=${name}`;
     const options = {
       method: "POST",
       headers: {
@@ -41,18 +41,18 @@ const ScreenerAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getData: (name, parameters) => {
-    const endpoint = `/screener?name=${name}`;
+  getData: (parameters) => {
+    const endpoint = `/screener`;
     const options = {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
-      body: JSON.stringify(parameters), 
+      // body: JSON.stringify(parameters),
     };
 
-    return Utils.getJSON(`${url}${endpoint}`, options);
+    return Utils.getJSON(`${url}${endpoint}${parameters}`, options);
   },
 }
 

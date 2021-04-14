@@ -2,14 +2,42 @@ import { Button, Form } from "react-bootstrap";
 import * as Yup from "yup";
 import { useHistory } from "react-router-dom";
 import { Formik } from "formik";
+import { connect } from "react-redux";
+import screenerActions from "../redux/actions/screenerActions";
 
-interface ScreenerQueryFormValues {
+interface ScreenerFormValues {
+  // screenerName: string;
   region: Array<string>;
   marketcap: string;
-  intradayLower: number;
-  intradayUpper: number;
+  intradayLower: number | null;
+  intradayUpper: number | null;
   sector: Array<string>;
   industry: Array<string>;
+  epsLower: number | null | undefined;
+  epsUpper: number | null | undefined;
+  betaLower: number | null | undefined;
+  betaUpper: number | null | undefined;
+  payoutRatioLower: number | null | undefined;
+  payoutRatioUpper: number | null | undefined;
+}
+
+interface ScreenerQuery {
+  securities_overviews: {
+    region: Array<string>;
+    market_cap: string;
+    yearly_low: number | null;
+    yearly_high: number | null;
+    sector: Array<string>;
+    industry: Array<string>;
+    eps: Array<number | null | undefined>;
+    beta: Array<number | null | undefined>;
+    payout_ratio: Array<number | null | undefined>;
+  };
+}
+
+interface getScreenerResultsParams {
+  // parameters: ScreenerQuery;
+  parameters: string;
 }
 
 interface industryChoiceOptions {
@@ -19,29 +47,87 @@ interface industryChoiceOptions {
 const initialValues = {
   region: ["United States"],
   marketcap: "",
-  intradayLower: 0,
-  intradayUpper: 0,
+  intradayLower: null,
+  intradayUpper: null,
   sector: [""],
-  industry: [""]
+  industry: [""],
+  epsLower: null,
+  epsUpper: null,
+  betaLower: null,
+  betaUpper: null,
+  payoutRatioLower: null,
+  payoutRatioUpper: null,
 }
 
 const schema = Yup.object({
   region: Yup.array().of(Yup.string()),
   marketcap: Yup.string()
     .required("marketcap symbol is required."),
-  intradayLower: Yup.number(),
-  intradayUpper: Yup.number(),
+  intradayLower: Yup.number().nullable(true),
+  intradayUpper: Yup.number().nullable(true),
   sector: Yup.array().of(Yup.string()),
   industry: Yup.array().of(Yup.string()),
     // .required("One or more regions are required.")
 })
 
-const ScreenersQueryForm: React.FC = () => {
+// Add Props
+
+// Add StateProps
+interface StateProps {
+  loading: boolean;
+  data: Array<any>;
+  error: string;
+}
+
+// Add DispatchProps
+interface DispatchProps {
+  getScreenerResults: (payload: getScreenerResultsParams) => void;
+}
+
+const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
+  const {
+    loading,
+    data,
+    error,
+    getScreenerResults
+  } = props;
   const history = useHistory();
 
-  const handleSubmit = (values: ScreenerQueryFormValues) => {
-    // history.push(`/screeners/${values.marketcap}`);
-    console.log(values);
+  const formToScreenerParams = (values: ScreenerFormValues) => {
+    const yearlyLow = values.intradayLower ? values.intradayLower : null;
+    let paramsObj = {
+      'securities_overviews': {
+        "region": values.region,
+        "market_cap": values.marketcap,
+        "yearly_low": values.intradayLower ? values.intradayLower : null,
+        "yearly_high": values.intradayUpper ? values.intradayUpper : null,
+        "eps": [values.epsLower ? values.epsLower : null, values.epsUpper ? values.epsUpper : null],
+        "beta": [values.betaLower ? values.betaLower : null, values.betaUpper ? values.betaUpper : null],
+        "payout_ratio": [values.payoutRatioLower ? values.payoutRatioLower : null, values.payoutRatioUpper ? values.payoutRatioUpper : null],
+        "sector": values.sector, // to array
+        "industry": values.industry, // to array
+      }
+    };
+
+    let paramsStr = `?${Object.entries(paramsObj['securities_overviews']).map(([field, value], idx) => (
+      typeof value === "string" || typeof value === "number"
+        ? `${field}=${String(value)}`
+      : Array.isArray(value)
+        ? value.map((e: any) => (`${field}=${e !== null && e !== undefined ? e : ""}`)).join("&")
+      : value === null || value === undefined
+        ? `${field}=`
+      : `${field}=${String(value)}`
+    )).join("&")}`;
+
+    return paramsStr;
+  };
+
+  const handleSubmit = (values: ScreenerFormValues) => {
+    console.log("Before conversion: ", values);
+    const parameters = formToScreenerParams(values);
+    console.log("After conversion: ", parameters);
+    // console.log(getScreenerResults);
+    getScreenerResults({ parameters });
   }
 
   const regionChoices = ["United States", "United Kingdom", "Frankfurt"];
@@ -121,7 +207,7 @@ const ScreenersQueryForm: React.FC = () => {
                 type="number"
                 name="intradayLower"
                 placeholder="Lower"
-                value={values.intradayLower}
+                value={undefined}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 isInvalid={!!errors.intradayLower && touched.intradayLower}
@@ -137,7 +223,7 @@ const ScreenersQueryForm: React.FC = () => {
                 type="number"
                 name="intradayUpper"
                 placeholder="Upper"
-                value={values.intradayUpper}
+                value={undefined}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 isInvalid={!!errors.intradayUpper && touched.intradayUpper}
@@ -207,4 +293,22 @@ const ScreenersQueryForm: React.FC = () => {
   );
 }
 
-export default ScreenersQueryForm;
+// Add mapStateToProps
+const mapStateToProps = (state: any) => ({
+  loading: state.screenerReducer.results.loading,
+  error: state.screenerReducer.results.error,
+  data: state.screenerReducer.results.data,
+});
+
+// Add mapDispatchToProps
+// getScreenerResults
+// saveScreener - separate state, separate page
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    getScreenerResults: (payload: getScreenerResultsParams) =>
+      dispatch(screenerActions.getScreenerResults(payload)),
+  };
+};
+
+// Connect
+export default connect(mapStateToProps, mapDispatchToProps)(ScreenersQueryForm);
