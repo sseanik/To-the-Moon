@@ -63,6 +63,17 @@ def create_notes_table():
     conn.commit()
     conn.close()
 
+
+def create_watchlist_tables():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/subscriptions.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/watchlists.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+
 def create_comment_tables():
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -77,6 +88,19 @@ def create_screeners_table():
     cur = conn.cursor()
     cur.execute(open("Tables/screeners.sql", "r").read())
     conn.commit()
+
+def create_vote_plpgsql_functions():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/Functions/upvote_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/downvote_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/upvote_reply.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/downvote_reply.sql", "r").read())
+    conn.commit()
+    conn.close()
 
 
 def fill_securities_overview_table(symbol):
@@ -359,5 +383,50 @@ if __name__ == "__main__":
     #create_notes_table()
     create_screeners_table()
 
+    create_watchlist_tables()
+
+    # Basic materials sector
+    #fill_overview_and_financial_tables('BHP')
+    #fill_overview_and_financial_tables('LIN')
+
+    # Technology sector
+    #fill_overview_and_financial_tables('ORCL')
+    #fill_overview_and_financial_tables('IBM')
+
+    # Consumer defence sector
+    #fill_overview_and_financial_tables('WMT')
+    #fill_overview_and_financial_tables('KO')
+
+    # Utilities sector
+    #fill_overview_and_financial_tables('NEE')
+
+    # Energy sector
+    pass
+    # create_vote_plpgsql_functions()
+    # create_comment_tables()
+    # createDBConnection()
+    # createPortfolioTable()
+    # createHoldingsTable()
+    # createSecuritiesOverviewTable()
+    # fillSecuritiesOverviewTable('IBM')
+    # createIncomeStatementsTable()
+    # fillIncomeStatements('IBM')
+    # createBalanceSheetsTable()
+    # fillBalanceSheets('IBM')
+    # createCashflowStatementsTable()
+    # fillCashflowStatements('IBM')
+
+    # Basic materials
+    # fillOverviewAndFinancialTables('BHP')
+
+    # Technology sector
+
+    # Consumer cyclical sector
+
+    # Real estate sector
+
+    # Healthcare sector
+
+    # Communication services sector
 
     fill_all_companies()
