@@ -202,7 +202,7 @@ def screener_save_wrapper():
     user_id = get_id_from_token(token)
     screener_name = request.args.get('name')
     data = request.get_json()
-    result = shttp://localhost:3000/screeners/?region=United%20States&market_capcreener_save(screener_name, user_id, data['parameters'])
+    result = screener_save(screener_name, user_id, data['parameters'])
     return dumps(result)
 
 
