@@ -1,5 +1,6 @@
 aiohttp==3.7.4.post0
 alpha-vantage==2.3.1
+aniso8601==9.0.1
 appdirs==1.4.3
 async-timeout==3.0.1
 attrs==20.3.0
@@ -17,12 +18,14 @@ distlib==0.3.0
 distro==1.4.0
 Flask==1.1.2
 Flask-Cors==3.0.10
+flask-restx==0.3.0
 html5lib==1.0.1
 idna==2.8
 iexfinance==0.5.0
 ipaddr==2.2.0
 itsdangerous==1.1.0
 Jinja2==2.11.3
+jsonschema==3.2.0
 lockfile==0.12.2
 MarkupSafe==1.1.1
 msgpack==0.6.2
@@ -36,6 +39,7 @@ psycopg2-binary==2.8.6
 pycparser==2.20
 PyJWT==2.0.1
 pyparsing==2.4.6
+pyrsistent==0.17.3
 python-dateutil==2.8.1
 python-dotenv==0.15.0
 pytoml==0.1.21

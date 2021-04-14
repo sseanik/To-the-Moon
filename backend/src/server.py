@@ -3,33 +3,37 @@
 #####################
 
 
-from definitions import local_storage_dir
-import os
 import sys
 from json import dumps
-
+from definitions import local_storage_dir
 from flask import Flask, request
 from flask_cors import CORS
 from flask_restx import Api
-
 from forum import FORUM_NS
-# from news import NEWS_ROUTES
-# from portfolio import PORTFOLIO_ROUTES
-# from screener import SCREENER_ROUTES
-# from stock import STOCK_ROUTES
+from news import NEWS_NS
+from notes import NOTES_NS
+from portfolio import PORTFOLIO_NS
+from screener import SCREENER_NS
+from stock import STOCK_NS
 from user import USER_NS
-# from watchlist import WATCHLIST_ROUTES
-# from notes import NOTE_ROUTES
+from watchlist import WATCHLIST_NS
 
 APP = Flask(__name__)
 CORS(APP)
-API = Api(APP,
-          title='My Title',
-          version='1.0',
-          description='A description',
-          )
-API.add_namespace(USER_NS)
+API = Api(
+    APP,
+    title="To the Moon Backend",
+    version="1.0",
+    description="A description",
+)
 API.add_namespace(FORUM_NS)
+API.add_namespace(NEWS_NS)
+API.add_namespace(NOTES_NS)
+API.add_namespace(PORTFOLIO_NS)
+API.add_namespace(SCREENER_NS)
+API.add_namespace(STOCK_NS)
+API.add_namespace(USER_NS)
+API.add_namespace(WATCHLIST_NS)
 
 ###################################
 # Please leave all functions here #
@@ -37,17 +41,19 @@ API.add_namespace(FORUM_NS)
 
 
 def default_handler(err):
-    '''
+    """
     Default Handler
-    '''
+    """
     response = err.get_response()
-    print('response', err, err.get_response())
-    response.data = dumps({
-        "code": err.code,
-        "name": "System Error",
-        "message": err.get_description(),
-    })
-    response.content_type = 'application/json'
+    print("response", err, err.get_response())
+    response.data = dumps(
+        {
+            "code": err.code,
+            "name": "System Error",
+            "message": err.get_description(),
+        }
+    )
+    response.content_type = "application/json"
     return response
 
 
@@ -70,26 +76,22 @@ def default_handler(err):
 #############################
 
 
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-APP.config['TEMPLATES_AUTO_RELOAD'] = True
+APP.config["TRAP_HTTP_EXCEPTIONS"] = True
+APP.config["TEMPLATES_AUTO_RELOAD"] = True
 APP.register_error_handler(Exception, default_handler)
 
 
-@APP.route('/echo', methods=['GET'])
+@APP.route("/echo", methods=["GET"])
 def echo():
     # an echo route just for testing
-    data = request.args.get('data')
+    data = request.args.get("data")
     if data:
         print("Param supplied: {}".format(data))
     else:
         print("Param undefined")
-    return dumps({
-        'data': data,
-        'storage': local_storage_dir
-    })
+    return dumps({"data": data, "storage": local_storage_dir})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # backend server will run on port 5000 unless otherwise specified
-    APP.run(debug=True, port=(
-        int(sys.argv[1]) if len(sys.argv) == 2 else 5000))
+    APP.run(debug=True, port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5000))

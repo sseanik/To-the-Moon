@@ -2,19 +2,19 @@
 #   Portfolio Module   #
 ########################
 
-import time
-from flask import Blueprint, request
 from json import dumps
+from datetime import datetime
+from flask import request
+from flask_restx import Namespace, Resource, abort
 from database import create_DB_connection
 from token_util import get_id_from_token
-from helpers import TimeSeries, AlphaVantageAPI
-from datetime import datetime
+from helpers import TimeSeries
 from stock import retrieve_stock_price_at_date
 from iexfinance.stocks import Stock
-import pandas as pd
 
-PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
-
+PORTFOLIO_NS = Namespace(
+    "portfolio", "Stock Portfolio creation, publication and deletion"
+)
 
 ###################################
 # Please leave all functions here #
@@ -25,7 +25,10 @@ PORTFOLIO_ROUTES = Blueprint('portfolio', __name__)
 def create_portfolio(user_id, portfolio_name):
     # Check name is within the max length
     if len(portfolio_name) >= 30:
-        return {'status': 400, 'message': 'Portfolio name must be less than 30 characters.'}
+        return {
+            "status": 400,
+            "message": "Portfolio name must be less than 30 characters.",
+        }
 
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -39,13 +42,13 @@ def create_portfolio(user_id, portfolio_name):
         cur.execute(sql_query, (portfolio_name, user_id))
         conn.commit()
         response = {
-            'status': 200,
-            'message': 'Portfolio called \'' + portfolio_name + '\' has been created.'
+            "status": 200,
+            "message": "Portfolio called '" + portfolio_name + "' has been created.",
         }
     else:
         response = {
-            'status': 400,
-            'message': 'Already a portfolio named \'' + portfolio_name + '\'.'
+            "status": 400,
+            "message": "Already a portfolio named '" + portfolio_name + "'.",
         }
     # Close connection and return response
     conn.close()
@@ -53,11 +56,15 @@ def create_portfolio(user_id, portfolio_name):
 
 
 # Edit portfolio (e.g. change name of portfolio) in database
-# Note: does not check whether old_portfolio_name actually exists. If it does exist, it changes its name to newportfolio_name. Otherwise does noting.
+# Note: does not check whether old_portfolio_name actually exists.
+# If it does exist, it changes its name to newportfolio_name. Otherwise does noting.
 def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
     # Check new name is within the max length
     if len(new_portfolio_name) >= 30:
-        return {'status': 400, 'message': 'Portfolio name must be less than 30 characters.'}
+        return {
+            "status": 400,
+            "message": "Portfolio name must be less than 30 characters.",
+        }
 
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -72,15 +79,19 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
         # update holdings table
         sql_query = "UPDATE Holdings SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
         cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
-        response ={
-            'status': 200,
-            'message' : '\'' + old_portfolio_name + "\' has been changed to \'" + new_portfolio_name + "\'."
+        response = {
+            "status": 200,
+            "message": "'"
+            + old_portfolio_name
+            + "' has been changed to '"
+            + new_portfolio_name
+            + "'.",
         }
         # TODO: update notes table
     else:
         response = {
-            'status' : 400,
-            'message' : 'Already a portfolio named' + new_portfolio_name + '.'
+            "status": 400,
+            "message": "Already a portfolio named" + new_portfolio_name + ".",
         }
     # Commit changes, close connection and return response to user
     conn.commit()
@@ -89,7 +100,8 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
 
 
 # Delete portfolio object from the database
-# Note: this function does not check whether user_id or portfolio exists. It just deletes them if they exist
+# Note: this function does not check whether user_id or portfolio exists.
+# It just deletes them if they exist
 def delete_portfolio(user_id, portfolio_name):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -102,15 +114,18 @@ def delete_portfolio(user_id, portfolio_name):
     # Commit changes, close connection and return response to user
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Portfolio named \'" + portfolio_name + "\' has been deleted."}
+    return {
+        "status": 200,
+        "message": "Portfolio named '" + portfolio_name + "' has been deleted.",
+    }
 
 
 ############# Investment helper functions #################
 def total_stock_change(stock_ticker, purchase_price):
     # Get investment current price
     quick_data = TimeSeries().get_quick_quote(stock_ticker)
-    current_price = float(quick_data['Global Quote']['05. price'])
-    return (current_price - purchase_price)*100 / purchase_price
+    current_price = float(quick_data["Global Quote"]["05. price"])
+    return (current_price - purchase_price) * 100 / purchase_price
 
 
 # Add investments to portfolio object in database
@@ -120,18 +135,39 @@ def add_investment(user_id, portfolio_name, num_shares, timestamp, stock_ticker)
     purchase_date = datetime.fromtimestamp(timestamp)
     if purchase_date > datetime.now():
         return {
-            'status': 400,
-            'error': 'Invalid purchase date, date must be in the past/present'
+            "status": 400,
+            "error": "Invalid purchase date, date must be in the past/present",
         }
     conn = create_DB_connection()
     cur = conn.cursor()
     purchase_price = retrieve_stock_price_at_date(stock_ticker, purchase_date)
     # Execute query and close connections
-    sql_query = "INSERT INTO Holdings (user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker) VALUES (%s, %s, %s, %s, %s, %s)"
-    cur.execute(sql_query, (user_id, portfolio_name, purchase_price, num_shares, purchase_date.strftime('%Y-%m-%d %H:%M:%S'), stock_ticker))
+    sql_query = (
+        "INSERT INTO Holdings ",
+        "(user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker)",
+        " VALUES (%s, %s, %s, %s, %s, %s)",
+    )
+    cur.execute(
+        sql_query,
+        (
+            user_id,
+            portfolio_name,
+            purchase_price,
+            num_shares,
+            purchase_date.strftime("%Y-%m-%d %H:%M:%S"),
+            stock_ticker,
+        ),
+    )
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Investment in " + stock_ticker + " has been added to portfolio named \'" + portfolio_name + "\'."}
+    return {
+        "status": 200,
+        "message": "Investment in "
+        + stock_ticker
+        + " has been added to portfolio named '"
+        + portfolio_name
+        + "'.",
+    }
 
 
 # Delete investments from portfolio object in database
@@ -140,10 +176,10 @@ def delete_investment(investment_id):
     cur = conn.cursor()
     # Delete from holdings table
     sql_query = "delete from Holdings where investment_id=%s"
-    cur.execute(sql_query, (investment_id, ))
+    cur.execute(sql_query, (investment_id,))
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Investment removed successfully."}
+    return {"status": 200, "message": "Investment removed successfully."}
 
 
 # Get an individual investment's total performance
@@ -152,37 +188,36 @@ def get_investment_tc(investment_id):
     conn = create_DB_connection()
     cur = conn.cursor()
     # Get investment purchase price
-    sql_query = "SELECT purchase_price, stock_ticker FROM Holdings WHERE investment_id=%s"
-    cur.execute(sql_query, (investment_id, ))
+    sql_query = (
+        "SELECT purchase_price, stock_ticker FROM Holdings WHERE investment_id=%s"
+    )
+    cur.execute(sql_query, (investment_id,))
     query_results = cur.fetchall()
     purchase_price = float(query_results[0][0])
     stock_ticker = query_results[0][1]
     # Compute total change
     total_change = total_stock_change(stock_ticker, purchase_price)
     conn.close()
-    return {
-        'status' : 200,
-        'data' : {
-            'id': investment_id,
-            'total_change': total_change
-        }
-    }
+    return {"status": 200, "data": {"id": investment_id, "total_change": total_change}}
+
 
 # Get the 'trendiness' of each invested stock symbol
+
+
 def get_trending_investments(num):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "SELECT stock_ticker, count(distinct user_id) AS user_count FROM Holdings GROUP BY stock_ticker ORDER BY user_count DESC limit %s"
-    cur.execute(sql_query, (num, ))
+    sql_query = (
+        "SELECT stock_ticker, count(distinct user_id) AS user_count FROM Holdings ",
+        "GROUP BY stock_ticker ORDER BY user_count DESC limit %s",
+    )
+    cur.execute(sql_query, (num,))
     query_results = cur.fetchall()
     data = []
     for tupl in query_results:
-        data.append({
-            'stock': tupl[0],
-            'count': tupl[1]
-        })
+        data.append({"stock": tupl[0], "count": tupl[1]})
     conn.close()
-    return {'status': 200, 'data': data}
+    return {"status": 200, "data": data}
 
 
 ############ Additional functions ##############
@@ -190,13 +225,13 @@ def get_portfolios(user_id):
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "SELECT portfolio_name FROM Portfolios WHERE user_id=%s"
-    cur.execute(sql_query, (user_id, ))
+    cur.execute(sql_query, (user_id,))
     query_results = cur.fetchall()
     data = []
     for tupl in query_results:
         data.append(tupl[0])
     conn.close()
-    return {'status' : 200, 'data' : data}
+    return {"status": 200, "data": data}
 
 
 def get_investments(user_id, portfolio_name):
@@ -208,17 +243,17 @@ def get_investments(user_id, portfolio_name):
     data = []
     for row in query_results:
         new_investment = {
-            'investment_id': row[0],
-            'purchase_price': str(row[3]),
-            'num_shares': row[4],
-            'purchase_date': row[5].strftime("%Y-%m-%d"),
-            'total_change': total_stock_change(row[6], float(row[3])),
-            'stock_ticker': row[6]
+            "investment_id": row[0],
+            "purchase_price": str(row[3]),
+            "num_shares": row[4],
+            "purchase_date": row[5].strftime("%Y-%m-%d"),
+            "total_change": total_stock_change(row[6], float(row[3])),
+            "stock_ticker": row[6],
         }
         data.append(new_investment)
 
     conn.close()
-    return {'status' : 200, 'data' : data}
+    return {"status": 200, "data": data}
 
 
 def get_portfolio_performance(user_id, portfolio_name):
@@ -228,14 +263,26 @@ def get_portfolio_performance(user_id, portfolio_name):
     try:
         cur.execute(sql_query, (user_id, portfolio_name))
     except:
-        return {'status' : 400, 'error' : 'Something went wrong while searching Holdings table for user_id = \'' + str(user_id) + '\' and portfolio_name = \'' + str(portfolio_name) + '\'.'}
+        return {
+            "status": 400,
+            "error": "Something went wrong while searching Holdings table for user_id = '"
+            + str(user_id)
+            + "' and portfolio_name = '"
+            + str(portfolio_name)
+            + "'.",
+        }
     query_results = cur.fetchall()
     if not query_results:
-        return {'status' : 400, 'error' : 'There are no investments in a portfolio called \'' + portfolio_name + '\'.'}
+        return {
+            "status": 400,
+            "error": "There are no investments in a portfolio called '"
+            + portfolio_name
+            + "'.",
+        }
     conn.close()
-    
+
     # Fill the data dictionary with investments and collect the stock tickers for a batch API call
-    data = {'investments' : []}
+    data = {"investments": []}
     stocks = []
     for row in query_results:
         stock_ticker = row[6]
@@ -243,30 +290,36 @@ def get_portfolio_performance(user_id, portfolio_name):
             stocks.append(stock_ticker)
 
         new_investment = {
-            'investment_id': row[0],
-            'purchase_price': str(row[3]),
-            'num_shares': row[4],
-            'purchase_date': row[5].strftime("%Y-%m-%d"),
-            'stock_ticker': stock_ticker
+            "investment_id": row[0],
+            "purchase_price": str(row[3]),
+            "num_shares": row[4],
+            "purchase_date": row[5].strftime("%Y-%m-%d"),
+            "stock_ticker": stock_ticker,
         }
-        data['investments'].append(new_investment)
+        data["investments"].append(new_investment)
 
     # Fetch stock prices
     batch = Stock(stocks)
     batch = batch.get_quote()
     total_value_change = 0
     total_invested_capital = 0
-    for investment in data['investments']:
-        value_change = batch.latestPrice[investment['stock_ticker']] - float(investment['purchase_price'])
-        investment['total_change'] = (value_change * 100) / float(investment['purchase_price'])
+    for investment in data["investments"]:
+        value_change = batch.latestPrice[investment["stock_ticker"]] - float(
+            investment["purchase_price"]
+        )
+        investment["total_change"] = (value_change * 100) / float(
+            investment["purchase_price"]
+        )
         total_value_change += value_change
-        total_invested_capital += float(investment['purchase_price'])
+        total_invested_capital += float(investment["purchase_price"])
 
-    data['portfolio_change'] = (total_value_change * 100) / total_invested_capital
+    data["portfolio_change"] = (total_value_change * 100) / total_invested_capital
     response = {
-        'status' : 200, 
-        'message' : 'Successfully calculated the performance of portfolio \'' + portfolio_name + '\', as well as its individual investments.', 
-        'data' : data
+        "status": 200,
+        "message": "Successfully calculated the performance of portfolio '"
+        + portfolio_name
+        + "', as well as its individual investments.",
+        "data": data,
     }
     return response
 
@@ -275,104 +328,138 @@ def get_portfolio_performance(user_id, portfolio_name):
 # Please leave all routes here #
 ################################
 
-# Get the list of portfolios owned by a user
-@PORTFOLIO_ROUTES.route('/user/portfolio', methods=['GET'])
-def get_user_portfolios_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    return dumps(get_portfolios(user_id))
+
+@PORTFOLIO_NS.route("/")
+class Portfolio(Resource):
+    # Get the list of portfolios owned by a user
+    # def get_user_portfolios_wrapper():
+    def get(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        result = get_portfolios(user_id)
+        if result["status"] != 200:
+            abort(result["status"], result["message"])
+        return dumps(result)
+
+    # def create_user_portfolio_wrapper():
+    # Create a new portfolio
+    def post(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        portfolio_name = request.args.get("name")
+        response = create_portfolio(user_id, portfolio_name)
+        if response["status"] != 200:
+            abort(response["status"], response["message"])
+        return dumps(response)
+
+    # def edit_user_portfolio_wrapper():
+    # Modify an existing portfolio
+    def put(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        old_portfolio_name = request.args.get("name")
+        data = request.get_json()
+        new_portfolio_name = data["name"]
+        response = edit_portfolio(user_id, old_portfolio_name, new_portfolio_name)
+        if response["status"] != 200:
+            abort(response["status"], response["message"])
+        return dumps(response)
+
+    # def delete_user_portfolio_wrapper():
+    # Delete an existing portfolio
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        portfolio_name = request.args.get("name")
+        response = delete_portfolio(user_id, portfolio_name)
+        if response["status"] != 200:
+            abort(response["status"], response["message"])
+        return dumps(response)
 
 
-# Get the list of investments of a portfolio owned by a user
-@PORTFOLIO_ROUTES.route('/user/investment', methods=['GET'])
-def get_user_portfolio_investments_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    portfolio_name = request.args.get('portfolio')
-    return dumps(get_investments(user_id, portfolio_name))
+@PORTFOLIO_NS.route("/investment")
+class Investment(Resource):
+    # def get_user_portfolio_investments_wrapper():
+    # Get the list of investments of a portfolio owned by a user
+    def get(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        portfolio_name = request.args.get("portfolio")
+        result = get_investments(user_id, portfolio_name)
+        if result["status"] != 200:
+            abort(result["status"], result["message"])
+        return dumps(result)
+
+    # Create a new investment
+    # Expects payload:
+    # """
+    #     num_shares: number
+    #     stock_ticker: string
+    #     purchase_date: number (in UNIX timestamp format, i.e. seconds since 1970)
+    # """
+    # def add_investment_user_portfolio_wrapper():
+
+    def post(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        portfolio_name = request.args.get("portfolio")
+        num_shares = data["num_shares"]
+        stock_ticker = data["stock_ticker"]
+        purchase_date = int(data["purchase_date"])
+        response = add_investment(
+            user_id, portfolio_name, num_shares, purchase_date, stock_ticker
+        )
+        if response["status"] != 200:
+            abort(response["status"], response["message"])
+        return dumps(response)
+
+    # Delete an existing investment
+    # def delete_investment_user_portfolio_wrapper():
+    def delete(self):
+        investment_id = request.args.get("id")
+        result = delete_investment(investment_id)
+        if result["status"] != 200:
+            abort(result["status"], result["message"])
+        return dumps(result)
 
 
-# Create a new portfolio
-@PORTFOLIO_ROUTES.route('/portfolio', methods=['POST'])
-def create_user_portfolio_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    portfolio_name = request.args.get('name')
-    response = create_portfolio(user_id, portfolio_name)
-    return dumps(response)
+@PORTFOLIO_NS.route("/investment/total-change")
+class TotalChange(Resource):
+    # def get_investment_total_change_wrapper():
+    # Get total change of an existing investment
+    def get(self):
+        investment_id = request.args.get("id")
+        result = get_investment_tc(investment_id)
+        if result["status"] != 200:
+            abort(result["status"], result["message"])
+        return dumps(result)
 
 
-# Modify an existing portfolio
-@PORTFOLIO_ROUTES.route('/portfolio', methods=['PUT'])
-def edit_user_portfolio_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    old_portfolio_name = request.args.get('name')
-    data = request.get_json()
-    new_portfolio_name = data['name']
-    response = edit_portfolio(user_id, old_portfolio_name, new_portfolio_name)
-    return dumps(response)
+@PORTFOLIO_NS.route("/investment/trending")
+class Trending(Resource):
+    # def get_investment_trending_wrapper():
+    # Get trending investments
+    def get(self):
+        num = request.args.get("n")
+        response = get_trending_investments(num)
+        if response["status"] != 200:
+            abort(response["status"], response["message"])
+        return dumps(response)
 
 
-# Delete an existing portfolio
-@PORTFOLIO_ROUTES.route('/portfolio', methods=['DELETE'])
-def delete_user_portfolio_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    portfolio_name = request.args.get('name')
-    response = delete_portfolio(user_id, portfolio_name)
-    return dumps(response)
-
-
-# Get total change of an existing investment
-@PORTFOLIO_ROUTES.route('/investment/total-change', methods=['GET'])
-def get_investment_total_change_wrapper():
-    investment_id = request.args.get('id')
-    return dumps(get_investment_tc(investment_id))
-
-
-# Get trending investments
-@PORTFOLIO_ROUTES.route('/investment/trending', methods=['GET'])
-def get_investment_trending_wrapper():
-    num = request.args.get('n')
-    response = get_trending_investments(num)
-    return dumps(response)
-
-# Create a new investment
-# Expects payload:
-'''
-    num_shares: number
-    stock_ticker: string
-    purchase_date: number (in UNIX timestamp format, i.e. seconds since 1970)
-'''
-@PORTFOLIO_ROUTES.route('/investment', methods=['POST'])
-def add_investment_user_portfolio_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    portfolio_name = request.args.get('portfolio')
-    num_shares = data['num_shares']
-    stock_ticker = data['stock_ticker']
-    purchase_date = int(data['purchase_date'])
-    response = add_investment(user_id, portfolio_name, num_shares, purchase_date, stock_ticker)
-    return dumps(response)
-
-
-# Delete an existing investment
-@PORTFOLIO_ROUTES.route('/investment', methods=['DELETE'])
-def delete_investment_user_portfolio_wrapper():
-    investment_id = request.args.get('id')
-    return dumps(delete_investment(investment_id))
-
-
-# Get the performance of a portfolio and its individual investments.
-@PORTFOLIO_ROUTES.route('/user/portfolio/performance', methods=['GET'])
-def get_portfolio_performance_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    portfolio_name = request.args.get('name')
-    response = get_portfolio_performance(user_id, portfolio_name)
-    return dumps(response)
+@PORTFOLIO_NS.route("/performance")
+class Performance(Resource):
+    # Get the performance of a portfolio and its individual investments.
+    # def get_portfolio_performance_wrapper():
+    def get(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        portfolio_name = request.args.get("name")
+        response = get_portfolio_performance(user_id, portfolio_name)
+        if response["status"] != 200:
+            abort(response["status"], response["message"])
+        return dumps(response)
 
 
 ############ Tests #############
@@ -401,10 +488,10 @@ def get_portfolio_performance_wrapper():
 # for key, value in batch.items():
 #     print(key, " : ", value)
 
-#create_portfolio("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test")
+# create_portfolio("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test")
 # add TSLA, IBM
-#add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
-#add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "ORCL")
-#dd_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
-# test 
+# add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
+# add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "ORCL")
+# dd_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
+# test
 # print(get_portfolio_performance("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test"))
