@@ -91,6 +91,35 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  deleteParent: (comment_id: string) => {
+    const endpoint = "/forum/deleteComment";
+    const options = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        comment_id,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  deleteChild: (comment_id: string, parent_id: string) => {
+    const endpoint = "/forum/deleteReply";
+    const options = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        comment_id,
+        parent_id,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
 };
 
 export default forumAPI;

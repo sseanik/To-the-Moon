@@ -8,6 +8,7 @@ import StockInfo from "../components/StockInfo";
 import ClipLoader from "react-spinners/ClipLoader";
 import investmentActions from "../redux/actions/investmentActions";
 import { connect } from "react-redux";
+import PublishPortfolioForm from "../components/PublishPortfolioForm";
 
 interface StockParams {
   investment_id: string;
@@ -38,6 +39,7 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     getStocks(name);
@@ -85,10 +87,22 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
             </Button>
           )}
         </Col>
+        <Col>
+          {publishing ? (
+            <Button variant="light" onClick={() => setPublishing(false)}>
+              Cancel
+            </Button>
+          ) : (
+            <Button variant="light" onClick={() => setPublishing(true)}>
+              Publish Portfolio
+            </Button>
+          )}
+        </Col>
       </Row>
       <Row className="justify-content-center mt-4">
         <Col>{adding ? <AddInvestmentForm /> : null}</Col>
         <Col>{editing ? <EditPortfolioForm /> : null}</Col>
+        <Col>{publishing ? <PublishPortfolioForm /> : null}</Col>
       </Row>
       <Row>
         <Container>
