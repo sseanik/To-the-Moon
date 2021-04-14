@@ -4,14 +4,15 @@
 
 
 from flask import Blueprint
+from flask_restx import Namespace, Resource
 
-SCREENER_ROUTES = Blueprint('screener', __name__)
+
+SCREENER_NS = Namespace('user', 'Authentication and Authorisation of Users')
 
 
 ###################################
 # Please leave all functions here #
 ###################################
-
 
 
 ################################

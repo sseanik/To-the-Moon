@@ -3,15 +3,15 @@
 ########################
 
 
-from flask import Blueprint
+from flask_restx import Namespace, Resource
 
-WATCHLIST_ROUTES = Blueprint('watchlist', __name__)
+
+WATCHLIST_NS = Namespace("user", "Authentication and Authorisation of Users")
 
 
 ###################################
 # Please leave all functions here #
 ###################################
-
 
 
 ################################

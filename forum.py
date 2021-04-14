@@ -2,16 +2,16 @@
 #   Forum Module   #
 ####################
 import time
+from json import dumps
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from database import create_DB_connection
 from token_util import get_id_from_token
 from better_profanity import profanity
-from json import dumps
-from flask import Blueprint, request
-from flask_restx import Namespace, Resource
+from flask import request
+from flask_restx import Namespace, Resource, abort
 
-FORUM_NS = Namespace('forum', 'User discussion on Stock Pages')
+FORUM_NS = Namespace("forum", "User discussion on Stock Pages")
 
 ###################################
 # Please leave all functions here #
@@ -41,17 +41,20 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     # Check that the content is not too large
     if len(content) >= 5000:
         return {
-            'status': 400,
-            'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
-            'comment': {}
+            "status": 400,
+            "message": (
+                "Comment content cannot be larger than 5000 characters. ",
+                "Please reduce comment size.",
+            ),
+            "comment": {},
         }
 
     # If the timestamp is not between yesterday or tomorrow
     if not validate_timestamp(timestamp):
         return {
-            'status': 400,
-            'message': 'Timestamp provided is invalid',
-            'comment': {}
+            "status": 400,
+            "message": "Timestamp provided is invalid",
+            "comment": {},
         }
 
     # Censor rude words
@@ -71,7 +74,9 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
             ) SELECT i.comment_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.is_deleted
             FROM inserted_comment i
             JOIN users u on i.author_id = u.id;
-        """.replace("\n", "")
+        """.replace(
+            "\n", ""
+        )
         values = (stock_ticker, user_id, timestamp, content)
     # Otherwise, using the provided parent id, it is a child comment (reply)
     else:
@@ -83,7 +88,9 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
             ) SELECT i.reply_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.comment_id
             FROM inserted_reply i
             JOIN users u on i.author_id = u.id;
-        """.replace("\n", "")
+        """.replace(
+            "\n", ""
+        )
         values = (parent_id, stock_ticker, user_id, timestamp, content)
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
@@ -92,11 +99,11 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         status = 200
         message = "Submitted successfully"
         inserted_comment = dict(cur.fetchall()[0])
-        inserted_comment['upvotes'] = 0
-        inserted_comment['downvotes'] = 0
-        inserted_comment['vote_difference'] = 0
+        inserted_comment["upvotes"] = 0
+        inserted_comment["downvotes"] = 0
+        inserted_comment["vote_difference"] = 0
         if not parent_id:
-            inserted_comment['replies'] = []
+            inserted_comment["replies"] = []
     except:
         status = 400
         message = "Invalid data was provided to the Database"
@@ -106,11 +113,7 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     cur.close()
     conn.close()
 
-    return {
-        'status': status,
-        'message': message,
-        'comment': inserted_comment
-    }
+    return {"status": status, "message": message, "comment": inserted_comment}
 
 
 def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
@@ -124,23 +127,26 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
         parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
 
     Returns:
-        dict: Status Code, accompanying message, comment object    
+        dict: Status Code, accompanying message, comment object
 
     """
     # Check that the content is not too large
     if len(content) >= 5000:
         return {
-            'status': 400,
-            'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
-            'comment': {}
+            "status": 400,
+            "message": (
+                "Comment content cannot be larger than 5000 characters. ",
+                "Please reduce comment size.",
+            ),
+            "comment": {},
         }
 
     # If the timestamp is not between yesterday or tomorrow
     if not validate_timestamp(timestamp):
         return {
-            'status': 400,
-            'message': 'Timestamp provided is invalid',
-            'comment': {}
+            "status": 400,
+            "message": "Timestamp provided is invalid",
+            "comment": {},
         }
     # Censor rude words
     content = profanity.censor(content)
@@ -153,7 +159,7 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
 
     try:
         if not parent_id:
-            sqlQuery = '''
+            sql_query = """
                 WITH edited_comment as (
                     UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
                     WHERE comment_id=%s AND author_id=%s
@@ -161,9 +167,9 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
                 ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
                 FROM edited_comment e
                 JOIN users u on e.author_id = u.id;
-            '''
+            """
         else:
-            sqlQuery = '''
+            sql_query = """
                 WITH edited_comment as (
                     UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
                     WHERE reply_id=%s AND author_id=%s
@@ -171,37 +177,33 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
                 ) SELECT e.reply_id, e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
                 FROM edited_comment e
                 JOIN users u on e.author_id = u.id;
-            '''
+            """
         values = (timestamp, content, comment_id, user_id)
-        cur.execute(sqlQuery, values)
+        cur.execute(sql_query, values)
         db_reply = cur.fetchall()
         # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
         if not db_reply:
             response = {
-                'status': 400,
-                'message': "User does not have permission to edit this comment."
+                "status": 400,
+                "message": "User does not have permission to edit this comment.",
             }
         else:
             # If rows have been updated, return the newly updated row.
             updated_comment = dict(db_reply[0])
-            updated_comment['upvotes'] = len(
-                updated_comment['upvote_user_ids'])
-            updated_comment['downvotes'] = len(
-                updated_comment['downvote_user_ids'])
-            updated_comment['vote difference'] = updated_comment['upvotes'] - \
-                updated_comment['downvotes']
+            updated_comment["upvotes"] = len(updated_comment["upvote_user_ids"])
+            updated_comment["downvotes"] = len(updated_comment["downvote_user_ids"])
+            updated_comment["vote difference"] = (
+                updated_comment["upvotes"] - updated_comment["downvotes"]
+            )
             updated_comment.pop("upvote_user_ids")
             updated_comment.pop("downvote_user_ids")
             response = {
-                'status': 200,
-                'message': "Comment updated",
-                'comment': updated_comment
+                "status": 200,
+                "message": "Comment updated",
+                "comment": updated_comment,
             }
     except:
-        response = {
-            'status': 400,
-            'message': 'Something went wrong when editing.'
-        }
+        response = {"status": 400, "message": "Something went wrong when editing."}
 
     conn.commit()
     cur.close()
@@ -235,55 +237,55 @@ def delete_comment(user_id, comment_id, parent_id=None):
                 ) SELECT d.comment_id, d.stock_ticker, u.username, d.time_stamp, d.content, d.is_edited, d.is_deleted, array_to_json(d.upvote_user_ids) AS upvote_user_ids, array_to_json(d.downvote_user_ids) AS downvote_user_ids
                 FROM deleted_comment d
                 JOIN users u on d.author_id = u.id;
-            """.replace("\n", "")
+            """.replace(
+                "\n", ""
+            )
             values = ("", comment_id, user_id)
             cur.execute(insert_query, values)
             db_reply = cur.fetchall()
-            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+            # If no rows have been updated, so the user cannot edit this comment.
             if not db_reply:
                 response = {
-                    'status': 400,
-                    'message': "User does not have permission to edit this comment."
+                    "status": 400,
+                    "message": "User does not have permission to edit this comment.",
                 }
             else:
                 # If rows have been updated, return the newly updated row.
                 updated_comment = dict(db_reply[0])
-                updated_comment['upvotes'] = len(
-                    updated_comment['upvote_user_ids'])
-                updated_comment['downvotes'] = len(
-                    updated_comment['downvote_user_ids'])
-                updated_comment['vote difference'] = updated_comment['upvotes'] - \
-                    updated_comment['downvotes']
+                updated_comment["upvotes"] = len(updated_comment["upvote_user_ids"])
+                updated_comment["downvotes"] = len(updated_comment["downvote_user_ids"])
+                updated_comment["vote difference"] = (
+                    updated_comment["upvotes"] - updated_comment["downvotes"]
+                )
                 updated_comment.pop("upvote_user_ids")
                 updated_comment.pop("downvote_user_ids")
                 response = {
-                    'status': 200,
-                    'message': "Comment deleted.",
-                    'comment': updated_comment
+                    "status": 200,
+                    "message": "Comment deleted.",
+                    "comment": updated_comment,
                 }
         # Otherwise, using the provided parent id, it is a child comment (reply)
         else:
             insert_query = """
                 DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
-            """.replace("\n", "")
+            """.replace(
+                "\n", ""
+            )
             values = (comment_id, user_id)
             cur.execute(insert_query, values)
             db_reply = cur.fetchall()
-            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+            # If no rows have been updated, the user cannot edit this comment.
             if not db_reply:
                 response = {
-                    'status': 400,
-                    'message': "User does not have permission to delete this comment."
+                    "status": 400,
+                    "message": "User does not have permission to delete this comment.",
                 }
             else:
-                response = {
-                    "status": 200,
-                    "message": "Child comment deleted."
-                }
+                response = {"status": 200, "message": "Child comment deleted."}
     except:
         response = {
             "status": 400,
-            "message": "Something when wrong when trying to delete."
+            "message": "Something when wrong when trying to delete.",
         }
 
     conn.commit()
@@ -336,7 +338,9 @@ def get_stock_comments(user_id, stock_ticker):
         GROUP BY 
         c.comment_id, 
         u.username
-    """.replace("\n", "")
+    """.replace(
+        "\n", ""
+    )
 
     try:
         cur.execute(select_query, (stock_ticker,))
@@ -351,66 +355,66 @@ def get_stock_comments(user_id, stock_ticker):
     cur.close()
     conn.close()
 
-    for i in range(len(query_results)):
+    for i, _ in enumerate(query_results):
         # Convert from RealDictCursor to Dictionary
         query_results[i] = dict(query_results[i])
 
         # Add upvoted and downvoted fields to comments
-        query_results[i]['is_upvoted'] = False
-        query_results[i]['is_downvoted'] = False
+        query_results[i]["is_upvoted"] = False
+        query_results[i]["is_downvoted"] = False
 
         # If the user id is present in the votes, update fields
-        if user_id in query_results[i]['upvote_user_ids']:
-            query_results[i]['is_upvoted'] = True
-        elif user_id in query_results[i]['downvote_user_ids']:
-            query_results[i]['is_upvoted'] = True
+        if user_id in query_results[i]["upvote_user_ids"]:
+            query_results[i]["is_upvoted"] = True
+        elif user_id in query_results[i]["downvote_user_ids"]:
+            query_results[i]["is_upvoted"] = True
 
         # Add upvote and downvote count fields
-        query_results[i]['upvotes'] = len(query_results[i]['upvote_user_ids'])
-        query_results[i]['downvotes'] = len(
-            query_results[i]['downvote_user_ids'])
-        query_results[i]['vote_difference'] = query_results[i]['upvotes'] - \
-            query_results[i]['downvotes']
+        query_results[i]["upvotes"] = len(query_results[i]["upvote_user_ids"])
+        query_results[i]["downvotes"] = len(query_results[i]["downvote_user_ids"])
+        query_results[i]["vote_difference"] = (
+            query_results[i]["upvotes"] - query_results[i]["downvotes"]
+        )
 
         # Remove user_ids exposed in upvotes and downvotes
-        del query_results[i]['upvote_user_ids']
-        del query_results[i]['downvote_user_ids']
+        del query_results[i]["upvote_user_ids"]
+        del query_results[i]["downvote_user_ids"]
 
         # Fix the case of [None], into []
-        if query_results[i]['replies'] == [None]:
-            query_results[i]['replies'] = []
+        if query_results[i]["replies"] == [None]:
+            query_results[i]["replies"] = []
             continue
 
-        for j in range(len(query_results[i]['replies'])):
+        for j in range(len(query_results[i]["replies"])):
             # Add upvote and downvote fields to replies
-            query_results[i]['replies'][j]['is_upvoted'] = False
-            query_results[i]['replies'][j]['is_downvoted'] = False
+            query_results[i]["replies"][j]["is_upvoted"] = False
+            query_results[i]["replies"][j]["is_downvoted"] = False
 
             # If the user is present in the reply votes, update fields
-            if user_id in query_results[i]['replies'][j]['upvote_user_ids']:
-                query_results[i]['replies'][j]['is_upvoted'] = True
-            elif user_id in query_results[i]['replies'][j]['downvote_user_ids']:
-                query_results[i]['replies'][j]['is_downvoted'] = True
+            if user_id in query_results[i]["replies"][j]["upvote_user_ids"]:
+                query_results[i]["replies"][j]["is_upvoted"] = True
+            elif user_id in query_results[i]["replies"][j]["downvote_user_ids"]:
+                query_results[i]["replies"][j]["is_downvoted"] = True
 
             # Add number of upvotes and downvote fields
-            query_results[i]['replies'][j]['upvotes'] = len(
-                query_results[i]['replies'][j]['upvote_user_ids'])
-            query_results[i]['replies'][j]['downvotes'] = len(
-                query_results[i]['replies'][j]['downvote_user_ids'])
-            query_results[i]['replies'][j]['vote_difference'] = query_results[i]['replies'][j]['upvotes'] - \
-                query_results[i]['replies'][j]['downvotes']
+            query_results[i]["replies"][j]["upvotes"] = len(
+                query_results[i]["replies"][j]["upvote_user_ids"]
+            )
+            query_results[i]["replies"][j]["downvotes"] = len(
+                query_results[i]["replies"][j]["downvote_user_ids"]
+            )
+            query_results[i]["replies"][j]["vote_difference"] = (
+                query_results[i]["replies"][j]["upvotes"]
+                - query_results[i]["replies"][j]["downvotes"]
+            )
 
             # Remove upvote and downvote user ids
-            del query_results[i]['replies'][j]['upvote_user_ids']
-            del query_results[i]['replies'][j]['downvote_user_ids']
+            del query_results[i]["replies"][j]["upvote_user_ids"]
+            del query_results[i]["replies"][j]["downvote_user_ids"]
 
     # TODO: Sort Weighting
 
-    return {
-        'status': status,
-        'message': message,
-        'comments': query_results
-    }
+    return {"status": status, "message": message, "comments": query_results}
 
 
 def vote_on_comment(user_id, comment_id, upvote=True):
@@ -429,13 +433,14 @@ def vote_on_comment(user_id, comment_id, upvote=True):
         # Function returns the edited row
         voted_comment = dict(cur.fetchall()[0])
         # Calculate the new amount of upvotes and downvotes
-        voted_comment['upvotes'] = len(voted_comment['upvote_user_ids'])
-        voted_comment['downvotes'] = len(voted_comment['downvote_user_ids'])
-        voted_comment['vote_difference'] = voted_comment['upvotes'] - \
-            voted_comment['downvotes']
+        voted_comment["upvotes"] = len(voted_comment["upvote_user_ids"])
+        voted_comment["downvotes"] = len(voted_comment["downvote_user_ids"])
+        voted_comment["vote_difference"] = (
+            voted_comment["upvotes"] - voted_comment["downvotes"]
+        )
         # Remove columns that contain exposed user ids
-        del voted_comment['upvote_user_ids']
-        del voted_comment['downvote_user_ids']
+        del voted_comment["upvote_user_ids"]
+        del voted_comment["downvote_user_ids"]
         # Success strings
         status = 200
         message = "Submitted successfully"
@@ -454,11 +459,7 @@ def vote_on_comment(user_id, comment_id, upvote=True):
     cur.close()
     conn.close()
 
-    return {
-        'status': status,
-        'message': message,
-        'comment': comment
-    }
+    return {"status": status, "message": message, "comment": comment}
 
 
 def vote_on_reply(user_id, reply_id, upvote=True):
@@ -477,13 +478,14 @@ def vote_on_reply(user_id, reply_id, upvote=True):
         # Function returns the edited row
         voted_comment = dict(cur.fetchall()[0])
         # Calculate the new amount of upvotes and downvotes
-        voted_comment['upvotes'] = len(voted_comment['upvote_user_ids'])
-        voted_comment['downvotes'] = len(voted_comment['downvote_user_ids'])
-        voted_comment['vote_difference'] = voted_comment['upvotes'] - \
-            voted_comment['downvotes']
+        voted_comment["upvotes"] = len(voted_comment["upvote_user_ids"])
+        voted_comment["downvotes"] = len(voted_comment["downvote_user_ids"])
+        voted_comment["vote_difference"] = (
+            voted_comment["upvotes"] - voted_comment["downvotes"]
+        )
         # Remove columns that contain exposed user ids
-        del voted_comment['upvote_user_ids']
-        del voted_comment['downvote_user_ids']
+        del voted_comment["upvote_user_ids"]
+        del voted_comment["downvote_user_ids"]
         # Success strings
         status = 200
         message = "Submitted successfully"
@@ -497,11 +499,7 @@ def vote_on_reply(user_id, reply_id, upvote=True):
     cur.close()
     conn.close()
 
-    return {
-        'status': status,
-        'message': message,
-        'comment': comment
-    }
+    return {"status": status, "message": message, "comment": comment}
 
 
 ################################
@@ -509,128 +507,160 @@ def vote_on_reply(user_id, reply_id, upvote=True):
 ################################
 
 
-@FORUM_NS.route('/forum')
+@FORUM_NS.route("/")
 class Forum(Resource):
     # def get_comments():
-    def get(self):
-        token = request.headers.get('Authorization')
-        user_id = get_id_from_token(token)
-        data = request.get_json()
-        result = get_stock_comments(user_id, data['stockTicker'])
-        return dumps(result)
-
-    # @FORUM_ROUTES.route('/forum', methods=['GET'])
-    # def get_comments():
+    # def get(self):
     #     token = request.headers.get('Authorization')
     #     user_id = get_id_from_token(token)
-    #     stock_ticker = request.args.get('stockTicker')
-    #     result = get_stock_comments(user_id, stock_ticker)
+    #     data = request.get_json()
+    #     result = get_stock_comments(user_id, data['stockTicker'])
     #     return dumps(result)
 
+    # @FORUM_ROUTES.route('/forum', methods=['GET'])
+    def get(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        stock_ticker = request.args.get("stockTicker")
+        result = get_stock_comments(user_id, stock_ticker)
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
+        return dumps(result)
 
-@FORUM_NS.route('/forum/comment')
+
+@FORUM_NS.route("/comment")
 class Comment(Resource):
     # def submit_comment():
     def post(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
         result = post_comment(
-            user_id, data['stockTicker'], data['timestamp'], data['content'])
+            user_id, data["stockTicker"], data["timestamp"], data["content"]
+        )
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
     # @FORUM_NS.route('/forum/deleteComment', methods=['DELETE'])
     # def delete_user_comment():
     def delete(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
-        result = delete_comment(user_id, data['comment_id'])
+        result = delete_comment(user_id, data["comment_id"])
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
     # @FORUM_NS.route('/forum/editComment', methods=['PUT'])
     # def edit_users_comment():
     def put(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
         result = edit_comment(
-            user_id, data['comment_id'], data['time_stamp'], data['content'])
+            user_id, data["comment_id"], data["time_stamp"], data["content"]
+        )
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
 
-@FORUM_NS.route('/forum/reply')
+@FORUM_NS.route("/reply")
 class Reply(Resource):
     # def submit_reply():
     def post(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
         result = post_comment(
-            user_id, data['stockTicker'], int(data['timestamp']), data['content'], data['parentID'])
+            user_id,
+            data["stockTicker"],
+            int(data["timestamp"]),
+            data["content"],
+            data["parentID"],
+        )
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
     # @FORUM_NS.route('/forum/deleteReply', methods=['DELETE'])
     # def delete_user_reply():
-
     def delete(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
-        result = delete_comment(user_id, data['comment_id'], data['parent_id'])
+        result = delete_comment(user_id, data["comment_id"], data["parent_id"])
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
     # @FORUM_NS.route('/forum/editReply', methods=['PUT'])
     # def edit_users_reply():
-
     def put(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
         result = edit_comment(
-            user_id, data['comment_id'], data['time_stamp'], data['content'], data['parent_id'])
+            user_id,
+            data["comment_id"],
+            data["time_stamp"],
+            data["content"],
+            data["parent_id"],
+        )
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
 
-@FORUM_NS.route('/forum/comment/upvote')
-class Upvote_Comment(Resource):
+@FORUM_NS.route("/comment/upvote")
+class UpvoteComment(Resource):
     # def comment_upvote():
     def put(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
-        result = vote_on_comment(user_id, data['comment_id'])
+        result = vote_on_comment(user_id, data["comment_id"])
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
 
-@FORUM_NS.route('/forum/comment/downvote')
-class Downvote_Comment(Resource):
+@FORUM_NS.route("/comment/downvote")
+class DownvoteComment(Resource):
     # def comment_downvote():
     def put(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
-        result = vote_on_comment(user_id, data['comment_id'], upvote=False)
+        result = vote_on_comment(user_id, data["comment_id"], upvote=False)
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
 
-@FORUM_NS.route('/forum/reply/upvote')
-class Upvote_Reply(Resource):
+@FORUM_NS.route("/reply/upvote")
+class UpvoteReply(Resource):
     # def reply_upvote():
     def put(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
-        result = vote_on_reply(user_id, data['reply_id'])
+        result = vote_on_reply(user_id, data["reply_id"])
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
 
 
-@FORUM_NS.route('/forum/reply/downvote')
-class Downvote_reply(Resource):
+@FORUM_NS.route("/reply/downvote")
+class DownvoteReply(Resource):
     # def reply_downvote():
     def put(self):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
-        result = vote_on_reply(user_id, data['reply_id'], upvote=False)
+        result = vote_on_reply(user_id, data["reply_id"], upvote=False)
+        if result["status"] != 200:
+            abort(result["status"], result["error"])
         return dumps(result)
