@@ -3,24 +3,23 @@
 ########################
 
 import psycopg2
-from flask import Blueprint, request
+from flask import request, Response
 from json import dumps
 from database import create_DB_connection
 from token_util import get_id_from_token
 from iexfinance.stocks import Stock
 import simplejson
 from decimal import Decimal
-
-
 from flask_restx import Namespace, Resource
 
 
-WATCHLIST_NS = Namespace("user", "Authentication and Authorisation of Users")
+WATCHLIST_NS = Namespace("watchlist", "TODO")
 
 
 ###################################
 # Please leave all functions here #
 ###################################
+
 
 def publish_watchlist(user_id, portfolio_name, description):
     conn = create_DB_connection()
@@ -30,7 +29,7 @@ def publish_watchlist(user_id, portfolio_name, description):
         FROM holdings h, portfolios p 
         WHERE p.user_id = h.user_id AND p.portfolio_name=%s
     """
-    cur.execute(investments_query, (portfolio_name, ))
+    cur.execute(investments_query, (portfolio_name,))
     response = cur.fetchall()
     aggrigate = {}
     for ticker, price in response:
@@ -43,7 +42,7 @@ def publish_watchlist(user_id, portfolio_name, description):
     proportions = []
     for key, value in aggrigate.items():
         stocks.append(key)
-        proportions.append((value*100) / total_capital)
+        proportions.append((value * 100) / total_capital)
 
     watchlist_query = """
         INSERT INTO watchlists (user_id, watchlist_name, watchlist_description, stock_tickers, proportions)
@@ -51,24 +50,23 @@ def publish_watchlist(user_id, portfolio_name, description):
         RETURNING *
     """
     try:
-        cur.execute(watchlist_query, (user_id, portfolio_name, description, stocks, proportions))    
+        cur.execute(
+            watchlist_query, (user_id, portfolio_name, description, stocks, proportions)
+        )
         conn.commit()
         rtrn = {
-            'status' : 200,
-            'message' : 'Watchlist called \'' + portfolio_name + '\' has been created.'
+            "message": "Watchlist called '" + portfolio_name + "' has been created.",
         }
     except:
-        rtrn = {
-            'status' : 400,
-            'error' : 'Something went wrong while inserting.'
-        }
+        abort(400, "Something went wrong while inserting.")
 
     conn.commit()
     conn.close()
     return rtrn
 
+
 # TEST this
-def subcribe(user_id, watchlist_id):
+def subscribe(user_id, watchlist_id):
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -76,24 +74,16 @@ def subcribe(user_id, watchlist_id):
     """
     try:
         cur.execute(sql_query, (watchlist_id, user_id))
-        rtrn = {
-            'status' : 200,
-            'message' : 'User has been successfully subscribed.'
-        }
+        rtrn = {"message": "User has been successfully subscribed."}
     except psycopg2.errors.UniqueViolation:
-        rtrn = {
-            'status' : 400,
-            'error' : 'The user is already subscribed to this watchlist.'
-        }
+        abort(400, "The user is already subscribed to this watchlist.")
     except:
-        rtrn = {
-            'status' : 400,
-            'error' : 'Something went wrong while subscribing.'
-        }
+        abort(400, "Something went wrong while subscribing.")
 
     conn.commit()
     conn.close()
     return rtrn
+
 
 # TEST this
 def unsubscribe(user_id, watchlist_id):
@@ -105,19 +95,14 @@ def unsubscribe(user_id, watchlist_id):
     try:
         cur.execute(sql_query, (user_id, watchlist_id))
         conn.commit()
-        rtrn = {
-            'status' : 200,
-            'message' : 'Successfully unsubscribed.'
-        }
+        rtrn = {"message": "Successfully unsubscribed."}
     except:
-        rtrn = {
-            'status' : 400,
-            'error' : 'Something went wrong while unsubscribing.'
-        }
+        abort(400, "Something went wrong while unsubscribing.")
 
     conn.commit()
     conn.close()
     return rtrn
+
 
 # TEST this
 def get_user_subscriptions(user_id):
@@ -127,18 +112,14 @@ def get_user_subscriptions(user_id):
         SELECT watchlist_id FROM subscriptions where user_id = %s
     """
     try:
-        cur.execute(sql_query, (user_id, ))
+        cur.execute(sql_query, (user_id,))
         response = cur.fetchall()
         rtrn = {
-            'status' : 200,
-            'message' : 'Subscription fetching successful.',
-            'data' : list(map(lambda x: x[0], response))
+            "message": "Subscription fetching successful.",
+            "data": list(map(lambda x: x[0], response)),
         }
     except:
-        rtrn = {
-            'status' : 400,
-            'error' : 'Something went wrong while deleting.'
-        }
+        abort(400, "Something went wrong while deleting.")
 
     conn.close()
     return rtrn
@@ -152,14 +133,14 @@ def delete_watchlist(user_id, watchlist_id):
     cur.execute(sql_query, (user_id, watchlist_id, user_id, watchlist_id))
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Watchlist removed"}
+    return {"message": "Watchlist removed"}
 
 
 # TEST this
 def get_all_watchlists():
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query="""
+    sql_query = """
         SELECT w.watchlist_id, u.username, w.watchlist_name, w.watchlist_description, w.stock_tickers, w.proportions
         FROM watchlists w, users u
         WHERE u.id = w.user_id
@@ -168,9 +149,8 @@ def get_all_watchlists():
     response = cur.fetchall()
     if not response:
         rtrn = {
-            'status' : 200,
-            'message' : 'There are no watchlists available.',
-            'data' : []
+            "message": "There are no watchlists available.",
+            "data": [],
         }
     else:
         stocks = []
@@ -181,32 +161,38 @@ def get_all_watchlists():
         batch = Stock(stocks)
         batch = batch.get_quote()
         data = []
-        for watchlist_id, username, watchlist_name, description, companies, proportions in response:
+        for (
+            watchlist_id,
+            username,
+            watchlist_name,
+            description,
+            companies,
+            proportions,
+        ) in response:
             new_watchlist = {
-                'watchlist_id' : watchlist_id,
-                'watchlist_name' : watchlist_name,
-                'author_username' : username,
-                'description' : description,
-                'stocks' : []
+                "watchlist_id": watchlist_id,
+                "watchlist_name": watchlist_name,
+                "author_username": username,
+                "description": description,
+                "stocks": [],
             }
             for i in range(len(companies)):
                 company = companies[i]
                 proportion = proportions[i]
                 new_stock = {
-                    'stock_ticker' : company,
-                    'proportion' : Decimal(proportion),
-                    'price' : batch.latestPrice[company],
-                    'price_change_percentage' : batch.changePercent[company],
-                    'volume' : batch.volume[company],
-                    'market_capitalization' : batch.marketCap[company],
-                    'PE_ratio' : batch.peRatio[company]
+                    "stock_ticker": company,
+                    "proportion": Decimal(proportion),
+                    "price": batch.latestPrice[company],
+                    "price_change_percentage": batch.changePercent[company],
+                    "volume": batch.volume[company],
+                    "market_capitalization": batch.marketCap[company],
+                    "PE_ratio": batch.peRatio[company],
                 }
-                new_watchlist['stocks'].append(new_stock)
+                new_watchlist["stocks"].append(new_stock)
             data.append(new_watchlist)
         rtrn = {
-            'status' : 200,
-            'message' : 'Successfully fetched all watchlists.',
-            'data' : data
+            "message": "Successfully fetched all watchlists.",
+            "data": data,
         }
 
     conn.close()
@@ -216,18 +202,15 @@ def get_all_watchlists():
 def get_watchlist(watchlist_id):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query="""
+    sql_query = """
         SELECT w.watchlist_id, u.username, w.watchlist_name, w.watchlist_description, w.stock_tickers, w.proportions
         FROM watchlists w, users u
         WHERE u.id = w.user_id AND w.watchlist_id = %s
     """
-    cur.execute(sql_query, (watchlist_id, ))
+    cur.execute(sql_query, (watchlist_id,))
     response = cur.fetchall()[0]
     if not response:
-        rtrn = {
-            'status' : 200,
-            'message' : 'There are no watchlists with ID \'' + str(watchlist_id) + '\'.'
-        }
+        abort(400, "There are no watchlists with ID '" + str(watchlist_id) + "'.")
     else:
         stocks = []
         companies = response[4]
@@ -238,94 +221,94 @@ def get_watchlist(watchlist_id):
         batch = Stock(stocks)
         batch = batch.get_quote()
         watchlist = {
-                'watchlist_id' : response[0],
-                'author_username' : response[1],
-                'watchlist_name' : response[2],
-                'description' : response[3],
-                'stocks' : []
-            }
+            "watchlist_id": response[0],
+            "author_username": response[1],
+            "watchlist_name": response[2],
+            "description": response[3],
+            "stocks": [],
+        }
         for i in range(len(companies)):
             company = companies[i]
             proportion = proportions[i]
             new_stock = {
-                'stock_ticker' : company,
-                'proportion' : proportion,
-                'price' : batch.latestPrice[company],
-                'price_change_percentage' : batch.changePercent[company],
-                'volume' : batch.volume[company],
-                'market_capitalization' : batch.marketCap[company],
-                'PE_ratio' : batch.peRatio[company]
+                "stock_ticker": company,
+                "proportion": proportion,
+                "price": batch.latestPrice[company],
+                "price_change_percentage": batch.changePercent[company],
+                "volume": batch.volume[company],
+                "market_capitalization": batch.marketCap[company],
+                "PE_ratio": batch.peRatio[company],
             }
-            watchlist['stocks'].append(new_stock)
+            watchlist["stocks"].append(new_stock)
         rtrn = {
-            'status' : 200,
-            'message' : 'Successfully fetched the watchlists.',
-            'data' : watchlist
+            "message": "Successfully fetched the watchlists.",
+            "data": watchlist,
         }
 
     conn.close()
     return rtrn
 
+
 ################################
 # Please leave all routes here #
 ################################
-@WATCHLIST_ROUTES.route('/watchlist', methods=['POST'])
-def publish_watchlist_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = publish_watchlist(user_id, data['portfolio_name'], data['description'])
-    return dumps(result)
+
+# delete
+@WATCHLIST_NS.route("")
+class Watchlist(Resource):
+    def post(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = publish_watchlist(user_id, data["portfolio_name"], data["description"])
+        return Response(dumps(result), status=201)
+
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = delete_watchlist(user_id, data["watchlist_id"])
+        return Response(dumps(result), status=200)
+
+    # get a single watchlist
+    def get(self):
+        watchlist_id = request.args.get("watchlist_id")
+        result = get_watchlist(watchlist_id)
+        return Response(simplejson.dumps(result), status=200)
 
 
-# subscribe
-@WATCHLIST_ROUTES.route('/watchlist/subscribe', methods=['POST'])
-def subcribe_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = subcribe(user_id, data['watchlist_id'])
-    return dumps(result)
+@WATCHLIST_NS.route("/subscribe")
+class Subscribe(Resource):
+    # subscribe
+    def post(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = subscribe(user_id, data["watchlist_id"])
+        return Response(dumps(result), status=201)
 
-
-# unsubscribe
-@WATCHLIST_ROUTES.route('/watchlist/subscribe', methods=['DELETE'])
-def unsubscribe_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = unsubscribe(user_id, data['watchlist_id'])
-    return dumps(result)
+    # unsubscribe
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = unsubscribe(user_id, data["watchlist_id"])
+        return Response(dumps(result), status=200)
 
 
 # get all watchlists
-@WATCHLIST_ROUTES.route('/watchlist/get_all', methods=['GET'])
-def get_all_watchlists_wrapper():
-    result = get_all_watchlists()
-    return simplejson.dumps(result)
-
-
-# get a single watchlist
-@WATCHLIST_ROUTES.route('/watchlist/get_watchlist', methods=['GET'])
-def get_watchlist_wrapper():
-    watchlist_id = request.args.get('watchlist_id')
-    result = get_watchlist(watchlist_id)
-    return simplejson.dumps(result)
+@WATCHLIST_NS.route("/get_all")
+class All_Watchlists(Resource):
+    def get(self):
+        result = get_all_watchlists()
+        return Response(simplejson.dumps(result), status=200)
 
 
 # get users watchlists
-@WATCHLIST_ROUTES.route('/watchlist/userslist', methods=['GET'])
-def get_user_subscriptions_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    result = get_user_subscriptions(user_id)
-    return dumps(result)
-
-# delete
-@WATCHLIST_ROUTES.route('/watchlist', methods=['DELETE'])
-def delete_watchlist_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = delete_watchlist(user_id, data['watchlist_id'])
-    return dumps(result)
+@WATCHLIST_NS.route("/userslist", methods=["GET"])
+class Userlists(Resource):
+    def get(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        result = get_user_subscriptions(user_id)
+        return Response(dumps(result), status=200)
