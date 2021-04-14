@@ -13,9 +13,13 @@ import {
   PortfolioPage,
   CreatePortfolioPage,
   SearchStockPage,
+  PortfoliosPage,
+  DashboardPage,
 } from "./screens";
-import { Header, NoteList } from "./components";
-import PortfoliosPage from "./screens/PortfoliosPage";
+import {
+  Header,
+  NoteList
+} from "./components";
 
 const initialState = {};
 
@@ -46,6 +50,7 @@ function App() {
               <Route path="/stock" component={SearchStockPage} exact />
               <Route path="/stock/:symbol" component={StockPage} />
               <Route path="/portfolios" component={PortfoliosPage} />
+              <Route path="/dashboard" component={DashboardPage} />
             </Switch>
             <NoteList />
           </Container>
