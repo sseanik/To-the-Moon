@@ -7,6 +7,7 @@ import investmentReducer from "./investmentReducer";
 import stockReducer from "./stockReducer";
 import trendReducer from "./trendReducer";
 import noteReducer from "./noteReducer";
+import screenerReducer from "./screenerReducer";
 export default combineReducers({
   userReducer,
   portfolioReducer,
@@ -17,4 +18,5 @@ export default combineReducers({
   investmentReducer,
   trendReducer,
   noteReducer,
+  screenerReducer, 
 });
