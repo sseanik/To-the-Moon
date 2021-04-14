@@ -137,7 +137,7 @@ def screen_stocks(parameters):
         if key in ["region", "sector", "industry"]:
             continue
         new_param = ""
-        if isinstance(item, str) or isinstance(item, (int, long, float)):
+        if isinstance(item, str) or isinstance(item, (int, float)):
             new_param = "{key}=%s".format(key=key)
             values.append(item)
         else:
@@ -225,8 +225,39 @@ def screener_delete_wrapper():
 @SCREENER_ROUTES.route('/screener', methods=['GET'])
 def screen_stocks_wrapper():
     import pdb; pdb.set_trace()
-    data = request.get_json()
-    parameters = data['parameters']
+    # data = request.get_json()
+    # parameters = data['parameters']
+    region = request.args.getlist("region")
+    market_cap = request.args.get("market_cap")
+    yearly_low = float(request.args.get("yearly_low"))
+    yearly_high = request.args.get("yearly_high")
+    eps = request.args.getlist("eps")[0:2]
+    beta = request.args.getlist("beta")[0:2]
+    payout_ratio = request.args.getlist("payout_ratio")[0:2]
+
+
+    eps[0] = float(eps[0]) if eps[0] else None
+    eps[1] = float(eps[1]) if eps[1] else None
+    beta[0] = float(beta[0]) if beta[0] else None
+    beta[1] = float(beta[1]) if beta[1] else None
+    payout_ratio[0] = float(payout_ratio[0]) if payout_ratio[0] else None
+    payout_ratio[1] = float(payout_ratio[1]) if payout_ratio[1] else None
+
+    sector = request.args.getlist("sector")
+    industry = request.args.getlist("Industry")
+    parameters = {
+        "securities_overviews": {
+            "region": region,
+            "market_cap": market_cap,
+            "yearly_low": yearly_low,
+            "yearly_high": yearly_high,
+            "eps": eps,
+            "beta": beta,
+            "payout_ratio": payout_ratio,
+            "sector": sector,
+            "industry": industry,
+        }
+    }
     return dumps(screen_stocks(parameters))
 
 

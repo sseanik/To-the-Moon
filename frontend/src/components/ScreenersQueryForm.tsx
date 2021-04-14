@@ -94,13 +94,14 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
   const history = useHistory();
 
   const formToScreenerParams = (values: ScreenerFormValues) => {
-    const yearlyLow = values.intradayLower ? values.intradayLower : null;
+    const yrLow = values.intradayLower;
+    const yrHigh = values.intradayUpper;
     let paramsObj = {
       'securities_overviews': {
         "region": values.region,
         "market_cap": values.marketcap,
-        "yearly_low": values.intradayLower ? values.intradayLower : null,
-        "yearly_high": values.intradayUpper ? values.intradayUpper : null,
+        "yearly_low": typeof yrLow === "number" && yrLow >= 0 ? yrLow : null,
+        "yearly_high": typeof yrHigh === "number" && yrHigh >= 0 ? yrHigh : null,
         "eps": [values.epsLower ? values.epsLower : null, values.epsUpper ? values.epsUpper : null],
         "beta": [values.betaLower ? values.betaLower : null, values.betaUpper ? values.betaUpper : null],
         "payout_ratio": [values.payoutRatioLower ? values.payoutRatioLower : null, values.payoutRatioUpper ? values.payoutRatioUpper : null],
@@ -113,7 +114,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
       typeof value === "string" || typeof value === "number"
         ? `${field}=${String(value)}`
       : Array.isArray(value)
-        ? value.map((e: any) => (`${field}=${e !== null && e !== undefined ? e : ""}`)).join("&")
+        ? value.map((e: any) => (`${field}=${typeof e === "number" ? e : ""}`)).join("&")
       : value === null || value === undefined
         ? `${field}=`
       : `${field}=${String(value)}`
