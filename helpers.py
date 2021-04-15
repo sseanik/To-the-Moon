@@ -6,8 +6,6 @@ import json
 import requests
 from datetime import date
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
 from definitions import local_storage_dir
 
 class AlphaVantageInfo:
