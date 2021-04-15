@@ -2,6 +2,11 @@ import os
 import psycopg2
 from dotenv import load_dotenv
 from helpers import TimeSeries
+import time
+from helpers import TimeSeries, AlphaVantageAPI
+import os
+import json
+
 
 load_dotenv()
 
@@ -84,6 +89,13 @@ def create_comment_tables():
     conn.close()
 
 
+def create_screeners_table():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/screeners.sql", "r").read())
+    conn.commit()
+
+    
 def create_vote_plpgsql_functions():
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -114,27 +126,46 @@ def fill_securities_overview_table(symbol):
         beta,
         pe_ratio,
         eps,
-        dividend_yield
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        dividend_yield,
+        sector, 
+        industry,
+        book_value,
+        EBITDA,
+        payout_ratio,
+        revenue_TTM,
+        gross_profit_TTM
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (stock_ticker) DO NOTHING
     """
-    cur.execute(
-        insert_query,
-        (
-            overview["Symbol"],
-            overview["Name"],
-            overview["Description"],
-            overview["Exchange"],
-            overview["Currency"],
-            overview["52WeekHigh"],
-            overview["52WeekLow"],
-            overview["MarketCapitalization"],
-            overview["Beta"],
-            overview["PERatio"],
-            overview["EPS"],
-            overview["DividendYield"],
-        ),
-    )
+
+    
+    # Convert "None" values to None so cur.execute converts it to NULL.
+    for key, value in Overview.items():
+        if (value == "None"):
+            Overview[key] = None
+
+    cur.execute(insertQuery, (
+        Overview['Symbol'],
+        Overview['Name'],
+        Overview['Description'],
+        Overview['Exchange'],
+        Overview['Currency'],
+        Overview['52WeekHigh'],
+        Overview['52WeekLow'],
+        Overview['MarketCapitalization'],
+        Overview['Beta'],
+        Overview['PERatio'],
+        Overview['EPS'],
+        Overview['DividendYield'],
+        Overview['Sector'],
+        Overview['Industry'],
+        Overview['BookValue'],
+        Overview['EBITDA'],
+        Overview['PayoutRatio'],
+        Overview['RevenueTTM'],
+        Overview['GrossProfitTTM']
+    ))
+
     conn.commit()
     conn.close()
 
@@ -328,6 +359,36 @@ def fill_overview_and_financial_tables(symbol):
     fill_balance_sheets(symbol)
     fill_cashflow_statements(symbol)
 
+def fill_all_companies():
+    companies = [
+        'BHP',
+        'LIN',
+        'JPM',
+        'MA',
+        'WMT',
+        'KO',
+        'NEE',
+        'DUK',
+        'XOM',
+        'CVX',
+        'ORCL',
+        'IBM',
+        'NKE',
+        'TM',
+        'AMT',
+        'PLD',
+        'JNJ',
+        'UNH',
+        'T',
+        'VZ',
+        'BA',
+        'CAT'
+    ]
+    for company in companies:
+        fill_overview_and_financial_tables(company)
+        print("Inserted ", company)
+        time.sleep(60)
+
 
 if __name__ == "__main__":
     pass
@@ -386,3 +447,17 @@ if __name__ == "__main__":
     # Communication services sector
 
     # Industrials sector
+    #create_user_table()
+    #create_portfolios_table()
+    #create_holdings_table()
+    # create_securities_overviewTable()
+    # create_income_statementsTable()
+    # create_balance_sheets_table()
+    # create_cashflow_statements_table()
+    #create_comment_tables()
+    #create_notes_table()
+    #create_screeners_table()
+    #create_watchlist_tables()
+
+    
+    #fill_all_companies()

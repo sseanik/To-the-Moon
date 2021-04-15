@@ -271,6 +271,7 @@ def get_portfolio_performance(user_id, portfolio_name):
             400,
             "There are no investments in a portfolio called '" + portfolio_name + "'.",
         )
+
     conn.close()
 
     # Fill the data dictionary with investments and collect the stock tickers for a batch API call
