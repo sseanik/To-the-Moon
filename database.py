@@ -1,5 +1,6 @@
 import psycopg2
 from dotenv import load_dotenv
+import time
 from helpers import TimeSeries, AlphaVantageAPI
 import os
 import json
@@ -62,12 +63,44 @@ def create_notes_table():
     conn.commit()
     conn.close()
 
+
+def create_watchlist_tables():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/subscriptions.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/watchlists.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+
 def create_comment_tables():
     conn = create_DB_connection()
     cur = conn.cursor()
     cur.execute(open("Tables/forum_comment.sql", "r").read())
     conn.commit()
     cur.execute(open("Tables/forum_reply.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+def create_screeners_table():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/screeners.sql", "r").read())
+    conn.commit()
+    
+
+
+def create_vote_plpgsql_functions():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/Functions/upvote_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/downvote_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/upvote_reply.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/downvote_reply.sql", "r").read())
     conn.commit()
     conn.close()
 
@@ -88,10 +121,22 @@ def fill_securities_overview_table(symbol):
         beta,
         pe_ratio,
         eps,
-        dividend_yield
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        dividend_yield,
+        sector, 
+        industry,
+        book_value,
+        EBITDA,
+        payout_ratio,
+        revenue_TTM,
+        gross_profit_TTM
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (stock_ticker) DO NOTHING
     '''
+    # Convert "None" values to None so cur.execute converts it to NULL.
+    for key, value in Overview.items():
+        if (value == "None"):
+            Overview[key] = None
+
     cur.execute(insertQuery, (
         Overview['Symbol'],
         Overview['Name'],
@@ -104,7 +149,14 @@ def fill_securities_overview_table(symbol):
         Overview['Beta'],
         Overview['PERatio'],
         Overview['EPS'],
-        Overview['DividendYield']
+        Overview['DividendYield'],
+        Overview['Sector'],
+        Overview['Industry'],
+        Overview['BookValue'],
+        Overview['EBITDA'],
+        Overview['PayoutRatio'],
+        Overview['RevenueTTM'],
+        Overview['GrossProfitTTM']
     ))
     conn.commit()
     conn.close()
@@ -290,43 +342,49 @@ def fill_overview_and_financial_tables(symbol):
     fill_balance_sheets(symbol)
     fill_cashflow_statements(symbol)
 
+def fill_all_companies():
+    companies = [
+        'BHP',
+        'LIN',
+        'JPM',
+        'MA',
+        'WMT',
+        'KO',
+        'NEE',
+        'DUK',
+        'XOM',
+        'CVX',
+        'ORCL',
+        'IBM',
+        'NKE',
+        'TM',
+        'AMT',
+        'PLD',
+        'JNJ',
+        'UNH',
+        'T',
+        'VZ',
+        'BA',
+        'CAT'
+    ]
+    for company in companies:
+        fill_overview_and_financial_tables(company)
+        print("Inserted ", company)
+        time.sleep(60)
+
 
 if __name__ == "__main__":
     #create_user_table()
     #create_portfolios_table()
     #create_holdings_table()
-    #create_securities_overviewTable()
-    #create_income_statementsTable()
-    #create_balance_sheets_table()
-    #create_cashflow_statements_table()
+    # create_securities_overviewTable()
+    # create_income_statementsTable()
+    # create_balance_sheets_table()
+    # create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
+    create_screeners_table()
+    create_watchlist_tables()
 
-    # Basic materials sector
-    #fill_overview_and_financial_tables('BHP')
-    #fill_overview_and_financial_tables('LIN')
-
-    # Technology sector
-    #fill_overview_and_financial_tables('ORCL')
-    #fill_overview_and_financial_tables('IBM')
-
-    # Consumer defence sector
-    #fill_overview_and_financial_tables('WMT')
-    #fill_overview_and_financial_tables('KO')
-
-    # Utilities sector
-    fill_overview_and_financial_tables('NEE')
-
-    # Energy sector
-
-    # Technology sector
-
-    # Consumer cyclical sector
-
-    # Real estate sector
-
-    # Healthcare sector
-
-    # Communication services sector
-
-    # Industrials sector
+    
+    fill_all_companies()
