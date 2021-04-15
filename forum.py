@@ -9,10 +9,13 @@ from token_util import get_id_from_token
 from better_profanity import profanity
 from json import dumps
 from flask import Blueprint, request
-import psycopg2.extras
-
 
 FORUM_ROUTES = Blueprint('forum', __name__)
+
+
+###################################
+# Please leave all functions here #
+###################################
 
 
 def validate_timestamp(timestamp):
@@ -24,21 +27,14 @@ def validate_timestamp(timestamp):
     return False if (timestamp < yesterday or timestamp > tomorrow) else True
 
 
-###################################
-# Please leave all functions here #
-###################################
-
-
 def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     """Posting either a parent or child comment in the provided stock's forum
-
     Args:
         user_id (uuid): The UUID of the User posting the comment
         stock_ticker (string): The Stock symbol
         timestamp (big int): Timestamp in Milliseconds since epoch UTC
         content (string): The Comment's text content
         parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
-
     Returns:
         dict: Status Code, accompanying message, comment object
     """
@@ -266,9 +262,10 @@ def delete_comment(user_id, comment_id, parent_id=None):
         else:
             insert_query = """
                 DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
+                RETURNING TRUE
             """.replace("\n", "")
             values = (comment_id, user_id)
-            cur.execute(insert_query, values) 
+            cur.execute(insert_query, values)
             db_reply = cur.fetchall()
             # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
             if not db_reply:
@@ -414,9 +411,110 @@ def get_stock_comments(user_id, stock_ticker):
     }
 
 
+
+def vote_on_comment(user_id, comment_id, upvote=True):
+    # Open database connection
+    conn = create_DB_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Pick the execution query based off upvote boolean
+    if upvote:
+        execute_query = "SELECT * FROM upvote_comment(%s, %s)"
+    else:
+        execute_query = "SELECT * FROM downvote_comment(%s, %s)"
+
+    try:
+        cur.execute(execute_query, (user_id, comment_id))
+        # Function returns the edited row
+        voted_comment = dict(cur.fetchall()[0])
+        # Calculate the new amount of upvotes and downvotes
+        voted_comment['upvotes'] = len(voted_comment['upvote_user_ids'])
+        voted_comment['downvotes'] = len(voted_comment['downvote_user_ids'])
+        voted_comment['vote_difference'] = voted_comment['upvotes'] - \
+            voted_comment['downvotes']
+        # Remove columns that contain exposed user ids
+        del voted_comment['upvote_user_ids']
+        del voted_comment['downvote_user_ids']
+        # Success strings
+        status = 200
+        message = "Submitted successfully"
+    # If the user attempts to vote on a deleted comment
+    except psycopg2.errors.InternalError:
+        status = 400
+        message = "Cannot vote on a deleted comment"
+        comment = {}
+    # If the data provided is invalid
+    except:
+        status = 400
+        message = "Invalid data provided to the database"
+        comment = {}
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status': status,
+        'message': message,
+        'comment': comment
+    }
+
+
+def vote_on_reply(user_id, reply_id, upvote=True):
+    # Open database connection
+    conn = create_DB_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Pick the execution query based off upvote boolean
+    if upvote:
+        execute_query = "SELECT * FROM upvote_reply(%s, %s)"
+    else:
+        execute_query = "SELECT * FROM downvote_reply(%s, %s)"
+
+    try:
+        cur.execute(execute_query, (user_id, reply_id))
+        # Function returns the edited row
+        voted_comment = dict(cur.fetchall()[0])
+        # Calculate the new amount of upvotes and downvotes
+        voted_comment['upvotes'] = len(voted_comment['upvote_user_ids'])
+        voted_comment['downvotes'] = len(voted_comment['downvote_user_ids'])
+        voted_comment['vote_difference'] = voted_comment['upvotes'] - \
+            voted_comment['downvotes']
+        # Remove columns that contain exposed user ids
+        del voted_comment['upvote_user_ids']
+        del voted_comment['downvote_user_ids']
+        # Success strings
+        status = 200
+        message = "Submitted successfully"
+    # If the data provided is invalid
+    except:
+        status = 400
+        message = "Invalid data provided to the database"
+        comment = {}
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status': status,
+        'message': message,
+        'comment': comment
+    }
+
+
 ################################
 # Please leave all routes here #
 ################################
+
+
+@FORUM_ROUTES.route('/forum', methods=['GET'])
+def get_comments():
+    token = request.headers.get('Authorization')
+    user_id = get_id_from_token(token)
+    data = request.get_json()
+    result = get_stock_comments(user_id, data['stockTicker'])
+    return dumps(result)
 
 
 @FORUM_ROUTES.route('/forum/comment', methods=['POST'])
@@ -473,14 +571,3 @@ def edit_users_comment():
     data = request.get_json()
     result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'])
     return dumps(result)
-
-
-@FORUM_ROUTES.route('/forum', methods=['GET'])
-def get_comments():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    stock_ticker = request.args.get('stockTicker')
-    result = get_stock_comments(user_id, stock_ticker)
-    return dumps(result)
-
-
