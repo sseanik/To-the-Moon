@@ -53,7 +53,7 @@ function App() {
               <Route path="/stock/:symbol" component={StockPage} />
               <Route path="/portfolios" component={PortfoliosPage} />
 
-              <Route path="/screeners" component={ScreenersPage} />
+              <Route path="/screener" component={ScreenersPage} />
               <Route path="/watchlists" component={WatchlistsPage} />
               <Route path="/watchlist/:watchlistID" component={WatchlistPage} />
             </Switch>
