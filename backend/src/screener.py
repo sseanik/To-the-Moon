@@ -113,7 +113,7 @@ test = {
     }
 }
 
-print(screen_stocks(test))
+#print(screen_stocks(test))
 
 
 
