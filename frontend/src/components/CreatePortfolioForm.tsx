@@ -60,7 +60,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
               isValid={!errors.newName && touched.newName}
             />
 
-            <Button type="submit" variant="outline-success" className="mt-2">
+            <Button type="submit" variant="success" className="mt-2">
               Add Portfolio
             </Button>
           </Form>

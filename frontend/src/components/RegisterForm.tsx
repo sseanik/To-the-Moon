@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Form, Button, Alert } from "react-bootstrap";
+import { Form, Button, Alert, Row } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -64,17 +64,9 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
     }
   }, [message, history]);
 
-  const errorComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
+  const errorComponent = <Alert variant="danger">{error}</Alert>;
 
-  const messageComponent = (
-    <Alert variant="success">
-      {message}
-    </Alert>
-  );
+  const messageComponent = <Alert variant="success">{message}</Alert>;
 
   return (
     <Formik
@@ -92,12 +84,12 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="w-50 my-2">
-            <h4>Become an astronaut today! Sign up with us to start your journey <i>To The Moon</i>.</h4>
-            { error ? errorComponent: null }
-            { message ? messageComponent: null }
-            <ClipLoader color={"green"} loading={loading}>
-              <span className="sr-only">Loading...</span>
-            </ClipLoader>
+            <h4>
+              Become an astronaut today! Sign up with us to start your journey{" "}
+              <i>To The Moon</i>.
+            </h4>
+            {error ? errorComponent : null}
+            {message ? messageComponent : null}
             <Form.Control
               className="my-1"
               type="text"
@@ -186,9 +178,18 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
                 {errors.password}
               </Form.Control.Feedback>
             ) : null}
-
-            <Button disabled={loading} className="w-100 my-1" variant="primary" type="submit">
-              Sign Up
+            <Row className="justify-content-center">
+              <ClipLoader color={"green"} loading={loading}>
+                <span className="sr-only">Loading...</span>
+              </ClipLoader>
+            </Row>
+            <Button
+              disabled={loading}
+              className="w-100 my-1"
+              variant="primary"
+              type="submit"
+            >
+              {loading ? "Stitching astronaut suit..." : "Sign up"}
             </Button>
           </Form>
         );
@@ -205,8 +206,9 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    register: (payload: RegisterFormValues) => dispatch(userActions.register(payload))
-  }
+    register: (payload: RegisterFormValues) =>
+      dispatch(userActions.register(payload)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(RegisterForm);

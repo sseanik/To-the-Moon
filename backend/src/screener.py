@@ -9,10 +9,12 @@ from token_util import get_id_from_token
 from datetime import datetime
 import psycopg2
 from stock import retrieve_stock_price_at_date
-from iexfinance.stocks import Stock
 import pandas as pd
 from psycopg2.extras import RealDictCursor
+from better_profanity import profanity
 import psycopg2.extras
+from iexfinance.stocks import Stock
+
 
 from flask import Blueprint
 
@@ -121,6 +123,7 @@ def screener_edit_parameters(screener_name, user_id, parameters):
     conn.close()
     return rtrn
 
+
 def screen_stocks(parameters):
     if not isinstance(parameters, dict):
         rtrn = {
@@ -228,6 +231,7 @@ def screener_delete_wrapper():
     result = screener_delete(screener_name, user_id)
     return dumps(result)
 
+
 @SCREENER_ROUTES.route('/screener', methods=['GET'])
 def screen_stocks_wrapper():
     region = request.args.getlist("region")
@@ -274,7 +278,33 @@ if __name__ == "__main__":
             'eps' : (4, None),
             'beta' : (1, 3),
             'payout_ratio' : (None, 0.3)
-
         }
     }
     print(screen_stocks(test))
+
+
+
+    test1 = {
+        'securities_overviews' : {
+            'eps' : (4, None),
+            'beta' : (1, 3),
+            'payout_ratio' : (None, 0.3)
+
+        }
+    }
+    #print(screener_save("new test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test1))
+    #print(screener_save("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test1))
+    #print(screener_load("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13"))
+    #print(screener_delete("new test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13"))
+    test2 = {
+        'securities_overviews' : {
+            'eps' : (4, 8),
+            'beta' : (1, None),
+            'payout_ratio' : (None, 0.3)
+        }
+    }
+    #print(screener_save("another test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test2))
+    #print(screener_edit_parameters("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test2))
+    #print(screener_load_all("02708412-912d-11eb-a6dc-0a4e2d6dea13"))
+
+    #print(screen_stocks(test))

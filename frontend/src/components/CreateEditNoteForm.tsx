@@ -174,7 +174,7 @@ const CreateEditNoteForm: React.FC<Props> = (props) => {
               variant="primary"
               type="submit"
             >
-              Save
+              {loading ? "Saving..." : "Save"}
             </Button>
           </Form>
         );
