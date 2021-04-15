@@ -57,6 +57,11 @@
   white-space: pre-wrap;
 }
 
+.portfolio-info {
+  box-shadow: 3px 3px 8px #888888;
+  margin: 10px;
+}
+
 div.portfolio-info a:hover {
   text-decoration: none;
 }
