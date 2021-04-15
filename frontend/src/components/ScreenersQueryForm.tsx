@@ -1,4 +1,4 @@
-import { Container, Col, Row, Button, Form } from "react-bootstrap";
+import { Container, Col, Row, Button, Form, Alert } from "react-bootstrap";
 import * as Yup from "yup";
 import { useHistory } from "react-router-dom";
 import { Formik } from "formik";
@@ -25,7 +25,7 @@ interface ScreenerFormValues {
 interface ScreenerQuery {
   securities_overviews: {
     region: Array<string>;
-    market_cap: string;
+    market_cap: Array<number | null | undefined>;
     yearly_low: number | null;
     yearly_high: number | null;
     sector: Array<string>;
@@ -39,6 +39,11 @@ interface ScreenerQuery {
 interface getScreenerResultsParams {
   // parameters: ScreenerQuery;
   parameters: string;
+}
+
+interface saveScreenerParams {
+  name: string;
+  parameters: ScreenerQuery;
 }
 
 interface industryChoiceOptions {
@@ -79,29 +84,37 @@ const schema = Yup.object({
 
 // Add StateProps
 interface StateProps {
-  loading: boolean;
-  data: Array<any>;
-  error: string;
+  resultsLoading: boolean;
+  resultsData: Array<any>;
+  resultsError: string;
+  saveLoading: boolean;
+  saveData: Array<any>;
+  saveError: string;
 }
 
 // Add DispatchProps
 interface DispatchProps {
   getScreenerResults: (payload: getScreenerResultsParams) => void;
+  saveScreener: (payload: saveScreenerParams) => void;
 }
 
 const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
   const {
-    loading,
-    data,
-    error,
-    getScreenerResults
+    resultsLoading,
+    resultsData,
+    resultsError,
+    saveLoading,
+    saveData,
+    saveError,
+    getScreenerResults,
+    saveScreener
   } = props;
   const history = useHistory();
 
-  const formToScreenerParams = (values: ScreenerFormValues) => {
+  const formToParamsObj = (values: ScreenerFormValues) => {
     const yrLow = values.intradayLower;
     const yrHigh = values.intradayUpper;
-    let paramsObj = {
+    return {
       'securities_overviews': {
         "region": values.region,
         "market_cap": [values.marketcapLow ? values.marketcapLow : null, values.marketcapHigh ? values.marketcapHigh : null],
@@ -114,8 +127,10 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
         "industry": values.industry, // to array
       }
     };
+  }
 
-    let paramsStr = `?${Object.entries(paramsObj['securities_overviews']).map(([field, value], idx) => (
+  const paramsObjToScreenerParams = (paramsObj: ScreenerQuery) => {
+    return `?${Object.entries(paramsObj['securities_overviews']).map(([field, value], idx) => (
       typeof value === "string" || typeof value === "number"
         ? `${field}=${String(value)}`
       : Array.isArray(value)
@@ -124,20 +139,22 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
         ? `${field}=`
       : `${field}=${String(value)}`
     )).join("&")}`;
-
-    return paramsStr;
   };
 
   const doSubmit = (values: ScreenerFormValues) => {
-    console.log("Before conversion: ", values);
-    const parameters = formToScreenerParams(values);
-    console.log("After conversion: ", parameters);
-    // console.log(getScreenerResults);
+    const paramObj = formToParamsObj(values);
+    const parameters = paramsObjToScreenerParams(paramObj);
     getScreenerResults({ parameters });
   }
 
   const doSave = (values: ScreenerFormValues) => {
-    console.log("Saving: ", values);
+    const parameters = formToParamsObj(values);
+    const name = values.screenerName;
+    if (name) {
+      saveScreener({ name, parameters });
+    } else {
+      console.warn("Name cannot be null");
+    }
   }
 
   const regionChoices = ["United States", "United Kingdom", "Frankfurt"];
@@ -466,7 +483,22 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                   <Button disabled={!values.marketcapLow} size="lg" variant="success" onClick={() => { doSubmit(values); }}>Filter</Button>
                 </Col>
                 <Col xs lg="2">
-                  <Button disabled={!values.marketcapLow} size="lg" variant="primary" onClick={() => { doSave(values); }}>Save</Button>
+                  <Button disabled={!values.screenerName} size="lg" variant="primary" onClick={() => { doSave(values); }}>Save</Button>
+                </Col>
+              </Row>
+            </Container>
+            <Container>
+              <Row className="justify-content-center p-2">
+                <Col xs lg="6">
+                  {saveError ?
+                    <Alert variant="danger">
+                      {`Save failed: ${saveError}`}
+                    </Alert>
+                  : !saveError && saveData ?
+                    <Alert variant="success">
+                      {`Save succeeded`}
+                    </Alert>
+                  : ""}
                 </Col>
               </Row>
             </Container>
@@ -479,9 +511,12 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
 
 // Add mapStateToProps
 const mapStateToProps = (state: any) => ({
-  loading: state.screenerReducer.results.loading,
-  error: state.screenerReducer.results.error,
-  data: state.screenerReducer.results.data,
+  resultsLoading: state.screenerReducer.results.loading,
+  resultsError: state.screenerReducer.results.error,
+  resultsData: state.screenerReducer.results.data,
+  saveLoading: state.screenerReducer.saveStatus.loading,
+  saveError: state.screenerReducer.saveStatus.error,
+  saveData: state.screenerReducer.saveStatus.data,
 });
 
 // Add mapDispatchToProps
@@ -491,6 +526,8 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     getScreenerResults: (payload: getScreenerResultsParams) =>
       dispatch(screenerActions.getScreenerResults(payload)),
+    saveScreener: (payload: saveScreenerParams) =>
+      dispatch(screenerActions.saveScreener(payload)),
   };
 };
 
