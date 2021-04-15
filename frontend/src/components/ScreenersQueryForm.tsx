@@ -234,177 +234,202 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                     </Form.Control.Feedback>
                   ) : null}
                 </Form.Group>
-                <Form.Group controlId="marketcap">
-                  <Form.Label>Market Capitalisation (Low)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    name="marketcapLow"
-                    type="number"
-                    placeholder="Lower"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.marketcapLow && touched.marketcapLow}
-                  />
-                  {errors.marketcapLow && touched.marketcapLow ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.marketcapLow}
-                    </Form.Control.Feedback>
-                  ) : null}
-                  <Form.Label>Market Capitalisation (High)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    name="marketcapHigh"
-                    type="number"
-                    placeholder="Upper"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.marketcapHigh && touched.marketcapHigh}
-                  />
-                  {errors.marketcapHigh && touched.marketcapHigh ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.marketcapHigh}
-                    </Form.Control.Feedback>
-                  ) : null}
-                </Form.Group>
               </Col>
               <Col>
+                <Form.Group controlId="marketcap">
+                  <Form.Label>Market Capitalisation</Form.Label>
+                    <Row>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          name="marketcapLow"
+                          type="number"
+                          placeholder="Lower"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={!!errors.marketcapLow && touched.marketcapLow}
+                        />
+                        {errors.marketcapLow && touched.marketcapLow ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.marketcapLow}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          name="marketcapHigh"
+                          type="number"
+                          placeholder="Upper"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={!!errors.marketcapHigh && touched.marketcapHigh}
+                        />
+                        {errors.marketcapHigh && touched.marketcapHigh ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.marketcapHigh}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                    </Row>
+                </Form.Group>
                 <Form.Group controlId="priceIntraday">
-                  <Form.Label>Intraday Price (Lower)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    type="number"
-                    name="intradayLower"
-                    placeholder="Lower"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.intradayLower && touched.intradayLower}
-                  />
-                  {errors.intradayLower && touched.intradayLower ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.intradayLower}
-                    </Form.Control.Feedback>
-                  ) : null}
-                  <Form.Label>Intraday Price (Higher)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    type="number"
-                    name="intradayUpper"
-                    placeholder="Upper"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.intradayUpper && touched.intradayUpper}
-                  />
-                  {errors.intradayUpper && touched.intradayUpper ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.intradayUpper}
-                    </Form.Control.Feedback>
-                  ) : null}
+                  <Form.Label>Intraday Price</Form.Label>
+                  <Row>
+                    <Col>
+                      <Form.Control
+                        className="mr-sm-2"
+                        type="number"
+                        name="intradayLower"
+                        placeholder="Lower"
+                        value={undefined}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={!!errors.intradayLower && touched.intradayLower}
+                      />
+                      {errors.intradayLower && touched.intradayLower ? (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.intradayLower}
+                        </Form.Control.Feedback>
+                      ) : null}
+                    </Col>
+                    <Col>
+                      <Form.Control
+                        className="mr-sm-2"
+                        type="number"
+                        name="intradayUpper"
+                        placeholder="Upper"
+                        value={undefined}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={!!errors.intradayUpper && touched.intradayUpper}
+                      />
+                      {errors.intradayUpper && touched.intradayUpper ? (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.intradayUpper}
+                        </Form.Control.Feedback>
+                      ) : null}
+                    </Col>
+                  </Row>
                 </Form.Group>
                 <Form.Group controlId="eps">
-                  <Form.Label>EPS (Low)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    name="epsLower"
-                    type="number"
-                    placeholder="Lower"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.epsLower && touched.epsLower}
-                  />
-                  {errors.epsLower && touched.epsLower ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.epsLower}
-                    </Form.Control.Feedback>
-                  ) : null}
-                  <Form.Label>EPS (High)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    name="epsUpper"
-                    type="number"
-                    placeholder="Upper"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.epsUpper && touched.epsUpper}
-                  />
-                  {errors.epsUpper && touched.epsUpper ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.epsUpper}
-                    </Form.Control.Feedback>
-                  ) : null}
+                  <Form.Label>EPS</Form.Label>
+                  <Row>
+                    <Col>
+                      <Form.Control
+                        className="mr-sm-2"
+                        name="epsLower"
+                        type="number"
+                        placeholder="Lower"
+                        value={undefined}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={!!errors.epsLower && touched.epsLower}
+                      />
+                      {errors.epsLower && touched.epsLower ? (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.epsLower}
+                        </Form.Control.Feedback>
+                      ) : null}
+                    </Col>
+                    <Col>
+                      <Form.Control
+                        className="mr-sm-2"
+                        name="epsUpper"
+                        type="number"
+                        placeholder="Upper"
+                        value={undefined}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={!!errors.epsUpper && touched.epsUpper}
+                      />
+                      {errors.epsUpper && touched.epsUpper ? (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.epsUpper}
+                        </Form.Control.Feedback>
+                      ) : null}
+                    </Col>
+                  </Row>
                 </Form.Group>
                 <Form.Group controlId="beta">
-                  <Form.Label>Beta (Low)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    name="betaLower"
-                    type="number"
-                    placeholder="Lower"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.betaLower && touched.betaLower}
-                  />
-                  {errors.betaLower && touched.betaLower ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.betaLower}
-                    </Form.Control.Feedback>
-                  ) : null}
-                  <Form.Label>Beta (High)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    name="betaUpper"
-                    type="number"
-                    placeholder="Upper"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.betaUpper && touched.betaUpper}
-                  />
-                  {errors.betaUpper && touched.betaUpper ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.betaUpper}
-                    </Form.Control.Feedback>
-                  ) : null}
+                  <Form.Label>Beta</Form.Label>
+                    <Row>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          name="betaLower"
+                          type="number"
+                          placeholder="Lower"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={!!errors.betaLower && touched.betaLower}
+                        />
+                        {errors.betaLower && touched.betaLower ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.betaLower}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          name="betaUpper"
+                          type="number"
+                          placeholder="Upper"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={!!errors.betaUpper && touched.betaUpper}
+                        />
+                        {errors.betaUpper && touched.betaUpper ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.betaUpper}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                    </Row>
                 </Form.Group>
                 <Form.Group controlId="payoutRatio">
-                  <Form.Label>Payout Ratio (Low)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    name="payoutRatioLower"
-                    type="number"
-                    placeholder="Lower"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.payoutRatioLower && touched.payoutRatioLower}
-                  />
-                  {errors.payoutRatioLower && touched.payoutRatioLower ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.payoutRatioLower}
-                    </Form.Control.Feedback>
-                  ) : null}
-                  <Form.Label>Payout Ratio (High)</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    name="payoutRatioUpper"
-                    type="number"
-                    placeholder="Upper"
-                    value={undefined}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.payoutRatioUpper && touched.payoutRatioUpper}
-                  />
-                  {errors.payoutRatioUpper && touched.payoutRatioUpper ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.payoutRatioUpper}
-                    </Form.Control.Feedback>
-                  ) : null}
+                  <Form.Label>Payout Ratio</Form.Label>
+                    <Row>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          name="payoutRatioLower"
+                          type="number"
+                          placeholder="Lower"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={!!errors.payoutRatioLower && touched.payoutRatioLower}
+                        />
+                        {errors.payoutRatioLower && touched.payoutRatioLower ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.payoutRatioLower}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          name="payoutRatioUpper"
+                          type="number"
+                          placeholder="Upper"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={!!errors.payoutRatioUpper && touched.payoutRatioUpper}
+                        />
+                        {errors.payoutRatioUpper && touched.payoutRatioUpper ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.payoutRatioUpper}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                    </Row>
                 </Form.Group>
               </Col>
               </Row>
