@@ -223,7 +223,7 @@ def delete_comment(user_id, comment_id, parent_id=None):
             dict: Status Code, accompanying message
     """
     conn = create_DB_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
         # If no parent_id is provided, comment is a parent comment (comment)
         if not parent_id:
