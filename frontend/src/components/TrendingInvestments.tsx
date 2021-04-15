@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 import trendActions from "../redux/actions/trendActions";
 import { connect } from "react-redux";
-import { Container, Alert, Card } from "react-bootstrap";
+import { Row, Alert, Card, Container } from "react-bootstrap";
 
 interface TrendingStocksParams {
   n: number;
@@ -43,7 +43,7 @@ const TrendingInvestments: React.FC<StateProps & DispatchProps> = (props) => {
     trending: TrendingStockEntry,
     idx: number
   ) => (
-    <Card key={idx}>
+    <Card key={idx} className="trending-investment">
       <Card.Body>
         <Card.Title>{trending.stock}</Card.Title>
         <Card.Subtitle className="mb-2 text-muted">{`#${
@@ -62,13 +62,15 @@ const TrendingInvestments: React.FC<StateProps & DispatchProps> = (props) => {
   );
 
   return (
-    <Container>
-      {loading ? loadingSpinnerComponent : null}
-      {error ? alertComponent : null}
+    <Row className="justify-content-around">
+      <Container>
+        {loading ? loadingSpinnerComponent : null}
+        {error ? alertComponent : null}
+      </Container>
       {data.map((trendingStock, idx) =>
         trendingStockComponent(trendingStock, idx)
       )}
-    </Container>
+    </Row>
   );
 };
 

@@ -76,7 +76,7 @@ const PublishPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
               </Form.Text>
             )}
 
-            <Button type="submit" variant="outline-primary" className="my-2">
+            <Button type="submit" variant="primary" className="my-2">
               Publish Portfolio
             </Button>
           </Form>

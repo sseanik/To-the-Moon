@@ -94,7 +94,7 @@ const EditCommentForm: React.FC<StateProps & DispatchProps & Props> = (
 
               <Col md={2}>
                 <Button
-                  variant="outline-dark"
+                  variant="dark"
                   type="submit"
                   onClick={() => {
                     values.timestamp = new Date().getTime();

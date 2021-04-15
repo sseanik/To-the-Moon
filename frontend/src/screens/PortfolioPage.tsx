@@ -50,21 +50,23 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
       <Row className="justify-content-center my-3">
         <h1>{name}</h1>
       </Row>
-      <PortfolioPerformance name={name}/>
-      <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
-        <Col>Stock Name</Col>
-        <Col># Shares</Col>
-        <Col>Purchase Date</Col>
-        <Col>Purchase Price</Col>
-        <Col>Total Change</Col>
-        <Col>Delete Stock</Col>
-      </Row>
-      {error ? <Alert variant="danger">{error}</Alert> : null}
-      {loading ? (
-        <ClipLoader color="green" loading={loading} />
-      ) : (
-        stocks.map((stockProps, id) => <StockInfo key={id} {...stockProps} />)
-      )}
+      <PortfolioPerformance name={name} />
+      <Container>
+        <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
+          <Col>Stock Name</Col>
+          <Col># Shares</Col>
+          <Col>Purchase Date</Col>
+          <Col>Purchase Price</Col>
+          <Col>Total Change</Col>
+          <Col>Delete Stock</Col>
+        </Row>
+        {error ? <Alert variant="danger">{error}</Alert> : null}
+        {loading ? (
+          <ClipLoader color="green" loading={loading} />
+        ) : (
+          stocks.map((stockProps, id) => <StockInfo key={id} {...stockProps} />)
+        )}
+      </Container>
       <Row className="justify-content-center mt-4">
         <Col>
           {adding ? (
@@ -107,7 +109,10 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <Row>
         <Container>
-          <Tabs className="justify-content-center mt-2" defaultActiveKey="notes">
+          <Tabs
+            className="justify-content-center mt-2"
+            defaultActiveKey="notes"
+          >
             <Tab eventKey="notes" title="Relevant Notes">
               <Row>
                 <NoteRelevant portfolio={[name]} />

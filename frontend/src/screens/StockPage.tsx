@@ -205,12 +205,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         constructorType={"stockChart"}
         options={graphOptions}
       />
-      <Row className="justify-content-center">
+      <Row className="justify-content-around">
         <Col>
-          <Button variant="outline-info" onClick={fetchStock}>
+          <Button variant="info" onClick={fetchStock}>
             Refresh data
           </Button>
-          <Button variant="outline-info" onClick={resetZoom}>
+        </Col>
+        <Col>
+          <Button variant="info" onClick={resetZoom}>
             Reset Zoom
           </Button>
         </Col>
@@ -292,7 +294,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         <Col>Duration: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="dark"
             id="dropdown-basic-button"
             title={durOpts[durChoice].display + " " + durOpts[durChoice].units}
           >
@@ -319,7 +321,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         <Col>Model: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="dark"
             id="dropdown-basic-button"
             title={predictOpts[preChoice].name}
           >
@@ -344,7 +346,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       <hr />
       <Row>
         <Button
-          variant="outline-primary"
+          variant="primary"
           onClick={() => {
             fetchPredictDaily();
           }}
