@@ -92,7 +92,7 @@ const portfolioReducer = (state = initialState, action) => {
         getPortfolioPerf: {
           ...state.getPortfolioPerf,
           loading: false,
-          data: action.payload,
+          data: { ...state.getPortfolioPerf.data, ...action.payload },
         },
       };
     case portfolioConstants.GET_PORTFOLIO_PERF_FAILURE:

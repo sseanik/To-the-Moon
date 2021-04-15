@@ -13,23 +13,14 @@ interface StateProps {
 
 interface DispatchProps {
   getPortfolios: () => void;
-  getPerformance: (payload: PortfolioPerfParams) => void;
-}
-
-interface PortfolioPerfParams {
-  names: Array<string>;
 }
 
 const PortfoliosPage: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, portfolios, getPortfolios, getPerformance } = props;
+  const { loading, portfolios, getPortfolios } = props;
 
   useEffect(() => {
     getPortfolios();
   }, [getPortfolios]);
-
-  useEffect(() => {
-    getPerformance({ names: portfolios })
-  }, [getPerformance, portfolios])
 
   return (
     <Container fluid>
@@ -60,8 +51,6 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => {
   return {
     getPortfolios: () => dispatch(portfolioActions.getPortfolios()),
-    getPerformance: (payload: PortfolioPerfParams) =>
-      dispatch(portfolioActions.getPortfolioPerf(payload)),
   };
 };
 

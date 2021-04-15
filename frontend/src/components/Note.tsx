@@ -2,7 +2,6 @@ import { NoteEntry } from "./NoteListBody";
 import { Card, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import noteActions from "../redux/actions/noteActions";
-import ClipLoader from "react-spinners/ClipLoader";
 import { useState } from "react";
 import { NoteFormValues } from "./CreateEditNoteForm";
 import { CreateEditNoteForm } from ".";
@@ -94,12 +93,6 @@ const Note: React.FC<NoteEntry & StateProps & DispatchProps> = (props) => {
       internal_references: internalReferences.split(","),
     });
   };
-
-  const loadingSpinnerComponent = (
-    <ClipLoader color={"green"} loading={deleteLoading || editLoading}>
-      <span className="sr-only">Loading...</span>
-    </ClipLoader>
-  );
 
   const noteBodyDisplay = (
     <Card className="mx-1 my-2">
