@@ -30,16 +30,16 @@ const NewsCard: React.FC<NewsItem> = (props) => {
 
   return (
     <Row className="justify-content-center mt-2">
-      <a href={url}>
-        <Card style={newsItemStyle}>
-          <Card.Header>{headline}</Card.Header>
-          <Image className="mx-auto" src={image} style={imageStyle} />
-          <Card.Body>
-            <Card.Title>{source}</Card.Title>
-            <Card.Text>{summary}</Card.Text>
-          </Card.Body>
-        </Card>
-      </a>
+      <Card style={newsItemStyle}>
+        <a href={url} target="_blank">
+          <Card.Header as="h3">{headline}</Card.Header>
+        </a>
+        <Image className="mx-auto" src={image} style={imageStyle} />
+        <Card.Body>
+          <Card.Title>{source}</Card.Title>
+          <Card.Text>{summary}</Card.Text>
+        </Card.Body>
+      </Card>
     </Row>
   );
 };
