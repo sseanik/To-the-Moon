@@ -1,10 +1,12 @@
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faThumbsUp, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faWindowClose } from "@fortawesome/free-solid-svg-icons";
 import { connect } from "react-redux";
 import { useState } from "react";
-import DeleteChildButton from "./DeleteChildButton";
-import EditChildForm from "./EditChildForm";
+import EditCommentForm from "./EditCommentForm";
+import DeleteCommentButton from "./DeleteCommentButton";
+import UpvoteCommentButton from "./UpvoteCommentButton";
+import DownvoteCommentButton from "./DownvoteCommentButton";
 
 interface StateProps {
   currentUsername: string;
@@ -43,42 +45,33 @@ const ChildComment: React.FC<StateProps & Props> = (props) => {
 
   const [editing, setEditing] = useState(false);
 
-  return (
+  return is_deleted ? null : (
     <Row className="my-1 w-100">
       <Container fluid className="border rounded pt-2 ml-5">
-        {is_deleted ? (
-          <Row>
-            <Col md={2}>
-              <p className="font-weight-bold text-left">Deleted</p>
-            </Col>
-          </Row>
-        ) : (
-          <Row>
-            <Col md={2}>
-              <p className="font-weight-bold text-left">{username}</p>
-            </Col>
-            <Col md={1}>
-              <p className="text-muted">
-                {new Date(time_stamp).toLocaleDateString()}
-              </p>
-            </Col>
+        <Row className="mb-2">
+          <Col md={2}>
+            <p className="font-weight-bold text-left d-inline mr-2">
+              {username}
+            </p>
+            <p className="text-muted d-inline mx-1">
+              {new Date(time_stamp).toLocaleDateString()}
+            </p>
             {is_edited ? (
-              <Col md={1}>
-                <p className="text-muted">edited</p>
-              </Col>
+              <p className="text-muted d-inline mx-1">(edited)</p>
             ) : null}
-          </Row>
-        )}
+          </Col>
+        </Row>
         <Row>
           <Col>
-            <p className="text-left">{is_deleted ? "Deleted" : content}</p>
+            <p className="text-left">{content}</p>
           </Col>
         </Row>
         <Row className="justify-content-start mb-1 align-items-center">
           <Col md={1}>
-            <FontAwesomeIcon
-              icon={faThumbsUp}
-              className={is_upvoted ? "text-success" : ""}
+            <UpvoteCommentButton
+              commentID={reply_id}
+              parentID={comment_id}
+              isUpvoted={is_upvoted}
             />
           </Col>
           <Col md={1}>
@@ -91,36 +84,37 @@ const ChildComment: React.FC<StateProps & Props> = (props) => {
             </p>
           </Col>
           <Col md={1}>
-            <FontAwesomeIcon
-              icon={faThumbsDown}
-              className={is_downvoted ? "text-danger" : ""}
+            <DownvoteCommentButton
+              commentID={reply_id}
+              parentID={comment_id}
+              isDownvoted={is_downvoted}
             />
           </Col>
           {currentUsername === username ? (
             editing ? (
               <Col md={1}>
                 <Button variant="light" onClick={() => setEditing(false)}>
-                  Cancel
+                  <FontAwesomeIcon icon={faWindowClose} />
                 </Button>
               </Col>
             ) : (
               <Col md={1}>
                 <Button variant="light" onClick={() => setEditing(true)}>
-                  Edit
+                  <FontAwesomeIcon icon={faEdit} />
                 </Button>
               </Col>
             )
           ) : null}
           {currentUsername === username ? (
             <Col md={1}>
-              <DeleteChildButton commentID={reply_id} parentID={comment_id} />
+              <DeleteCommentButton commentID={reply_id} parentID={comment_id} />
             </Col>
           ) : null}
         </Row>
       </Container>
       <Container fluid>
         {editing ? (
-          <EditChildForm commentID={reply_id} parentID={comment_id} />
+          <EditCommentForm commentID={reply_id} parentID={comment_id} />
         ) : null}
       </Container>
     </Row>

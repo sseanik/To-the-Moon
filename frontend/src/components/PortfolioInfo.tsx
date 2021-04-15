@@ -1,5 +1,7 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSignInAlt } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { Col } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import DeletePortfolioButton from "./DeletePortfolioButton";
 
 interface Props {
@@ -9,11 +11,24 @@ interface Props {
 const PortfolioInfo: React.FC<Props> = (props) => {
   const { portfolioName } = props;
   return (
-    <Col className="border rounded mx-1 p-4 align-middle portfolio-info">
-      <a href={`/portfolio/${portfolioName}`}>
-        <h2 className="my-1">{portfolioName}</h2>
-      </a>
-      <DeletePortfolioButton portfolioName={portfolioName} />
+    <Col
+      className="border rounded mx-1 p-4 portfolio-info bg-light"
+      lg={4}
+      md={6}
+    >
+      <h2 className="my-2">{portfolioName}</h2>
+      <Container className="w-75">
+        <Row>
+          <Col className="align-middle">
+            <a href={`/portfolio/${portfolioName}`}>
+              <FontAwesomeIcon icon={faSignInAlt} size="2x" />
+            </a>
+          </Col>
+          <Col>
+            <DeletePortfolioButton portfolioName={portfolioName} />
+          </Col>
+        </Row>
+      </Container>
     </Col>
   );
 };

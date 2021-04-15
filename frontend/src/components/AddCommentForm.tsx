@@ -5,37 +5,49 @@ import { Formik } from "formik";
 import { Alert, Button, Col, Form } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 
-interface AddChildFormParams {
+interface AddCommentFormParams {
   stockTicker: string;
   timestamp: number;
   content: string;
-  parentID: string;
+  parentID?: string;
 }
 
 interface StateProps {
-  error: string;
-  adding: Array<string>;
+  parentError: string;
+  parentLoading: boolean;
+  childError: string;
+  childAdding: string[];
 }
 
 interface DispatchProps {
-  addChild: (payload: AddChildFormParams) => void;
+  addParent: (payload: AddCommentFormParams) => void;
+  addChild: (payload: AddCommentFormParams) => void;
 }
 
 interface Props {
   stockTicker: string;
-  parentID: string;
+  parentID?: string;
 }
 
 const schema = Yup.object({
   content: Yup.string()
     .required("Reply content is required.")
-    .max(3000, "Reply cannot exceed 3000 characters"),
+    .max(5000, "Reply cannot exceed 5000 characters"),
 });
 
 const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
-  const { error, adding, addChild, stockTicker, parentID } = props;
+  const {
+    parentError,
+    parentLoading,
+    childError,
+    childAdding,
+    addParent,
+    addChild,
+    stockTicker,
+    parentID,
+  } = props;
 
-  const initialValues: AddChildFormParams = {
+  const initialValues: AddCommentFormParams = {
     stockTicker,
     timestamp: new Date().getTime(),
     content: "",
@@ -44,7 +56,7 @@ const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
 
   const formComponent = (
     <Formik
-      onSubmit={addChild}
+      onSubmit={parentID ? addChild : addParent}
       initialValues={initialValues}
       validationSchema={schema}
     >
@@ -58,13 +70,14 @@ const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="w-100 mt-2">
-            {error ? <Alert variant="danger">{error}</Alert> : null}
+            {parentError ? <Alert variant="danger">{parentError}</Alert> : null}
+            {childError ? <Alert variant="danger">{childError}</Alert> : null}
             <Form.Row className="justify-content-between">
               <Col md={8}>
                 <Form.Control
                   type="text"
                   name="content"
-                  placeholder="Your reply here"
+                  placeholder={parentID ? "Add a reply..." : "Add a comment..."}
                   value={values.content}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -94,21 +107,29 @@ const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
     </Formik>
   );
 
-  return adding.includes(parentID) ? (
-    <ClipLoader color={"green"} loading={adding.includes(parentID)} />
+  return parentLoading || (!!parentID && childAdding.includes(parentID)) ? (
+    <ClipLoader
+      color={"green"}
+      loading={parentLoading || (!!parentID && childAdding.includes(parentID))}
+    />
   ) : (
     formComponent
   );
 };
 
 const mapStateToProps = (state: any) => ({
-  error: state.forumReducer.addChild.error,
-  adding: state.forumReducer.addChild.adding,
+  parentError: state.forumReducer.addParent.error,
+  parentLoading: state.forumReducer.addParent.loading,
+  childError: state.forumReducer.addChild.error,
+  childAdding: state.forumReducer.addChild.adding,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    addChild: (payload: AddChildFormParams) => {
+    addParent: (payload: AddCommentFormParams) => {
+      dispatch(forumActions.addParent(payload));
+    },
+    addChild: (payload: AddCommentFormParams) => {
       dispatch(forumActions.addChild(payload));
     },
   };
