@@ -32,7 +32,7 @@ const initialState = {
     loading: false,
     error: null,
     data: [
-      {"name": "", "params": {}},
+      {"name": "E", "params": {}},
     ],
   },
   // deletion status
@@ -40,6 +40,7 @@ const initialState = {
     loading: false,
     error: null,
     data: "",
+    deleting: [],
   }
 };
 
@@ -142,6 +143,7 @@ const screenerReducer = (state = initialState, action) => {
           ...state.deletion,
           loading: true,
           error: null,
+          deleting: [...state.deletion.deleting, action.payload],
         },
       };
     case screenerConstants.DELETE_SCREENER_SUCCESS:
@@ -152,6 +154,9 @@ const screenerReducer = (state = initialState, action) => {
           loading: false,
           error: null,
           data: action.payload.message,
+          deleting: state.deletion.deleting.filter(
+            (name) => name === action.payload
+          ), 
         },
       };
     case screenerConstants.DELETE_SCREENER_FAILURE:
@@ -162,6 +167,7 @@ const screenerReducer = (state = initialState, action) => {
           loading: false,
           error: action.payload.message,
           data: "",
+          deleting: [],
         },
       };
     default:
