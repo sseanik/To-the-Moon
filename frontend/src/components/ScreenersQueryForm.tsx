@@ -435,7 +435,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
               </Row>
             </Container>
 
-            <Button disabled={!values.marketcapLow} size="lg" type="submit" variant="success">➱</Button>
+            <Button disabled={!values.marketcapLow} size="lg" type="submit" variant="success">Filter</Button>
           </Form>
         );
       }}
