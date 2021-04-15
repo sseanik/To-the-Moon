@@ -10,5 +10,12 @@ CREATE TABLE IF NOT EXISTS securities_overviews (
     beta DECIMAL(15,4),
     pe_ratio DECIMAL(15,4),
     eps DECIMAL(15,4),
-    dividend_yield DECIMAL(15,4)
+    dividend_yield DECIMAL(15,4),
+    sector TEXT, 
+    industry TEXT,
+    book_value DECIMAL(20,4),
+    EBITDA BIGINT,
+    payout_ratio DECIMAL(20,4),
+    revenue_TTM BIGINT,
+    gross_profit_TTM BIGINT
 );
