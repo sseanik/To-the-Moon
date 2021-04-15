@@ -127,11 +127,13 @@ def screen_stocks(parameters):
             'status' : 400,
             'error' : 'Parameters must be a dictionary.'
         }
+    import pdb; pdb.set_trace()
 
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     overviews_query = "SELECT stock_ticker FROM securities_overviews WHERE "
+    param_list = []
     values = []
     for key, item in parameters['securities_overviews'].items():
         if key in ["region", "sector", "industry"]:
@@ -141,21 +143,26 @@ def screen_stocks(parameters):
             new_param = "{key}=%s".format(key=key)
             values.append(item)
         else:
-            min = item[0]
-            max = item[1]
+            min = item[0] if isinstance(item, list) and len(item) else None
+            max = item[1] if isinstance(item, list) and len(item) >= 2 else None
             if (min != None and max != None):
                 new_param = "{key} > %s AND {key} < %s".format(key=key)
                 values.append(min)
                 values.append(max)
-            elif (min == None):
+            elif min == None and max != None:
                 new_param = "{key} < %s".format(key=key)
                 values.append(max)
-            else:
+            elif min != None and max == None:
                 new_param = "{key} > %s".format(key=key)
                 values.append(min)
-        overviews_query += new_param
-        overviews_query += " AND "
-    overviews_query = overviews_query[:-5]
+            else:
+                new_param = ""
+        # overviews_query += new_param
+        if new_param:
+            param_list.append(new_param)
+            # overviews_query += " AND "
+    overviews_query += " AND ".join(param_list)
+    # overviews_query = overviews_query[:-5]
     values = tuple(values)
     cur.execute(overviews_query, values)
 
@@ -224,13 +231,15 @@ def screener_delete_wrapper():
 
 @SCREENER_ROUTES.route('/screener', methods=['GET'])
 def screen_stocks_wrapper():
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     # data = request.get_json()
     # parameters = data['parameters']
     region = request.args.getlist("region")
-    market_cap = request.args.get("market_cap")
-    yearly_low = float(request.args.get("yearly_low"))
-    yearly_high = request.args.get("yearly_high")
+    market_cap = request.args.getlist("market_cap")
+    market_cap[0] = float(market_cap[0]) if market_cap[0] else None
+    market_cap[1] = float(market_cap[1]) if market_cap[1] else None
+    yearly_low = float(request.args.get("yearly_low")) if request.args.get("yearly_low") else None
+    yearly_high = float(request.args.get("yearly_high")) if request.args.get("yearly_high") else None
     eps = request.args.getlist("eps")[0:2]
     beta = request.args.getlist("beta")[0:2]
     payout_ratio = request.args.getlist("payout_ratio")[0:2]

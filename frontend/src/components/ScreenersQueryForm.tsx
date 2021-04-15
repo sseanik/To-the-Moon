@@ -8,7 +8,8 @@ import screenerActions from "../redux/actions/screenerActions";
 interface ScreenerFormValues {
   // screenerName: string;
   region: Array<string>;
-  marketcap: string;
+  marketcapLow: number | null;
+  marketcapHigh: number | null;
   intradayLower: number | null;
   intradayUpper: number | null;
   sector: Array<string>;
@@ -46,7 +47,8 @@ interface industryChoiceOptions {
 
 const initialValues = {
   region: ["United States"],
-  marketcap: "",
+  marketcapLow: null,
+  marketcapHigh: null,
   intradayLower: null,
   intradayUpper: null,
   sector: [""],
@@ -61,7 +63,9 @@ const initialValues = {
 
 const schema = Yup.object({
   region: Yup.array().of(Yup.string()),
-  marketcap: Yup.string()
+  marketcapLow: Yup.number().nullable(true)
+    .required("marketcap symbol is required."),
+  marketcapHigh: Yup.number().nullable(true)
     .required("marketcap symbol is required."),
   intradayLower: Yup.number().nullable(true),
   intradayUpper: Yup.number().nullable(true),
@@ -99,7 +103,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
     let paramsObj = {
       'securities_overviews': {
         "region": values.region,
-        "market_cap": values.marketcap,
+        "market_cap": [values.marketcapLow ? values.marketcapLow : null, values.marketcapHigh ? values.marketcapHigh : null],
         "yearly_low": typeof yrLow === "number" && yrLow >= 0 ? yrLow : null,
         "yearly_high": typeof yrHigh === "number" && yrHigh >= 0 ? yrHigh : null,
         "eps": [values.epsLower ? values.epsLower : null, values.epsUpper ? values.epsUpper : null],
@@ -132,7 +136,6 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
   }
 
   const regionChoices = ["United States", "United Kingdom", "Frankfurt"];
-  const marketCapChoices = ["Small", "Mid", "Large", "Extra Large"];
   const sectorChoices = ["Basic Materials", "Financial Services", "Consumer Defensive", "Utilities", "Energy", "Technology", "Consumer Cyclical", "Real Estate", "Healthcare", "Communication Services", "Industrials"];
 
   const industryChoices: industryChoiceOptions = {"Technology":
@@ -179,25 +182,36 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
               ) : null}
             </Form.Group>
             <Form.Group controlId="marketcap">
-              <Form.Label>Market Capitalisation</Form.Label>
+              <Form.Label>Market Capitalisation (Low)</Form.Label>
               <Form.Control
                 className="mr-sm-2"
-                as="select"
-                name="marketcap"
-                type="text"
-                placeholder="Choose a market cap size"
-                value={values.marketcap}
+                name="marketcapLow"
+                type="number"
+                placeholder="Market cap size"
+                value={undefined}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                isInvalid={!!errors.marketcap && touched.marketcap}
-              >
-                {marketCapChoices.map((entry) =>
-                  <option>{entry}</option>
-                )}
-              </Form.Control>
-              {errors.marketcap && touched.marketcap ? (
+                isInvalid={!!errors.marketcapLow && touched.marketcapLow}
+              />
+              {errors.marketcapLow && touched.marketcapLow ? (
                 <Form.Control.Feedback type="invalid">
-                  {errors.marketcap}
+                  {errors.marketcapLow}
+                </Form.Control.Feedback>
+              ) : null}
+              <Form.Label>Market Capitalisation (High)</Form.Label>
+              <Form.Control
+                className="mr-sm-2"
+                name="marketcapHigh"
+                type="number"
+                placeholder="Market cap size"
+                value={undefined}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={!!errors.marketcapHigh && touched.marketcapHigh}
+              />
+              {errors.marketcapHigh && touched.marketcapHigh ? (
+                <Form.Control.Feedback type="invalid">
+                  {errors.marketcapHigh}
                 </Form.Control.Feedback>
               ) : null}
             </Form.Group>
@@ -286,7 +300,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
               ) : null}
             </Form.Group>
 
-            <Button disabled={!values.marketcap} size="lg" type="submit" variant="success">➱</Button>
+            <Button disabled={!values.marketcapLow} size="lg" type="submit" variant="success">➱</Button>
           </Form>
         );
       }}
