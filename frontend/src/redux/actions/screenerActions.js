@@ -55,7 +55,7 @@ const screenerActions = {
       dispatch(screenerActions.saveScreenerPending());
       try {
         const { name, parameters } = payload;
-        const res = await ScreenerAPI.getData(name, parameters);
+        const res = await ScreenerAPI.save(name, parameters);
         if (res.status === 200) {
           dispatch(screenerActions.saveScreenerSuccess(res));
         } else {

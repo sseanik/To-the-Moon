@@ -72,7 +72,7 @@ const screenerReducer = (state = initialState, action) => {
         saveStatus: {
           ...state.saveStatus,
           loading: false,
-          error: action.payload.error,
+          error: action.payload,
         },
       };
     // Get list of companies using screener
