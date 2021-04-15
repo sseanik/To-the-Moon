@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, Image, Row } from "react-bootstrap";
 
 const newsItemStyle = {
@@ -31,7 +30,7 @@ const NewsCard: React.FC<NewsItem> = (props) => {
   return (
     <Row className="justify-content-center mt-2">
       <Card style={newsItemStyle}>
-        <a href={url} target="_blank">
+        <a href={url} target="_blank" rel="noreferrer">
           <Card.Header as="h3">{headline}</Card.Header>
         </a>
         <Image className="mx-auto" src={image} style={imageStyle} />

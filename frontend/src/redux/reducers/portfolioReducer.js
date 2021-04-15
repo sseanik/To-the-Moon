@@ -9,6 +9,11 @@ const initialState = {
     loading: false,
     portfolios: [],
   },
+  getPortfolioPerf: {
+    loading: false,
+    error: {},
+    data: {},
+  },
   deletePortfolio: {
     loading: false,
     error: null,
@@ -70,6 +75,33 @@ const portfolioReducer = (state = initialState, action) => {
         getPortfolios: {
           loading: false,
           portfolios: [],
+        },
+      };
+    case portfolioConstants.GET_PORTFOLIO_PERF_PENDING:
+      return {
+        ...state,
+        getPortfolioPerf: {
+          ...state.getPortfolioPerf,
+          loading: true,
+          error: {},
+        },
+      };
+    case portfolioConstants.GET_PORTFOLIO_PERF_SUCCESS:
+      return {
+        ...state,
+        getPortfolioPerf: {
+          ...state.getPortfolioPerf,
+          loading: false,
+          data: { ...state.getPortfolioPerf.data, ...action.payload },
+        },
+      };
+    case portfolioConstants.GET_PORTFOLIO_PERF_FAILURE:
+      return {
+        ...state,
+        getPortfolioPerf: {
+          ...state.getPortfolioPerf,
+          loading: false,
+          error: action.payload,
         },
       };
     case portfolioConstants.DELETE_PORTFOLIO_PENDING:
