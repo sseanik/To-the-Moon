@@ -83,6 +83,11 @@ def create_comment_tables():
     conn.commit()
     conn.close()
 
+def create_screeners_table():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/screeners.sql", "r").read())
+    conn.commit()
     
 
 
@@ -378,6 +383,7 @@ if __name__ == "__main__":
     # create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
+    create_screeners_table()
     create_watchlist_tables()
 
     
