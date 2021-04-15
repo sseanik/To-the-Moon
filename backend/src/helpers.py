@@ -151,8 +151,6 @@ class TimeSeries:
         url = TimeSeries._construct_global_quote(symbol, **kwargs)
         return AlphaVantageAPI._get_query(url)
 
-    pass
-
 
 if __name__ == "__main__":
     # Test the wrapper

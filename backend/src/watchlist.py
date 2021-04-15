@@ -2,15 +2,15 @@
 #   Watchlist Module   #
 ########################
 
+from json import dumps
+from decimal import Decimal
 import psycopg2
 from flask import request, Response
-from json import dumps
 from database import create_DB_connection
 from token_util import get_id_from_token
 from iexfinance.stocks import Stock
 import simplejson
-from decimal import Decimal
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, abort
 
 
 WATCHLIST_NS = Namespace("watchlist", "TODO")
@@ -31,16 +31,16 @@ def publish_watchlist(user_id, portfolio_name, description):
     """
     cur.execute(investments_query, (portfolio_name,))
     response = cur.fetchall()
-    aggrigate = {}
+    aggregate = {}
     for ticker, price in response:
-        if ticker not in aggrigate.keys():
-            aggrigate[ticker] = price
+        if ticker not in aggregate.keys():
+            aggregate[ticker] = price
         else:
-            aggrigate[ticker] += price
-    total_capital = sum(aggrigate.values())
+            aggregate[ticker] += price
+    total_capital = sum(aggregate.values())
     stocks = []
     proportions = []
-    for key, value in aggrigate.items():
+    for key, value in aggregate.items():
         stocks.append(key)
         proportions.append((value * 100) / total_capital)
 
@@ -54,7 +54,7 @@ def publish_watchlist(user_id, portfolio_name, description):
             watchlist_query, (user_id, portfolio_name, description, stocks, proportions)
         )
         conn.commit()
-        rtrn = {
+        result = {
             "message": "Watchlist called '" + portfolio_name + "' has been created.",
         }
     except:
@@ -62,7 +62,7 @@ def publish_watchlist(user_id, portfolio_name, description):
 
     conn.commit()
     conn.close()
-    return rtrn
+    return result
 
 
 # TEST this
@@ -74,7 +74,7 @@ def subscribe(user_id, watchlist_id):
     """
     try:
         cur.execute(sql_query, (watchlist_id, user_id))
-        rtrn = {"message": "User has been successfully subscribed."}
+        result = {"message": "User has been successfully subscribed."}
     except psycopg2.errors.UniqueViolation:
         abort(400, "The user is already subscribed to this watchlist.")
     except:
@@ -82,7 +82,7 @@ def subscribe(user_id, watchlist_id):
 
     conn.commit()
     conn.close()
-    return rtrn
+    return result
 
 
 # TEST this
@@ -95,13 +95,13 @@ def unsubscribe(user_id, watchlist_id):
     try:
         cur.execute(sql_query, (user_id, watchlist_id))
         conn.commit()
-        rtrn = {"message": "Successfully unsubscribed."}
+        result = {"message": "Successfully unsubscribed."}
     except:
         abort(400, "Something went wrong while unsubscribing.")
 
     conn.commit()
     conn.close()
-    return rtrn
+    return result
 
 
 # TEST this
@@ -114,7 +114,7 @@ def get_user_subscriptions(user_id):
     try:
         cur.execute(sql_query, (user_id,))
         response = cur.fetchall()
-        rtrn = {
+        result = {
             "message": "Subscription fetching successful.",
             "data": list(map(lambda x: x[0], response)),
         }
@@ -122,7 +122,7 @@ def get_user_subscriptions(user_id):
         abort(400, "Something went wrong while deleting.")
 
     conn.close()
-    return rtrn
+    return result
 
 
 def delete_watchlist(user_id, watchlist_id):
@@ -148,7 +148,7 @@ def get_all_watchlists():
     cur.execute(sql_query)
     response = cur.fetchall()
     if not response:
-        rtrn = {
+        result = {
             "message": "There are no watchlists available.",
             "data": [],
         }
@@ -190,13 +190,13 @@ def get_all_watchlists():
                 }
                 new_watchlist["stocks"].append(new_stock)
             data.append(new_watchlist)
-        rtrn = {
+        result = {
             "message": "Successfully fetched all watchlists.",
             "data": data,
         }
 
     conn.close()
-    return rtrn
+    return result
 
 
 def get_watchlist(watchlist_id):
@@ -227,7 +227,7 @@ def get_watchlist(watchlist_id):
             "description": response[3],
             "stocks": [],
         }
-        for i in range(len(companies)):
+        for i, _ in enumerate(companies):
             company = companies[i]
             proportion = proportions[i]
             new_stock = {
@@ -240,13 +240,13 @@ def get_watchlist(watchlist_id):
                 "PE_ratio": batch.peRatio[company],
             }
             watchlist["stocks"].append(new_stock)
-        rtrn = {
+        result = {
             "message": "Successfully fetched the watchlists.",
             "data": watchlist,
         }
 
     conn.close()
-    return rtrn
+    return result
 
 
 ################################
@@ -298,7 +298,7 @@ class Subscribe(Resource):
 
 # get all watchlists
 @WATCHLIST_NS.route("/get_all")
-class All_Watchlists(Resource):
+class AllWatchlists(Resource):
     def get(self):
         result = get_all_watchlists()
         return Response(simplejson.dumps(result), status=200)
