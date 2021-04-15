@@ -7,7 +7,7 @@ import re
 from flask import request, Response
 from database import create_DB_connection
 from token_util import generate_token, get_id_from_token
-from flask_restx import Namespace, Resource, abort, fields
+from flask_restx import Namespace, Resource, abort
 import bcrypt
 from models import login_model, register_model, token_parser
 

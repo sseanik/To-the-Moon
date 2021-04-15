@@ -6,7 +6,7 @@
 import sys
 from json import dumps
 from definitions import local_storage_dir
-from flask import Flask, request, Response
+from flask import Flask, Response
 from flask_cors import CORS
 from flask_restx import Api, Namespace, Resource, abort
 from forum import FORUM_NS
