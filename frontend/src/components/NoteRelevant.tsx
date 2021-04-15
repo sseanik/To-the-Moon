@@ -14,6 +14,16 @@ export interface NoteEntry {
   internal_references: Array<string>;
 }
 
+interface RelevantNotesParams {
+  stock_symbols: Array<string>;
+  portfolio_names: Array<string>;
+}
+
+interface Props {
+  stock?: Array<string>;
+  portfolio?: Array<string>;
+}
+
 interface StateProps {
   loading: boolean;
   notes: Array<NoteEntry>;
@@ -24,25 +34,27 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  getNotes: () => void;
+  getRelevantNotes: (payload: RelevantNotesParams) => void;
 }
 
-const NoteListBody: React.FC<StateProps & DispatchProps> = (props) => {
+const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
   const {
+    stock = [],
+    portfolio = [],
     loading,
     notes,
-    error,
     touched,
+    error,
     editError,
     deleteError,
-    getNotes,
+    getRelevantNotes,
   } = props;
 
   useEffect(() => {
     if (touched) {
-      getNotes();
+      getRelevantNotes({ stock_symbols: stock, portfolio_names: portfolio });
     }
-  }, [getNotes, touched]);
+  }, [getRelevantNotes, stock, portfolio, touched]);
 
   const errorComponent = (error: string) => (
     <Alert variant="danger">{error}</Alert>
@@ -83,18 +95,19 @@ const NoteListBody: React.FC<StateProps & DispatchProps> = (props) => {
 };
 
 const mapStateToProps = (state: any) => ({
-  loading: state.noteReducer.allNotes.loading,
-  notes: state.noteReducer.allNotes.data,
-  error: state.noteReducer.allNotes.error,
-  touched: state.noteReducer.touched.allNotes,
+  loading: state.noteReducer.relevantNotes.loading,
+  notes: state.noteReducer.relevantNotes.data,
+  error: state.noteReducer.relevantNotes.error,
+  touched: state.noteReducer.touched.relevantNotes,
   editError: state.noteReducer.editNote.error,
   deleteError: state.noteReducer.deleteNote.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    getNotes: () => dispatch(noteActions.getUserNotes()),
+    getRelevantNotes: (payload: RelevantNotesParams) =>
+      dispatch(noteActions.getRelevantNotes(payload)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(NoteListBody);
+export default connect(mapStateToProps, mapDispatchToProps)(NoteRelevant);

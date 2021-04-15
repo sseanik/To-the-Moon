@@ -5,44 +5,60 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
 import { Alert, Button, Col, Form } from "react-bootstrap";
 
-interface EditParentFormParams {
+interface EditCommentFormParams {
   commentID: string;
   timestamp: number;
   content: string;
+  parentID?: string;
 }
 
 interface StateProps {
-  editing: Array<string>;
-  error: string;
+  parentEditing: string[];
+  childEditing: string[];
+  parentError: string;
+  childError: string;
 }
 
 interface DispatchProps {
-  editParent: (payload: EditParentFormParams) => void;
+  editParent: (payload: EditCommentFormParams) => void;
+  editChild: (payload: EditCommentFormParams) => void;
 }
 
 interface Props {
   commentID: string;
+  parentID?: string;
 }
 
 const schema = Yup.object({
   content: Yup.string()
     .required("Comment content is required.")
-    .max(3000, "Comment cannot exceed 3000 characters"),
+    .max(5000, "Comment cannot exceed 5000 characters"),
 });
 
-const EditParentForm: React.FC<StateProps & DispatchProps & Props> = (
+const EditCommentForm: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
-  const { editing, error, editParent, commentID } = props;
-  const initialValues: EditParentFormParams = {
+  const {
+    parentEditing,
+    parentError,
+    childEditing,
+    childError,
+    editParent,
+    editChild,
+    commentID,
+    parentID,
+  } = props;
+
+  const initialValues: EditCommentFormParams = {
     commentID,
     timestamp: new Date().getTime(),
     content: "",
+    parentID,
   };
 
   const formComponent = (
     <Formik
-      onSubmit={editParent}
+      onSubmit={parentID ? editChild : editParent}
       initialValues={initialValues}
       validationSchema={schema}
     >
@@ -55,8 +71,9 @@ const EditParentForm: React.FC<StateProps & DispatchProps & Props> = (
         touched,
       }) => {
         return (
-          <Form noValidate onSubmit={handleSubmit} className="w-100 mt-2">
-            {error ? <Alert variant="danger">{error}</Alert> : null}
+          <Form noValidate onSubmit={handleSubmit} className="w-100 mt-2 ml-5">
+            {parentError ? <Alert variant="danger">{parentError}</Alert> : null}
+            {childError ? <Alert variant="danger">{childError}</Alert> : null}
             <Form.Row className="justify-content-between align-content-center">
               <Col md={8}>
                 <Form.Control
@@ -93,24 +110,35 @@ const EditParentForm: React.FC<StateProps & DispatchProps & Props> = (
     </Formik>
   );
 
-  return editing.includes(commentID) ? (
-    <ClipLoader color={"green"} loading={editing.includes(commentID)} />
+  return parentEditing.includes(commentID) ||
+    childEditing.includes(commentID) ? (
+    <ClipLoader
+      color={"green"}
+      loading={
+        parentEditing.includes(commentID) || childEditing.includes(commentID)
+      }
+    />
   ) : (
     formComponent
   );
 };
 
 const mapStateToProps = (state: any) => ({
-  editing: state.forumReducer.editParent.editing,
-  error: state.forumReducer.editParent.error,
+  parentEditing: state.forumReducer.editParent.editing,
+  parentError: state.forumReducer.editParent.error,
+  childEditing: state.forumReducer.editChild.editing,
+  childError: state.forumReducer.editChild.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    editParent: (payload: EditParentFormParams) => {
+    editParent: (payload: EditCommentFormParams) => {
       dispatch(forumActions.editParent(payload));
+    },
+    editChild: (payload: EditCommentFormParams) => {
+      dispatch(forumActions.editChild(payload));
     },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditParentForm);
+export default connect(mapStateToProps, mapDispatchToProps)(EditCommentForm);
