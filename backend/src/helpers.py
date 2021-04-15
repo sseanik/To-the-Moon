@@ -24,7 +24,7 @@ class JSONLoader:
         # with open(f'./{company_name}_{label}_{date.today().strftime("%Y%m%d")}.json', 'w') as outfile:
         filename = os.path.join(local_storage_dir, company_name + "_" + label + ".json") if label \
             else os.path.join(local_storage_dir, company_name + ".json")
-        with open(filename, 'w+') as outfile:
+        with open(filename, 'w') as outfile:
             json.dump(data, outfile)
 
     @staticmethod
