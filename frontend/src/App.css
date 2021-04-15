@@ -37,6 +37,10 @@
   }
 }
 
+.app-container {
+  padding-top: 100px;
+}
+
 .pane-overlay {
   z-index: 10;
   position: relative;

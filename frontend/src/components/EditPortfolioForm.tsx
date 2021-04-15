@@ -13,7 +13,7 @@ interface RouteMatchParams {
 
 interface StateProps {
   loading: boolean;
-  error: Object;
+  error: string;
   oldName: string;
   newName: string;
 }

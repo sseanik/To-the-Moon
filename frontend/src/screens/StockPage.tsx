@@ -23,6 +23,7 @@ import {
   DataBalanceSheet,
   DataCashFlow,
   StockNews,
+  NoteRelevant,
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
@@ -63,7 +64,7 @@ interface durChoiceParams {
 }
 
 interface predictionModeParams {
-  [key: string]: { idtype: string; name: string; };
+  [key: string]: { idtype: string; name: string };
 }
 
 interface StateProps {
@@ -220,13 +221,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const loadingSpinnerComponent = (
     <Container>
       <ClipLoader color={"green"} loading={loading} />
-      <h5>Loading Data ...</h5>
+      <span className="sr-only">Loading Data ...</span>
     </Container>
   );
 
   const alertComponent = <Alert variant="danger">{error}</Alert>;
 
-  const stockNameText = error ? `${symbol}` : `${company} (${symbol})`;
+  const stockNameText =
+    error || loading ? `${symbol}` : `${company} (${symbol})`;
 
   const statusBadgeModifier = (
     prediction: Array<any>,
@@ -316,27 +318,27 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       <Row>
         <Col>Model: </Col>
         <Col>
-        <DropdownButton
-          variant="outline-dark"
-          id="dropdown-basic-button"
-          title={predictOpts[preChoice].name}
-        >
-          {Object.entries(predictOpts).map((entry, idx) => {
-            const [key, value] = entry;
+          <DropdownButton
+            variant="outline-dark"
+            id="dropdown-basic-button"
+            title={predictOpts[preChoice].name}
+          >
+            {Object.entries(predictOpts).map((entry, idx) => {
+              const [key, value] = entry;
 
-            return (
-              <Dropdown.Item
-                key={idx}
-                href="#/action-1"
-                onClick={() => {
-                  setPreChoice(key);
-                }}
-              >
-                {value.name}
-              </Dropdown.Item>
-            );
-          })}
-        </DropdownButton>
+              return (
+                <Dropdown.Item
+                  key={idx}
+                  href="#/action-1"
+                  onClick={() => {
+                    setPreChoice(key);
+                  }}
+                >
+                  {value.name}
+                </Dropdown.Item>
+              );
+            })}
+          </DropdownButton>
         </Col>
       </Row>
       <hr />
@@ -356,7 +358,8 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   return (
     <Container>
       <Row className="justify-content-center mt-2">
-        <h1>{loading ? loadingSpinnerComponent : stockNameText}</h1>
+        <h1>{stockNameText}</h1>
+        {loadingSpinnerComponent}
       </Row>
       <Row>{error ? alertComponent : null}</Row>
       <Row className="justify-content-center">
@@ -403,7 +406,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
           <Tabs className="justify-content-center mt-2" defaultActiveKey="news">
             <Tab eventKey="news" title="News">
               <Row>
-                <h3>{`News related to ${symbol.toUpperCase()}`}</h3>
+                <h2>{`News related to ${symbol.toUpperCase()}`}</h2>
               </Row>
               <StockNews stock={symbol} />
             </Tab>
@@ -412,7 +415,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
                 <Forum stockTicker={symbol} />
               </Row>
             </Tab>
-            <Tab eventKey="other" title="Other"></Tab>
+            <Tab eventKey="notes" title="Relevant Notes">
+              <Row>
+                <NoteRelevant stock={[symbol]} />
+              </Row>
+            </Tab>
           </Tabs>
         </Container>
       </Row>
