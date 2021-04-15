@@ -39,23 +39,27 @@ const ScreenersResults: React.FC<Props & StateProps & DispatchProps> = (
       </Row>
       <hr />
       <Row>
-        <Col>Symbol</Col>
-        <Col>Price</Col>
-        <Col>Price Change</Col>
-        <Col>Price Change (%)</Col>
-        <Col>Volume</Col>
-        <Col>Market Cap</Col>
-        <Col>PE Ratio</Col>
+        <Col className="text-center" lg={1}>Symbol</Col>
+        <Col className="text-center" lg={2}>Price</Col>
+        <Col className="text-center" lg={1}>Price Change</Col>
+        <Col className="text-center" lg={2}>Price Change (%)</Col>
+        <Col className="text-center" lg={2}>Volume</Col>
+        <Col className="text-center" lg={2}>Market Cap</Col>
+        <Col className="text-center" lg={2}>PE Ratio</Col>
       </Row>
       <hr />
-      <Row>
         {data.map((entry: any, idx) => (
-          Object.entries(entry).map(([field, value], idx) => (
-            <Col>{`${value}`}</Col>
-          ))
+          <Row>
+            <Col className="text-center" lg={1}><a href={`/stock/${entry['stock ticker']}`}>{entry['stock ticker']}</a></Col>
+            <Col className="text-right" lg={2}>{entry['price']}</Col>
+            <Col className="text-right" lg={1}>{entry['price change']}</Col>
+            <Col className="text-right" lg={2}>{(Number(entry['price change percentage'])*100).toFixed(4)}</Col>
+            <Col className="text-right" lg={2}>{entry['volume']}</Col>
+            <Col className="text-right" lg={2}>{entry['market capitalization']}</Col>
+            <Col className="text-right" lg={2}>{entry['PE ratio']}</Col>
+            <hr />
+          </Row>
         ))}
-        <hr />
-      </Row>
     </Container>
   );
 }
