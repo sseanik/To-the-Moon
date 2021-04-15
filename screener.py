@@ -127,7 +127,6 @@ def screen_stocks(parameters):
             'status' : 400,
             'error' : 'Parameters must be a dictionary.'
         }
-    import pdb; pdb.set_trace()
 
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -231,9 +230,6 @@ def screener_delete_wrapper():
 
 @SCREENER_ROUTES.route('/screener', methods=['GET'])
 def screen_stocks_wrapper():
-    # import pdb; pdb.set_trace()
-    # data = request.get_json()
-    # parameters = data['parameters']
     region = request.args.getlist("region")
     market_cap = request.args.getlist("market_cap")
     market_cap[0] = float(market_cap[0]) if market_cap[0] else None
@@ -281,5 +277,4 @@ if __name__ == "__main__":
 
         }
     }
-    # import pdb; pdb.set_trace()
     print(screen_stocks(test))
