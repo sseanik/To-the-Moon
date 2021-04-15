@@ -507,13 +507,12 @@ def vote_on_reply(user_id, reply_id, upvote=True):
 # Please leave all routes here #
 ################################
 
-
 @FORUM_ROUTES.route('/forum', methods=['GET'])
 def get_comments():
     token = request.headers.get('Authorization')
     user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = get_stock_comments(user_id, data['stockTicker'])
+    stock_ticker = request.args.get('stockTicker')
+    result = get_stock_comments(user_id, stock_ticker)
     return dumps(result)
 
 
