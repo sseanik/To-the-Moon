@@ -1,4 +1,5 @@
 import { Container, Col, Row, Alert, Button } from "react-bootstrap";
+import ClipLoader from "react-spinners/ClipLoader";
 import { useHistory } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
@@ -28,11 +29,20 @@ const ScreenersResults: React.FC<Props & StateProps & DispatchProps> = (
 ) => {
   const { loading, error, data } = props;
 
-  // useEffect(() => {
-  //   console.log("Screener data: ", data);
-  // }, []);
+  const loadingSpinnerComponent = (
+    <div>
+      <ClipLoader color={"green"} loading={loading} />
+      <h5>Loading Data ...</h5>
+    </div>
+  );
 
-  return (
+  const alertComponent = (
+    <Alert variant="danger">
+      {error}
+    </Alert>
+  );
+
+  const tableComponent = (
     <Container>
       <Row className="justify-content-center">
         <h1>Results</h1>
@@ -62,6 +72,8 @@ const ScreenersResults: React.FC<Props & StateProps & DispatchProps> = (
         ))}
     </Container>
   );
+
+  return loading ? loadingSpinnerComponent : (error ? alertComponent : tableComponent); 
 }
 
 const mapStateToProps = (state: any) => ({
