@@ -63,12 +63,39 @@ def create_notes_table():
     conn.commit()
     conn.close()
 
+
+def create_watchlist_tables():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/subscriptions.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/watchlists.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+
 def create_comment_tables():
     conn = create_DB_connection()
     cur = conn.cursor()
     cur.execute(open("Tables/forum_comment.sql", "r").read())
     conn.commit()
     cur.execute(open("Tables/forum_reply.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+    
+
+
+def create_vote_plpgsql_functions():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/Functions/upvote_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/downvote_comment.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/upvote_reply.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/Functions/downvote_reply.sql", "r").read())
     conn.commit()
     conn.close()
 
@@ -351,6 +378,7 @@ if __name__ == "__main__":
     # create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
+    create_watchlist_tables()
 
     
     fill_all_companies()
