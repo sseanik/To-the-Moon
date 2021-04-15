@@ -126,32 +126,22 @@ const Note: React.FC<NoteEntry & StateProps & DispatchProps> = (props) => {
           <br />
           {internal_references.join(", ")}
         </Card.Text>
-
-        {currentNoteEditing ? (
-          loadingSpinnerComponent
-        ) : (
-          <Button
-            disabled={currentNoteDeleting || currentNoteEditing}
-            variant="primary"
-            className="mx-1"
-            onClick={handleNoteEditToggle}
-          >
-            Edit
-          </Button>
-        )}
-
-        {currentNoteDeleting ? (
-          loadingSpinnerComponent
-        ) : (
-          <Button
-            disabled={currentNoteDeleting || currentNoteEditing}
-            variant="danger"
-            className="mx-1"
-            onClick={handleNoteDelete}
-          >
-            Delete
-          </Button>
-        )}
+        <Button
+          disabled={currentNoteDeleting || currentNoteEditing}
+          variant="primary"
+          className="mx-1"
+          onClick={handleNoteEditToggle}
+        >
+          {currentNoteEditing ? "Editing" : "Edit"}
+        </Button>
+        <Button
+          disabled={currentNoteDeleting || currentNoteEditing}
+          variant="danger"
+          className="mx-1"
+          onClick={handleNoteDelete}
+        >
+          {currentNoteDeleting ? "Deleting..." : "Delete"}
+        </Button>
       </Card.Body>
     </Card>
   );

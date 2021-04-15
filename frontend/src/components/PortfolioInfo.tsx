@@ -18,6 +18,8 @@ export interface PerformanceEntry {
   [key: string]: any;
 }
 
+const performanceStyle = {};
+
 const PortfolioInfo: React.FC<Props & StateProps> = (props) => {
   const { name, loading, perf } = props;
 
@@ -27,17 +29,19 @@ const PortfolioInfo: React.FC<Props & StateProps> = (props) => {
       : "";
   const performance =
     perf.hasOwnProperty(name) && perf[name].hasOwnProperty("portfolio_change")
-      ? perf[name].portfolio_change
-      : "0";
+      ? Number(perf[name].portfolio_change).toFixed(2)
+      : 0;
 
   const performanceComponent = error ? (
     <Alert variant="danger">{error}</Alert>
   ) : (
     <Row className="my-2">
-      <Col>
+      <Col as="h5">
         <b>Performance</b>
       </Col>
-      <Col>{performance}</Col>
+      <Col as="h5">
+        {performance > 0 ? `⬆️ +${performance}` : `⬇️ ${performance}`}
+      </Col>
     </Row>
   );
 
