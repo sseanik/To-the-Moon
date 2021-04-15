@@ -16,6 +16,18 @@ const portfolioAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  getPortfolioPerformance: (name) => {
+    const endpoint = `/user/portfolio/performance?name=${name}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      }
+    };
+
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
   createPortfolio: (name) => {
     const endpoint = `/portfolio?name=${name}`;
     const options = {

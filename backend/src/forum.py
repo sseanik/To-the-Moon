@@ -658,3 +658,4 @@ class DownvoteReply(Resource):
         data = request.get_json()
         result = vote_on_reply(user_id, data["reply_id"], upvote=False)
         return Response(dumps(result), status=200)
+

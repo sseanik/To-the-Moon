@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Container, Col, Row, Alert, Button, Tabs, Tab } from "react-bootstrap";
 import { useParams } from "react-router";
-import { NoteRelevant } from "../components";
+import { NoteRelevant, PortfolioPerformance } from "../components";
 import AddInvestmentForm from "../components/AddInvestmentForm";
 import EditPortfolioForm from "../components/EditPortfolioForm";
 import StockInfo from "../components/StockInfo";
@@ -50,6 +50,7 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
       <Row className="justify-content-center my-3">
         <h1>{name}</h1>
       </Row>
+      <PortfolioPerformance name={name}/>
       <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
         <Col>Stock Name</Col>
         <Col># Shares</Col>
