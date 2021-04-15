@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
 
 interface ScreenerFormValues {
-  // screenerName: string;
+  screenerName: string | null;
   region: Array<string>;
   marketcapLow: number | null;
   marketcapHigh: number | null;
@@ -46,6 +46,7 @@ interface industryChoiceOptions {
 }
 
 const initialValues = {
+  screenerName: null,
   region: ["United States"],
   marketcapLow: null,
   marketcapHigh: null,
@@ -127,12 +128,16 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
     return paramsStr;
   };
 
-  const handleSubmit = (values: ScreenerFormValues) => {
+  const doSubmit = (values: ScreenerFormValues) => {
     console.log("Before conversion: ", values);
     const parameters = formToScreenerParams(values);
     console.log("After conversion: ", parameters);
     // console.log(getScreenerResults);
     getScreenerResults({ parameters });
+  }
+
+  const doSave = (values: ScreenerFormValues) => {
+    console.log("Saving: ", values);
   }
 
   const regionChoices = ["United States", "United Kingdom", "Frankfurt"];
@@ -145,7 +150,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   return (
     <Formik
-      onSubmit={handleSubmit}
+      onSubmit={doSubmit}
       initialValues={initialValues}
     >
       {({
@@ -434,8 +439,37 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
               </Col>
               </Row>
             </Container>
+            <Container>
+              <Form.Group controlId="payoutRatio">
+                <Form.Label>Screener Name</Form.Label>
+                <Form.Control
+                  className="mr-sm-2"
+                  name="screenerName"
+                  type="string"
+                  placeholder="Name"
+                  value={undefined}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isInvalid={!!errors.screenerName && touched.screenerName}
+                />
+                {errors.screenerName && touched.screenerName ? (
+                  <Form.Control.Feedback type="invalid">
+                    {errors.screenerName}
+                  </Form.Control.Feedback>
+                ) : null}
+              </Form.Group>
+            </Container>
 
-            <Button disabled={!values.marketcapLow} size="lg" type="submit" variant="success">Filter</Button>
+            <Container>
+              <Row className="justify-content-md-center">
+                <Col xs lg="2">
+                  <Button disabled={!values.marketcapLow} size="lg" variant="success" onClick={() => { doSubmit(values); }}>Filter</Button>
+                </Col>
+                <Col xs lg="2">
+                  <Button disabled={!values.marketcapLow} size="lg" variant="primary" onClick={() => { doSave(values); }}>Save</Button>
+                </Col>
+              </Row>
+            </Container>
           </Form>
         );
       }}
