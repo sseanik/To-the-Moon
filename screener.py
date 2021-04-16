@@ -139,13 +139,15 @@ def screen_stocks(parameters):
     param_list = []
     values = []
     for key, item in parameters['securities_overviews'].items():
-        if key in ["region", "sector", "industry"]:
-            continue
         new_param = ""
         if isinstance(item, str) or isinstance(item, (int, float)):
             new_param = "{key}=%s".format(key=key)
             values.append(item)
-        else:
+        elif isinstance(item, list) and key in ["exchange", "sector", "industry"]:
+            if len(item) >= 1 and item[0]:
+                new_param = "{key} IN %s".format(key=key)
+                values.append(tuple(item))
+        elif isinstance(item, list) and key not in ["exchange", "sector", "industry"]:
             min = item[0] if isinstance(item, list) and len(item) else None
             max = item[1] if isinstance(item, list) and len(item) >= 2 else None
             if (min != None and max != None):
@@ -166,6 +168,7 @@ def screen_stocks(parameters):
             # overviews_query += " AND "
     overviews_query += " AND ".join(param_list)
     # overviews_query = overviews_query[:-5]
+    print(overviews_query)
     values = tuple(values)
     cur.execute(overviews_query, values)
 
@@ -205,7 +208,7 @@ def make_params_object(args):
     result = {}
 
     if type(args) == ImmutableMultiDict:
-        region = request.args.getlist("region")
+        exchange = request.args.getlist("exchange")
         market_cap = request.args.getlist("market_cap")
         market_cap[0] = float(market_cap[0]) if market_cap[0] else None
         market_cap[1] = float(market_cap[1]) if market_cap[1] else None
@@ -226,7 +229,7 @@ def make_params_object(args):
         industry = request.args.getlist("Industry")
         result = {
             "securities_overviews": {
-                "region": region,
+                "exchange": exchange,
                 "market_cap": market_cap,
                 "yearly_low": yearly_low,
                 "yearly_high": yearly_high,
