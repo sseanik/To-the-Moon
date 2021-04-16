@@ -58,7 +58,9 @@ const ScreenersResults: React.FC<Props & StateProps & DispatchProps> = (
         <Col className="text-center" lg={2}>PE Ratio</Col>
       </Row>
       <hr />
-        {data.map((entry: any, idx) => (
+        {error ? alertComponent : null}
+        {loading ? loadingSpinnerComponent :
+        data.map((entry: any, idx) => (
           <Row>
             <Col className="text-center" lg={1}><a href={`/stock/${entry['stock ticker']}`}>{entry['stock ticker']}</a></Col>
             <Col className="text-right" lg={2}>{entry['price']}</Col>
@@ -73,7 +75,7 @@ const ScreenersResults: React.FC<Props & StateProps & DispatchProps> = (
     </Container>
   );
 
-  return loading ? loadingSpinnerComponent : (error ? alertComponent : tableComponent); 
+  return (tableComponent); 
 }
 
 const mapStateToProps = (state: any) => ({

@@ -36,7 +36,7 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
 
   useEffect(() => {
     loadScreeners({});
-  }, [])
+  }, [loadScreeners])
 
   const loadingSpinnerComponent = (
     <div>
@@ -62,7 +62,9 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
         <Col className="text-center" lg={2}>Options</Col>
       </Row>
       <hr />
-      {data.map((entry: screenerListParams, idx) => (
+      {error ? alertComponent : null}
+      {loading ? loadingSpinnerComponent :
+      data.map((entry: screenerListParams, idx) => (
         <Row className="justify-content-center">
           <Col className="text-center" lg={2}>
             {entry['name']}
@@ -75,8 +77,7 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
     </Container>
   );
 
-  return loading ? loadingSpinnerComponent
-    : (error ? alertComponent : tableComponent);
+  return (tableComponent);
 }
 
 const mapStateToProps = (state: any) => ({
