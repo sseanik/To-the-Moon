@@ -156,7 +156,7 @@ const screenerReducer = (state = initialState, action) => {
           data: action.payload.message,
           deleting: state.deletion.deleting.filter(
             (name) => name === action.payload
-          ), 
+          ),
         },
       };
     case screenerConstants.DELETE_SCREENER_FAILURE:

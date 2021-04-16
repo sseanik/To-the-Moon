@@ -5,14 +5,17 @@ import { Formik } from "formik";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
 
-import { 
+import {
   ScreenerQuery,
-  paramsObjToScreenerParams
+  paramsObjToScreenerParams,
+  industryChoices,
+  exchangeChoices,
+  sectorChoices,
 } from "../helpers/ScreenerQuery"
 
 interface ScreenerFormValues {
   screenerName: string | null;
-  region: Array<string>;
+  exchange: Array<string>;
   marketcapLow: number | null;
   marketcapHigh: number | null;
   intradayLower: number | null;
@@ -37,13 +40,9 @@ interface saveScreenerParams {
   parameters: ScreenerQuery;
 }
 
-interface industryChoiceOptions {
-  [key: string]: Array<string>;
-}
-
 const initialValues = {
   screenerName: null,
-  region: ["United States"],
+  exchange: ["NASDAQ"],
   marketcapLow: null,
   marketcapHigh: null,
   intradayLower: null,
@@ -59,16 +58,19 @@ const initialValues = {
 }
 
 const schema = Yup.object({
-  region: Yup.array().of(Yup.string()),
-  marketcapLow: Yup.number().nullable(true)
-    .required("marketcap symbol is required."),
-  marketcapHigh: Yup.number().nullable(true)
-    .required("marketcap symbol is required."),
+  exchange: Yup.array().of(Yup.string()),
+  marketcapLow: Yup.number().nullable(true),
+  marketcapHigh: Yup.number().nullable(true),
   intradayLower: Yup.number().nullable(true),
   intradayUpper: Yup.number().nullable(true),
   sector: Yup.array().of(Yup.string()),
   industry: Yup.array().of(Yup.string()),
-    // .required("One or more regions are required.")
+  epsLower: Yup.number().nullable(true),
+  epsUpper: Yup.number().nullable(true),
+  betaLower: Yup.number().nullable(true),
+  betaUpper: Yup.number().nullable(true),
+  payoutRatioLower: Yup.number().nullable(true),
+  payoutRatioUpper: Yup.number().nullable(true),
 })
 
 // Add Props
@@ -107,7 +109,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
     const yrHigh = values.intradayUpper;
     return {
       'securities_overviews': {
-        "region": values.region,
+        "exchange": values.exchange,
         "market_cap": [values.marketcapLow ? values.marketcapLow : null, values.marketcapHigh ? values.marketcapHigh : null],
         "yearly_low": typeof yrLow === "number" && yrLow >= 0 ? yrLow : null,
         "yearly_high": typeof yrHigh === "number" && yrHigh >= 0 ? yrHigh : null,
@@ -136,18 +138,11 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
     }
   }
 
-  const regionChoices = ["United States", "United Kingdom", "Frankfurt"];
-  const sectorChoices = ["Basic Materials", "Financial Services", "Consumer Defensive", "Utilities", "Energy", "Technology", "Consumer Cyclical", "Real Estate", "Healthcare", "Communication Services", "Industrials"];
-
-  const industryChoices: industryChoiceOptions = {"Technology":
-  ["Information Technology Services", "Software—Infrastructure", "Computer Hardware", "Electronic Components", "Scientific & Technical Instruments", "Semiconductors", "Software—Application", "Communication Equipment", "Consumer Electronics", "Electronics & Computer Distribution", "Semiconductor Equipment & Materials", "Solar"],
-  "Consumer Cyclical": ["Auto & Truck Dealerships", "Auto Manufacturers", "Auto Parts", "Recreational Vehicles", "Furnishings", "Fixtures & Appliances", "Residential Construction", "Textile Manufacturing", "Apparel Manufacturing", "Footwear & Accessories", "Packaging & Containers", "Personal Services", "Restaurants", "Apparel Retail", "Department Stores", "Home Improvement Retail", "Luxury Goods", "Internet Retail", "Specialty Retail", "Gambling", "Leisure", "Lodging", "Resorts & Casinos", "Travel Services"]
-  };
-
   return (
     <Formik
       onSubmit={doSubmit}
       initialValues={initialValues}
+      schema={schema}
     >
       {({
         handleSubmit,
@@ -162,26 +157,26 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
             <Container>
               <Row>
               <Col>
-                <Form.Group controlId="formSelectRegion">
-                  <Form.Label>Region</Form.Label>
+                <Form.Group controlId="formSelectExchange">
+                  <Form.Label>Exchange</Form.Label>
                   <Form.Control
                     className="mr-sm-2"
                     as="select"
-                    name="region"
+                    name="exchange"
                     type="text"
-                    value={values.region}
+                    value={values.exchange}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    isInvalid={!!errors.region && touched.region}
+                    isInvalid={!!errors.exchange && touched.exchange}
                     multiple
                   >
-                    {regionChoices.map((entry) =>
+                    {exchangeChoices.map((entry) =>
                       <option>{entry}</option>
                     )}
                   </Form.Control>
-                  {errors.region && touched.region ? (
+                  {errors.exchange && touched.exchange ? (
                     <Form.Control.Feedback type="invalid">
-                      {errors.region}
+                      {errors.exchange}
                     </Form.Control.Feedback>
                   ) : null}
                 </Form.Group>
