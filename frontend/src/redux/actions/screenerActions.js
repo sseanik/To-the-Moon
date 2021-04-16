@@ -38,8 +38,9 @@ const screenerActions = {
     payload: error,
   }),
 
-  deleteScreenerPending: () => ({
+  deleteScreenerPending: (name) => ({
     type: screenerConstants.DELETE_SCREENER_PENDING,
+    payload: name,
   }),
   deleteScreenerSuccess: (response) => ({
     type: screenerConstants.DELETE_SCREENER_SUCCESS,
@@ -58,7 +59,7 @@ const screenerActions = {
         const res = await ScreenerAPI.save(name, parameters);
         if (res.status === 200) {
           dispatch(screenerActions.saveScreenerSuccess(res));
-          dispatch(screenerActions.loadScreeners({})); 
+          dispatch(screenerActions.loadScreeners({}));
         } else {
           dispatch(screenerActions.saveScreenerFailure(res.error));
         }
@@ -104,9 +105,9 @@ const screenerActions = {
 
   deleteScreener: (payload) => {
     return async (dispatch) => {
-      dispatch(screenerActions.deleteScreenerPending());
+      const { name } = payload;
+      dispatch(screenerActions.deleteScreenerPending(name));
       try {
-        const { name } = payload;
         const res = await ScreenerAPI.delete(name);
         if (res.status === 200) {
           dispatch(screenerActions.deleteScreenerSuccess(res));
