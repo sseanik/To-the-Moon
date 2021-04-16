@@ -5,6 +5,11 @@ import { Formik } from "formik";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
 
+import { 
+  ScreenerQuery,
+  paramsObjToScreenerParams
+} from "../helpers/ScreenerQuery"
+
 interface ScreenerFormValues {
   screenerName: string | null;
   region: Array<string>;
@@ -20,20 +25,6 @@ interface ScreenerFormValues {
   betaUpper: number | null | undefined;
   payoutRatioLower: number | null | undefined;
   payoutRatioUpper: number | null | undefined;
-}
-
-interface ScreenerQuery {
-  securities_overviews: {
-    region: Array<string>;
-    market_cap: Array<number | null | undefined>;
-    yearly_low: number | null;
-    yearly_high: number | null;
-    sector: Array<string>;
-    industry: Array<string>;
-    eps: Array<number | null | undefined>;
-    beta: Array<number | null | undefined>;
-    payout_ratio: Array<number | null | undefined>;
-  };
 }
 
 interface getScreenerResultsParams {
@@ -128,18 +119,6 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
       }
     };
   }
-
-  const paramsObjToScreenerParams = (paramsObj: ScreenerQuery) => {
-    return `?${Object.entries(paramsObj['securities_overviews']).map(([field, value], idx) => (
-      typeof value === "string" || typeof value === "number"
-        ? `${field}=${String(value)}`
-      : Array.isArray(value)
-        ? value.map((e: any) => (`${field}=${typeof e === "number" ? e : ""}`)).join("&")
-      : value === null || value === undefined
-        ? `${field}=`
-      : `${field}=${String(value)}`
-    )).join("&")}`;
-  };
 
   const doSubmit = (values: ScreenerFormValues) => {
     const paramObj = formToParamsObj(values);
