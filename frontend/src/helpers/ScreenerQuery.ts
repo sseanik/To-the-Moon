@@ -37,7 +37,7 @@ const paramsObjToHeadings: {[key: string]: any} = {
 }
 
 export const paramsObjToString = (paramsObj: ScreenerQuery) => {
-  return `${Object.entries(paramsObj['securities_overviews']).map(([field, value], idx) => {
+  return paramsObj.hasOwnProperty('securities_overviews') ? `${Object.entries(paramsObj['securities_overviews']).map(([field, value], idx) => {
       const fieldname = paramsObjToHeadings.hasOwnProperty(field)
         ? paramsObjToHeadings[field] : field;
       return typeof value === "string" || typeof value === "number"
@@ -55,5 +55,5 @@ export const paramsObjToString = (paramsObj: ScreenerQuery) => {
       : value === null || value === undefined
         ? ``
       : ``;
-  }).filter(entry => entry !== null && entry !== "").join(", ")}`;
+  }).filter(entry => entry !== null && entry !== "").join(", ")}` : "";
 };
