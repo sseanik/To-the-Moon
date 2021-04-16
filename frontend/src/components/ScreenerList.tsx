@@ -3,11 +3,14 @@ import { Container, Col, Row, Alert, Button } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
+import LoadScreenerParamsButton from "./LoadScreenerParamsButton";
 import DeleteScreenerButton from "./DeleteScreenerButton";
+
+import { ScreenerQuery } from "../helpers/ScreenerQuery";
 
 interface screenerListParams {
   name: string;
-  params: {[key: string]: any};
+  params: ScreenerQuery;
 }
 
 interface loadScreenersParams {
@@ -70,7 +73,14 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
             {entry['name']}
           </Col>
           <Col className="text-center" lg={2}>
-            <DeleteScreenerButton name={entry['name']} />
+            <Row className="justify-content-center">
+              <Col lg={6}>
+                <LoadScreenerParamsButton parametersObj={entry['params']} />
+              </Col>
+              <Col lg={6}>
+                <DeleteScreenerButton name={entry['name']} />
+              </Col>
+            </Row>
           </Col>
         </Row>
       ))}
