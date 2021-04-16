@@ -454,7 +454,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
             <Container>
               <Row className="justify-content-md-center">
                 <Col xs lg="2">
-                  <Button disabled={!values.marketcapLow} size="lg" variant="success" onClick={() => { doSubmit(values); }}>Filter</Button>
+                  <Button disabled={false} size="lg" variant="success" onClick={() => { doSubmit(values); }}>Filter</Button>
                 </Col>
                 <Col xs lg="2">
                   <Button disabled={!values.screenerName} size="lg" variant="primary" onClick={() => { doSave(values); }}>Save</Button>
