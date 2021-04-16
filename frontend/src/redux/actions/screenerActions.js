@@ -58,6 +58,7 @@ const screenerActions = {
         const res = await ScreenerAPI.save(name, parameters);
         if (res.status === 200) {
           dispatch(screenerActions.saveScreenerSuccess(res));
+          dispatch(screenerActions.loadScreeners({})); 
         } else {
           dispatch(screenerActions.saveScreenerFailure(res.error));
         }
@@ -109,6 +110,7 @@ const screenerActions = {
         const res = await ScreenerAPI.delete(name);
         if (res.status === 200) {
           dispatch(screenerActions.deleteScreenerSuccess(res));
+          dispatch(screenerActions.loadScreeners({}));
         } else {
           dispatch(screenerActions.deleteScreenerFailure(res.error));
         }
