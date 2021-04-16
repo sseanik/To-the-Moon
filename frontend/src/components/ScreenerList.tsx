@@ -6,7 +6,10 @@ import screenerActions from "../redux/actions/screenerActions";
 import LoadScreenerParamsButton from "./LoadScreenerParamsButton";
 import DeleteScreenerButton from "./DeleteScreenerButton";
 
-import { ScreenerQuery } from "../helpers/ScreenerQuery";
+import {
+  ScreenerQuery,
+  paramsObjToString,
+} from "../helpers/ScreenerQuery";
 
 interface screenerListParams {
   name: string;
@@ -62,6 +65,7 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
       <hr />
       <Row className="justify-content-center">
         <Col className="text-center" lg={2}>Name</Col>
+        <Col className="text-center" lg={4}>Parameters</Col>
         <Col className="text-center" lg={2}>Options</Col>
       </Row>
       <hr />
@@ -71,6 +75,9 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
         <Row className="justify-content-center">
           <Col className="text-center" lg={2}>
             {entry['name']}
+          </Col>
+          <Col className="text-center" lg={4}>
+            {entry['params'] ? paramsObjToString(entry['params']) : null}
           </Col>
           <Col className="text-center" lg={2}>
             <Row className="justify-content-center">
