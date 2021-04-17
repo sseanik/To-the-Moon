@@ -1,0 +1,16 @@
+train_data:
+  filename: "IBM_daily_adjusted.json"
+  sequence_length: 5580
+  columns_to_use: ["5. adjusted close"]
+  target: "prediction"
+
+training:
+    train_test_split: 0.80
+    forecast_out: 60
+    n_features: 1
+
+model:
+  degree: 1
+  kernel: "rbf"
+  C: 2000
+  save_model_name: "SVM_model.pickle"
