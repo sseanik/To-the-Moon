@@ -536,7 +536,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       <Row>
         <Col># orders: </Col>
         <Col>
-          {paperTradingResults.hasOwnProperty("orders") ? paperTradingResults['orders'] : "N/A"}
+          {paperTradingResults.hasOwnProperty("n_orders") ? paperTradingResults['n_orders'] : "N/A"}
         </Col>
       </Row>
       <hr />

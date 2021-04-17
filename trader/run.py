@@ -72,9 +72,13 @@ def get_prediction():
         commission = request_data['commission']
         # Todo: add strategy as parameter
         strategy = request_data['strategy']
+
+        # Automatically calculate from today to one years prior
+        default_dt_from = pd.Timestamp.today() - pd.offsets.DateOffset(years=1)
+        default_dt_to = pd.Timestamp.today()
         # Validate this
-        fromdate = pd.Timestamp(request_data['fromdate']) if request_data['fromdate'] else pd.Timestamp(2020,5,1)
-        todate = pd.Timestamp(request_data['todate']) if request_data['todate'] else pd.Timestamp(2020,8,17)
+        fromdate = pd.Timestamp(request_data['fromdate']) if request_data['fromdate'] else default_dt_from
+        todate = pd.Timestamp(request_data['todate']) if request_data['todate'] else default_dt_to
 
         # TODO: add strategies by list in request
         # run_strategy = RSIStack
@@ -121,11 +125,13 @@ def get_prediction():
         timestamps = results.get_timestamps()
         indicator_graph = [list(x) for x in zip(timestamps, indicator)]
         orders = results.get_formatted_trades()
-        final_value = cerebro.broker.getvalue()
+        orders_length = len(orders)
+        final_value = cerebro.broker.getvalue() - initial_portfolio_value
+        final_value_pct = (final_value) / initial_portfolio_value * 100
 
         # orders_sample = [{'time': 1591725600000.0, 'name': 'Limit', 'type': 'Sell', 'status': 'Completed', 'size': -311.0, 'price': 320.81}, {'time': 1591812000000.0, 'name': 'Limit', 'type': 'Buy', 'status': 'Completed', 'size': 311.0, 'price': 308.8920530837094}, {'time': 1598896800000.0, 'name': 'Limit', 'type': 'Sell', 'status': 'Completed', 'size': -297.0, 'price': 349.34}, {'time': 1598983200000.0, 'name': 'Stop', 'type': 'Buy', 'status': 'Completed', 'size': 297.0, 'price': 352.643301166782}]
 
-        result = {"status": 200, "indicator": indicator_graph, "orders": orders, "final_value": final_value}
+        result = {"status": 200, "indicator": indicator_graph, "orders": orders, "n_orders": orders_length, "change_value": final_value, "change_value_percentage": final_value_pct}
     else:
         result = {"status": 200, "error": v.errors}
 
