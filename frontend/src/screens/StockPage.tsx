@@ -455,7 +455,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     <Container className="generic-container-scrolling">
       <hr />
       <Row>
-        <Col>Initial Value ($): </Col>
+        <Col className="text-left font-weight-bold">Initial Value ($): </Col>
         <Col>
           <InputGroup className="mb-3">
             <FormControl
@@ -473,7 +473,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>Commission: </Col>
+        <Col className="text-left font-weight-bold">Commission: </Col>
         <Col>
           <InputGroup className="mb-3">
             <FormControl
@@ -491,7 +491,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>Strategy: </Col>
+        <Col className="text-left font-weight-bold">Strategy: </Col>
         <Col>
           <DropdownButton
             variant="outline-dark"
@@ -518,7 +518,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>From: </Col>
+        <Col className="text-left font-weight-bold">From: </Col>
         <Col>
           <InputGroup className="mb-3">
             <FormControl
@@ -536,7 +536,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>To: </Col>
+        <Col className="text-left font-weight-bold">To: </Col>
         <Col>
           <InputGroup className="mb-3">
             <FormControl
@@ -554,7 +554,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>Simulation Status: </Col>
+        <Col className="text-left font-weight-bold">Simulation Status: </Col>
         <Col>
           <Badge
             variant={statusBadgeModifier(
@@ -573,22 +573,22 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col># orders: </Col>
-        <Col>
+        <Col className="text-left font-weight-bold"># orders: </Col>
+        <Col className="text-right">
           {paperTradingResults.hasOwnProperty("n_orders") ? paperTradingResults['n_orders'] : "N/A"}
         </Col>
       </Row>
       <hr />
       <Row>
-        <Col>Value Change: </Col>
-        <Col>
+        <Col className="text-left font-weight-bold">Value Change: </Col>
+        <Col className="text-right">
           {paperTradingResults.hasOwnProperty("change_value") ? paperTradingResults['change_value'] : "N/A"}
         </Col>
       </Row>
       <hr />
       <Row>
-        <Col>Value Change (%): </Col>
-        <Col>
+        <Col className="text-left font-weight-bold">Value Change (%): </Col>
+        <Col className="text-right">
           {paperTradingResults.hasOwnProperty("change_value_percentage") ? paperTradingResults['change_value_percentage']: "N/A"}
         </Col>
       </Row>
