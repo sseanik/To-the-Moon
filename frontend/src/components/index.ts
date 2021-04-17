@@ -20,3 +20,4 @@ export { default as NoteRelevant } from "./NoteRelevant";
 export { default as Username } from "./Username";
 export { default as CreateEditNoteForm } from "./CreateEditNoteForm";
 export { default as CreateNotePopover } from "./CreateNotePopover";
+export { default as PortfolioPerformance } from "./PortfolioPerformance";

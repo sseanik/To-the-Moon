@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -13,7 +13,7 @@ interface RouteMatchParams {
 
 interface StateProps {
   loading: boolean;
-  error: Object;
+  error: string;
   oldName: string;
   newName: string;
 }

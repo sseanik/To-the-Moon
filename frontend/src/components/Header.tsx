@@ -33,7 +33,7 @@ const publicNavBarLinks: Array<LinkItem> = [
 
 const dropdownNavLinks: Array<LinkItem> = [
   { href: "/stock", name: "Stocks" },
-  { href: "/watchlist", name: "Watchlists" },
+  { href: "/watchlists", name: "Watchlists" },
   { href: "/screener", name: "Screeners" },
 ];
 
