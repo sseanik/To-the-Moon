@@ -71,10 +71,14 @@ def create_comment_tables():
     conn.commit()
     conn.close()
 
-def create_dashboard_table():
+def create_dashboard_tables():
     conn = create_DB_connection()
     cur = conn.cursor()
     cur.execute(open("Tables/dashboards.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/dashboard_blocks.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/dashboard_references.sql", "r").read())
     conn.commit()
     conn.close()
 
@@ -308,7 +312,7 @@ if __name__ == "__main__":
     #create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
-    create_dashboard_table()
+    create_dashboard_tables()
 
     # Basic materials sector
     #fill_overview_and_financial_tables('BHP')
