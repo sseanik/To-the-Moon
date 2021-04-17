@@ -331,7 +331,7 @@ def get_prediction_daily():
         for i in np.where(np.isnan(close_data))[0]:
             close_data[i] = close_data[i-1] if not np.isnan(close_data[i-1]) else 0
 
-        data = {"inference_mode": prediction_type, "data": close_data.tolist()}
+        data = {"inference_mode": prediction_type, "data": close_data.tolist(), "symbol": symbol}
         headers = { "Content-Type": "application/json", }
         endpoint = f"http://127.0.0.1:{MODELSRVPORT}/model/api/get_prediction"
 
