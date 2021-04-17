@@ -1,5 +1,4 @@
 CREATE TABLE IF NOT EXISTS dashboards (
     id UUID NOT NULL DEFAULT UUID_GENERATE_V1() PRIMARY KEY,
-    user_id UUID UNIQUE REFERENCES users(id),
-    content TEXT NOT NULL
+    user_id UUID NOT NULL UNIQUE REFERENCES users(id)
 );
