@@ -4,7 +4,7 @@ import forumActions from "../redux/actions/forumActions";
 import ClipLoader from "react-spinners/ClipLoader";
 import ParentComment from "./ParentComment";
 import { useEffect } from "react";
-import AddParentForm from "./AddParentForm";
+import AddCommentForm from "./AddCommentForm";
 
 interface CommentParams {
   comment_id: string;
@@ -19,7 +19,7 @@ interface CommentParams {
   upvotes: number;
   downvotes: number;
   vote_difference: number;
-  replies: Array<ReplyParams>;
+  replies: ReplyParams[];
 }
 
 interface ReplyParams {
@@ -64,7 +64,7 @@ const Forum: React.FC<StateProps & DispatchProps & Props> = (props) => {
         <h2>Forum</h2>
       </Row>
       <Row className="my-2">
-        <AddParentForm stockTicker={stockTicker} />
+        <AddCommentForm stockTicker={stockTicker} />
       </Row>
       <Row className="my-2">
         {getCommentsLoading ? (

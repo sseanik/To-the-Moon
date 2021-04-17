@@ -35,7 +35,7 @@ const PortfoliosPage: React.FC<StateProps & DispatchProps> = (props) => {
           <ClipLoader color={"green"} loading={loading} />
         ) : (
           portfolios.map((portfolioName, id) => (
-            <PortfolioInfo key={id} portfolioName={portfolioName} />
+            <PortfolioInfo key={id} name={portfolioName} />
           ))
         )}
       </Row>

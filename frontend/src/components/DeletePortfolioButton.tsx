@@ -29,6 +29,7 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   const { loading, error, deleting, deletePortfolio, portfolioName } = props;
   const deleteButton = (
     <Button
+      className="portfolio-controls"
       variant="danger"
       onClick={() => deletePortfolio({ portfolioName })}
     >
