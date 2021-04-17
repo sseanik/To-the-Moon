@@ -162,7 +162,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const [paperTradeParams, setPaperTradeParams] = useState<object | any>({
     symbol: symbol,
     initial_cash: 100000,
-    commission: 0.01,
+    commission: 0.0001,
     strategy: "RSIStack",
     fromdate: "2020-03-01",
     todate: "2021-04-07",
@@ -530,6 +530,27 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               value={paperTradeParams.todate}
             />
           </InputGroup>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col># orders: </Col>
+        <Col>
+          {paperTradingResults.hasOwnProperty("orders") ? paperTradingResults['orders'] : "N/A"}
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>Value Change: </Col>
+        <Col>
+          {paperTradingResults.hasOwnProperty("change_value") ? paperTradingResults['change_value'] : "N/A"}
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>Value Change (%): </Col>
+        <Col>
+          {paperTradingResults.hasOwnProperty("change_value_percentage") ? paperTradingResults['change_value_percentage']: "N/A"}
         </Col>
       </Row>
       <hr />
