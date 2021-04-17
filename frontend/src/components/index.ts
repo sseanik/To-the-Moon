@@ -19,3 +19,4 @@ export { default as NoteListToggle } from "./NoteListToggle";
 export { default as Username } from "./Username";
 export { default as CreateEditNoteForm } from "./CreateEditNoteForm";
 export { default as CreateNotePopover } from "./CreateNotePopover";
+export { default as DashboardContainer } from "./DashboardContainer";
