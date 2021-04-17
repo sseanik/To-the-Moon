@@ -64,13 +64,9 @@ const noteActions = {
     dispatch(noteActions.getUserNotesPending());
     try {
       const res = await NoteAPI.getUserNotes();
-      if (res.status === 200) {
-        dispatch(noteActions.getUserNotesSuccess(res));
-      } else {
-        dispatch(noteActions.getUserNotesFailure(res.error));
-      }
+      dispatch(noteActions.getUserNotesSuccess(res));
     } catch (error) {
-      dispatch(noteActions.getUserNotesFailure(error.message));
+      dispatch(noteActions.getUserNotesFailure(error.error));
     }
   },
   getRelevantNotes: (payload) => async (dispatch) => {
@@ -81,13 +77,9 @@ const noteActions = {
         stock_symbols,
         portfolio_names
       );
-      if (res.status === 200) {
-        dispatch(noteActions.getRelevantNotesSuccess(res));
-      } else {
-        dispatch(noteActions.getRelevantNotesFailure(res.error));
-      }
+      dispatch(noteActions.getRelevantNotesSuccess(res));
     } catch (error) {
-      dispatch(noteActions.getRelevantNotesFailure(error.message));
+      dispatch(noteActions.getRelevantNotesFailure(error.error));
     }
   },
   createNote: (payload) => async (dispatch) => {
@@ -109,13 +101,9 @@ const noteActions = {
         external_references,
         internal_references
       );
-      if (res.status === 200) {
-        dispatch(noteActions.createNoteSuccess(res));
-      } else {
-        dispatch(noteActions.createNoteFailure(res.error));
-      }
+      dispatch(noteActions.createNoteSuccess(res));
     } catch (error) {
-      dispatch(noteActions.createNoteFailure(error.message));
+      dispatch(noteActions.createNoteFailure(error.error));
     }
   },
   editNote: (payload) => async (dispatch) => {
@@ -139,13 +127,9 @@ const noteActions = {
         external_references,
         internal_references
       );
-      if (res.status === 200) {
-        dispatch(noteActions.editNoteSuccess(res));
-      } else {
-        dispatch(noteActions.editNoteFailure(res.error));
-      }
+      dispatch(noteActions.editNoteSuccess(res));
     } catch (error) {
-      dispatch(noteActions.editNoteFailure(error.message));
+      dispatch(noteActions.editNoteFailure(error.error));
     }
   },
   deleteNote: (payload) => async (dispatch) => {
@@ -153,13 +137,9 @@ const noteActions = {
     try {
       const { title } = payload;
       const res = await NoteAPI.deleteNote(title);
-      if (res.status === 200) {
-        dispatch(noteActions.deleteNoteSuccess(res));
-      } else {
-        dispatch(noteActions.deleteNoteFailure(res.error));
-      }
+      dispatch(noteActions.deleteNoteSuccess(res));
     } catch (error) {
-      dispatch(noteActions.deleteNoteFailure(error.message));
+      dispatch(noteActions.deleteNoteFailure(error.error));
     }
   },
 };

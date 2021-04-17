@@ -17,28 +17,20 @@ const newsActions = {
     dispatch(newsActions.newsPending());
     try {
       const res = await NewsAPI.getFeaturedNews();
-      if (res.status === 200) {
-        dispatch(newsActions.newsSuccess(res));
-      } else {
-        dispatch(newsActions.newsFailure(res.error));
-      }
+      dispatch(newsActions.newsSuccess(res));
     } catch (error) {
-      dispatch(newsActions.newsFailure(error.message));
+      dispatch(newsActions.newsFailure(error.error));
     }
   },
   getNewsByStock: (stockSymbol) => async (dispatch) => {
     dispatch(newsActions.newsPending());
     try {
       const res = await NewsAPI.getNewsByStock(stockSymbol);
-      if (res.status === 200) {
-        dispatch(newsActions.newsSuccess(res));
-      } else {
-        dispatch(newsActions.newsFailure(res.error));
-      }
+      dispatch(newsActions.newsSuccess(res));
     } catch (error) {
-      dispatch(newsActions.newsFailure(error.message));
+      dispatch(newsActions.newsFailure(error.error));
     }
-  }
+  },
 };
 
 export default newsActions;
