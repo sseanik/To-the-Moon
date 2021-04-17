@@ -94,6 +94,8 @@ interface StateProps {
 
   predictionDailyLoading: any;
   predictionDailyError: any;
+  paperTradingLoading: any;
+  paperTradingError: any;
 }
 
 interface DispatchProps {
@@ -116,6 +118,8 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     getPaperTradingResults,
     predictionDailyLoading,
     predictionDailyError,
+    paperTradingLoading,
+    paperTradingError,
   } = props;
 
   const chartComponent = useRef<any | null>(null);
@@ -550,6 +554,25 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
+        <Col>Simulation Status: </Col>
+        <Col>
+          <Badge
+            variant={statusBadgeModifier(
+              paperTradingResults,
+              paperTradingLoading,
+              paperTradingError,
+            )}
+          >
+            {statusBadgeText(
+              paperTradingResults,
+              paperTradingLoading,
+              paperTradingError,
+            )}
+          </Badge>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
         <Col># orders: </Col>
         <Col>
           {paperTradingResults.hasOwnProperty("n_orders") ? paperTradingResults['n_orders'] : "N/A"}
@@ -668,6 +691,8 @@ const mapStateToProps = (state: any) => ({
   priceDataIntraday: state.stockReducer.basic.data.data_intraday,
   predictionDaily: state.stockReducer.predictionDaily.data,
   paperTradingResults: state.stockReducer.paperTradingResults.data,
+  paperTradingLoading: state.stockReducer.paperTradingResults.loading,
+  paperTradingError: state.stockReducer.paperTradingResults.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
