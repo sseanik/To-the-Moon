@@ -26,4 +26,5 @@ Week 4:
 - added the loading functions to database python file. Then created a function fillOverviewAndFinancialTables() which takes a stock symbol and fills the overview table, income statement table, balance sheet table, and cashflow table.
 
 Week 5:
-
+- This week I refectored a lot of portfolios branch and its sql schema
+- 
