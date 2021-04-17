@@ -458,7 +458,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               placeholder="xxxxxx"
               aria-label="initialValue"
               aria-describedby="basic-addon1"
+              type="number"
               value={paperTradeParams.initial_cash}
+              onChange={(e) => {
+                setPaperTradeParams({...paperTradeParams, initial_cash: e.target.value});
+              }}
             />
           </InputGroup>
         </Col>
@@ -472,7 +476,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               placeholder="xxxxxx"
               aria-label="commission"
               aria-describedby="basic-addon1"
+              type="number"
               value={paperTradeParams.commission}
+              onChange={(e) => {
+                setPaperTradeParams({...paperTradeParams, commission: e.target.value});
+              }}
             />
           </InputGroup>
         </Col>
@@ -513,7 +521,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               placeholder="YYYY-MM-DD"
               aria-label="fromdate"
               aria-describedby="basic-addon1"
+              type="date"
               value={paperTradeParams.fromdate}
+              onChange={(e) => {
+                setPaperTradeParams({...paperTradeParams, fromdate: e.target.value});
+              }}
             />
           </InputGroup>
         </Col>
@@ -527,7 +539,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               placeholder="YYYY-MM-DD"
               aria-label="todate"
               aria-describedby="basic-addon1"
+              type="date"
               value={paperTradeParams.todate}
+              onChange={(e) => {
+                setPaperTradeParams({...paperTradeParams, todate: e.target.value});
+              }}
             />
           </InputGroup>
         </Col>
