@@ -17,9 +17,10 @@ import psycopg2.extras
 from iexfinance.stocks import Stock
 
 
-from flask import Blueprint
+from flask_restx import Namespace, Resource
 
-SCREENER_ROUTES = Blueprint('screener', __name__)
+
+SCREENER_NS = Namespace("user", "Authentication and Authorisation of Users")
 
 
 ###################################
@@ -192,7 +193,6 @@ def screen_stocks(parameters):
 
     conn.close()
     return data
-
 
 ################################
 # Please leave all routes here #

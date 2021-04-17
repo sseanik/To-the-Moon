@@ -5,7 +5,7 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const portfolioAPI = {
   getPortfolios: () => {
-    const endpoint = "/user/portfolio";
+    const endpoint = "/portfolio";
     const options = {
       method: "GET",
       headers: {

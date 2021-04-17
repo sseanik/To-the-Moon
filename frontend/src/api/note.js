@@ -19,12 +19,12 @@ const NoteAPI = {
   getRelevantNotes: (stocks, portfolios) => {
     let endpoint = `/notes/relevant?`;
     for (const stock of stocks) {
-      endpoint += `stock=${stock}&`
+      endpoint += `stock=${stock}&`;
     }
     for (const portfolio of portfolios) {
-      endpoint += `portfolio=${portfolio}&portfolio=lol&`
+      endpoint += `portfolio=${portfolio}&portfolio=lol&`;
     }
-    endpoint = endpoint.slice(0, -1)
+    endpoint = endpoint.slice(0, -1);
     const options = {
       method: "GET",
       headers: {
@@ -35,7 +35,14 @@ const NoteAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  createNote: (title, content, stock_symbols, portfolio_names, external_references, internal_references) => {
+  createNote: (
+    title,
+    content,
+    stock_symbols,
+    portfolio_names,
+    external_references,
+    internal_references
+  ) => {
     const endpoint = "/notes";
     const options = {
       method: "POST",
@@ -55,7 +62,15 @@ const NoteAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  editNote: (old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references) => {
+  editNote: (
+    old_title,
+    new_title,
+    content,
+    stock_symbols,
+    portfolio_names,
+    external_references,
+    internal_references
+  ) => {
     const endpoint = `/notes?note=${old_title}`;
     const options = {
       method: "PUT",
@@ -86,7 +101,7 @@ const NoteAPI = {
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
-  }
+  },
 };
 
 export default NoteAPI;
