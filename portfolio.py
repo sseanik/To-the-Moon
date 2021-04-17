@@ -228,10 +228,18 @@ def get_portfolio_performance(user_id, portfolio_name):
     try:
         cur.execute(sql_query, (user_id, portfolio_name))
     except:
-        return {'status' : 400, 'error' : 'Something went wrong while searching Holdings table for user_id = \'' + str(user_id) + '\' and portfolio_name = \'' + str(portfolio_name) + '\'.'}
+        return {'status' : 400, 'portfolio': portfolio_name, 'error' : 'Something went wrong while searching Holdings table for user_id = \'' + str(user_id) + '\' and portfolio_name = \'' + str(portfolio_name) + '\'.'}
     query_results = cur.fetchall()
     if not query_results:
-        return {'status' : 400, 'error' : 'There are no investments in a portfolio called \'' + portfolio_name + '\'.'}
+        return {
+            'status' : 200,
+            'portfolio': portfolio_name,
+            'message' : 'There are no investments in a portfolio called \'' + portfolio_name + '\'.',
+            'data': {
+                'investments': [],
+                'portfolio_change': "N/A"
+            }
+        }
     conn.close()
     
     # Fill the data dictionary with investments and collect the stock tickers for a batch API call
@@ -266,7 +274,8 @@ def get_portfolio_performance(user_id, portfolio_name):
     response = {
         'status' : 200, 
         'message' : 'Successfully calculated the performance of portfolio \'' + portfolio_name + '\', as well as its individual investments.', 
-        'data' : data
+        'data' : data,
+        'portfolio': portfolio_name
     }
     return response
 
