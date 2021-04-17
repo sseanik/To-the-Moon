@@ -201,8 +201,8 @@ def get_trending_investments(num):
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = (
-        "SELECT stock_ticker, count(distinct user_id) AS user_count FROM Holdings ",
-        "GROUP BY stock_ticker ORDER BY user_count DESC limit %s",
+        "SELECT stock_ticker, count(distinct user_id) AS user_count FROM Holdings "
+        "GROUP BY stock_ticker ORDER BY user_count DESC limit %s"
     )
     cur.execute(sql_query, (num,))
     query_results = cur.fetchall()
