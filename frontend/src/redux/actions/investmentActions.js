@@ -23,18 +23,14 @@ const investmentActions = {
         purchaseDate,
         purchaseTime,
       } = payload;
-      const { status, data, error } = await investmentAPI.addStock(
+      const { data, error } = await investmentAPI.addStock(
         portfolioName,
         stockTicker,
         numShares,
         `${purchaseDate}T${purchaseTime}`
       );
-      if (status === 200) {
-        dispatch(investmentActions.createStockSuccess(data));
-        dispatch(investmentActions.getStocks(portfolioName));
-      } else {
-        dispatch(investmentActions.createStockFailure(error));
-      }
+      dispatch(investmentActions.createStockSuccess(data));
+      dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
       dispatch(investmentActions.createStockFailure(error.message));
     }
@@ -53,14 +49,10 @@ const investmentActions = {
   getStocks: (portfolioName) => async (dispatch) => {
     dispatch(investmentActions.getStocksPending());
     try {
-      const { status, data, error } = await investmentAPI.getStocks(
+      const { data, error } = await investmentAPI.getStocks(
         portfolioName
       );
-      if (status === 200) {
-        dispatch(investmentActions.getStocksSuccess(data));
-      } else {
-        dispatch(investmentActions.getStocksFailure(error));
-      }
+      dispatch(investmentActions.getStocksSuccess(data));
     } catch (error) {
       dispatch(investmentActions.getStocksFailure(error.message));
     }
@@ -81,15 +73,11 @@ const investmentActions = {
     const { investmentID, portfolioName } = payload;
     dispatch(investmentActions.deleteStockPending(investmentID));
     try {
-      const { status, data, error } = await investmentAPI.deleteStock(
+      const { data, error } = await investmentAPI.deleteStock(
         investmentID
       );
-      if (status === 200) {
-        dispatch(investmentActions.deleteStockSuccess(data));
-        dispatch(investmentActions.getStocks(portfolioName));
-      } else {
-        dispatch(investmentActions.deleteStockFailure(error));
-      }
+      dispatch(investmentActions.deleteStockSuccess(data));
+      dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
       dispatch(investmentActions.deleteStockFailure(error.message));
     }

@@ -48,12 +48,8 @@ const userActions = {
         email,
         password
       );
-      if (res.status === 200) {
-        window.localStorage.setItem("Token", res.token);
-        dispatch(userActions.registerSuccess(res));
-      } else {
-        dispatch(userActions.registerFailure(res.error))
-      }
+      window.localStorage.setItem("Token", res.token);
+      dispatch(userActions.registerSuccess(res));
     } catch (error) {
       dispatch(userActions.registerFailure(error.message));
     }
@@ -63,12 +59,8 @@ const userActions = {
     try {
       const { email, password } = payload;
       const res = await AuthAPI.login(email, password);
-      if (res.status === 200) {
-        window.localStorage.setItem("Token", res.token);
-        dispatch(userActions.loginSuccess(res));
-      } else {
-        dispatch(userActions.loginFailure(res.error))
-      }
+      window.localStorage.setItem("Token", res.token);
+      dispatch(userActions.loginSuccess(res));
     } catch (error) {
       dispatch(userActions.loginFailure(error.message));
     }

@@ -17,18 +17,14 @@ const forumActions = {
     dispatch(forumActions.addParentPending());
     try {
       const { stockTicker, timestamp, content } = payload;
-      const { status, message, comment } = await forumAPI.addParent(
+      const { message, comment } = await forumAPI.addParent(
         stockTicker,
         timestamp,
         content
       );
-      if (status === 200) {
-        dispatch(forumActions.addParentSuccess(comment));
-      } else {
-        dispatch(forumActions.addParentFailure(message));
-      }
+      dispatch(forumActions.addParentSuccess(comment));
     } catch (error) {
-      dispatch(forumActions.addParentFailure(error));
+      dispatch(forumActions.addParentFailure(error.message));
     }
   },
   addChildPending: (parentID) => ({
@@ -47,19 +43,15 @@ const forumActions = {
     const { stockTicker, timestamp, content, parentID } = payload;
     dispatch(forumActions.addChildPending(parentID));
     try {
-      const { status, message, comment } = await forumAPI.addChild(
+      const { message, comment } = await forumAPI.addChild(
         stockTicker,
         timestamp,
         content,
         parentID
       );
-      if (status === 200) {
-        dispatch(forumActions.addChildSuccess(comment));
-      } else {
-        dispatch(forumActions.addChildFailure(message));
-      }
+      dispatch(forumActions.addChildSuccess(comment));
     } catch (error) {
-      dispatch(forumActions.addChildFailure(error));
+      dispatch(forumActions.addChildFailure(error.message));
     }
   },
   getCommentsPending: () => ({
@@ -76,14 +68,10 @@ const forumActions = {
   getComments: (stockTicker) => async (dispatch) => {
     dispatch(forumActions.getCommentsPending());
     try {
-      const { status, message, comments } = await forumAPI.getComments(
+      const { message, comments } = await forumAPI.getComments(
         stockTicker
       );
-      if (status === 200) {
-        dispatch(forumActions.getCommentsSuccess(comments));
-      } else {
-        dispatch(forumActions.getCommentsFailure(message));
-      }
+      dispatch(forumActions.getCommentsSuccess(comments));
     } catch (error) {
       dispatch(forumActions.getCommentsFailure());
     }
@@ -104,18 +92,14 @@ const forumActions = {
     dispatch(forumActions.editParentPending(payload));
     try {
       const { commentID, timestamp, content } = payload;
-      const { status, message, comment } = await forumAPI.editParent(
+      const { message, comment } = await forumAPI.editParent(
         commentID,
         timestamp,
         content
       );
-      if (status === 200) {
-        dispatch(forumActions.editParentSuccess(comment));
-      } else {
-        dispatch(forumActions.editParentFailure(message));
-      }
+      dispatch(forumActions.editParentSuccess(comment));
     } catch (error) {
-      dispatch(forumActions.editParentFailure(error));
+      dispatch(forumActions.editParentFailure(error.message));
     }
   },
   editChildPending: (payload) => ({
@@ -134,19 +118,15 @@ const forumActions = {
     dispatch(forumActions.editChildPending(payload));
     try {
       const { commentID, timestamp, content, parentID } = payload;
-      const { status, message, comment } = await forumAPI.editChild(
+      const { message, comment } = await forumAPI.editChild(
         commentID,
         timestamp,
         content,
         parentID
       );
-      if (status === 200) {
-        dispatch(forumActions.editChildSuccess(comment));
-      } else {
-        dispatch(forumActions.editChildFailure(message));
-      }
+      dispatch(forumActions.editChildSuccess(comment));
     } catch (error) {
-      dispatch(forumActions.editChildFailure(error));
+      dispatch(forumActions.editChildFailure(error.message));
     }
   },
   deleteParentPending: (commentID) => ({
@@ -165,14 +145,10 @@ const forumActions = {
     const { commentID } = payload;
     dispatch(forumActions.deleteParentPending(commentID));
     try {
-      const { status, message } = await forumAPI.deleteParent(commentID);
-      if (status === 200) {
-        dispatch(forumActions.deleteParentSuccess(commentID));
-      } else {
-        dispatch(forumActions.deleteParentFailure(message));
-      }
+      const { message } = await forumAPI.deleteParent(commentID);
+      dispatch(forumActions.deleteParentSuccess(commentID));
     } catch (error) {
-      dispatch(forumActions.deleteParentFailure(error));
+      dispatch(forumActions.deleteParentFailure(error.message));
     }
   },
   deleteChildPending: (commentID) => ({
@@ -191,17 +167,13 @@ const forumActions = {
     const { commentID, parentID } = payload;
     dispatch(forumActions.deleteChildPending(commentID));
     try {
-      const { status, message } = await forumAPI.deleteChild(
+      const { message } = await forumAPI.deleteChild(
         commentID,
         parentID
       );
-      if (status === 200) {
-        dispatch(forumActions.deleteChildSuccess(payload));
-      } else {
-        dispatch(forumActions.deleteChildFailure(message));
-      }
+      dispatch(forumActions.deleteChildSuccess(payload));
     } catch (error) {
-      dispatch(forumActions.deleteChildFailure(error));
+      dispatch(forumActions.deleteChildFailure(error.message));
     }
   },
   upvoteParentPending: (commentID) => ({

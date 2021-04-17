@@ -104,7 +104,7 @@ class ErrorAbort(Resource):
 @DUMMY.route("response")
 class ErrorResponse(Resource):
     def get(self):
-        return Response(dumps({"error": "This is an Error Message"}), status=500)
+        return Response(dumps({"message": "This is an Error Message"}), status=500)
 
 
 if __name__ == "__main__":
