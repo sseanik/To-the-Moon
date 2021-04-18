@@ -57,12 +57,8 @@ const screenerActions = {
       try {
         const { name, parameters } = payload;
         const res = await ScreenerAPI.save(name, parameters);
-        if (res.status === 200) {
-          dispatch(screenerActions.saveScreenerSuccess(res));
-          dispatch(screenerActions.loadScreeners({}));
-        } else {
-          dispatch(screenerActions.saveScreenerFailure(res.error));
-        }
+        dispatch(screenerActions.saveScreenerSuccess(res));
+        dispatch(screenerActions.loadScreeners({}));
       } catch (error) {
         dispatch(screenerActions.saveScreenerFailure(error.message));
       }
@@ -75,11 +71,7 @@ const screenerActions = {
       try {
         const { parameters } = payload;
         const res = await ScreenerAPI.getData(parameters);
-        if (res.status === 200) {
-          dispatch(screenerActions.getScreenerResultsSuccess(res));
-        } else {
-          dispatch(screenerActions.getScreenerResultsFailure(res.error));
-        }
+        dispatch(screenerActions.getScreenerResultsSuccess(res));
       } catch (error) {
         dispatch(screenerActions.getScreenerResultsFailure(error.message));
       }
@@ -90,13 +82,8 @@ const screenerActions = {
     return async (dispatch) => {
       dispatch(screenerActions.loadScreenersPending());
       try {
-        // const { name, parameters } = payload;
         const res = await ScreenerAPI.load();
-        if (res.status === 200) {
-          dispatch(screenerActions.loadScreenersSuccess(res));
-        } else {
-          dispatch(screenerActions.loadScreenersFailure(res.error));
-        }
+        dispatch(screenerActions.loadScreenersSuccess(res));
       } catch (error) {
         dispatch(screenerActions.loadScreenersFailure(error.message));
       }
@@ -109,12 +96,8 @@ const screenerActions = {
       dispatch(screenerActions.deleteScreenerPending(name));
       try {
         const res = await ScreenerAPI.delete(name);
-        if (res.status === 200) {
-          dispatch(screenerActions.deleteScreenerSuccess(res));
-          dispatch(screenerActions.loadScreeners({}));
-        } else {
-          dispatch(screenerActions.deleteScreenerFailure(res.error));
-        }
+        dispatch(screenerActions.deleteScreenerSuccess(res));
+        dispatch(screenerActions.loadScreeners({}));
       } catch (error) {
         dispatch(screenerActions.deleteScreenerFailure(error.message));
       }
