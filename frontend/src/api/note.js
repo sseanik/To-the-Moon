@@ -19,10 +19,10 @@ const NoteAPI = {
   getRelevantNotes: (stocks, portfolios) => {
     let endpoint = `/notes/relevant?`;
     for (const stock of stocks) {
-      endpoint += `stock=${stock}&`
+      endpoint += `stock=${encodeURI(stock)}&`
     }
     for (const portfolio of portfolios) {
-      endpoint += `portfolio=${portfolio}&portfolio=lol&`
+      endpoint += `portfolio=${encodeURI(portfolio)}&portfolio=lol&`
     }
     endpoint = endpoint.slice(0, -1)
     const options = {
@@ -56,7 +56,7 @@ const NoteAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   editNote: (old_title, new_title, content, stock_symbols, portfolio_names, external_references, internal_references) => {
-    const endpoint = `/notes?note=${old_title}`;
+    const endpoint = `/notes?note=${encodeURI(old_title)}`;
     const options = {
       method: "PUT",
       headers: {
@@ -76,7 +76,7 @@ const NoteAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   deleteNote: (title) => {
-    const endpoint = `/notes?title=${title}`;
+    const endpoint = `/notes?title=${encodeURI(title)}`;
     const options = {
       method: "DELETE",
       headers: {

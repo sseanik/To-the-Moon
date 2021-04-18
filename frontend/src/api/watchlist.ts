@@ -27,7 +27,7 @@ const watchlistAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getWatchlist: (watchlist_id: string) => {
-    const endpoint = `/watchlist/get_watchlist?watchlist_id=${watchlist_id}`;
+    const endpoint = `/watchlist/get_watchlist?watchlist_id=${encodeURI(watchlist_id)}`;
     const options: Options = {
       method: "GET",
       headers: {
