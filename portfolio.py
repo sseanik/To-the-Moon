@@ -136,11 +136,11 @@ def add_investment(user_id, portfolio_name, num_shares, timestamp, stock_ticker)
     cur = conn.cursor()
     purchase_price = retrieve_stock_price_at_date(stock_ticker, purchase_date)
     # Execute query and close connections
-    sql_query = (
-        "INSERT INTO Holdings ",
-        "(user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker)",
-        " VALUES (%s, %s, %s, %s, %s, %s)",
-    )
+    sql_query = """
+        INSERT INTO Holdings
+        (user_id, portfolio_name, purchase_price, num_shares, purchase_date, stock_ticker)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
     cur.execute(
         sql_query,
         (
@@ -267,10 +267,13 @@ def get_portfolio_performance(user_id, portfolio_name):
 
     query_results = cur.fetchall()
     if not query_results:
-        abort(
-            400,
-            "There are no investments in a portfolio called '" + portfolio_name + "'.",
-        )
+        return {
+            "message": "There are no investments in a portfolio called '" + portfolio_name + "'.",
+            "data": {
+                "investments": [],
+                "portfolio_change": "N/A"
+            }
+        }
 
     conn.close()
 
