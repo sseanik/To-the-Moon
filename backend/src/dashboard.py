@@ -76,7 +76,7 @@ def create_user_dashboard(user_id):
     res = {
         'message' : 'Dashboard created'
     }
-    return res, 200
+    return res, 201
 
 
 def delete_user_dashboard(dashboard_id):
@@ -138,9 +138,11 @@ def get_dashboard_blocks(dashboard_id):
 def create_dashboard_block(dashboard_id, block_type, meta):
     conn = create_DB_connection()
     cur = conn.cursor()
+
+    # Get the columns of the block table corresponding to the block type
     table = TYPE_TABLE_MAPPING[block_type]
     sql_query = """
-        SELECT * FROM information_schema.columns
+        SELECT column_name FROM information_schema.columns
         WHERE table_name=%s
     """
     try:
@@ -150,20 +152,83 @@ def create_dashboard_block(dashboard_id, block_type, meta):
         res = {
             'error': 'Error occurred while retrieving from store'
         }
-        return res, 500
-    finally:
         conn.close()
+        return res, 500
 
     cols = []
     for result in query_results:
-        cols.append(result[0])
+        if result[0] != "id":
+            cols.append(result[0])
 
+    # Create a new block in the corresponding block table
     sql_query = """
-        INSERT INTO %s (type, ) VALUES (%s)
+        INSERT INTO {} ({}) VALUES ({})
+        RETURNING id
+    """.format(table, "".join(str(e) + ", " for e in cols)[:-2], "".join("%s, " for e in cols)[:-2])
+    values = ()
+    for col in cols:
+        values += (block_type, ) if col == "type" else (meta[col], )
+
+    try:
+        cur.execute(sql_query, values)
+        conn.commit()
+        query_results = cur.fetchall()
+        if not query_results:
+            raise Exception
+    except:
+        res = {
+            'error': 'Error occurred while inserting into store'
+        }
+        return res, 500
+    finally:
+        conn.close()
+    block_id = query_results[0][0]
+
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    # Create a reference to the created block to the dashboard
+    sql_query = """
+        INSERT INTO dashboard_references (dashboard_id, block_id) VALUES (%s, %s)
+        RETURNING id
     """
     try:
-        cur.execute(sql_query, (dashboard_id, ))
+        cur.execute(sql_query, (dashboard_id, block_id))
+        conn.commit()
         query_results = cur.fetchall()
+        if not query_results:
+            raise Exception
+    except Exception as e:
+        print(e)
+        res = {
+            'error': 'Error occurred while inserting into store'
+        }
+        return res, 500
+    finally:
+        conn.close()
+    res = {
+        'message' : 'Dashboard block created',
+        'data': {
+            'id': block_id
+        }
+    }
+    return res, 201
+
+
+def get_block(block_id):
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    sql_query = """
+        SELECT * FROM dashboard_blocks
+        WHERE id=%s
+    """
+    try:
+        cur.execute(sql_query, (block_id, ))
+        query_results = cur.fetchall()
+        if not query_results:
+            res = {
+                'error': 'No block identified by the given id'
+            }
+            return res, 404
     except:
         res = {
             'error': 'Error occurred while retrieving from store'
@@ -171,16 +236,14 @@ def create_dashboard_block(dashboard_id, block_type, meta):
         return res, 500
     finally:
         conn.close()
-    data = []
-    for result in query_results:
-        data.append(result[0])
+    print(query_results)
+    # data = []
+    # for result in query_results:
+    #     data.append(result[0])
     res = {
-        'data': data
+        'data': query_results
     }
     return res, 200
-
-
-
 
 
 ################################
@@ -210,7 +273,7 @@ def user_dashboard_wrapper(dashboard_id):
     # Create new block in a dashboard
     elif request.method == 'POST':
         data = request.get_json()
-        payload, status = create_dashboard_block(user_id, data["type"], data["meta"])
+        payload, status = create_dashboard_block(dashboard_id, data["type"], data["meta"])
     # Delete a dashboard and its blocks
     elif request.method == 'DELETE':
         payload, status = delete_user_dashboard(dashboard_id)
@@ -222,11 +285,11 @@ def blocks_dashboard_wrapper(block_id):
     user_id = get_id_from_token(token)
     # Get a block
     if request.method == 'GET':
-        # payload, status = get_block(block_id)
-    # Edit an existing block
-    elif request.method == 'PUT':
-        # payload, status = edit_block(block_id)
-    # Delete a block
-    elif request.method == 'DELETE':
-        # payload, status = delete_block(block_id)
+        payload, status = get_block(block_id)
+#     # Edit an existing block
+#     elif request.method == 'PUT':
+#         # payload, status = edit_block(block_id)
+#     # Delete a block
+#     elif request.method == 'DELETE':
+#         # payload, status = delete_block(block_id)
     return Response(dumps(payload), status=status)
