@@ -30,7 +30,7 @@ const ScreenerAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   delete: (name) => {
-    const endpoint = `/screener?name=${name}`;
+    const endpoint = `/screener/delete?name=${name}`;
     const options = {
       method: "DELETE",
       headers: {
