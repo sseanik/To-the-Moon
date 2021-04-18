@@ -488,7 +488,7 @@ class Daily_Prediction(Resource):
 
         if status != 200:
             abort(status, dispatch_data["error"])
-        return Response(dumps({"status": status, "data": dispatch_data}), status=200)
+        return Response(dumps({"data": dispatch_data}), status=200)
 
 
 @STOCK_NS.route("/income_statement")
