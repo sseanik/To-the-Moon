@@ -29,7 +29,16 @@ SCREENER_NS = Namespace("screener", "Search parameters for companies and stock o
 
 
 def screener_save(screener_name, user_id, parameters):
-
+    """Save screeners by screener name and screener search parameters in string format.
+        Args:
+            screener_name (str): the name used to identify the screener.
+            user_id (str): unique user identifier from authentication system (string token).
+        Return (normal):
+            result (dict):
+                message (str): success message.
+        Return (error):
+            error (str): error message.
+    """
     if len(screener_name) > 30:
         abort(400, "Screener name cannot be more than 30 characters. Try a new name.")
 
@@ -60,6 +69,18 @@ def screener_save(screener_name, user_id, parameters):
 
 
 def screener_load_all(user_id):
+    """Load all screeners created by and registered under user.
+        Args:
+            user_id (str): unique user identifier from authentication system (string token).
+        Return (normal):
+            result (dict):
+                message (str): success message.
+                data (list<dict>):
+                    name (str): Screener name.
+                    params (str): Screener parameters (serialised).
+        Return (error):
+            error (str): error message.
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "SELECT screener_name, parameters FROM screeners where user_id=%s"
@@ -85,6 +106,16 @@ def screener_load_all(user_id):
 
 
 def screener_delete(screener_name, user_id):
+    """Delete screener by screener name.
+        Args:
+            screener_name (str): the name used to identify the screener.
+            user_id (str): unique user identifier from authentication system (string token).
+        Return (normal):
+            result (dict):
+                message (str): success message.
+        Return (error):
+            error (str): error message.
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "DELETE FROM screeners WHERE screener_name=%s AND user_id=%s"
@@ -96,8 +127,18 @@ def screener_delete(screener_name, user_id):
     }
 
 
-# Not being used?
 def screener_edit_parameters(screener_name, user_id, parameters):
+    """Edit screener by name if it exists in the database.
+        Args:
+            screener_name (str): the name used to identify the screener.
+            user_id (str): unique user identifier from authentication system (string token).
+            parameters (str): Screener parameters (serialised).
+        Return (normal):
+            result (dict):
+                message (str): success message.
+        Return (error):
+            error (str): error message.
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = (
@@ -117,6 +158,32 @@ def screener_edit_parameters(screener_name, user_id, parameters):
 
 
 def screen_stocks(parameters):
+    """Edit screener by name if it exists in the database.
+        Args:
+            parameters (dict): Screener parameters.
+                exchange (list): List of stock exchanges to query.
+                market_cap (list): Min-max range of company market capitalisation.
+                yearly_low (int/float): Intraday low for past 52 week stock price history.
+                yearly_high (int/float): Intraday high for past 52 week stock price history.
+                eps (list): Min-max range of company earnings per share ratio (EPS).
+                beta (list): Min-max range of company beta ratio.
+                payout ratio (list): Min-max range of company payout ratio.
+                sector (list): List of market sectors to query.
+                industry (list): List of industries to query.
+        Return (normal):
+            result (dict):
+                message (str): success message.
+                data (list<dict>):
+                    "stock ticker": Company stock symbol.
+                    "price": Current intraday (close) price.
+                    "price change": Change in price since last trading day.
+                    "price change percentage": Change in price since last trading day (percentage).
+                    "volume": Volume of shares traded in last trading day.
+                    "market capitalization": Company market capitalisation.
+                    "PE ratio": Company Price/Earnings ratio.
+        Return (error):
+            error (str): error message.
+    """
     if not isinstance(parameters, dict):
         abort(400, "Parameters must be a dictionary.")
 
@@ -188,6 +255,22 @@ def screen_stocks(parameters):
     return data
 
 def make_params_object(args):
+    """Edit screener by name if it exists in the database.
+        Args:
+            args (werkzeug.datastructures.ImmutableMultiDict):
+                Screener parameters as URL args.
+        Return (normal):
+            result (dict):
+                exchange (list): List of stock exchanges to query.
+                market_cap (list): Min-max range of company market capitalisation.
+                yearly_low (int/float): Intraday low for past 52 week stock price history.
+                yearly_high (int/float): Intraday high for past 52 week stock price history.
+                eps (list): Min-max range of company earnings per share ratio (EPS).
+                beta (list): Min-max range of company beta ratio.
+                payout ratio (list): Min-max range of company payout ratio.
+                sector (list): List of market sectors to query.
+                industry (list): List of industries to query.
+    """
     result = {}
 
     if type(args) == ImmutableMultiDict:
