@@ -2,7 +2,7 @@
 #   Screener Module   #
 #######################
 import time
-from flask import Blueprint, request
+from flask import Blueprint, request, Response
 from json import dumps, loads
 from database import create_DB_connection
 from token_util import get_id_from_token
@@ -17,7 +17,7 @@ from iexfinance.stocks import Stock
 
 
 from werkzeug.datastructures import ImmutableMultiDict
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, abort
 
 
 SCREENER_NS = Namespace("screener", "Authentication and Authorisation of Users")
@@ -123,7 +123,7 @@ def screen_stocks(parameters):
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    overviews_query = "SELECT stock_ticker FROM securities_overviews WHERE "
+    overviews_query = "SELECT stock_ticker FROM securities_overviews "
     param_list = []
     values = []
     for key, item in parameters["securities_overviews"].items():
@@ -131,14 +131,18 @@ def screen_stocks(parameters):
         if isinstance(item, str) or isinstance(item, (int, float)):
             new_param = "{key}=%s".format(key=key)
             values.append(item)
-        else:
+        elif isinstance(item, list) and key in ["exchange", "sector", "industry"]:
+            if len(item) >= 1 and item[0]:
+                new_param = "{key} IN %s".format(key=key)
+                values.append(tuple(item))
+        elif isinstance(item, list) and key not in ["exchange", "sector", "industry"]:
             min = item[0]
             max = item[1]
             if min != None and max != None:
                 new_param = "{key} > %s AND {key} < %s".format(key=key)
                 values.append(min)
                 values.append(max)
-            elif min == None:
+            elif min == None and max != None:
                 new_param = "{key} < %s".format(key=key)
                 values.append(max)
             elif min != None and max == None:
@@ -150,9 +154,11 @@ def screen_stocks(parameters):
         if new_param:
             param_list.append(new_param)
             # overviews_query += " AND "
+
+    if len(param_list) > 0:
+        overviews_query += "WHERE "
     overviews_query += " AND ".join(param_list)
     # overviews_query = overviews_query[:-5]
-    print(overviews_query)
     values = tuple(values)
     cur.execute(overviews_query, values)
 
