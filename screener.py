@@ -16,44 +16,44 @@ import psycopg2.extras
 from iexfinance.stocks import Stock
 
 
-from flask import Blueprint
 from werkzeug.datastructures import ImmutableMultiDict
+from flask_restx import Namespace, Resource
 
-SCREENER_ROUTES = Blueprint('screener', __name__)
+
+SCREENER_NS = Namespace("screener", "Authentication and Authorisation of Users")
 
 
 ###################################
 # Please leave all functions here #
 ###################################
 
+
 def screener_save(screener_name, user_id, parameters):
 
     if len(screener_name) > 30:
-        rtrn = {
-            'status' : 400,
-            'error' : 'Screener name cannot be more than 30 characters. Try a new name.'
-        }
-        return rtrn
+        abort(400, "Screener name cannot be more than 30 characters. Try a new name.")
 
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "INSERT INTO screeners (screener_name, user_id, parameters) VALUES (%s, %s, %s)"
+    sql_query = (
+        "INSERT INTO screeners (screener_name, user_id, parameters) VALUES (%s, %s, %s)"
+    )
     try:
         cur.execute(sql_query, (screener_name, user_id, str(parameters)))
         rtrn = {
-            'status' : 200,
-            'message' : 'Parameters saved under the name \'' + screener_name + '\'.'
+            "message": "Parameters saved under the name '" + screener_name + "'.",
         }
     except psycopg2.errors.UniqueViolation:
-        rtrn = {
-            'status' : 400,
-            'error' : 'There is already a screener called \'' + screener_name + '\'. Try another name.'
-        }
+        abort(
+            400,
+            "There is already a screener called '"
+            + screener_name
+            + "'. Try another name.",
+        )
+
     except:
-        rtrn = {
-            'status' : 400,
-            'error' : 'Something went wrong while inserting.'
-        }
+        abort(400, "Something went wrong while inserting.")
+
     conn.commit()
     conn.close()
     return rtrn
@@ -64,32 +64,22 @@ def screener_load_all(user_id):
     cur = conn.cursor()
     sql_query = "SELECT screener_name, parameters FROM screeners where user_id=%s"
     try:
-        cur.execute(sql_query, (user_id, ))
+        cur.execute(sql_query, (user_id,))
         response = cur.fetchall()
         if not response:
-            rtrn = {
-                'status' : 400,
-                'error' : 'User with user_id \'' + str(user_id) + '\' does not have any screeners.'
-            }
+            abort(
+                400,
+                "User with user_id '" + str(user_id) + "' does not have any screeners.",
+            )
         else:
-            data =[]
+            data = []
             for row in response:
-                new_screener = {
-                    'name' : row[0],
-                    'params' : eval(row[1])
-                }
+                new_screener = {"name": row[0], "params": eval(row[1])}
                 data.append(new_screener)
 
-            rtrn = {
-                'status' : 200,
-                'message' : 'Screener load successful.',
-                'data' : data
-            }
+            rtrn = {"message": "Screener load successful.", "data": data}
     except:
-        rtrn = {
-            'status' : 400,
-            'error' : 'Something went wrong while fetching parameters.'
-        }
+        abort(400, "Something went wrong while fetching parameters.")
     conn.close()
     return rtrn
 
@@ -101,25 +91,26 @@ def screener_delete(screener_name, user_id):
     cur.execute(sql_query, (screener_name, user_id))
     conn.commit()
     conn.close()
-    return {'status' : 200, 'message' : "Screen called \'" + screener_name + "\' have been removed."}
+    return {
+        "message": "Screen called '" + screener_name + "' have been removed.",
+    }
 
 
 # Not being used?
 def screener_edit_parameters(screener_name, user_id, parameters):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "UPDATE screeners SET parameters=%s WHERE screener_name=%s AND user_id=%s"
+    sql_query = (
+        "UPDATE screeners SET parameters=%s WHERE screener_name=%s AND user_id=%s"
+    )
     try:
         cur.execute(sql_query, (str(parameters), screener_name, user_id))
         rtrn = {
-            'status' : 200,
-            'message' :  'Screen called \'' + screener_name + '\' has been updated.'
+            "message": "Screen called '" + screener_name + "' has been updated.",
         }
     except:
-        rtrn = {
-            'status' : 400,
-            'error' : 'Something went wrong when updating screeners.'
-        }
+        abort(400, "Something went wrong when updating screeners.")
+
     conn.commit()
     conn.close()
     return rtrn
@@ -127,10 +118,7 @@ def screener_edit_parameters(screener_name, user_id, parameters):
 
 def screen_stocks(parameters):
     if not isinstance(parameters, dict):
-        rtrn = {
-            'status' : 400,
-            'error' : 'Parameters must be a dictionary.'
-        }
+        abort(400, "Parameters must be a dictionary.")
 
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -138,23 +126,19 @@ def screen_stocks(parameters):
     overviews_query = "SELECT stock_ticker FROM securities_overviews WHERE "
     param_list = []
     values = []
-    for key, item in parameters['securities_overviews'].items():
+    for key, item in parameters["securities_overviews"].items():
         new_param = ""
         if isinstance(item, str) or isinstance(item, (int, float)):
             new_param = "{key}=%s".format(key=key)
             values.append(item)
-        elif isinstance(item, list) and key in ["exchange", "sector", "industry"]:
-            if len(item) >= 1 and item[0]:
-                new_param = "{key} IN %s".format(key=key)
-                values.append(tuple(item))
-        elif isinstance(item, list) and key not in ["exchange", "sector", "industry"]:
-            min = item[0] if isinstance(item, list) and len(item) else None
-            max = item[1] if isinstance(item, list) and len(item) >= 2 else None
-            if (min != None and max != None):
+        else:
+            min = item[0]
+            max = item[1]
+            if min != None and max != None:
                 new_param = "{key} > %s AND {key} < %s".format(key=key)
                 values.append(min)
                 values.append(max)
-            elif min == None and max != None:
+            elif min == None:
                 new_param = "{key} < %s".format(key=key)
                 values.append(max)
             elif min != None and max == None:
@@ -174,32 +158,25 @@ def screen_stocks(parameters):
 
     rtrn = cur.fetchall()
     if not rtrn:
-        data = {
-            "status" : 400,
-            "error" : "There are no stocks which fit those parameters."
-            }
+        abort(400, "There are no stocks which fit those parameters.")
     else:
         stocks = []
         for s in rtrn:
-            stocks.append(s['stock_ticker'])
+            stocks.append(s["stock_ticker"])
         batch = Stock(stocks)
         batch = batch.get_quote()
-        data = {
-            "status" : 200,
-            "message" : "Screen successfull.",
-            "data" : []
-        }
+        data = {"message": "Screen successfull.", "data": []}
         for s in stocks:
             new_stock = {
-                'stock ticker' : s,
-                'price' : batch.latestPrice[s],
-                'price change' : batch.change[s],
-                'price change percentage' : batch.changePercent[s],
-                'volume' : batch.volume[s],
-                'market capitalization' : batch.marketCap[s],
-                'PE ratio' : batch.peRatio[s]
+                "stock ticker": s,
+                "price": batch.latestPrice[s],
+                "price change": batch.change[s],
+                "price change percentage": batch.changePercent[s],
+                "volume": batch.volume[s],
+                "market capitalization": batch.marketCap[s],
+                "PE ratio": batch.peRatio[s],
             }
-            data['data'].append(new_stock)
+            data["data"].append(new_stock)
 
     conn.close()
     return data
@@ -248,74 +225,59 @@ def make_params_object(args):
 # Please leave all routes here #
 ################################
 
-@SCREENER_ROUTES.route('/screener/save', methods=['POST'])
-def screener_save_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    screener_name = request.args.get('name')
-    data = request.get_json()
-    result = screener_save(screener_name, user_id, data)
-    return dumps(result)
+
+@SCREENER_NS.route("")
+class Screener(Resource):
+    def get(self):
+        data = request.get_json()
+        parameters = data["parameters"]
+        result = screen_stocks(parameters)
+        return Response(dumps(result), status=200)
+
+    def post(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        screener_name = request.args.get("name")
+        data = request.get_json()
+        result = screener_save(screener_name, user_id, data["parameters"])
+        return Response(dumps(result), status=201)
+
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        screener_name = request.args.get("name")
+        result = screener_delete(screener_name, user_id)
+        return Response(dumps(result), status=200)
 
 
-@SCREENER_ROUTES.route('/screener/load', methods=['GET'])
-def screener_load_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    result = screener_load_all(user_id)
-    return dumps(result)
+@SCREENER_NS.route("/load")
+class Load(Resource):
+    def get(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        result = screener_load_all(user_id)
+        return Response(dumps(result), status=200)
 
-
-@SCREENER_ROUTES.route('/screener', methods=['DELETE'])
-def screener_delete_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    screener_name = request.args.get('name')
-    result = screener_delete(screener_name, user_id)
-    return dumps(result)
-
-
-@SCREENER_ROUTES.route('/screener', methods=['GET'])
-def screen_stocks_wrapper():
-    parameters = make_params_object(request.args)
-    return dumps(screen_stocks(parameters))
-
-
-
-if __name__ == "__main__":
-    test = {
-        'securities_overviews' : {
-            # 'sector': ["Technology", "Consumer Cyclical"],
-            'eps' : (4, None),
-            'beta' : (1, 3),
-            'payout_ratio' : (None, 0.3)
-        }
+test1 = {
+    "securities_overviews": {
+        "eps": (4, None),
+        "beta": (1, 3),
+        "payout_ratio": (None, 0.3),
     }
-    print(screen_stocks(test))
-
-
-
-    test1 = {
-        'securities_overviews' : {
-            'eps' : (4, None),
-            'beta' : (1, 3),
-            'payout_ratio' : (None, 0.3)
-
-        }
+}
+# print(screener_save("new test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test1))
+# print(screener_save("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test1))
+# print(screener_load("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13"))
+# print(screener_delete("new test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13"))
+test2 = {
+    "securities_overviews": {
+        "eps": (4, 8),
+        "beta": (1, None),
+        "payout_ratio": (None, 0.3),
     }
-    #print(screener_save("new test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test1))
-    #print(screener_save("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test1))
-    #print(screener_load("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13"))
-    #print(screener_delete("new test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13"))
-    test2 = {
-        'securities_overviews' : {
-            'eps' : (4, 8),
-            'beta' : (1, None),
-            'payout_ratio' : (None, 0.3)
-        }
-    }
-    #print(screener_save("another test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test2))
-    #print(screener_edit_parameters("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test2))
-    #print(screener_load_all("02708412-912d-11eb-a6dc-0a4e2d6dea13"))
+}
+# print(screener_save("another test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test2))
+# print(screener_edit_parameters("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test2))
+# print(screener_load_all("02708412-912d-11eb-a6dc-0a4e2d6dea13"))
 
-    #print(screen_stocks(test))
+# print(screen_stocks(test))
