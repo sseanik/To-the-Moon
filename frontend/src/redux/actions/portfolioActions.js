@@ -16,11 +16,11 @@ const portfolioActions = {
     dispatch(portfolioActions.createPortfolioPending());
     try {
       const { newName } = payload;
-      const { error } = await portfolioAPI.createPortfolio(newName);
+      await portfolioAPI.createPortfolio(newName);
       dispatch(portfolioActions.createPortfolioSuccess());
       dispatch(portfolioActions.getPortfolios());
     } catch (error) {
-      dispatch(portfolioActions.createPortfolioFailure(error.message));
+      dispatch(portfolioActions.createPortfolioFailure(error.error));
     }
   },
   getPortfoliosPending: () => ({
@@ -37,10 +37,10 @@ const portfolioActions = {
   getPortfolios: () => async (dispatch) => {
     dispatch(portfolioActions.getPortfoliosPending());
     try {
-      const { data, error } = await portfolioAPI.getPortfolios();
+      const { data } = await portfolioAPI.getPortfolios();
       dispatch(portfolioActions.getPortfoliosSuccess(data));
     } catch (error) {
-      dispatch(portfolioActions.getPortfoliosFailure(error.message));
+      dispatch(portfolioActions.getPortfoliosFailure(error.error));
     }
   },
   getPortfolioPerfPending: () => ({
@@ -58,8 +58,10 @@ const portfolioActions = {
     const { names } = payload;
     dispatch(portfolioActions.getPortfolioPerfPending());
     try {
-      const promises = names.map(name => portfolioAPI.getPortfolioPerformance(name));
-      const responses = (await Promise.all(promises));
+      const promises = names.map((name) =>
+        portfolioAPI.getPortfolioPerformance(name)
+      );
+      const responses = await Promise.all(promises);
       const perfData = {};
       const perfErrors = {};
       for (const { status, data, portfolio, error } of responses) {
@@ -92,13 +94,11 @@ const portfolioActions = {
     const { portfolioName } = payload;
     dispatch(portfolioActions.deletePortfolioPending(portfolioName));
     try {
-      const { data, error } = await portfolioAPI.deletePortfolio(
-        portfolioName
-      );
+      const { data } = await portfolioAPI.deletePortfolio(portfolioName);
       dispatch(portfolioActions.deletePortfolioSuccess(data));
       dispatch(portfolioActions.getPortfolios());
     } catch (error) {
-      dispatch(portfolioActions.deletePortfolioFailure(error.message));
+      dispatch(portfolioActions.deletePortfolioFailure(error.error));
     }
   },
   editPortfolioPending: () => ({
@@ -116,10 +116,7 @@ const portfolioActions = {
     const { oldName, newName } = payload;
     dispatch(portfolioActions.editPortfolioPending());
     try {
-      const { message } = await portfolioAPI.editPortfolio(
-        oldName,
-        newName
-      );
+      await portfolioAPI.editPortfolio(oldName, newName);
       dispatch(portfolioActions.editPortfolioSuccess({ oldName, newName }));
     } catch (error) {
       dispatch(portfolioActions.editPortfolioFailure(error.message));

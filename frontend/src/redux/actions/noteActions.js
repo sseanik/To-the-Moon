@@ -66,7 +66,7 @@ const noteActions = {
       const res = await NoteAPI.getUserNotes();
       dispatch(noteActions.getUserNotesSuccess(res));
     } catch (error) {
-      dispatch(noteActions.getUserNotesFailure(error.message));
+      dispatch(noteActions.getUserNotesFailure(error.error));
     }
   },
   getRelevantNotes: (payload) => async (dispatch) => {
@@ -79,7 +79,7 @@ const noteActions = {
       );
       dispatch(noteActions.getRelevantNotesSuccess(res));
     } catch (error) {
-      dispatch(noteActions.getRelevantNotesFailure(error.message));
+      dispatch(noteActions.getRelevantNotesFailure(error.error));
     }
   },
   createNote: (payload) => async (dispatch) => {
@@ -103,7 +103,7 @@ const noteActions = {
       );
       dispatch(noteActions.createNoteSuccess(res));
     } catch (error) {
-      dispatch(noteActions.createNoteFailure(error.message));
+      dispatch(noteActions.createNoteFailure(error.error));
     }
   },
   editNote: (payload) => async (dispatch) => {
@@ -129,7 +129,7 @@ const noteActions = {
       );
       dispatch(noteActions.editNoteSuccess(res));
     } catch (error) {
-      dispatch(noteActions.editNoteFailure(error.message));
+      dispatch(noteActions.editNoteFailure(error.error));
     }
   },
   deleteNote: (payload) => async (dispatch) => {
@@ -139,7 +139,7 @@ const noteActions = {
       const res = await NoteAPI.deleteNote(title);
       dispatch(noteActions.deleteNoteSuccess(res));
     } catch (error) {
-      dispatch(noteActions.deleteNoteFailure(error.message));
+      dispatch(noteActions.deleteNoteFailure(error.error));
     }
   },
 };

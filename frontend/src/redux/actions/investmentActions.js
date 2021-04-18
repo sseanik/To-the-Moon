@@ -23,7 +23,7 @@ const investmentActions = {
         purchaseDate,
         purchaseTime,
       } = payload;
-      const { data, error } = await investmentAPI.addStock(
+      const { data } = await investmentAPI.addStock(
         portfolioName,
         stockTicker,
         numShares,
@@ -32,7 +32,7 @@ const investmentActions = {
       dispatch(investmentActions.createStockSuccess(data));
       dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
-      dispatch(investmentActions.createStockFailure(error.message));
+      dispatch(investmentActions.createStockFailure(error));
     }
   },
   getStocksPending: () => ({
@@ -49,12 +49,10 @@ const investmentActions = {
   getStocks: (portfolioName) => async (dispatch) => {
     dispatch(investmentActions.getStocksPending());
     try {
-      const { data, error } = await investmentAPI.getStocks(
-        portfolioName
-      );
+      const { data } = await investmentAPI.getStocks(portfolioName);
       dispatch(investmentActions.getStocksSuccess(data));
     } catch (error) {
-      dispatch(investmentActions.getStocksFailure(error.message));
+      dispatch(investmentActions.getStocksFailure(error));
     }
   },
   deleteStockPending: (id) => ({
@@ -73,13 +71,13 @@ const investmentActions = {
     const { investmentID, portfolioName } = payload;
     dispatch(investmentActions.deleteStockPending(investmentID));
     try {
-      const { data, error } = await investmentAPI.deleteStock(
+      const { data } = await investmentAPI.deleteStock(
         investmentID
       );
       dispatch(investmentActions.deleteStockSuccess(data));
       dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
-      dispatch(investmentActions.deleteStockFailure(error.message));
+      dispatch(investmentActions.deleteStockFailure(error));
     }
   },
 };

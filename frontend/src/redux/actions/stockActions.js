@@ -65,7 +65,7 @@ const stockActions = {
         const res = await StockAPI.getBasic(symbol);
         dispatch(stockActions.getStockBasicSuccess(res));
       } catch (error) {
-        dispatch(stockActions.getStockBasicFailure(error.message));
+        dispatch(stockActions.getStockBasicFailure(error.error));
       }
     };
   },
@@ -77,7 +77,7 @@ const stockActions = {
         const res = await StockAPI.getIncome(symbol);
         dispatch(stockActions.getStockIncomeSuccess(res));
       } catch (error) {
-        dispatch(stockActions.getStockIncomeFailure(error.message));
+        dispatch(stockActions.getStockIncomeFailure(error.error));
       }
     };
   },
@@ -89,7 +89,7 @@ const stockActions = {
         const res = await StockAPI.getBalance(symbol);
         dispatch(stockActions.getStockBalanceSuccess(res));
       } catch (error) {
-        dispatch(stockActions.getStockBalanceFailure(error.message));
+        dispatch(stockActions.getStockBalanceFailure(error.error));
       }
     };
   },
@@ -101,7 +101,7 @@ const stockActions = {
         const res = await StockAPI.getCashFlow(symbol);
         dispatch(stockActions.getStockCashFlowSuccess(res));
       } catch (error) {
-        dispatch(stockActions.getStockCashFlowFailure(error.message));
+        dispatch(stockActions.getStockCashFlowFailure(error.error));
       }
     };
   },
@@ -113,9 +113,9 @@ const stockActions = {
         const res = await StockAPI.getPredictionDaily(symbol, predictionType);
         dispatch(stockActions.getPredictionDailySuccess(res));
       } catch (error) {
-        dispatch(stockActions.getPredictionDailyFailure(error.message));
+        dispatch(stockActions.getPredictionDailyFailure(error.error));
       }
-    }
+    };
   },
 };
 

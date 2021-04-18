@@ -17,7 +17,7 @@ const watchlistActions = {
   getWatchlists: () => async (dispatch: Dispatch) => {
     dispatch(watchlistActions.getWatchlistsPending());
     try {
-      const { data, error } = await watchlistAPI.getWatchlists();
+      const { data } = await watchlistAPI.getWatchlists();
       console.log(data);
       dispatch(watchlistActions.getWatchlistsSuccess(data));
     } catch (error) {
@@ -38,10 +38,7 @@ const watchlistActions = {
     dispatch(watchlistActions.addWatchlistPending());
     try {
       const { portfolioName, description } = payload;
-      const { error } = await watchlistAPI.addWatchlist(
-        portfolioName,
-        description
-      );
+      await watchlistAPI.addWatchlist(portfolioName, description);
       dispatch(watchlistActions.addWatchlistSuccess());
     } catch (error) {
       dispatch(watchlistActions.addWatchlistFailure(error.message));
@@ -63,7 +60,7 @@ const watchlistActions = {
     const { watchlistID } = payload;
     dispatch(watchlistActions.deleteWatchlistPending(watchlistID));
     try {
-      const { error } = await watchlistAPI.deleteWatchlist(watchlistID);
+      await watchlistAPI.deleteWatchlist(watchlistID);
       dispatch(watchlistActions.deleteWatchlistSuccess(watchlistID));
     } catch (error) {
       dispatch(watchlistActions.deleteWatchlistFailure(error.message));
@@ -83,7 +80,7 @@ const watchlistActions = {
   getFollowing: () => async (dispatch: Dispatch) => {
     dispatch(watchlistActions.getFollowingPending());
     try {
-      const { data, error } = await watchlistAPI.getFollowing();
+      const { data } = await watchlistAPI.getFollowing();
       dispatch(watchlistActions.getFollowingSuccess(data));
     } catch (error) {
       dispatch(watchlistActions.getFollowingFailure(error.message));
@@ -104,7 +101,7 @@ const watchlistActions = {
     dispatch(watchlistActions.addFollowingPending());
     try {
       const { watchlistID } = payload;
-      const { error } = await watchlistAPI.addFollowing(watchlistID);
+      await watchlistAPI.addFollowing(watchlistID);
       dispatch(watchlistActions.addFollowingSuccess(watchlistID));
     } catch (error) {
       dispatch(watchlistActions.addFollowingFailure(error.message));
@@ -125,7 +122,7 @@ const watchlistActions = {
     dispatch(watchlistActions.deleteFollowingPending());
     try {
       const { watchlistID } = payload;
-      const { error } = await watchlistAPI.deleteFollowing(watchlistID);
+      await watchlistAPI.deleteFollowing(watchlistID);
       dispatch(watchlistActions.deleteFollowingSuccess(watchlistID));
     } catch (error) {
       dispatch(watchlistActions.deleteFollowingFailure(error.message));
@@ -146,9 +143,7 @@ const watchlistActions = {
     dispatch(watchlistActions.getWatchlistPending());
     try {
       const { watchlistID } = payload;
-      const { message, data } = await watchlistAPI.getWatchlist(
-        watchlistID
-      );
+      const { data } = await watchlistAPI.getWatchlist(watchlistID);
       dispatch(watchlistActions.getWatchlistSuccess(data));
     } catch (error) {
       dispatch(watchlistActions.getWatchlistFailure(error.message));

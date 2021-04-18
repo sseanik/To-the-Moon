@@ -32,7 +32,7 @@ const userActions = {
   }),
   getUsernameSuccess: (username) => ({
     type: userConstants.GET_USERNAME_SUCCESS,
-    payload: username
+    payload: username,
   }),
   getUsernameFailure: () => ({
     type: userConstants.GET_USERNAME_FAILURE,
@@ -51,7 +51,7 @@ const userActions = {
       window.localStorage.setItem("Token", res.token);
       dispatch(userActions.registerSuccess(res));
     } catch (error) {
-      dispatch(userActions.registerFailure(error.message));
+      dispatch(userActions.registerFailure(error.error));
     }
   },
   login: (payload) => async (dispatch) => {
@@ -62,7 +62,7 @@ const userActions = {
       window.localStorage.setItem("Token", res.token);
       dispatch(userActions.loginSuccess(res));
     } catch (error) {
-      dispatch(userActions.loginFailure(error.message));
+      dispatch(userActions.loginFailure(error.error));
     }
   },
   logout: () => (dispatch) => {
@@ -73,16 +73,12 @@ const userActions = {
     dispatch(userActions.getUsernamePending());
     try {
       const res = await AuthAPI.getUsername();
-      if (res.status === 200) {
-        dispatch(userActions.getUsernameSuccess(res.username));
-      } else {
-        dispatch(userActions.getUsernameFailure(res.error));
-        dispatch(userActions.logout());
-      }
+      dispatch(userActions.getUsernameSuccess(res.username));
     } catch (error) {
-      dispatch(userActions.getUsernameFailure(error.message));
+      dispatch(userActions.getUsernameFailure(error.error));
+      dispatch(userActions.logout());
     }
-  }
+  },
 };
 
 export default userActions;

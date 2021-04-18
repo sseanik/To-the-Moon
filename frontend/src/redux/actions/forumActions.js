@@ -17,7 +17,7 @@ const forumActions = {
     dispatch(forumActions.addParentPending());
     try {
       const { stockTicker, timestamp, content } = payload;
-      const { message, comment } = await forumAPI.addParent(
+      const { comment } = await forumAPI.addParent(
         stockTicker,
         timestamp,
         content
@@ -43,7 +43,7 @@ const forumActions = {
     const { stockTicker, timestamp, content, parentID } = payload;
     dispatch(forumActions.addChildPending(parentID));
     try {
-      const { message, comment } = await forumAPI.addChild(
+      const { comment } = await forumAPI.addChild(
         stockTicker,
         timestamp,
         content,
@@ -68,12 +68,10 @@ const forumActions = {
   getComments: (stockTicker) => async (dispatch) => {
     dispatch(forumActions.getCommentsPending());
     try {
-      const { message, comments } = await forumAPI.getComments(
-        stockTicker
-      );
+      const { comments } = await forumAPI.getComments(stockTicker);
       dispatch(forumActions.getCommentsSuccess(comments));
     } catch (error) {
-      dispatch(forumActions.getCommentsFailure());
+      dispatch(forumActions.getCommentsFailure(error.message));
     }
   },
   editParentPending: (payload) => ({
@@ -92,7 +90,7 @@ const forumActions = {
     dispatch(forumActions.editParentPending(payload));
     try {
       const { commentID, timestamp, content } = payload;
-      const { message, comment } = await forumAPI.editParent(
+      const { comment } = await forumAPI.editParent(
         commentID,
         timestamp,
         content
@@ -118,7 +116,7 @@ const forumActions = {
     dispatch(forumActions.editChildPending(payload));
     try {
       const { commentID, timestamp, content, parentID } = payload;
-      const { message, comment } = await forumAPI.editChild(
+      const { comment } = await forumAPI.editChild(
         commentID,
         timestamp,
         content,
@@ -145,7 +143,7 @@ const forumActions = {
     const { commentID } = payload;
     dispatch(forumActions.deleteParentPending(commentID));
     try {
-      const { message } = await forumAPI.deleteParent(commentID);
+      await forumAPI.deleteParent(commentID);
       dispatch(forumActions.deleteParentSuccess(commentID));
     } catch (error) {
       dispatch(forumActions.deleteParentFailure(error.message));
@@ -167,10 +165,7 @@ const forumActions = {
     const { commentID, parentID } = payload;
     dispatch(forumActions.deleteChildPending(commentID));
     try {
-      const { message } = await forumAPI.deleteChild(
-        commentID,
-        parentID
-      );
+      await forumAPI.deleteChild(commentID, parentID);
       dispatch(forumActions.deleteChildSuccess(payload));
     } catch (error) {
       dispatch(forumActions.deleteChildFailure(error.message));
