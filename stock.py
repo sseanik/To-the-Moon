@@ -307,15 +307,9 @@ def calculate_summary(df):
 def get_financials_data(symbol, func):
     income_statement = func(symbol)
     if symbol and income_statement:
-        data = {"status": 200, "name": symbol, "data": income_statement}
+        data = {"name": symbol, "data": income_statement}
     else:
-        data = {
-                "status:": 404,
-                "name": symbol,
-                "data": {},
-                "error": "Financials data not found",
-            }
-
+        abort(400, "Financials data not found")
     return data
 
 
@@ -370,7 +364,6 @@ class Stock(Resource):
             stock_name = funds["stock_name"]
 
             data = {
-                "status": 200,
                 "name": stock_name,
                 "data": {
                     "data": {
@@ -386,9 +379,8 @@ class Stock(Resource):
                 },
             }
         else:
-            data = {"status": 404, "name": "", "data": {}, "error": "Symbol not found"}
-        if data["status"] != 200:
-            abort(data["status"], data["error"])
+            abort(404, "Symbol not found")
+
         return Response(dumps(data), status=200)
 
 
@@ -443,7 +435,6 @@ class Daily_Prediction(Resource):
             }
             endpoint = f"http://127.0.0.1:{MODELSRVPORT}/model/api/get_prediction"
 
-            status = 0
             try:
                 r = requests.post(url=endpoint, data=dumps(data), headers=headers)
 
@@ -477,17 +468,13 @@ class Daily_Prediction(Resource):
                     )
                 ]
 
-                status = 200
                 dispatch_data = {
                     "name": "Prediction (daily)",
                     "data": prediction_data_s,
                 }
             except Exception as e:
-                status = 500
-                dispatch_data = {}
+                abort(500, "")
 
-        if status != 200:
-            abort(status, dispatch_data["error"])
         return Response(dumps({"data": dispatch_data}), status=200)
 
 
@@ -501,8 +488,6 @@ class Income_Statement(Resource):
     def get(self):
         symbol = request.args.get("symbol")
         result = get_financials_data(symbol, get_income_statement)
-        if result["status"] != 200:
-            abort(result["status"], result["error"])
         return Response(dumps(result), status=200)
 
 
@@ -516,8 +501,6 @@ class Balance_Sheet(Resource):
     def get(self):
         symbol = request.args.get("symbol")
         result = get_financials_data(symbol, get_balance_sheet)
-        if result["status"] != 200:
-            abort(result["status"], result["error"])
         return Response(dumps(result), status=200)
 
 
@@ -531,6 +514,4 @@ class Cash_Flow_Statement(Resource):
     def get(self):
         symbol = request.args.get("symbol")
         result = get_financials_data(symbol, get_cash_flow)
-        if result["status"] != 200:
-            abort(result["status"], result["error"])
         return Response(dumps(result), status=200)
