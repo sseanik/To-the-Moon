@@ -134,11 +134,7 @@ const stockActions = {
       try {
         const { symbol, initial_cash, commission, strategy, fromdate, todate } = payload;
         const res = await StockAPI.getPaperTradingResults(symbol, initial_cash, commission, strategy, fromdate, todate);
-        if (res.status === 200) {
-          dispatch(stockActions.getPaperTradingResultsSuccess(res));
-        } else {
-          dispatch(stockActions.getPaperTradingResultsFailure(res.error));
-        }
+        dispatch(stockActions.getPaperTradingResultsSuccess(res));
       } catch (error) {
         dispatch(stockActions.getPaperTradingResultsFailure(error.message));
       }
