@@ -21,7 +21,7 @@ const watchlistActions = {
       console.log(data);
       dispatch(watchlistActions.getWatchlistsSuccess(data));
     } catch (error) {
-      dispatch(watchlistActions.getWatchlistsFailure(error));
+      dispatch(watchlistActions.getWatchlistsFailure(error.message));
     }
   },
   addWatchlistPending: () => ({
@@ -41,7 +41,7 @@ const watchlistActions = {
       await watchlistAPI.addWatchlist(portfolioName, description);
       dispatch(watchlistActions.addWatchlistSuccess());
     } catch (error) {
-      dispatch(watchlistActions.addWatchlistFailure(error));
+      dispatch(watchlistActions.addWatchlistFailure(error.message));
     }
   },
   deleteWatchlistPending: (payload: any) => ({
@@ -63,7 +63,7 @@ const watchlistActions = {
       await watchlistAPI.deleteWatchlist(watchlistID);
       dispatch(watchlistActions.deleteWatchlistSuccess(watchlistID));
     } catch (error) {
-      dispatch(watchlistActions.deleteWatchlistFailure(error));
+      dispatch(watchlistActions.deleteWatchlistFailure(error.message));
     }
   },
   getFollowingPending: () => ({
@@ -83,7 +83,7 @@ const watchlistActions = {
       const { data } = await watchlistAPI.getFollowing();
       dispatch(watchlistActions.getFollowingSuccess(data));
     } catch (error) {
-      dispatch(watchlistActions.getFollowingFailure(error));
+      dispatch(watchlistActions.getFollowingFailure(error.message));
     }
   },
   addFollowingPending: () => ({
@@ -104,7 +104,7 @@ const watchlistActions = {
       await watchlistAPI.addFollowing(watchlistID);
       dispatch(watchlistActions.addFollowingSuccess(watchlistID));
     } catch (error) {
-      dispatch(watchlistActions.addFollowingFailure(error));
+      dispatch(watchlistActions.addFollowingFailure(error.message));
     }
   },
   deleteFollowingPending: () => ({
@@ -125,7 +125,7 @@ const watchlistActions = {
       await watchlistAPI.deleteFollowing(watchlistID);
       dispatch(watchlistActions.deleteFollowingSuccess(watchlistID));
     } catch (error) {
-      dispatch(watchlistActions.deleteFollowingFailure(error));
+      dispatch(watchlistActions.deleteFollowingFailure(error.message));
     }
   },
   getWatchlistPending: () => ({
