@@ -54,7 +54,7 @@ const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
     if (touched) {
       getRelevantNotes({ stock_symbols: stock, portfolio_names: portfolio });
     }
-  }, [getRelevantNotes, stock, portfolio, touched]);
+  }, [getRelevantNotes, touched]);
 
   const errorComponent = (error: string) => (
     <Alert variant="danger">{error}</Alert>
