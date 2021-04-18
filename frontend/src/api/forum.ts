@@ -54,7 +54,7 @@ const forumAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   editParent: (comment_id: string, time_stamp: number, content: string) => {
-    const endpoint = "/forum/editComment";
+    const endpoint = "/forum/comment";
     const options = {
       method: "PUT",
       headers: {
@@ -75,7 +75,7 @@ const forumAPI = {
     content: string,
     parent_id: string
   ) => {
-    const endpoint = "/forum/editReply";
+    const endpoint = "/forum/reply";
     const options = {
       method: "PUT",
       headers: {
