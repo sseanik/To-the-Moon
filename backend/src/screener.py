@@ -185,15 +185,15 @@ def make_params_object(args):
     result = {}
 
     if type(args) == ImmutableMultiDict:
-        exchange = request.args.getlist("exchange")
-        market_cap = request.args.getlist("market_cap")
+        exchange = args.getlist("exchange")
+        market_cap = args.getlist("market_cap")
         market_cap[0] = float(market_cap[0]) if market_cap[0] else None
         market_cap[1] = float(market_cap[1]) if market_cap[1] else None
-        yearly_low = float(request.args.get("yearly_low")) if request.args.get("yearly_low") else None
-        yearly_high = float(request.args.get("yearly_high")) if request.args.get("yearly_high") else None
-        eps = request.args.getlist("eps")[0:2]
-        beta = request.args.getlist("beta")[0:2]
-        payout_ratio = request.args.getlist("payout_ratio")[0:2]
+        yearly_low = float(args.get("yearly_low")) if args.get("yearly_low") else None
+        yearly_high = float(args.get("yearly_high")) if args.get("yearly_high") else None
+        eps = args.getlist("eps")[0:2]
+        beta = args.getlist("beta")[0:2]
+        payout_ratio = args.getlist("payout_ratio")[0:2]
 
         eps[0] = float(eps[0]) if eps[0] else None
         eps[1] = float(eps[1]) if eps[1] else None
@@ -202,8 +202,8 @@ def make_params_object(args):
         payout_ratio[0] = float(payout_ratio[0]) if payout_ratio[0] else None
         payout_ratio[1] = float(payout_ratio[1]) if payout_ratio[1] else None
 
-        sector = request.args.getlist("sector")
-        industry = request.args.getlist("Industry")
+        sector = args.getlist("sector")
+        industry = args.getlist("Industry")
         result = {
             "securities_overviews": {
                 "exchange": exchange,
@@ -229,15 +229,15 @@ def make_params_object(args):
 @SCREENER_NS.route("")
 class Screener(Resource):
     def get(self):
-        data = request.get_json()
-        parameters = data["parameters"]
+        screener_args = request.args
+        parameters = make_params_object(screener_args)
         result = screen_stocks(parameters)
         return Response(dumps(result), status=200)
 
     def post(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
-        screener_name = request.args.get("name")
+        screener_name = args.get("name")
         data = request.get_json()
         result = screener_save(screener_name, user_id, data["parameters"])
         return Response(dumps(result), status=201)
@@ -245,7 +245,7 @@ class Screener(Resource):
     def delete(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
-        screener_name = request.args.get("name")
+        screener_name = args.get("name")
         result = screener_delete(screener_name, user_id)
         return Response(dumps(result), status=200)
 
