@@ -79,7 +79,7 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (
   const tableComponent = (
     <Container className="financials-container-scrolling">
       <Row>
-        {data.map((entry: BalanceSheetEntry, idx) => (
+        {data ? data.map((entry: BalanceSheetEntry, idx) => (
           <Col key={idx}>
             <hr />
             {Object.entries(entry).map(([field, value], idx) => (
@@ -117,7 +117,7 @@ const DataBalanceSheet: React.FC<Props & StateProps & DispatchProps> = (
               </div>
             ))}
           </Col>
-        ))}
+        )): null}
       </Row>
     </Container>
   );

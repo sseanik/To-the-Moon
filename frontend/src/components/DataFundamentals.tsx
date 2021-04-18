@@ -60,7 +60,7 @@ const DataFundamentals: React.FC<StateProps> = (props) => {
       <Row>
         <Col>
           <hr />
-          {Object.entries(data).map(([field, value], idx) => (
+          {data ? Object.entries(data).map(([field, value], idx) => (
             <div key={idx}>
               <Row lg={6}>
                 <Col className="text-left font-weight-bold" lg={6}>
@@ -76,7 +76,7 @@ const DataFundamentals: React.FC<StateProps> = (props) => {
               </Row>
               <hr />
             </div>
-          ))}
+          )) : null}
         </Col>
       </Row>
     </Container>
