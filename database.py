@@ -1,9 +1,12 @@
+import os
 import psycopg2
 from dotenv import load_dotenv
+from helpers import TimeSeries
 import time
 from helpers import TimeSeries, AlphaVantageAPI
 import os
 import json
+
 
 load_dotenv()
 
@@ -17,8 +20,9 @@ PASS = os.getenv("DBPASS")
 
 def create_DB_connection():
     try:
-        conn = psycopg2.connect(host=ENDPOINT, port=PORT,
-                                database=DBNAME, user=USER, password=PASS)
+        conn = psycopg2.connect(
+            host=ENDPOINT, port=PORT, database=DBNAME, user=USER, password=PASS
+        )
         return conn
 
     except Exception as e:
@@ -49,12 +53,13 @@ def create_user_table():
     conn.close()
 
 
-def create_securities_overviewTable():
+def create_securities_overview_table():
     conn = create_DB_connection()
     cur = conn.cursor()
     cur.execute(open("Tables/securities_overviews.sql", "r").read())
     conn.commit()
     conn.close()
+
 
 def create_notes_table():
     conn = create_DB_connection()
@@ -83,14 +88,14 @@ def create_comment_tables():
     conn.commit()
     conn.close()
 
+
 def create_screeners_table():
     conn = create_DB_connection()
     cur = conn.cursor()
     cur.execute(open("Tables/screeners.sql", "r").read())
     conn.commit()
+
     
-
-
 def create_vote_plpgsql_functions():
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -108,8 +113,8 @@ def create_vote_plpgsql_functions():
 def fill_securities_overview_table(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
-    Overview = TimeSeries().get_company_overview(symbol)
-    insertQuery = '''INSERT INTO securities_overviews (
+    overview = TimeSeries().get_company_overview(symbol)
+    insert_query = """INSERT INTO securities_overviews (
         stock_ticker,
         stock_name,
         stock_description,
@@ -131,7 +136,9 @@ def fill_securities_overview_table(symbol):
         gross_profit_TTM
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (stock_ticker) DO NOTHING
-    '''
+    """
+
+    
     # Convert "None" values to None so cur.execute converts it to NULL.
     for key, value in Overview.items():
         if (value == "None"):
@@ -158,11 +165,12 @@ def fill_securities_overview_table(symbol):
         Overview['RevenueTTM'],
         Overview['GrossProfitTTM']
     ))
+
     conn.commit()
     conn.close()
 
 
-def create_income_statementsTable():
+def create_income_statements_table():
     conn = create_DB_connection()
     cur = conn.cursor()
     cur.execute(open("Tables/income_statements.sql", "r").read())
@@ -173,9 +181,9 @@ def create_income_statementsTable():
 def fill_income_statements(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
-    Statement = TimeSeries().get_income_statement(symbol)
-    for annual_report in Statement['annualReports']:
-        insertQuery = '''INSERT INTO income_statements (
+    statement = TimeSeries().get_income_statement(symbol)
+    for annual_report in statement["annualReports"]:
+        insert_query = """INSERT INTO income_statements (
             stock_ticker,
             fiscal_date_ending,
             total_revenue,
@@ -191,27 +199,30 @@ def fill_income_statements(symbol):
             net_income
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
-        '''
+        """
         # Convert "None" values to None so cur.execute converts it to NULL.
         for key, value in annual_report.items():
-            if (value == "None"):
+            if value == "None":
                 annual_report[key] = None
 
-        cur.execute(insertQuery, (
-            symbol,
-            annual_report['fiscalDateEnding'],
-            annual_report['totalRevenue'],
-            annual_report['costOfRevenue'],
-            annual_report['grossProfit'],
-            annual_report['operatingExpenses'],
-            annual_report['operatingIncome'],
-            annual_report['incomeBeforeTax'],
-            annual_report['interestIncome'],
-            annual_report['netInterestIncome'],
-            annual_report['ebit'],
-            annual_report['ebitda'],
-            annual_report['netIncome']
-        ))
+        cur.execute(
+            insert_query,
+            (
+                symbol,
+                annual_report["fiscalDateEnding"],
+                annual_report["totalRevenue"],
+                annual_report["costOfRevenue"],
+                annual_report["grossProfit"],
+                annual_report["operatingExpenses"],
+                annual_report["operatingIncome"],
+                annual_report["incomeBeforeTax"],
+                annual_report["interestIncome"],
+                annual_report["netInterestIncome"],
+                annual_report["ebit"],
+                annual_report["ebitda"],
+                annual_report["netIncome"],
+            ),
+        )
     conn.commit()
     conn.close()
 
@@ -227,9 +238,9 @@ def create_balance_sheets_table():
 def fill_balance_sheets(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
-    Statement = TimeSeries().get_balance_sheet(symbol)
-    for annual_report in Statement['annualReports']:
-        insertQuery = '''INSERT INTO balance_sheets (
+    statement = TimeSeries().get_balance_sheet(symbol)
+    for annual_report in statement["annualReports"]:
+        insert_query = """INSERT INTO balance_sheets (
             stock_ticker,
             fiscal_date_ending,
             cash_and_short_term_investments,
@@ -250,32 +261,35 @@ def fill_balance_sheets(symbol):
             total_shareholder_equity
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
-        '''
+        """
         # Convert "None" values to None so cur.execute converts it to NULL.
         for key, value in annual_report.items():
-            if (value == "None"):
+            if value == "None":
                 annual_report[key] = None
 
-        cur.execute(insertQuery, (
-            symbol,
-            annual_report['fiscalDateEnding'],
-            annual_report['cashAndShortTermInvestments'],
-            annual_report['currentNetReceivables'],
-            annual_report['inventory'],
-            annual_report['otherCurrentAssets'],
-            annual_report['propertyPlantEquipment'],
-            annual_report['goodwill'],
-            annual_report['intangibleAssets'],
-            annual_report['longTermInvestments'],
-            annual_report['otherNonCurrrentAssets'],
-            annual_report['currentAccountsPayable'],
-            annual_report['shortTermDebt'],
-            annual_report['otherCurrentLiabilities'],
-            annual_report['longTermDebt'],
-            annual_report['otherNonCurrentLiabilities'],
-            annual_report['retainedEarnings'],
-            annual_report['totalShareholderEquity']
-        ))
+        cur.execute(
+            insert_query,
+            (
+                symbol,
+                annual_report["fiscalDateEnding"],
+                annual_report["cashAndShortTermInvestments"],
+                annual_report["currentNetReceivables"],
+                annual_report["inventory"],
+                annual_report["otherCurrentAssets"],
+                annual_report["propertyPlantEquipment"],
+                annual_report["goodwill"],
+                annual_report["intangibleAssets"],
+                annual_report["longTermInvestments"],
+                annual_report["otherNonCurrentAssets"],
+                annual_report["currentAccountsPayable"],
+                annual_report["shortTermDebt"],
+                annual_report["otherCurrentLiabilities"],
+                annual_report["longTermDebt"],
+                annual_report["otherNonCurrentLiabilities"],
+                annual_report["retainedEarnings"],
+                annual_report["totalShareholderEquity"],
+            ),
+        )
     conn.commit()
     conn.close()
 
@@ -291,9 +305,9 @@ def create_cashflow_statements_table():
 def fill_cashflow_statements(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
-    Statement = TimeSeries().get_cash_flow(symbol)
-    for annual_report in Statement['annualReports']:
-        insertQuery = '''INSERT INTO cashflow_statements (
+    statement = TimeSeries().get_cash_flow(symbol)
+    for annual_report in statement["annualReports"]:
+        insert_query = """INSERT INTO cashflow_statements (
             stock_ticker,
             fiscal_date_ending,
             operating_cash_flow,
@@ -310,28 +324,31 @@ def fill_cashflow_statements(symbol):
             net_income
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (stock_ticker, fiscal_date_ending) DO NOTHING
-        '''
+        """
         # Convert "None" values to None so cur.execute converts it to NULL.
         for key, value in annual_report.items():
-            if (value == "None"):
+            if value == "None":
                 annual_report[key] = None
 
-        cur.execute(insertQuery, (
-            symbol,
-            annual_report['fiscalDateEnding'],
-            annual_report['operatingCashflow'],
-            annual_report['paymentsForOperatingActivities'],
-            annual_report['changeInOperatingLiabilities'],
-            annual_report['changeInOperatingAssets'],
-            annual_report['depreciationDepletionAndAmortization'],
-            annual_report['changeInInventory'],
-            annual_report['cashflowFromInvestment'],
-            annual_report['cashflowFromFinancing'],
-            annual_report['dividendPayout'],
-            annual_report['proceedsFromRepurchaseOfEquity'],
-            annual_report['changeInCashAndCashEquivalents'],
-            annual_report['netIncome']
-        ))
+        cur.execute(
+            insert_query,
+            (
+                symbol,
+                annual_report["fiscalDateEnding"],
+                annual_report["operatingCashflow"],
+                annual_report["paymentsForOperatingActivities"],
+                annual_report["changeInOperatingLiabilities"],
+                annual_report["changeInOperatingAssets"],
+                annual_report["depreciationDepletionAndAmortization"],
+                annual_report["changeInInventory"],
+                annual_report["cashflowFromInvestment"],
+                annual_report["cashflowFromFinancing"],
+                annual_report["dividendPayout"],
+                annual_report["proceedsFromRepurchaseOfEquity"],
+                annual_report["changeInCashAndCashEquivalents"],
+                annual_report["netIncome"],
+            ),
+        )
     conn.commit()
     conn.close()
 
@@ -374,6 +391,62 @@ def fill_all_companies():
 
 
 if __name__ == "__main__":
+    pass
+    # create_user_table()
+    # create_portfolios_table()
+    # create_holdings_table()
+    # create_securities_overview_table()
+    # create_income_statements_table()
+    # create_balance_sheets_table()
+    # create_cashflow_statements_table()
+    # create_comment_tables()
+    # create_notes_table()
+    # create_watchlist_tables()
+
+    # Basic materials sector
+    # fill_overview_and_financial_tables('BHP')
+    # fill_overview_and_financial_tables('LIN')
+
+    # Technology sector
+    # fill_overview_and_financial_tables('ORCL')
+    # fill_overview_and_financial_tables('IBM')
+
+    # Consumer defence sector
+    # fill_overview_and_financial_tables('WMT')
+    # fill_overview_and_financial_tables('KO')
+
+    # Utilities sector
+    # fill_overview_and_financial_tables('NEE')
+
+    # Energy sector
+    # create_vote_plpgsql_functions()
+    # create_comment_tables()
+    # createDBConnection()
+    # createPortfolioTable()
+    # createHoldingsTable()
+    # createSecuritiesoverviewTable()
+    # fillSecuritiesoverviewTable('IBM')
+    # createIncomestatementsTable()
+    # fillIncomestatements('IBM')
+    # createBalanceSheetsTable()
+    # fillBalanceSheets('IBM')
+    # createCashflowstatementsTable()
+    # fillCashflowstatements('IBM')
+
+    # Basic materials
+    # filloverviewAndFinancialTables('BHP')
+
+    # Technology sector
+
+    # Consumer cyclical sector
+
+    # Real estate sector
+
+    # Healthcare sector
+
+    # Communication services sector
+
+    # Industrials sector
     #create_user_table()
     #create_portfolios_table()
     #create_holdings_table()
@@ -383,8 +456,8 @@ if __name__ == "__main__":
     # create_cashflow_statements_table()
     #create_comment_tables()
     #create_notes_table()
-    create_screeners_table()
-    create_watchlist_tables()
+    #create_screeners_table()
+    #create_watchlist_tables()
 
     
-    fill_all_companies()
+    #fill_all_companies()
