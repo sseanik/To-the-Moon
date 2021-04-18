@@ -263,3 +263,13 @@ def notes_relevant_parser(namespace):
             location="args",
         )
     )
+
+def stock_get_data_parser(namespace):
+    return namespace.parser().add_argument("symbol", help="Stock Symbol", location="args")
+
+def stock_get_prediction_parser(namespace):
+    return (
+        namespace.parser()
+            .add_argument("symbol", help="Stock Symbol", location="args")
+            .add_argument("prediction_type", help="Prediction Model", location="args")
+    )
