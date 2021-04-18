@@ -18,9 +18,9 @@ from iexfinance.stocks import Stock
 
 from werkzeug.datastructures import ImmutableMultiDict
 from flask_restx import Namespace, Resource, abort
+from models import screeners_post_delete_data_parser, screeners_get_apply_screener_parser
 
-
-SCREENER_NS = Namespace("screener", "Authentication and Authorisation of Users")
+SCREENER_NS = Namespace("screener", "Search parameters for companies and stock offerings")
 
 
 ###################################
@@ -233,31 +233,52 @@ def make_params_object(args):
 
 
 @SCREENER_NS.route("")
-class Screener(Resource):
+class ScreenerApply(Resource):
+    @SCREENER_NS.doc(description="Apply screener parameters to query database and return list of matching companies. ")
+    @SCREENER_NS.response(200, "Successfully fetched screener information")
+    @SCREENER_NS.response(400, "Screener apply failed")
+    @SCREENER_NS.response(404, "Screener API Not Available")
+    @SCREENER_NS.expect(screeners_get_apply_screener_parser(SCREENER_NS), validate=True)
     def get(self):
         screener_args = request.args
         parameters = make_params_object(screener_args)
         result = screen_stocks(parameters)
         return Response(dumps(result), status=200)
 
+@SCREENER_NS.route("/save")
+class ScreenerSave(Resource):
+    @SCREENER_NS.doc(description="Save screener parameters by name and user. ")
+    @SCREENER_NS.response(200, "Successfully saved screener")
+    @SCREENER_NS.response(404, "Screener save failed")
+    @SCREENER_NS.expect(screeners_post_delete_data_parser(SCREENER_NS), validate=True)
     def post(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
-        screener_name = args.get("name")
+        screener_name = request.args.get("name")
         data = request.get_json()
-        result = screener_save(screener_name, user_id, data["parameters"])
+        result = screener_save(screener_name, user_id, data)
         return Response(dumps(result), status=201)
 
+
+@SCREENER_NS.route("/delete")
+class ScreenerSave(Resource):
+    @SCREENER_NS.doc(description="Delete screeners by name. ")
+    @SCREENER_NS.response(200, "Successfully deleted screener")
+    @SCREENER_NS.response(404, "Screener delete failed")
+    @SCREENER_NS.expect(screeners_post_delete_data_parser(SCREENER_NS), validate=True)
     def delete(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
-        screener_name = args.get("name")
+        screener_name = request.args.get("name")
         result = screener_delete(screener_name, user_id)
         return Response(dumps(result), status=200)
 
 
 @SCREENER_NS.route("/load")
 class Load(Resource):
+    @SCREENER_NS.doc(description="Load screeners by user. ")
+    @SCREENER_NS.response(200, "Successfully fetched list of screeners")
+    @SCREENER_NS.response(404, "Screener load failed")
     def get(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
