@@ -197,10 +197,10 @@ def get_note(user_id, title):
 def get_relevant_notes(user_id, stock_symbols, portfolio_names):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = (
-        "SELECT * FROM notes WHERE user_id=%s AND ",
-        "(%s::TEXT[] && stock_symbols OR %s::TEXT[] && portfolio_names)",
-    )
+    sql_query = """
+        SELECT * FROM notes WHERE user_id=%s AND 
+        (%s::TEXT[] && stock_symbols OR %s::TEXT[] && portfolio_names)
+    """
     cur.execute(sql_query, (user_id, stock_symbols, portfolio_names))
     query_results = cur.fetchall()
     notes = []

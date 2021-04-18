@@ -51,7 +51,7 @@ const userActions = {
       window.localStorage.setItem("Token", res.token);
       dispatch(userActions.registerSuccess(res));
     } catch (error) {
-      dispatch(userActions.registerFailure(error.error));
+      dispatch(userActions.registerFailure(error.message));
     }
   },
   login: (payload) => async (dispatch) => {
@@ -62,7 +62,7 @@ const userActions = {
       window.localStorage.setItem("Token", res.token);
       dispatch(userActions.loginSuccess(res));
     } catch (error) {
-      dispatch(userActions.loginFailure(error.error));
+      dispatch(userActions.loginFailure(error.message));
     }
   },
   logout: () => (dispatch) => {
@@ -75,7 +75,7 @@ const userActions = {
       const res = await AuthAPI.getUsername();
       dispatch(userActions.getUsernameSuccess(res.username));
     } catch (error) {
-      dispatch(userActions.getUsernameFailure(error.error));
+      dispatch(userActions.getUsernameFailure(error.message));
       dispatch(userActions.logout());
     }
   },

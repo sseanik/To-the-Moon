@@ -22,7 +22,7 @@ const NoteAPI = {
       endpoint += `stock=${stock}&`;
     }
     for (const portfolio of portfolios) {
-      endpoint += `portfolio=${portfolio}&portfolio=lol&`;
+      endpoint += `portfolio=${portfolio}&`;
     }
     endpoint = endpoint.slice(0, -1);
     const options = {

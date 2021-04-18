@@ -20,7 +20,7 @@ const portfolioActions = {
       dispatch(portfolioActions.createPortfolioSuccess());
       dispatch(portfolioActions.getPortfolios());
     } catch (error) {
-      dispatch(portfolioActions.createPortfolioFailure(error.error));
+      dispatch(portfolioActions.createPortfolioFailure(error.message));
     }
   },
   getPortfoliosPending: () => ({
@@ -40,42 +40,32 @@ const portfolioActions = {
       const { data } = await portfolioAPI.getPortfolios();
       dispatch(portfolioActions.getPortfoliosSuccess(data));
     } catch (error) {
-      dispatch(portfolioActions.getPortfoliosFailure(error.error));
+      dispatch(portfolioActions.getPortfoliosFailure(error.message));
     }
   },
-  getPortfolioPerfPending: () => ({
+  getPortfolioPerfPending: (portfolio) => ({
     type: portfolioConstants.GET_PORTFOLIO_PERF_PENDING,
+    payload: { portfolio },
   }),
-  getPortfolioPerfSuccess: (response) => ({
+  getPortfolioPerfSuccess: (portfolio, response) => ({
     type: portfolioConstants.GET_PORTFOLIO_PERF_SUCCESS,
-    payload: response,
+    payload: { portfolio, response },
   }),
-  getPortfolioPerfFailure: (error) => ({
+  getPortfolioPerfFailure: (portfolio, error) => ({
     type: portfolioConstants.GET_PORTFOLIO_PERF_SUCCESS,
-    payload: error,
+    payload: { portfolio, error },
   }),
   getPortfolioPerf: (payload) => async (dispatch) => {
-    const { names } = payload;
-    dispatch(portfolioActions.getPortfolioPerfPending());
+    const { name } = payload;
+    dispatch(portfolioActions.getPortfolioPerfPending(name));
+    let resPayload = {};
     try {
-      const promises = names.map((name) =>
-        portfolioAPI.getPortfolioPerformance(name)
-      );
-      const responses = await Promise.all(promises);
-      const perfData = {};
-      const perfErrors = {};
-      for (const { status, data, portfolio, error } of responses) {
-        if (status !== 200) {
-          perfErrors[portfolio] = { error };
-          perfData[portfolio] = { error };
-        } else {
-          perfData[portfolio] = data;
-        }
-      }
-      dispatch(portfolioActions.getPortfolioPerfFailure(perfErrors));
-      dispatch(portfolioActions.getPortfolioPerfSuccess(perfData));
+      const { data } = await portfolioAPI.getPortfolioPerformance(name);
+      resPayload[name] = data;
+      dispatch(portfolioActions.getPortfolioPerfSuccess(name, resPayload));
     } catch (error) {
-      dispatch(portfolioActions.getPortfolioPerfFailure(error.message));
+      resPayload[name] = error.message;
+      dispatch(portfolioActions.getPortfolioPerfFailure(name, resPayload));
     }
   },
   deletePortfolioPending: (portfolioName) => ({
@@ -98,7 +88,7 @@ const portfolioActions = {
       dispatch(portfolioActions.deletePortfolioSuccess(data));
       dispatch(portfolioActions.getPortfolios());
     } catch (error) {
-      dispatch(portfolioActions.deletePortfolioFailure(error.error));
+      dispatch(portfolioActions.deletePortfolioFailure(error.message));
     }
   },
   editPortfolioPending: () => ({

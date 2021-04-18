@@ -19,7 +19,7 @@ const newsActions = {
       const res = await NewsAPI.getFeaturedNews();
       dispatch(newsActions.newsSuccess(res));
     } catch (error) {
-      dispatch(newsActions.newsFailure(error.error));
+      dispatch(newsActions.newsFailure(error.message));
     }
   },
   getNewsByStock: (stockSymbol) => async (dispatch) => {
@@ -28,7 +28,7 @@ const newsActions = {
       const res = await NewsAPI.getNewsByStock(stockSymbol);
       dispatch(newsActions.newsSuccess(res));
     } catch (error) {
-      dispatch(newsActions.newsFailure(error.error));
+      dispatch(newsActions.newsFailure(error.message));
     }
   },
 };

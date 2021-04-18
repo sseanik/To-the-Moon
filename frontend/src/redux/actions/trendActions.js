@@ -20,7 +20,7 @@ const trendActions = {
       const res = await investmentAPI.getTrendingStocks(n);
       dispatch(trendActions.getTrendingInvestmentsSuccess(res));
     } catch (error) {
-      dispatch(trendActions.getTrendingInvestmentsFailure(error.error));
+      dispatch(trendActions.getTrendingInvestmentsFailure(error.message));
     }
   },
 };

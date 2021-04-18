@@ -5,9 +5,8 @@ const investmentActions = {
   createStockPending: () => ({
     type: investmentConstants.CREATE_STOCK_PENDING,
   }),
-  createStockSuccess: (response) => ({
+  createStockSuccess: () => ({
     type: investmentConstants.CREATE_STOCK_SUCCESS,
-    payload: response,
   }),
   createStockFailure: (error) => ({
     type: investmentConstants.CREATE_STOCK_FAILURE,
@@ -23,13 +22,13 @@ const investmentActions = {
         purchaseDate,
         purchaseTime,
       } = payload;
-      const { data } = await investmentAPI.addStock(
+      await investmentAPI.addStock(
         portfolioName,
         stockTicker,
         numShares,
         `${purchaseDate}T${purchaseTime}`
       );
-      dispatch(investmentActions.createStockSuccess(data));
+      dispatch(investmentActions.createStockSuccess());
       dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
       dispatch(investmentActions.createStockFailure(error));

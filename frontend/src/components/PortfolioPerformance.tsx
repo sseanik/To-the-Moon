@@ -9,83 +9,98 @@ interface Props {
 }
 
 interface StateProps {
-  loading: boolean;
-  perf: PerformanceEntry;
+  loading: PerfLoading;
+  performance: PerfData;
+  error: PerfErrors;
 }
 
 interface DispatchProps {
   getPerformance: (payload: PortfolioPerfParams) => void;
 }
 
+// TODO: Change this to the type you declare in portfolioReducer.ts
+interface PerfLoading {
+  [key: string]: boolean;
+}
+
+// TODO: Change this to the type you declare in portfolioReducer.ts
+interface PerfData {
+  [key: string]: PerformanceEntry;
+}
+
+// TODO: Change this to the type you declare in portfolioReducer.ts
 interface PerformanceEntry {
-  [key: string]: any;
+  portfolio_change: string | number;
+  investments: Array<{ [key: string]: any }>;
 }
 
+// TODO: Change this to the type you declare in portfolioReducer.ts
+interface PerfErrors {
+  [key: string]: string;
+}
+
+// Should be in portfolioActions.ts
 interface PortfolioPerfParams {
-  names: Array<string>;
+  name: string;
 }
 
-const PortfolioPerformance: React.FC<Props & StateProps & DispatchProps> = (props) => {
-  const { name, loading, perf, getPerformance } = props;
+const PortfolioPerformance: React.FC<Props & StateProps & DispatchProps> = (
+  props
+) => {
+  const { name, loading, error, performance, getPerformance } = props;
 
   useEffect(() => {
-    getPerformance({ names: [name] })
+    getPerformance({ name });
   }, [getPerformance, name]);
 
-  const error =
-    perf.hasOwnProperty(name) && perf[name].hasOwnProperty("error")
-      ? perf[name].error
-      : "";
-
-  let performance;
-  if (
-    perf.hasOwnProperty(name) &&
-    perf[name].hasOwnProperty("portfolio_change")
-  ) {
-    if (perf[name].portfolio_change === "N/A") {
-      performance = <Col as="h5">N/A</Col>;
-    } else if (perf[name].portfolio_change > 0) {
-      performance = (
+  let portfolioPerformance;
+  if (performance && performance.hasOwnProperty(name)) {
+    if (performance[name].portfolio_change === "N/A") {
+      portfolioPerformance = <Col as="h5">N/A</Col>;
+    } else if (performance[name].portfolio_change > 0) {
+      portfolioPerformance = (
         <Col as="h5" style={{ color: "green" }}>
-          {`⬆️ $+${Number(perf[name].portfolio_change).toFixed(2)}`}
+          {`⬆️ $+${Number(performance[name].portfolio_change).toFixed(2)}`}
         </Col>
       );
     } else {
-      performance = (
+      portfolioPerformance = (
         <Col as="h5" style={{ color: "red" }}>
-          {`⬇️ $${Number(perf[name].portfolio_change).toFixed(2)}`}
+          {`⬇️ $${Number(performance[name].portfolio_change).toFixed(2)}`}
         </Col>
       );
     }
   } else {
-    performance = <Col as="h5">0</Col>;
+    portfolioPerformance = <Col as="h5">0</Col>;
   }
 
-  const performanceComponent = error ? (
-    <Alert variant="danger">{error}</Alert>
-  ) : (
+  const errorComponent = <Alert variant="danger">{error[name]}</Alert>;
+  const loadingSpinnerComponent = (
+    <ClipLoader color="green" loading={loading[name]} />
+  );
+  const portfolioPerformanceComponent = (
     <Row className="my-2">
       <Col as="h5">
         <b>Performance</b>
       </Col>
-      {performance}
+      {portfolioPerformance}
     </Row>
   );
 
   return (
     <Container>
-      {loading ? (
-        <ClipLoader color="green" loading={loading} />
-      ) : (
-        performanceComponent
-      )}
+      {error && error[name] ? errorComponent : null}
+      {loading && loading[name]
+        ? loadingSpinnerComponent
+        : portfolioPerformanceComponent}
     </Container>
   );
 };
 
 const mapStateToProps = (state: any) => ({
   loading: state.portfolioReducer.getPortfolioPerf.loading,
-  perf: state.portfolioReducer.getPortfolioPerf.data,
+  performance: state.portfolioReducer.getPortfolioPerf.data,
+  error: state.portfolioReducer.getPortfolioPerf.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -95,4 +110,7 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PortfolioPerformance);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PortfolioPerformance);
