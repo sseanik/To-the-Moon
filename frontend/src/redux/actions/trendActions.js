@@ -16,17 +16,13 @@ const trendActions = {
   getTrendingInvestments: (payload) => async (dispatch) => {
     dispatch(trendActions.getTrendingInvestmentsPending());
     try {
-      const { n } = payload
+      const { n } = payload;
       const res = await investmentAPI.getTrendingStocks(n);
-      if (res.status === 200) {
-        dispatch(trendActions.getTrendingInvestmentsSuccess(res));
-      } else {
-        dispatch(trendActions.getTrendingInvestmentsFailure(res.error));
-      }
+      dispatch(trendActions.getTrendingInvestmentsSuccess(res));
     } catch (error) {
       dispatch(trendActions.getTrendingInvestmentsFailure(error.message));
     }
-  }
+  },
 };
 
 export default trendActions;

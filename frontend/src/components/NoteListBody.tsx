@@ -18,6 +18,7 @@ interface StateProps {
   loading: boolean;
   notes: Array<NoteEntry>;
   error: string;
+  touched: boolean;
   editError: string;
   deleteError: string;
 }
@@ -27,11 +28,21 @@ interface DispatchProps {
 }
 
 const NoteListBody: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, notes, error, editError, deleteError, getNotes } = props;
+  const {
+    loading,
+    notes,
+    error,
+    touched,
+    editError,
+    deleteError,
+    getNotes,
+  } = props;
 
   useEffect(() => {
-    getNotes();
-  }, [getNotes]);
+    if (touched) {
+      getNotes();
+    }
+  }, [getNotes, touched]);
 
   const errorComponent = (error: string) => (
     <Alert variant="danger">{error}</Alert>
@@ -75,6 +86,7 @@ const mapStateToProps = (state: any) => ({
   loading: state.noteReducer.allNotes.loading,
   notes: state.noteReducer.allNotes.data,
   error: state.noteReducer.allNotes.error,
+  touched: state.noteReducer.touched.allNotes,
   editError: state.noteReducer.editNote.error,
   deleteError: state.noteReducer.deleteNote.error,
 });

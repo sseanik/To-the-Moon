@@ -1,21 +1,22 @@
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-function handleError(res) {
-  res.json()
-    .then((result) => {
-      toast.error(result.error);
-    });
+const handleError = (res) => {
+  res.json().then((json) => {
+    toast.error(json.message)
+  })
 }
 
 const Utils = {
-  getToken: () => window.localStorage.getItem('Token'),
-  getJSON: (path, options, ignoreError = false) => fetch(path, options)
-    .then((res) => (res.ok && !ignoreError ? res.json() : handleError(res)))
-    .catch((err) => {
-      console.warn(`API_ERROR: ${err}`);
-      throw err;
-    }),
+  getToken: () => window.localStorage.getItem("Token"),
+  getJSON: (path, options) =>
+    fetch(path, options)
+      .then((res) => res.ok ? res.json() : handleError(res))
+      .catch((err) => {
+        console.warn(`API_ERROR: ${err}`);
+        toast.error(err.message);
+        throw err;
+      }),
 };
 
 export default Utils;

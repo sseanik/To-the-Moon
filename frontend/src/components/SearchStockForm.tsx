@@ -9,19 +9,18 @@ interface SearchStockFormValues {
 
 const initialValues = {
   stock: "",
-}
+};
 
 const schema = Yup.object({
-  stock: Yup.string()
-    .required("Stock symbol is required.")
-})
+  stock: Yup.string().required("Stock symbol is required."),
+});
 
 const SearchStockForm: React.FC = () => {
   const history = useHistory();
 
   const handleSubmit = (values: SearchStockFormValues) => {
     history.push(`/stock/${values.stock}`);
-  }
+  };
 
   return (
     <Formik
@@ -56,12 +55,19 @@ const SearchStockForm: React.FC = () => {
                 </Form.Control.Feedback>
               ) : null}
             </Form.Group>
-            <Button disabled={!values.stock} size="lg" type="submit" variant="success">➱</Button>
+            <Button
+              disabled={!values.stock}
+              size="lg"
+              type="submit"
+              variant="success"
+            >
+              Go
+            </Button>
           </Form>
         );
       }}
     </Formik>
   );
-}
+};
 
 export default SearchStockForm;

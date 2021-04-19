@@ -5,7 +5,7 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const portfolioAPI = {
   getPortfolios: () => {
-    const endpoint = "/user/portfolio";
+    const endpoint = "/portfolio";
     const options = {
       method: "GET",
       headers: {
@@ -16,8 +16,20 @@ const portfolioAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  getPortfolioPerformance: (name) => {
+    const endpoint = `/portfolio/performance?name=${encodeURI(name)}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      }
+    };
+
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
   createPortfolio: (name) => {
-    const endpoint = `/portfolio?name=${name}`;
+    const endpoint = `/portfolio?name=${encodeURI(name)}`;
     const options = {
       method: "POST",
       headers: {
@@ -29,7 +41,7 @@ const portfolioAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   editPortfolio: (oldName, newName) => {
-    const endpoint = `/portfolio?name=${oldName}`;
+    const endpoint = `/portfolio?name=${encodeURI(oldName)}`;
     const options = {
       method: "PUT",
       headers: {
@@ -44,7 +56,7 @@ const portfolioAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   deletePortfolio: (name) => {
-    const endpoint = `/portfolio?name=${name}`;
+    const endpoint = `/portfolio?name=${encodeURI(name)}}`;
     const options = {
       method: "DELETE",
       headers: {

@@ -43,7 +43,7 @@ const forumAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getComments: (stockTicker: string) => {
-    const endpoint = `/forum?stockTicker=${stockTicker}`;
+    const endpoint = `/forum?stockTicker=${encodeURI(stockTicker)}`;
     const options = {
       method: "GET",
       headers: {
@@ -54,7 +54,7 @@ const forumAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   editParent: (comment_id: string, time_stamp: number, content: string) => {
-    const endpoint = "/forum/editComment";
+    const endpoint = "/forum/comment";
     const options = {
       method: "PUT",
       headers: {
@@ -75,7 +75,7 @@ const forumAPI = {
     content: string,
     parent_id: string
   ) => {
-    const endpoint = "/forum/editReply";
+    const endpoint = "/forum/reply";
     const options = {
       method: "PUT",
       headers: {
@@ -86,6 +86,35 @@ const forumAPI = {
         comment_id,
         time_stamp,
         content,
+        parent_id,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  deleteParent: (comment_id: string) => {
+    const endpoint = "/forum/deleteComment";
+    const options = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        comment_id,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  deleteChild: (comment_id: string, parent_id: string) => {
+    const endpoint = "/forum/deleteReply";
+    const options = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        comment_id,
         parent_id,
       }),
     };

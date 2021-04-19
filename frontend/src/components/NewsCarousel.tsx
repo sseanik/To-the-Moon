@@ -16,7 +16,8 @@ const bgStyle = {
   opacity: "0.85",
   padding: "2.5vh",
   backgroundColor: "rgba(0, 0, 0, 0.9)",
-};
+  objectFit: "cover",
+} as React.CSSProperties;
 
 const textStyle = {
   backgroundColor: "rgba(0, 0, 0, 0.4)",

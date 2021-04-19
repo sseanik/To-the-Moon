@@ -9,6 +9,11 @@ const initialState = {
     loading: false,
     portfolios: [],
   },
+  getPortfolioPerf: {
+    loading: {},    // { <portfolio_name>: true, <portfolio_name>: false, ... }
+    error: {},      // { <portfolio_name>: <error>, <portfolio_name>: <error>, ... }
+    data: {},       // { <portfolio_name>: { portfolio_change: <string>, investments: [...] } , ... }
+  },
   deletePortfolio: {
     loading: false,
     error: null,
@@ -72,6 +77,41 @@ const portfolioReducer = (state = initialState, action) => {
           portfolios: [],
         },
       };
+    case portfolioConstants.GET_PORTFOLIO_PERF_PENDING:
+      const pendingLoadingState = { ...state.getPortfolioPerf.loading };
+      pendingLoadingState[action.payload.portfolio] = true;
+      const errorState = { ...state.getPortfolioPerf.error };
+      delete errorState[action.payload.portfolio];
+      return {
+        ...state,
+        getPortfolioPerf: {
+          ...state.getPortfolioPerf,
+          loading: { ...pendingLoadingState },
+          error: { ...errorState },
+        },
+      };
+    case portfolioConstants.GET_PORTFOLIO_PERF_SUCCESS:
+      const successLoadingState = { ...state.getPortfolioPerf.loading };
+      successLoadingState[action.payload.portfolio] = false;
+      return {
+        ...state,
+        getPortfolioPerf: {
+          ...state.getPortfolioPerf,
+          loading: { ...successLoadingState },
+          data: { ...state.getPortfolioPerf.data, ...action.payload.response },
+        },
+      };
+    case portfolioConstants.GET_PORTFOLIO_PERF_FAILURE:
+      const failureLoadingState = { ...state.getPortfolioPerf.loading };
+      failureLoadingState[action.payload.portfolio] = false;
+      return {
+        ...state,
+        getPortfolioPerf: {
+          ...state.getPortfolioPerf,
+          loading: { ...failureLoadingState },
+          error: { ...state.getPortfolioPerf.error, ...action.payload.response },
+        },
+      };
     case portfolioConstants.DELETE_PORTFOLIO_PENDING:
       return {
         ...state,
@@ -98,9 +138,7 @@ const portfolioReducer = (state = initialState, action) => {
         deletePortfolio: {
           loading: false,
           error: action.payload.error,
-          deleting: state.deletePortfolio.deleting.filter(
-            (name) => name === action.payload
-          ),
+          deleting: [],
         },
       };
     case portfolioConstants.EDIT_PORTFOLIO_PENDING:
