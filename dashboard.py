@@ -1,22 +1,29 @@
-###################
-#   Dashboard Module   #
-###################
+# ---------------------------------------------------------------------------- #
+#                                 Dashboard Module                             #
+# ---------------------------------------------------------------------------- #
 
 from database import create_DB_connection
 from json import dumps
 import psycopg2
 from flask import Blueprint, request, Response
+from flask_restx import Namespace, Resource, abort
 from token_util import get_id_from_token
+from models import (
+    token_parser,
+)
 
 #######################
 # GLOBAL DECLARATIONS #
 #######################
 
-DASHBOARD_ROUTES = Blueprint('dashboard', __name__)
+DASHBOARD_NS = Namespace(
+    "dashboard", "Dashboard feature to track user selected content"
+)
 
-###################################
-# Please leave all functions here #
-###################################
+
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 TYPE_TABLE_MAPPING = {
     "portfolio": "portfolio_block",
@@ -32,51 +39,43 @@ def get_user_dashboards(user_id):
         cur.execute(sql_query, (user_id, ))
         query_results = cur.fetchall()
     except:
-        res = {
-            'error': 'Error occurred while retrieving from store'
-        }
-        return res, 500
+        abort(500, "Error occurred while retrieving from store")
     finally:
         conn.close()
-    if not query_results:
-        res = {
-            'error': 'User does not have existing dashboards'
-        }
-        return res, 404
         
     data = []
     for result in query_results:
         data.append(result[0])
-    res = {
-        'data': data
+    response = {
+        "data": data
     }
-    return res, 200
+    return response
 
 
 # Limit to 1 per user now, but leave room for extendability
 def create_user_dashboard(user_id):
     conn = create_DB_connection()
     cur = conn.cursor()
-    sql_query = "INSERT INTO dashboards (user_id) VALUES (%s)"
+    sql_query = """
+        INSERT INTO dashboards (user_id) VALUES (%s)
+        RETURNING id
+    """
     try:
         cur.execute(sql_query, (user_id, ))
         conn.commit()
-    except psycopg2.errors.UniqueViolation: 
-        res = {
-            'error': 'Dashboard already exists for user'
-        }
-        return res, 409
+        query_results = cur.fetchall()
+        if not query_results:
+            raise Exception
+    except psycopg2.errors.UniqueViolation:
+        abort(409, "Dashboard already exists for user")
     except:
-        res = {
-            'error': 'Error occurred while inserting into store'
-        }
-        return res, 500
+        abort(500, "Error occurred while inserting into store")
     finally:
         conn.close()
-    res = {
-        'message' : 'Dashboard created'
+    response = {
+        "message" : "Dashboard created"
     }
-    return res, 201
+    return response
 
 
 def delete_user_dashboard(dashboard_id):
@@ -92,21 +91,15 @@ def delete_user_dashboard(dashboard_id):
         conn.commit()
         query_result = cur.fetchall()
         if not query_result:
-            res = {
-                'error': 'No dashboard exists with the given id'
-            }
-            return res, 404
+            abort(404, "No dashboard exists with the given id")
     except:
-        res = {
-            'error': 'Error occurred while deleting from store'
-        }
-        return res, 500
+        abort(500, "Error occurred while deleting from store")
     finally:
         conn.close()
-    res = {
-        'message' : 'Dashboard deleted'
+    response = {
+        "message" : "Dashboard deleted"
     }
-    return res, 200
+    return response
 
 
 def get_dashboard_blocks(dashboard_id):
@@ -120,19 +113,16 @@ def get_dashboard_blocks(dashboard_id):
         cur.execute(sql_query, (dashboard_id, ))
         query_results = cur.fetchall()
     except:
-        res = {
-            'error': 'Error occurred while retrieving from store'
-        }
-        return res, 500
+        abort(500, "Error occurred while retrieving from store")
     finally:
         conn.close()
     data = []
     for result in query_results:
         data.append(result[0])
-    res = {
-        'data': data
+    response = {
+        "data": data
     }
-    return res, 200
+    return response
 
 
 def create_dashboard_block(dashboard_id, block_type, meta):
@@ -149,11 +139,8 @@ def create_dashboard_block(dashboard_id, block_type, meta):
         cur.execute(sql_query, (table, ))
         query_results = cur.fetchall()
     except:
-        res = {
-            'error': 'Error occurred while retrieving from store'
-        }
         conn.close()
-        return res, 500
+        abort(500, "Error occurred while retrieving from store")
 
     cols = []
     for result in query_results:
@@ -176,11 +163,8 @@ def create_dashboard_block(dashboard_id, block_type, meta):
         if not query_results:
             raise Exception
     except:
-        res = {
-            'error': 'Error occurred while inserting into store'
-        }
         conn.close()
-        return res, 500
+        abort(500, "Error occurred while inserting into store")
     block_id = query_results[0][0]
 
     # Create a reference to the created block to the dashboard
@@ -195,19 +179,16 @@ def create_dashboard_block(dashboard_id, block_type, meta):
         if not query_results:
             raise Exception
     except:
-        res = {
-            'error': 'Error occurred while inserting into store'
-        }
-        return res, 500
+        abort(500, "Error occurred while inserting into store")
     finally:
         conn.close()
-    res = {
-        'message' : 'Dashboard block created',
-        'data': {
-            'id': block_id
+    response = {
+        "message" : "Dashboard block created",
+        "data": {
+            "id": block_id
         }
     }
-    return res, 201
+    return response
 
 
 def get_block(block_id):
@@ -221,16 +202,10 @@ def get_block(block_id):
         cur.execute(sql_query, (block_id, ))
         query_results = cur.fetchall()
         if not query_results:
-            res = {
-                'error': 'No block identified by the given id'
-            }
-            return res, 404
+            abort(404, "No block identified by the given id")
     except:
-        res = {
-            'error': 'Error occurred while retrieving from store'
-        }
         conn.close()
-        return res, 500
+        abort(500, "Error occurred while retrieving from store")
     block_type = query_results[0][1]
     table = TYPE_TABLE_MAPPING[block_type]
 
@@ -243,11 +218,8 @@ def get_block(block_id):
         cur.execute(sql_query, (table, ))
         query_results = cur.fetchall()
     except:
-        res = {
-            'error': 'Error occurred while retrieving from store'
-        }
         conn.close()
-        return res, 500
+        abort(500, "Error occurred while retrieving from store")
 
     cols = []
     for result in query_results:
@@ -263,15 +235,9 @@ def get_block(block_id):
         cur.execute(sql_query, (block_id, ))
         query_results = cur.fetchall()
         if not query_results:
-            res = {
-                'error': 'No block identified by the given id in its meta store'
-            }
-            return res, 404
+            abort(404, "No block identified by the given id in its meta store")
     except:
-        res = {
-            'error': 'Error occurred while retrieving from store'
-        }
-        return res, 500
+        abort(500, "Error occurred while retrieving from store")
     finally:
         conn.close()
 
@@ -287,10 +253,11 @@ def get_block(block_id):
     # data = []
     # for result in query_results:
     #     data.append(result[0])
-    res = {
-        'data': data
+    response = {
+        "data": data
     }
-    return res, 200
+    return response
+
 
 def delete_block(block_id):
     conn = create_DB_connection()
@@ -307,16 +274,10 @@ def delete_block(block_id):
         conn.commit()
         query_result = cur.fetchall()
         if not query_result:
-            res = {
-                'error': 'No block exists with the given id'
-            }
-            return res, 404
+            abort(404, "No block exists with the given id")
     except:
-        res = {
-            'error': 'Error occurred while deleting from store'
-        }
         conn.close()
-        return res, 500
+        abort(500, "Error occurred while deleting from store")
 
     # Delete from references table
     sql_query = """
@@ -329,61 +290,89 @@ def delete_block(block_id):
         conn.commit()
         query_result = cur.fetchall()
         if not query_result:
-            res = {
-                'error': 'No block reference exists with the given id'
-            }
-            return res, 404
+            abort(404, "No block reference exists with the given id")
     except:
-        res = {
-            'error': 'Error occurred while deleting from store'
-        }
-        return res, 500
+        abort(500, "Error occurred while deleting from store")
     finally:
         conn.close()
     
-    res = {
-        'message' : 'Block deleted'
+    response = {
+        "message" : "Block deleted"
     }
-    return res, 200
+    return response
 
 
-################################
-# Please leave all routes here #
-################################
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
 
-@DASHBOARD_ROUTES.route('/dashboard', methods=['GET', 'POST'])
-def general_dashboard_wrapper():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    # Get user's dashboards
-    if request.method == 'GET':
-        payload, status = get_user_dashboards(user_id)
-    # Create user's dashboard (used for init purposes)
-    elif request.method == 'POST':
-        payload, status = create_user_dashboard(user_id)
-    return Response(dumps(payload), status=status)
+@DASHBOARD_NS.route("")
+class Dashboard(Resource):
+    @DASHBOARD_NS.doc(description="Get a user's dashboards")
+    @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.response(200, "Successfully retrieved dashboards")
+    @DASHBOARD_NS.response(400, "Invalid data was provided")
+    def get(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        response = get_user_dashboards(user_id)
+        return Response(dumps(response), status=200)
+    
+    @DASHBOARD_NS.doc(description="Create a new dashboard")
+    @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.response(201, "Successfully created dashboard")
+    @DASHBOARD_NS.response(400, "Invalid data was provided")
+    @DASHBOARD_NS.response(409, "Conflict with existing resource, user already has a dashboard")
+    def post(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        response = create_user_dashboard(user_id)
+        return Response(dumps(response), status=201)
 
-@DASHBOARD_ROUTES.route('/dashboard/<dashboard_id>', methods=['GET', 'POST', 'DELETE'])
-def user_dashboard_wrapper(dashboard_id):
-    # Get dashboard's blocks
-    if request.method == 'GET':
-        payload, status = get_dashboard_blocks(dashboard_id)
-    # Create new block in a dashboard
-    elif request.method == 'POST':
+
+@DASHBOARD_NS.route("/<id>")
+class UserDashboard(Resource):
+    @DASHBOARD_NS.doc(description="Get a dashboard's blocks")
+    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.response(200, "Successfully retrieved blocks")
+    @DASHBOARD_NS.response(400, "Invalid data was provided")
+    def get(self, id):
+        response = get_dashboard_blocks(id)
+        return Response(dumps(response), status=200)
+
+    @DASHBOARD_NS.doc(description="Create a new dashboard block")
+    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.response(201, "Successfully created dashboard block")
+    @DASHBOARD_NS.response(400, "Invalid data was provided")
+    def post(self, id):
         data = request.get_json()
-        payload, status = create_dashboard_block(dashboard_id, data["type"], data["meta"])
-    # Delete a dashboard and its blocks
-    elif request.method == 'DELETE':
-        payload, status = delete_user_dashboard(dashboard_id)
-    return Response(dumps(payload), status=status)
+        response = create_dashboard_block(id, data["type"], data["meta"])
+        return Response(dumps(response), status=201)
 
-@DASHBOARD_ROUTES.route('/dashboard/block/<block_id>', methods=['GET', 'DELETE'])
-def blocks_dashboard_wrapper(block_id):
-    # Get a block
-    if request.method == 'GET':
-        payload, status = get_block(block_id)
-    # Delete a block
-    elif request.method == 'DELETE':
-        payload, status = delete_block(block_id)
-    return Response(dumps(payload), status=status)
+    @DASHBOARD_NS.doc(description="Remove a dashboard")
+    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.response(200, "Successfully deleted dashboard")
+    @DASHBOARD_NS.response(400, "Invalid data was provided")
+    def delete(self, id):
+        response = delete_user_dashboard(id)
+        return Response(dumps(response), status=200)
+
+
+@DASHBOARD_NS.route("/block/<id>")
+class UserDashboardBlocks(Resource):
+    @DASHBOARD_NS.doc(description="Get a dashboard block's metadata")
+    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.response(200, "Successfully retrieved block metadata")
+    @DASHBOARD_NS.response(400, "Invalid data was provided")
+    def get(self, id):
+        response = get_block(id)
+        return Response(dumps(response), status=200)
+
+    @DASHBOARD_NS.doc(description="Remove a dashboard block")
+    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.response(200, "Successfully deleted dashboard block")
+    @DASHBOARD_NS.response(400, "Invalid data was provided")
+    def delete(self, id):
+        response = delete_block(id)
+        return Response(dumps(response), status=200)
