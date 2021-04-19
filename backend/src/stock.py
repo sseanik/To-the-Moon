@@ -470,13 +470,9 @@ class Daily_Prediction(Resource):
             "multistep_series",
             "cnn",
         ]:
-            dispatch_data = {
-                "error": f"Prediction type: {prediction_type} not supported"
-            }
+                abort(500, f"Prediction type: {prediction_type} not supported")
         elif data_needed > sample_df["4. close"].shape[0]:
-            dispatch_data = {
-                "error": f"Not enough data available: sample has {sample_df['4. close'].shape[0]} but predictor needs {data_needed}"
-            }
+                abort(500, f"Not enough data available: sample has {sample_df['4. close'].shape[0]} but predictor needs {data_needed}")
         else:
             close_data = sample_df["4. close"][-data_needed:].values
             for i in np.where(np.isnan(close_data))[0]:
@@ -493,8 +489,6 @@ class Daily_Prediction(Resource):
             try:
                 r = requests.post(url=endpoint, data=dumps(data), headers=headers)
 
-                # TODO: cleanup processing, this is really ugly.
-                # Ideally auto-limit sequence sizes
                 prediction_result = []
                 if r.status_code == requests.codes.ok:
                     prediction_result = r.json()
@@ -528,7 +522,7 @@ class Daily_Prediction(Resource):
                     "data": prediction_data_s,
                 }
             except Exception as e:
-                abort(500, "")
+                abort(500, f"{e}")
 
         return Response(dumps({"data": dispatch_data}), status=200)
 
