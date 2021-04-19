@@ -120,6 +120,64 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
+  upvoteParent: (comment_id: string) => {
+    const endpoint = "/forum/comment/upvote";
+    const options = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        comment_id,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  downvoteParent: (comment_id: string) => {
+    const endpoint = "/forum/comment/downvote";
+    const options = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        comment_id,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  upvoteChild: (reply_id: string, comment_id: string) => {
+    const endpoint = "/forum/reply/upvote";
+    const options = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        reply_id,
+        comment_id,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  downvoteChild: (reply_id: string, comment_id: string) => {
+    const endpoint = "/forum/reply/downvote";
+    const options = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+      body: JSON.stringify({
+        reply_id,
+        comment_id,
+      }),
+    };
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
 };
 
 export default forumAPI;

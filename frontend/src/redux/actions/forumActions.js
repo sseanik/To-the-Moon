@@ -188,6 +188,7 @@ const forumActions = {
     dispatch(forumActions.upvoteParentPending(commentID));
     try {
       dispatch(forumActions.upvoteParentSuccess(commentID));
+      await forumAPI.upvoteParent(commentID);
     } catch (error) {
       dispatch(forumActions.upvoteParentFailure(error));
     }
@@ -205,10 +206,11 @@ const forumActions = {
     payload: error,
   }),
   upvoteChild: (payload) => async (dispatch) => {
-    const { commentID } = payload;
+    const { commentID, parentID } = payload;
     dispatch(forumActions.upvoteChildPending(commentID));
     try {
       dispatch(forumActions.upvoteChildSuccess(payload));
+      await forumAPI.upvoteChild(commentID, parentID);
     } catch (error) {
       dispatch(forumActions.upvoteChildFailure(error));
     }
@@ -230,6 +232,7 @@ const forumActions = {
     dispatch(forumActions.downvoteParentPending(commentID));
     try {
       dispatch(forumActions.downvoteParentSuccess(commentID));
+      await forumAPI.downvoteParent(commentID);
     } catch (error) {
       dispatch(forumActions.downvoteParentFailure(error));
     }
@@ -247,10 +250,11 @@ const forumActions = {
     payload: error,
   }),
   downvoteChild: (payload) => async (dispatch) => {
-    const { commentID } = payload;
+    const { commentID, parentID } = payload;
     dispatch(forumActions.downvoteChildPending(commentID));
     try {
       dispatch(forumActions.downvoteChildSuccess(payload));
+      await forumAPI.downvoteChild(commentID, parentID);
     } catch (error) {
       dispatch(forumActions.downvoteChildFailure(error));
     }

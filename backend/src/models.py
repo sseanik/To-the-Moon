@@ -123,6 +123,9 @@ def reply_vote_model(namespace):
     return namespace.model(
         "reply_vote",
         {
+            "comment_id": fields.String(
+                required=True, example="a1ba864a-9929-11eb-be3a-0a4e2d6dea13"
+            ),
             "reply_id": fields.String(
                 required=True, example="ad939422-9abc-11eb-938b-0a4e2d6dea13"
             ),
@@ -262,4 +265,14 @@ def notes_relevant_parser(namespace):
             action="append",
             location="args",
         )
+    )
+
+def stock_get_data_parser(namespace):
+    return namespace.parser().add_argument("symbol", help="Stock Symbol", location="args")
+
+def stock_get_prediction_parser(namespace):
+    return (
+        namespace.parser()
+            .add_argument("symbol", help="Stock Symbol", location="args")
+            .add_argument("prediction_type", help="Prediction Model", location="args")
     )
