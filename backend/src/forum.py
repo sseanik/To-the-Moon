@@ -284,6 +284,23 @@ def delete_comment(user_id, comment_id, parent_id=None):
     conn.close()
     return response
 
+def sort_stock_comments(comments):
+    # Sort the parent comments by vote_difference (descending order)
+    sorted_parents = sorted(
+        comments, 
+        key=lambda comment : comment["vote_difference"], 
+        reverse=True
+    )
+    # Sort the parent's child comments by vote_difference (descending order)
+    for i in range(len(sorted_parents)):
+        sorted_parents[i]["replies"] = sorted(
+            sorted_parents[i]["replies"], 
+            key=lambda reply : reply["vote_difference"], 
+            reverse=True
+        )
+        
+    return sorted_parents
+
 
 def get_stock_comments(user_id, stock_ticker):
     # Open database connection
@@ -401,6 +418,7 @@ def get_stock_comments(user_id, stock_ticker):
             del query_results[i]["replies"][j]["downvote_user_ids"]
 
     # TODO: Sort Weighting
+    query_results = sort_stock_comments(query_results)
 
     return {"message": "Comments Successfully Fetched", "comments": query_results}
 
