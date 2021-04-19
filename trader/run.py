@@ -4,6 +4,7 @@ import pytz
 import pandas as pd
 from local_settings import alpaca_paper
 from strategies.RSIStack import RSIStack
+from strategies.SMACrossOver1 import SMACrossOver1
 from strategies.SMACrossOver2 import SMACrossOver2
 import datetime
 from json import dumps
@@ -26,7 +27,7 @@ api = Api(
 PAPER_TRADE_NS = Namespace("get_backtest", "Paper Trading Queries and Results")
 api.add_namespace(PAPER_TRADE_NS)
 
-allowed_strats = {"RSIStack": RSIStack, "SMACrossOver2": SMACrossOver2}
+allowed_strats = {"RSIStack": RSIStack, "SMACrossOver1": SMACrossOver1, "SMACrossOver2": SMACrossOver2}
 
 class DictItem(fields.Raw):
     def output(self, key, obj, *args, **kwargs):
@@ -78,14 +79,12 @@ class Retrieve_Prediction(Resource):
     @PAPER_TRADE_NS.response(200, "Successfully fetched backtest result")
     @PAPER_TRADE_NS.response(404, "Paper Trading API Not Available")
     def post(self):
-        # import pdb; pdb.set_trace()
         try:
             request_data = request.get_json()
             tickers = request_data['tickers']
             timeframes = request_data['timeframes']
             tf_units = request_data['timeframe_units']
             initial_portfolio_value = request_data['initial_cash']
-            # Todo: add timezone as parameter
             timezone = None
             try:
                 timezone = pytz.timezone(request_data['timezone'])
@@ -95,24 +94,26 @@ class Retrieve_Prediction(Resource):
             # Todo: add strategy as parameter
             strategy = request_data['strategy']
 
-            # Automatically calculate from today to one years prior
+            # If using default dates, automatically calculate range
+            # Default is today to one years prior
             default_dt_from = pd.Timestamp.today() - pd.offsets.DateOffset(years=1)
             default_dt_to = pd.Timestamp.today()
-            # Validate this
             fromdate = pd.Timestamp(request_data['fromdate']) if request_data['fromdate'] else default_dt_from
             todate = pd.Timestamp(request_data['todate']) if request_data['todate'] else default_dt_to
 
-            # TODO: add strategies by list in request
-            # run_strategy = RSIStack
+            # Select strategy and populate run arguments
+            # The datastructures selected should allow adding additional strategies and timeframes
             run_strategy = allowed_strats[strategy] if strategy in allowed_strats \
                 else RSIStack
             run_strategy_args = {}
             if strategy == "RSIStack":
                 run_strategy_args = {"timeframes": timeframes}
-            # TODO: adjust timeframe based on request
-            timeframe_units = bt.TimeFrame.Days
+            if tf_units == "Days":
+                timeframe_units = bt.TimeFrame.Days
+            else:
+                timeframe_units = bt.TimeFrame.Days
 
-            # TODO: Add strategy selector
+            # Run
             cerebro = bt.Cerebro()
             cerebro.addstrategy(run_strategy, **run_strategy_args)
             cerebro.broker.setcash(initial_portfolio_value)
