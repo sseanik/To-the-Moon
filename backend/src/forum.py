@@ -80,8 +80,8 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     if not parent_id:
         insert_query = """
             WITH inserted_comment as (
-            INSERT INTO forum_comment (stock_ticker, author_id, time_stamp, content) 
-            VALUES (%s, %s, %s, %s) 
+            INSERT INTO forum_comment (stock_ticker, author_id, time_stamp, content)
+            VALUES (%s, %s, %s, %s)
             RETURNING *
             ) SELECT i.comment_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.is_deleted
             FROM inserted_comment i
@@ -94,8 +94,8 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     else:
         insert_query = """
             WITH inserted_reply as (
-            INSERT INTO forum_reply (comment_id, stock_ticker, author_id, time_stamp, content) 
-            VALUES (%s, %s, %s, %s, %s) 
+            INSERT INTO forum_reply (comment_id, stock_ticker, author_id, time_stamp, content)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING *
             ) SELECT i.reply_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.comment_id
             FROM inserted_reply i
@@ -233,7 +233,7 @@ def delete_comment(user_id, comment_id, parent_id=None):
                 WITH deleted_comment as (
                     UPDATE forum_comment SET content=%s, is_deleted=TRUE
                     WHERE comment_id=%s and author_id=%s
-                    RETURNING * 
+                    RETURNING *
                 ) SELECT d.comment_id, d.stock_ticker, u.username, d.time_stamp, d.content, d.is_edited, d.is_deleted, array_to_json(d.upvote_user_ids) AS upvote_user_ids, array_to_json(d.downvote_user_ids) AS downvote_user_ids
                 FROM deleted_comment d
                 JOIN users u on d.author_id = u.id;
@@ -284,6 +284,23 @@ def delete_comment(user_id, comment_id, parent_id=None):
     conn.close()
     return response
 
+def sort_stock_comments(comments):
+    # Sort the parent comments by vote_difference (descending order)
+    sorted_parents = sorted(
+        comments, 
+        key=lambda comment : comment["vote_difference"], 
+        reverse=True
+    )
+    # Sort the parent's child comments by vote_difference (descending order)
+    for i in range(len(sorted_parents)):
+        sorted_parents[i]["replies"] = sorted(
+            sorted_parents[i]["replies"], 
+            key=lambda reply : reply["vote_difference"], 
+            reverse=True
+        )
+        
+    return sorted_parents
+
 
 def get_stock_comments(user_id, stock_ticker):
     # Open database connection
@@ -292,42 +309,42 @@ def get_stock_comments(user_id, stock_ticker):
 
     # Select Query returning parent comments and their children
     select_query = """
-        SELECT 
-        c.comment_id, 
-        c.stock_ticker, 
-        u.username, 
-        c.time_stamp, 
-        c.content, 
-        array_to_json(c.upvote_user_ids) AS upvote_user_ids, 
+        SELECT
+        c.comment_id,
+        c.stock_ticker,
+        u.username,
+        c.time_stamp,
+        c.content,
+        array_to_json(c.upvote_user_ids) AS upvote_user_ids,
         array_to_json(c.downvote_user_ids) AS downvote_user_ids,
-        c.is_edited, 
-        c.is_deleted, 
-        COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies 
-        FROM 
-        forum_comment c 
-        JOIN users u ON (c.author_id = u.id) 
+        c.is_edited,
+        c.is_deleted,
+        COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies
+        FROM
+        forum_comment c
+        JOIN users u ON (c.author_id = u.id)
         LEFT JOIN(
-            SELECT 
-            f.reply_id, 
-            f.stock_ticker, 
-            u.username, 
-            f.time_stamp, 
-            f.content, 
-            f.upvote_user_ids, 
-            f.downvote_user_ids, 
-            f.is_edited, 
-            f.comment_id 
-            FROM 
-            forum_reply f 
-            LEFT JOIN users u ON (f.author_id = u.id) 
-            GROUP BY 
-            f.reply_id, 
+            SELECT
+            f.reply_id,
+            f.stock_ticker,
+            u.username,
+            f.time_stamp,
+            f.content,
+            f.upvote_user_ids,
+            f.downvote_user_ids,
+            f.is_edited,
+            f.comment_id
+            FROM
+            forum_reply f
+            LEFT JOIN users u ON (f.author_id = u.id)
+            GROUP BY
+            f.reply_id,
             u.username
-        ) AS r ON (c.comment_id = r.comment_id) 
-        WHERE 
+        ) AS r ON (c.comment_id = r.comment_id)
+        WHERE
         c.stock_ticker = %s
-        GROUP BY 
-        c.comment_id, 
+        GROUP BY
+        c.comment_id,
         u.username
     """.replace(
         "\n", ""
@@ -401,6 +418,7 @@ def get_stock_comments(user_id, stock_ticker):
             del query_results[i]["replies"][j]["downvote_user_ids"]
 
     # TODO: Sort Weighting
+    query_results = sort_stock_comments(query_results)
 
     return {"message": "Comments Successfully Fetched", "comments": query_results}
 
@@ -658,4 +676,3 @@ class DownvoteReply(Resource):
         data = request.get_json()
         result = vote_on_reply(user_id, data["reply_id"], upvote=False)
         return Response(dumps(result), status=200)
-

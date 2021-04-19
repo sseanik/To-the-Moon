@@ -11,6 +11,8 @@ import {
   Badge,
   Dropdown,
   DropdownButton,
+  InputGroup,
+  FormControl,
 } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
@@ -24,13 +26,16 @@ import {
   DataCashFlow,
   StockNews,
   NoteRelevant,
+  PaperTradeController,
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
+import { statusBadgeModifier, statusBadgeText } from "../helpers/StatusFormatModifiers";
 
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 import Forum from "../components/Forum";
+require("highcharts/modules/annotations")(Highcharts);
 
 interface seriesT {
   name: string;
@@ -74,9 +79,12 @@ interface StateProps {
   priceDataDaily: any;
   priceDataIntraday: any;
   predictionDaily: any;
+  paperTradingResults: any;
 
   predictionDailyLoading: any;
   predictionDailyError: any;
+  paperTradingLoading: any;
+  paperTradingError: any;
 }
 
 interface DispatchProps {
@@ -92,10 +100,13 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     priceDataDaily,
     priceDataIntraday,
     predictionDaily,
+    paperTradingResults,
     getStockBasic,
     getPredictionDaily,
     predictionDailyLoading,
     predictionDailyError,
+    paperTradingLoading,
+    paperTradingError,
   } = props;
 
   const chartComponent = useRef<any | null>(null);
@@ -127,7 +138,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       text: "Share Price",
     },
     rangeSelector: RangeSelectorOptions(setDisplayIntra),
-    series: [{ data: [] }],
+    series: [{ data: [] }, ],
     legend: { enabled: true, layout: "horizontal" },
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
@@ -156,6 +167,29 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     }
   };
 
+  const setZoom = (lower: number, upper: number) => {
+    if (chartComponent && chartComponent.current) {
+      chartComponent.current.chart.xAxis[0].setExtremes(lower, upper);
+    }
+  };
+
+  const makePlotFlags = (orderList: Array<any>, orderType: string) => {
+    let result: Array<any> = [];
+    for (let i = 0; i < orderList.length; i++) {
+      const order = orderList[i];
+      if (order['type'] === orderType) {
+        let flag = {
+          x: order['time'],
+          // y: order['price'],
+          title: `${order['type']}`,
+          text: `${order['name']} ${order['type']} of ${order['size']}`,
+        };
+        result.push(flag);
+      }
+    }
+    return result;
+  };
+
   useEffect(() => {
     fetchStock();
   }, [fetchStock]);
@@ -173,16 +207,45 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     } else {
       const seriesDailyList = Object.entries(priceDataDaily).map((entry) => {
         const [key, value] = entry;
-        return { name: key, data: value };
+        return { name: key, id: key, data: value };
       });
       let predictions = JSON.parse(JSON.stringify(predictionDaily));
       if (predictions.data) {
         predictions.data = predictions.data.slice(0, durOpts[durChoice].dur);
       }
 
-      const displaySeries = predictions
+      let papertrades = JSON.parse(JSON.stringify(paperTradingResults));
+      let indicator = papertrades.indicator ? {name: "Strategy Indicator", data: papertrades.indicator} : null;
+      let papertradeData = papertrades.orders ? papertrades.orders : null;
+
+      let displaySeries = predictions
         ? [...seriesDailyList, predictions]
         : seriesDailyList;
+      displaySeries = indicator ? [... displaySeries, indicator] : displaySeries;
+
+      if (papertradeData) {
+        let buyOrders = makePlotFlags(papertradeData, "Buy");
+        let buyFlags = {
+          type: 'flags',
+          name: 'Buy orders',
+          data: buyOrders,
+          onSeries: '4. close',
+          shape: 'squarepin',
+          width: 40,
+        };
+        let sellOrders = makePlotFlags(papertradeData, "Sell");
+        let sellFlags = {
+          type: 'flags',
+          name: 'Sell orders',
+          y: 30,
+          data: sellOrders,
+          onSeries: '4. close',
+          shape: 'circlepin',
+          width: 40,
+        };
+        displaySeries = [...displaySeries, buyFlags, sellFlags];
+      }
+
       setGraphOptions((graphOptions: graphOptionsT) => ({
         ...graphOptions,
         series: displaySeries,
@@ -193,6 +256,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     priceDataDaily,
     priceDataIntraday,
     predictionDaily,
+    paperTradingResults,
     durChoice,
     durOpts,
   ]);
@@ -229,42 +293,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   const stockNameText =
     error || loading ? `${symbol}` : `${company} (${symbol})`;
-
-  const statusBadgeModifier = (
-    prediction: Array<any>,
-    isLoading: boolean,
-    error: object | null
-  ) => {
-    const result =
-      prediction !== null && Object.keys(prediction).length > 0 && !isLoading
-        ? "success"
-        : isLoading
-        ? "primary"
-        : prediction === null || Object.keys(prediction).length === 0
-        ? "secondary"
-        : error
-        ? "danger"
-        : "danger";
-    return result;
-  };
-
-  const statusBadgeText = (
-    prediction: Array<any>,
-    isLoading: boolean,
-    error: object | null
-  ) => {
-    const result =
-      prediction !== null && Object.keys(prediction).length > 0 && !isLoading
-        ? "Fetched"
-        : isLoading
-        ? "Pending"
-        : Object.keys(prediction).length === 0 || prediction === null
-        ? "Not requested"
-        : error !== null
-        ? "Error"
-        : "Error";
-    return result;
-  };
 
   const predictionControlComponent = (
     <Container className="generic-container-scrolling">
@@ -396,6 +424,9 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               <Tab eventKey="prediction" title="Market Prediction">
                 {predictionControlComponent}
               </Tab>
+              <Tab eventKey="paperTrading" title="Paper Trading">
+                <PaperTradeController symbol={symbol} />
+              </Tab>
             </Tabs>
           </Container>
         </Col>
@@ -436,6 +467,9 @@ const mapStateToProps = (state: any) => ({
   priceDataDaily: state.stockReducer.basic.data.data,
   priceDataIntraday: state.stockReducer.basic.data.data_intraday,
   predictionDaily: state.stockReducer.predictionDaily.data,
+  paperTradingResults: state.stockReducer.paperTradingResults.data,
+  paperTradingLoading: state.stockReducer.paperTradingResults.loading,
+  paperTradingError: state.stockReducer.paperTradingResults.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

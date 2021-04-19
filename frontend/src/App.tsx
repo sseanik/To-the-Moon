@@ -13,6 +13,7 @@ import {
   PortfolioPage,
   CreatePortfolioPage,
   SearchStockPage,
+  ScreenersPage,
 } from "./screens";
 import { Header, NoteList } from "./components";
 import PortfoliosPage from "./screens/PortfoliosPage";
@@ -51,6 +52,7 @@ function App() {
               <Route path="/stock" component={SearchStockPage} exact />
               <Route path="/stock/:symbol" component={StockPage} />
               <Route path="/portfolios" component={PortfoliosPage} />
+              <Route path="/screeners" component={ScreenersPage} />
               <Route path="/watchlists" component={WatchlistsPage} />
               <Route path="/watchlist/:watchlistID" component={WatchlistPage} />
             </Switch>
