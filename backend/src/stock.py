@@ -33,7 +33,10 @@ from models import stock_get_data_parser, stock_get_prediction_parser, stock_get
 
 # from definitions import local_storage_dir
 
+MODELSRVURL = os.getenv("MODELSRVURL")
 MODELSRVPORT = os.getenv("MODELSRVPORT")
+BACKTRSRVURL = os.getenv("BACKTRSRVURL")
+BACKTRSRVPORT = os.getenv("BACKTRSRVPORT")
 
 STOCK_NS = Namespace("stock", "Stock securities")
 
@@ -545,9 +548,9 @@ class Paper_Trade_Results(Resource):
         }
 
         headers = { "Content-Type": "application/json", }
-        address = "127.0.0.1"
-        port = 5002
-        endpoint = f"http://{address}:{port}/get_backtest"
+        url = BACKTRSRVURL
+        port = BACKTRSRVPORT
+        endpoint = f"http://{url}:{port}/get_backtest"
 
         # import pdb; pdb.set_trace()
         try:
