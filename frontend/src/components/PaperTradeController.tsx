@@ -62,7 +62,8 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
   const tradeStratOpts: tradeStratParams = useMemo(() => {
     return {
       "RSIStack": { idtype: "RSIStack", name: "Relative Strength Index"},
-      "SMACrossOver2": { idtype: "SMACrossOver2", name: "Simple MA Crossover" }
+      "SMACrossOver1": { idtype: "SMACrossOver1", name: "Simple MA Crossover" },
+      "SMACrossOver2": { idtype: "SMACrossOver2", name: "Simple MA Crossover with BBands" }, 
     };
   }, []);
 
