@@ -29,7 +29,7 @@ from constants.stock_db_schema import (
     summary_bs_columns,
     revised_bs_order,
 )
-from models import stock_get_data_parser, stock_get_prediction_parser
+from models import stock_get_data_parser, stock_get_prediction_parser, stock_get_paper_trade_parser
 
 # from definitions import local_storage_dir
 
@@ -518,6 +518,10 @@ class Cash_Flow_Statement(Resource):
 
 @STOCK_NS.route('/get_backtest', methods=['GET'])
 class Paper_Trade_Results(Resource):
+    @STOCK_NS.doc(description="Run a trading strategy for the selected company and parameters. ")
+    @STOCK_NS.expect(stock_get_paper_trade_parser(STOCK_NS), validate=False)
+    @STOCK_NS.response(200, "Successfully fetched paper trade")
+    @STOCK_NS.response(404, "Paper Trade API Not Available")
     def get(self):
         symbol = request.args.get('symbol')
         initial_cash = request.args.get('initial_cash')
@@ -545,6 +549,7 @@ class Paper_Trade_Results(Resource):
         port = 5002
         endpoint = f"http://{address}:{port}/get_backtest"
 
+        # import pdb; pdb.set_trace()
         try:
             r = requests.post(url=endpoint, data=dumps(data), headers=headers)
             dispatch_data = r.json()
