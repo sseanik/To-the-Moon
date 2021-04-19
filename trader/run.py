@@ -7,6 +7,7 @@ from strategies.RSIStack import RSIStack
 from strategies.SMACrossOver1 import SMACrossOver1
 from strategies.SMACrossOver2 import SMACrossOver2
 import datetime
+import os
 from json import dumps
 
 import math
@@ -159,3 +160,12 @@ class Retrieve_Prediction(Resource):
             abort(500, "")
 
         return Response(dumps(result), status=200)
+
+if __name__ == "__main__":
+    if "ENVIRONMENT" in os.environ:
+        if os.environ["ENVIRONMENT"] == "production":
+            app.run(port=80, host="0.0.0.0")
+        elif os.environ["ENVIRONMENT"] == "local":
+            app.run(port=5000, host="0.0.0.0")
+    else:
+        app.run(port=5001, host="127.0.0.1")
