@@ -44,6 +44,8 @@ def prediction_daily_params_model(namespace):
         {
             "inference_mode": fields.String(required=True),
             "data": fields.List(fields.Float, required=True),
+            "orig_data_min": fields.Float(required=False),
+            "orig_data_max": fields.Float(required=False),
         },
     )
 
@@ -144,6 +146,7 @@ def get_walkforward_prediction(model, initial_data, n_steps=60, max_intervals=12
 
     predictions = np.array(predictions)
     predictions_c = np.concatenate(predictions)
+    predictions_c *= initial_data[-1:]/predictions_c[0]
     return predictions_c
 
 def get_walkforward_cnn(model, initial_data, n_steps=60, n_seq=2, max_intervals=120):
@@ -162,9 +165,9 @@ def get_walkforward_cnn(model, initial_data, n_steps=60, n_seq=2, max_intervals=
     x_data_i = featurise_single_series(initial_data[-n_steps:], n_entries=1, n_steps=n_steps, n_features=1)
     for i in range(max_intervals):
         x_data = featurise_cnn(np.copy(x_data_i), n_entries=1, n_steps=n_steps, n_seq=n_seq, n_features=1)
-    y_pred = model.predict(x_data)
-    predictions.append(y_pred)
-    x_data_i = np.hstack(( x_data_i[:,1:,:], y_pred.reshape((1, 1, 1)) ))
+        y_pred = model.predict(x_data)
+        predictions.append(y_pred)
+        x_data_i = np.hstack(( x_data_i[:,1:,:], y_pred.reshape((1, 1, 1)) ))
     predictions = np.array(predictions)
     predictions_c = np.concatenate(predictions)
     predictions_c = model_cnn_normaliser.inverse_transform(predictions_c).reshape(-1)
@@ -201,6 +204,10 @@ class Retrieve_Prediction(Resource):
             request_data = request.get_json()
             inf_mode = request_data['inference_mode']
             initial_data = np.array(request_data['data'])
+            # Rescale data
+            normaliser_initial[0,0] = request_data['orig_data_min']
+            normaliser_initial[59,0] = request_data['orig_data_max']
+            model_cnn_normaliser.fit(normaliser_initial)
 
             # This endpoint accepts 1-dimensional inputs and forms the n-step inputs/outputs internally
             if inf_mode not in inf_modes:
