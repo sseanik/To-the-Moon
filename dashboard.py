@@ -179,13 +179,10 @@ def create_dashboard_block(dashboard_id, block_type, meta):
         res = {
             'error': 'Error occurred while inserting into store'
         }
-        return res, 500
-    finally:
         conn.close()
+        return res, 500
     block_id = query_results[0][0]
 
-    conn = create_DB_connection()
-    cur = conn.cursor()
     # Create a reference to the created block to the dashboard
     sql_query = """
         INSERT INTO dashboard_references (dashboard_id, block_id) VALUES (%s, %s)
@@ -197,8 +194,7 @@ def create_dashboard_block(dashboard_id, block_type, meta):
         query_results = cur.fetchall()
         if not query_results:
             raise Exception
-    except Exception as e:
-        print(e)
+    except:
         res = {
             'error': 'Error occurred while inserting into store'
         }
@@ -233,15 +229,120 @@ def get_block(block_id):
         res = {
             'error': 'Error occurred while retrieving from store'
         }
+        conn.close()
+        return res, 500
+    block_type = query_results[0][1]
+    table = TYPE_TABLE_MAPPING[block_type]
+
+    # Get the meta columns of the block table corresponding to the block type
+    sql_query = """
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name=%s
+    """
+    try:
+        cur.execute(sql_query, (table, ))
+        query_results = cur.fetchall()
+    except:
+        res = {
+            'error': 'Error occurred while retrieving from store'
+        }
+        conn.close()
+        return res, 500
+
+    cols = []
+    for result in query_results:
+        if result[0] != "id" and result[0] != "type":
+            cols.append(result[0])
+
+    # Get the metadata
+    sql_query = """
+        SELECT {} from {}
+        WHERE id=%s
+    """.format("".join(str(e) + ", " for e in cols)[:-2], table)
+    try:
+        cur.execute(sql_query, (block_id, ))
+        query_results = cur.fetchall()
+        if not query_results:
+            res = {
+                'error': 'No block identified by the given id in its meta store'
+            }
+            return res, 404
+    except:
+        res = {
+            'error': 'Error occurred while retrieving from store'
+        }
         return res, 500
     finally:
         conn.close()
-    print(query_results)
+
+    meta = {}
+    for i in range(len(cols)):
+        meta[cols[i]] = query_results[0][i]
+    
+    data = {
+        "id": block_id,
+        "type": block_type,
+        "meta": meta
+    }
     # data = []
     # for result in query_results:
     #     data.append(result[0])
     res = {
-        'data': query_results
+        'data': data
+    }
+    return res, 200
+
+def delete_block(block_id):
+    conn = create_DB_connection()
+    cur = conn.cursor()
+
+    # Delete from blocks table
+    sql_query = """
+        DELETE FROM dashboard_blocks
+        WHERE id=%s
+        RETURNING id
+    """
+    try:
+        cur.execute(sql_query, (block_id, ))
+        conn.commit()
+        query_result = cur.fetchall()
+        if not query_result:
+            res = {
+                'error': 'No block exists with the given id'
+            }
+            return res, 404
+    except:
+        res = {
+            'error': 'Error occurred while deleting from store'
+        }
+        conn.close()
+        return res, 500
+
+    # Delete from references table
+    sql_query = """
+        DELETE FROM dashboard_references
+        WHERE block_id=%s
+        RETURNING id
+    """
+    try:
+        cur.execute(sql_query, (block_id, ))
+        conn.commit()
+        query_result = cur.fetchall()
+        if not query_result:
+            res = {
+                'error': 'No block reference exists with the given id'
+            }
+            return res, 404
+    except:
+        res = {
+            'error': 'Error occurred while deleting from store'
+        }
+        return res, 500
+    finally:
+        conn.close()
+    
+    res = {
+        'message' : 'Block deleted'
     }
     return res, 200
 
@@ -265,8 +366,6 @@ def general_dashboard_wrapper():
 
 @DASHBOARD_ROUTES.route('/dashboard/<dashboard_id>', methods=['GET', 'POST', 'DELETE'])
 def user_dashboard_wrapper(dashboard_id):
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
     # Get dashboard's blocks
     if request.method == 'GET':
         payload, status = get_dashboard_blocks(dashboard_id)
@@ -279,17 +378,12 @@ def user_dashboard_wrapper(dashboard_id):
         payload, status = delete_user_dashboard(dashboard_id)
     return Response(dumps(payload), status=status)
 
-@DASHBOARD_ROUTES.route('/dashboard/block/<block_id>', methods=['GET', 'PUT', 'DELETE'])
+@DASHBOARD_ROUTES.route('/dashboard/block/<block_id>', methods=['GET', 'DELETE'])
 def blocks_dashboard_wrapper(block_id):
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
     # Get a block
     if request.method == 'GET':
         payload, status = get_block(block_id)
-#     # Edit an existing block
-#     elif request.method == 'PUT':
-#         # payload, status = edit_block(block_id)
-#     # Delete a block
-#     elif request.method == 'DELETE':
-#         # payload, status = delete_block(block_id)
+    # Delete a block
+    elif request.method == 'DELETE':
+        payload, status = delete_block(block_id)
     return Response(dumps(payload), status=status)
