@@ -9,7 +9,7 @@ import os
 from collections import OrderedDict
 from datetime import datetime
 
-from flask import request
+from flask import request, Response
 from flask_restx import Namespace, Resource, abort
 
 import numpy as np
@@ -29,6 +29,7 @@ from constants.stock_db_schema import (
     summary_bs_columns,
     revised_bs_order,
 )
+from models import stock_get_data_parser, stock_get_prediction_parser
 
 # from definitions import local_storage_dir
 
@@ -306,7 +307,7 @@ def calculate_summary(df):
 def get_financials_data(symbol, func):
     income_statement = func(symbol)
     if symbol and income_statement:
-        data = dumps({"name": symbol, "data": income_statement})
+        data = {"name": symbol, "data": income_statement}
     else:
         abort(400, "Financials data not found")
     return data
@@ -318,6 +319,10 @@ def get_financials_data(symbol, func):
 @STOCK_NS.route("")
 class Stock(Resource):
     # def get_stock_data():
+    @STOCK_NS.doc(description="Fetch company stock price data based on Stock Symbol provided. ")
+    @STOCK_NS.expect(stock_get_data_parser(STOCK_NS), validate=True)
+    @STOCK_NS.response(200, "Successfully fetched stock information")
+    @STOCK_NS.response(404, "Stock API Not Available")
     def get(self):
         symbol = request.args.get("symbol")
         data = {"name": "", "data": ""}
@@ -382,6 +387,10 @@ class Stock(Resource):
 @STOCK_NS.route("/get_prediction_daily")
 class Daily_Prediction(Resource):
     # def get_prediction_daily():
+    @STOCK_NS.doc(description="Fetch stock price prediction data based on Stock Symbol and Model Name (Prediction Type) provided. ")
+    @STOCK_NS.expect(stock_get_prediction_parser(STOCK_NS), validate=True)
+    @STOCK_NS.response(200, "Successfully fetched stock information")
+    @STOCK_NS.response(404, "Stock API Not Available")
     def get(self):
         symbol = request.args.get("symbol")
         prediction_type = request.args.get("prediction_type")
@@ -472,6 +481,10 @@ class Daily_Prediction(Resource):
 @STOCK_NS.route("/income_statement")
 class Income_Statement(Resource):
     # def get_income_statement_data():
+    @STOCK_NS.doc(description="Fetch company income statement data based on Stock Symbol provided. ")
+    @STOCK_NS.expect(stock_get_data_parser(STOCK_NS), validate=True)
+    @STOCK_NS.response(200, "Successfully fetched stock information")
+    @STOCK_NS.response(404, "Stock API Not Available")
     def get(self):
         symbol = request.args.get("symbol")
         result = get_financials_data(symbol, get_income_statement)
@@ -481,6 +494,10 @@ class Income_Statement(Resource):
 @STOCK_NS.route("/balance_sheet")
 class Balance_Sheet(Resource):
     # def get_balance_sheet_data():
+    @STOCK_NS.doc(description="Fetch company balance sheet data based on Stock Symbol provided. ")
+    @STOCK_NS.expect(stock_get_data_parser(STOCK_NS), validate=True)
+    @STOCK_NS.response(200, "Successfully fetched stock information")
+    @STOCK_NS.response(404, "Stock API Not Available")
     def get(self):
         symbol = request.args.get("symbol")
         result = get_financials_data(symbol, get_balance_sheet)
@@ -490,6 +507,10 @@ class Balance_Sheet(Resource):
 @STOCK_NS.route("/cash_flow_statement")
 class Cash_Flow_Statement(Resource):
     # def get_cash_flow_data():
+    @STOCK_NS.doc(description="Fetch company cash flow statement data based on Stock Symbol provided. ")
+    @STOCK_NS.expect(stock_get_data_parser(STOCK_NS), validate=True)
+    @STOCK_NS.response(200, "Successfully fetched stock information")
+    @STOCK_NS.response(404, "Stock API Not Available")
     def get(self):
         symbol = request.args.get("symbol")
         result = get_financials_data(symbol, get_cash_flow)
