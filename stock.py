@@ -29,11 +29,14 @@ from constants.stock_db_schema import (
     summary_bs_columns,
     revised_bs_order,
 )
-from models import stock_get_data_parser, stock_get_prediction_parser
+from models import stock_get_data_parser, stock_get_prediction_parser, stock_get_paper_trade_parser
 
 # from definitions import local_storage_dir
 
+MODELSRVURL = os.getenv("MODELSRVURL")
 MODELSRVPORT = os.getenv("MODELSRVPORT")
+BACKTRSRVURL = os.getenv("BACKTRSRVURL")
+BACKTRSRVPORT = os.getenv("BACKTRSRVPORT")
 
 STOCK_NS = Namespace("stock", "Stock securities")
 
@@ -571,3 +574,45 @@ class Cash_Flow_Statement(Resource):
         symbol = request.args.get("symbol")
         result = get_financials_data(symbol, get_cash_flow)
         return Response(dumps(result), status=200)
+
+@STOCK_NS.route('/get_backtest', methods=['GET'])
+class Paper_Trade_Results(Resource):
+    @STOCK_NS.doc(description="Run a trading strategy for the selected company and parameters. ")
+    @STOCK_NS.expect(stock_get_paper_trade_parser(STOCK_NS), validate=False)
+    @STOCK_NS.response(200, "Successfully fetched paper trade")
+    @STOCK_NS.response(404, "Paper Trade API Not Available")
+    def get(self):
+        symbol = request.args.get('symbol')
+        initial_cash = request.args.get('initial_cash')
+        commission = request.args.get('commission')
+        strategy = request.args.get('strategy')
+        fromdate = request.args.get('fromdate')
+        todate = request.args.get('todate')
+        # import pdb; pdb.set_trace()
+        status = 200
+        dispatch_data = {}
+        data = {
+            'tickers': [symbol],
+            'timeframes': { '1D': 1, },
+            'timeframe_units': "Days",
+            'initial_cash': float(initial_cash),
+            'commission': float(commission),
+            'timezone': "US/Eastern",
+            'strategy': strategy,
+            'fromdate': fromdate,
+            'todate': todate,
+        }
+
+        headers = { "Content-Type": "application/json", }
+        url = BACKTRSRVURL
+        port = BACKTRSRVPORT
+        endpoint = f"http://{url}:{port}/get_backtest"
+
+        # import pdb; pdb.set_trace()
+        try:
+            r = requests.post(url=endpoint, data=dumps(data), headers=headers)
+            dispatch_data = r.json()
+        except Exception as e:
+            abort(500, "")
+
+        return Response(dumps({'data': dispatch_data}), status=200)
