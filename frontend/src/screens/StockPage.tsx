@@ -26,10 +26,12 @@ import {
   DataCashFlow,
   StockNews,
   NoteRelevant,
+  PredictionController,
   PaperTradeController,
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
+import { durationOptionsObj, predictionOptionsObj } from "../helpers/PredictionHelpers";
 import { statusBadgeModifier, statusBadgeText } from "../helpers/StatusFormatModifiers";
 
 import Highcharts from "highcharts/highstock";
@@ -114,22 +116,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const symbol = params.symbol;
 
   const durOpts: durChoiceParams = useMemo(() => {
-    return {
-      durDays3: { dur: 3, display: "3", units: "days" },
-      durWeeks1: { dur: 5, display: "5", units: "days" },
-      durWeeks2: { dur: 10, display: "10", units: "days" },
-      durMonths1: { dur: 20, display: "20", units: "days" },
-      durMonths2: { dur: 40, display: "40", units: "days" },
-      durMonths3: { dur: 60, display: "60", units: "days" },
-    };
+    return durationOptionsObj;
   }, []);
 
   const predictOpts: predictionModeParams = useMemo(() => {
-    return {
-      lstm_wlf: { idtype: "walk_forward", name: "Vanilla LSTM (Walk-Forward)" },
-      lstm_ser: { idtype: "multistep_series", name: "Vanilla LSTM (Series)" },
-      lcnn_wlf: { idtype: "cnn", name: "CNN-LSTM (Walk-Forward)" },
-    };
+    return predictionOptionsObj;
   }, []);
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
@@ -147,11 +138,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const fetchStock = useCallback(() => {
     getStockBasic({ symbol });
   }, [getStockBasic, symbol]);
-
-  const fetchPredictDaily = () => {
-    const predictionType = predictOpts[preChoice].idtype;
-    getPredictionDaily({ symbol, predictionType });
-  };
 
   // TODO: predefined reset length
   const resetZoom = () => {
@@ -294,95 +280,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const stockNameText =
     error || loading ? `${symbol}` : `${company} (${symbol})`;
 
-  const predictionControlComponent = (
-    <Container className="generic-container-scrolling">
-      <hr />
-      <Row>
-        <Col className="text-left font-weight-bold">Prediction Status: </Col>
-        <Col>
-          <Badge
-            variant={statusBadgeModifier(
-              predictionDaily,
-              predictionDailyLoading,
-              predictionDailyError
-            )}
-          >
-            {statusBadgeText(
-              predictionDaily,
-              predictionDailyLoading,
-              predictionDailyError
-            )}
-          </Badge>
-        </Col>
-      </Row>
-      <hr />
-      <Row>
-        <Col className="text-left font-weight-bold">Duration: </Col>
-        <Col>
-          <DropdownButton
-            variant="outline-dark"
-            id="dropdown-basic-button"
-            title={durOpts[durChoice].display + " " + durOpts[durChoice].units}
-          >
-            {Object.entries(durOpts).map((entry, idx) => {
-              const [key, value] = entry;
-
-              return (
-                <Dropdown.Item
-                  key={idx}
-                  href="#/action-1"
-                  onClick={() => {
-                    setdurChoice(key);
-                  }}
-                >
-                  {value.display + " " + value.units}
-                </Dropdown.Item>
-              );
-            })}
-          </DropdownButton>
-        </Col>
-      </Row>
-      <hr />
-      <Row>
-        <Col className="text-left font-weight-bold">Model: </Col>
-        <Col>
-          <DropdownButton
-            variant="outline-dark"
-            id="dropdown-basic-button"
-            title={predictOpts[preChoice].name}
-          >
-            {Object.entries(predictOpts).map((entry, idx) => {
-              const [key, value] = entry;
-
-              return (
-                <Dropdown.Item
-                  key={idx}
-                  href="#/action-1"
-                  onClick={() => {
-                    setPreChoice(key);
-                  }}
-                >
-                  {value.name}
-                </Dropdown.Item>
-              );
-            })}
-          </DropdownButton>
-        </Col>
-      </Row>
-      <hr />
-      <Row>
-        <Button
-          variant="outline-primary"
-          onClick={() => {
-            fetchPredictDaily();
-          }}
-        >
-          Predict
-        </Button>
-      </Row>
-    </Container>
-  );
-
   return (
     <Container>
       <Row className="justify-content-center mt-2">
@@ -422,7 +319,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
                 </Tabs>
               </Tab>
               <Tab eventKey="prediction" title="Market Prediction">
-                {predictionControlComponent}
+                <PredictionController symbol={symbol} durChoice={durChoice} setdurChoice={setdurChoice} preChoice={preChoice} setPreChoice={setPreChoice}/>
               </Tab>
               <Tab eventKey="paperTrading" title="Paper Trading">
                 <PaperTradeController symbol={symbol} />
