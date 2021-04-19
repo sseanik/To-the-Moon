@@ -152,9 +152,7 @@ class Retrieve_Prediction(Resource):
             final_value = cerebro.broker.getvalue() - initial_portfolio_value
             final_value_pct = (final_value) / initial_portfolio_value * 100
 
-            # orders_sample = [{'time': 1591725600000.0, 'name': 'Limit', 'type': 'Sell', 'status': 'Completed', 'size': -311.0, 'price': 320.81}, {'time': 1591812000000.0, 'name': 'Limit', 'type': 'Buy', 'status': 'Completed', 'size': 311.0, 'price': 308.8920530837094}, {'time': 1598896800000.0, 'name': 'Limit', 'type': 'Sell', 'status': 'Completed', 'size': -297.0, 'price': 349.34}, {'time': 1598983200000.0, 'name': 'Stop', 'type': 'Buy', 'status': 'Completed', 'size': 297.0, 'price': 352.643301166782}]
-
-            result = {"indicator": indicator_graph, "orders": orders, "n_orders": orders_length, "change_value": final_value, "change_value_percentage": final_value_pct}
+            result = {"indicator": [], "orders": orders, "n_orders": orders_length, "change_value": final_value, "change_value_percentage": final_value_pct}
         except Exception as e:
             abort(500, "")
 
