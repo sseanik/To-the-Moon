@@ -15,7 +15,6 @@ from flask import Flask, request, Response
 from flask_cors import CORS
 from flask_restx import Api, fields, Namespace, Resource, abort
 from flask_restx.inputs import date_from_iso8601
-from cerberus import Validator, TypeDefinition
 
 app = Flask(__name__)
 CORS(app)
