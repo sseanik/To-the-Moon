@@ -8,3 +8,5 @@ export { default as LoginPage } from "./LoginPage";
 export { default as AboutUsPage } from "./AboutUsPage";
 export { default as SearchStockPage } from "./SearchStockPage";
 export { default as DashboardPage } from "./DashboardPage";
+export { default as WatchlistPage} from "./WatchlistPage";
+export { default as WatchlistsPage} from "./WatchlistsPage";

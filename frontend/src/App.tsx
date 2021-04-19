@@ -15,10 +15,10 @@ import {
   SearchStockPage,
   PortfoliosPage,
   DashboardPage,
+  WatchlistPage,
+  WatchlistsPage,
 } from "./screens";
 import { Header, NoteList } from "./components";
-import WatchlistPage from "./screens/WatchlistPage";
-import WatchlistsPage from "./screens/WatchlistsPage";
 
 const initialState = {};
 
