@@ -286,4 +286,73 @@ def stock_get_paper_trade_parser(namespace):
             .add_argument("strategy", help="Strategy to Use", type=str, location="args")
             .add_argument("fromdate", help="Date to Start Test From", type=date_from_iso8601, location="args")
             .add_argument("todate", help="Date to End Test", type=date_from_iso8601, location="args")
+        )
+
+def screeners_post_delete_data_parser(namespace):
+    return namespace.parser().add_argument("name", help="Screener Name", location="args")
+
+def screeners_get_apply_screener_parser(namespace):
+    return (
+        namespace.parser()
+        .add_argument(
+            "exchange",
+            help="Stock Exchanges (list)",
+            type=list,
+            action="append",
+            location="args",
+        )
+        .add_argument(
+            "market_cap",
+            help="Market Capitalisation (min and max values)",
+            type=list,
+            action="append",
+            location="args",
+        )
+        .add_argument(
+            "yearly_low",
+            help="Yearly Low Share Price",
+            type=[int, float],
+            location="args",
+        )
+        .add_argument(
+            "yearly_high",
+            help="Yearly High Share Price",
+            type=[int, float],
+            location="args",
+        )
+        .add_argument(
+            "eps",
+            help="EPS (min and max values)",
+            type=list,
+            action="append",
+            location="args",
+        )
+        .add_argument(
+            "beta",
+            help="Beta Ratio (min and max values)",
+            type=list,
+            action="append",
+            location="args",
+        )
+        .add_argument(
+            "payout_ratio",
+            help="Payout Ratio (min and max values)",
+            type=list,
+            action="append",
+            location="args",
+        )
+        .add_argument(
+            "sector",
+            help="Sector (list)",
+            type=list,
+            action="append",
+            location="args",
+        )
+        .add_argument(
+            "industry",
+            help="Industry (list)",
+            type=list,
+            action="append",
+            location="args",
+        )
     )

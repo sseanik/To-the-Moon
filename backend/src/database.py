@@ -95,7 +95,7 @@ def create_screeners_table():
     cur.execute(open("Tables/screeners.sql", "r").read())
     conn.commit()
 
-    
+
 def create_vote_plpgsql_functions():
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -127,7 +127,7 @@ def fill_securities_overview_table(symbol):
         pe_ratio,
         eps,
         dividend_yield,
-        sector, 
+        sector,
         industry,
         book_value,
         EBITDA,
@@ -138,7 +138,7 @@ def fill_securities_overview_table(symbol):
     ON CONFLICT (stock_ticker) DO NOTHING
     """
 
-    
+
     # Convert "None" values to None so cur.execute converts it to NULL.
     for key, value in Overview.items():
         if (value == "None"):
@@ -459,5 +459,5 @@ if __name__ == "__main__":
     #create_screeners_table()
     #create_watchlist_tables()
 
-    
+
     #fill_all_companies()

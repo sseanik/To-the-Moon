@@ -1,5 +1,7 @@
 import { Container, Row } from "react-bootstrap";
 import { ScreenersQueryForm } from "../components";
+import { ScreenersResults } from "../components";
+import { ScreenerList } from "../components";
 
 const ScreenersPage: React.FC = () => {
   return (
@@ -9,6 +11,12 @@ const ScreenersPage: React.FC = () => {
       </Row>
       <Row className="justify-content-center">
         <ScreenersQueryForm />
+      </Row>
+      <Row className="justify-content-center">
+        <ScreenersResults />
+      </Row>
+      <Row className="justify-content-center">
+        <ScreenerList />
       </Row>
     </Container>
   );
