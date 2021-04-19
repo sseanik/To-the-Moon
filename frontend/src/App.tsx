@@ -26,8 +26,8 @@ function App() {
     <div className="App">
       <Provider store={configureStore(initialState)}>
         <ToastContainer
-          position="top-center"
-          autoClose={7000}
+          position="bottom-right"
+          autoClose={5000}
           hideProgressBar={false}
           closeOnClick
           rtl={false}

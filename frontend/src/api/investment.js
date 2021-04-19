@@ -5,7 +5,7 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const investmentAPI = {
   getStockTotalChange: (id) => {
-    const endpoint = `/investment/total-change?id=${encodeURI(id)}`;
+    const endpoint = `/portfolio/investment/total-change?id=${encodeURI(id)}`;
     const options = {
       method: "GET",
       headers: {
@@ -18,7 +18,7 @@ const investmentAPI = {
   },
   addStock: (portfolio, stockTicker, numShares, purchaseDate) => {
     const purchaseUnix = new Date(purchaseDate).getTime() / 1000;
-    const endpoint = `/investment?portfolio=${encodeURI(portfolio)}`;
+    const endpoint = `/portfolio/investment?portfolio=${encodeURI(portfolio)}`;
     const options = {
       method: "POST",
       headers: {
@@ -35,7 +35,7 @@ const investmentAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   deleteStock: (id) => {
-    const endpoint = `/investment?id=${encodeURI(id)}`;
+    const endpoint = `/portfolio/investment?id=${encodeURI(id)}`;
     const options = {
       method: "DELETE",
       headers: {
@@ -47,7 +47,7 @@ const investmentAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getStocks: (portfolioName) => {
-    const endpoint = `/user/investment?portfolio=${encodeURI(portfolioName)}`;
+    const endpoint = `/portfolio/investment?portfolio=${encodeURI(portfolioName)}`;
     const options = {
       method: "GET",
       headers: {
@@ -59,7 +59,7 @@ const investmentAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getTrendingStocks: (n) => {
-    const endpoint = `/investment/trending?n=${encodeURI(n)}`;
+    const endpoint = `/portfolio/investment/trending?n=${encodeURI(n)}`;
     const options = {
       method: "GET",
       headers: {
