@@ -17,7 +17,7 @@ from screener import SCREENER_NS
 from stock import STOCK_NS
 from user import USER_NS
 from watchlist import WATCHLIST_NS
-from dashboard import DASHBOARD_ROUTES
+from dashboard import DASHBOARD_NS
 
 APP = Flask(__name__)
 CORS(APP)
@@ -35,6 +35,7 @@ API.add_namespace(SCREENER_NS)
 API.add_namespace(STOCK_NS)
 API.add_namespace(USER_NS)
 API.add_namespace(WATCHLIST_NS)
+API.add_namespace(DASHBOARD_NS)
 
 
 ###################################
