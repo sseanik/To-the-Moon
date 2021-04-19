@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Form, Button, Alert } from "react-bootstrap";
+import { Form, Button, Alert, Row } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import userActions from "../redux/actions/userActions";
@@ -65,9 +65,6 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
           <Form onSubmit={handleSubmit}>
             {error ? errorComponent : null}
             {message ? messageComponent : null}
-            <ClipLoader color={"green"} loading={loading}>
-              <span className="sr-only">Loading...</span>
-            </ClipLoader>
             <Form.Group controlId="formBasicEmail">
               <Form.Label>Email</Form.Label>
               <Form.Control
@@ -103,9 +100,13 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
                 </Form.Control.Feedback>
               ) : null}
             </Form.Group>
-
+            <Row className="justify-content-center">
+              <ClipLoader color={"green"} loading={loading}>
+                <span className="sr-only">Loading...</span>
+              </ClipLoader>
+            </Row>
             <Button disabled={loading} variant="primary" type="submit">
-              Login
+              {loading ? "Blasting off..." : "Login"}
             </Button>
           </Form>
         );

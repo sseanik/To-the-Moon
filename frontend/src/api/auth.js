@@ -5,7 +5,7 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const AuthAPI = {
   register: (username, firstName, lastName, email, password) => {
-    const endpoint = "/register";
+    const endpoint = "/user/register";
     const options = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -21,7 +21,7 @@ const AuthAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   login: (email, password) => {
-    const endpoint = "/login";
+    const endpoint = "/user/login";
     const options = {
       method: "POST",
       headers: { "Content-Type": "application/json" },

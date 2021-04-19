@@ -5,13 +5,25 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const portfolioAPI = {
   getPortfolios: () => {
-    const endpoint = "/user/portfolio";
+    const endpoint = "/portfolio";
     const options = {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
+    };
+
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  getPortfolioPerformance: (name) => {
+    const endpoint = `/portfolio/performance?name=${name}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      }
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
