@@ -31,7 +31,7 @@ const investmentActions = {
       dispatch(investmentActions.createStockSuccess());
       dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
-      dispatch(investmentActions.createStockFailure(error));
+      dispatch(investmentActions.createStockFailure(error.message));
     }
   },
   getStocksPending: () => ({
@@ -51,7 +51,7 @@ const investmentActions = {
       const { data } = await investmentAPI.getStocks(portfolioName);
       dispatch(investmentActions.getStocksSuccess(data));
     } catch (error) {
-      dispatch(investmentActions.getStocksFailure(error));
+      dispatch(investmentActions.getStocksFailure(error.message));
     }
   },
   deleteStockPending: (id) => ({
@@ -70,13 +70,11 @@ const investmentActions = {
     const { investmentID, portfolioName } = payload;
     dispatch(investmentActions.deleteStockPending(investmentID));
     try {
-      const { data } = await investmentAPI.deleteStock(
-        investmentID
-      );
+      const { data } = await investmentAPI.deleteStock(investmentID);
       dispatch(investmentActions.deleteStockSuccess(data));
       dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
-      dispatch(investmentActions.deleteStockFailure(error));
+      dispatch(investmentActions.deleteStockFailure(error.message));
     }
   },
 };
