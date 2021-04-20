@@ -60,13 +60,13 @@ const PortfolioPerformance: React.FC<Props & StateProps & DispatchProps> = (
     } else if (performance[name].portfolio_change > 0) {
       portfolioPerformance = (
         <Col as="h5" style={{ color: "green" }}>
-          {`⬆️ $+${Number(performance[name].portfolio_change).toFixed(2)}`}
+          {`⬆️ +${Number(performance[name].portfolio_change).toFixed(2)}%`}
         </Col>
       );
     } else {
       portfolioPerformance = (
         <Col as="h5" style={{ color: "red" }}>
-          {`⬇️ $${Number(performance[name].portfolio_change).toFixed(2)}`}
+          {`⬇️ ${Number(performance[name].portfolio_change).toFixed(2)}%`}
         </Col>
       );
     }
