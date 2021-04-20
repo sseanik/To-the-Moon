@@ -56,6 +56,15 @@ local_tz = pytz.timezone("Australia/Sydney")
 
 
 def update_stock_required(symbol, data_type="daily_adjusted"):
+    """Checks whether the stock data for 'symbol' is outdated or not by verifying its last refresh time.
+    If the date_type is intraday and it was last refreshed 900 seconds ago, its outdated.
+    If date_type is daily_adjusted and it was last refreshed a day ago, its outdated.
+        Args:
+            symbol (str): the company's stock ticker.
+            data_type (str): time series interval offered by AlphaVantage (daily_adjusted, intraday).
+        Return:
+            boolean: returns true if the stock is outdated, otherwise false.
+    """
     filename = (
         get_local_storage_filepath(symbol + "_" + data_type + ".json") if symbol else ""
     )
@@ -73,19 +82,14 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
 
         date_today = datetime.today()
         date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
-
-        date_constraint = (
-            date_today_aware.hour >= 4 and date_today_aware.hour < 20
-        ) or (date_ref_aware.hour < 20)
-        dow_constraint = (
-            date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
-        )
+        time_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
+        dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
 
         # If not inside trading hours move to close of last trading day
-        if not (date_constraint and dow_constraint):
+        if not (time_constraint and dow_constraint):
             date_today_aware.replace(hour=20, minute=0, second=0)
             if date_today_aware.weekday() > 4:
-                date_today_aware.replace(day=date_today_aware.weekday() - 4)
+                date_today_aware.replace(day=4)
 
         date_comp = (
             (date_today_aware - date_ref_aware).total_seconds() > 900
@@ -107,6 +111,11 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
 
 
 def retrieve_stock_data(symbol, data_type="daily_adjusted"):
+    """Fetches stock data from AlphaVantage and saves it in storage.
+        Args:
+            filename (str): name of file.
+            data_type (str): time series interval offered by AlphaVantage (daily_adjusted, intraday).
+    """
     try:
         ts = TimeSeries(key=AlphaVantageInfo.api_key)
         new_data, new_metadata = (
@@ -120,12 +129,20 @@ def retrieve_stock_data(symbol, data_type="daily_adjusted"):
 
 
 def retrieve_stock_price_at_date(symbol, purchase_date):
-    ts = TimeSeries(key=AlphaVantageInfo.api_key, output_format="csv")
-    rounded_datetime = purchase_date.strftime("%Y-%m-%d %H:%M:00")
-    rounded_date = purchase_date.strftime("%Y-%m-%d")
+    """Fetches the stock price given a stock symbol and purchase date.
+        Args:
+            symbol (str): the company's stock ticker.
+            purchase_date (datetime): date the stock was purchased.
+        Return:
+            price (float): floating point number of the stock price at that moment on that purchase_date,
+            otherwise just closing price for the dat of purchase_date, otherwise just the latest price.
+    """
+    ts = TimeSeries(key=AlphaVantageInfo.api_key, output_format='csv')
+    rounded_datetime = purchase_date.strftime('%Y-%m-%d %H:%M:00')
+    rounded_date = purchase_date.strftime('%Y-%m-%d')
     delta = datetime.today() - purchase_date
-    year = delta.days / 360 + 1
-    month = delta.days % 360 / 30 + 1
+    year = delta.days / 365 + 1
+    month = delta.days % 365 / 30 + 1
 
     # Extended intraday if available
     data, _ = ts.get_intraday_extended(
@@ -151,10 +168,14 @@ def retrieve_stock_price_at_date(symbol, purchase_date):
 
 
 def get_stock_value(filename, data_type="daily_adjusted"):
-    """
-    Load data for stock symbol.
-    In future this will be from a DB or the API, for now this loads from file
+    """Loads data for stock symbol. In future this will be from a DB or the API, for now this loads from file
     so use the data's JSON filename instead
+        Args:
+            filename (str): name of file.
+            data_type (str): time series interval offered by AlphaVantage (daily_adjusted, intraday).
+        Returns:
+            result (dict): dictionary of price history (key = time segment, value = dictionary of segment price data).
+            stockmetadata (dict): dictionary of data on the price history e.g. last refreshed, timezone, symbol, etc.
     """
     stockdata, stockmetadata = JSONLoader.load_json(filename)
 
@@ -164,21 +185,14 @@ def get_stock_value(filename, data_type="daily_adjusted"):
     return result, stockmetadata
 
 
-revised_fs_fields = [
-    "stock_name",
-    "exchange",
-    "currency",
-    "yearly_low",
-    "yearly_high",
-    "market_cap",
-    "beta",
-    "pe_ratio",
-    "eps",
-    "dividend_yield",
-]
-
-
 def get_fundamentals(symbol):
+    """Fetches summary data from the securities_overviews table.
+        Args:
+            symbol (str): the company's stock ticker.
+        Returns:
+            dict: dictionary containing summary data from the securities overview table (keys = columns listed
+            in revised_fs_fields, values = corresponding securities_overview entries).
+    """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
@@ -187,6 +201,7 @@ def get_fundamentals(symbol):
     cur.execute(select_query, (symbol,))
     query_result = cur.fetchone()
     result = OrderedDict(query_result) if query_result else None
+    revised_fs_fields = ['stock_name', 'exchange', 'currency', 'yearly_low', 'yearly_high', 'market_cap', 'beta', 'pe_ratio', 'eps', 'dividend_yield']
     result = OrderedDict((k, result[k]) for k in revised_fs_fields)
 
     conn.close()
@@ -194,6 +209,14 @@ def get_fundamentals(symbol):
 
 
 def get_income_statement(symbol, num_entries=1):
+    """Fetches the income statement from the database.
+        Args:
+            symbol (str): the company's stock ticker.
+            num_entries (int): the amount of fiscal years that should be returned.
+        Returns:
+            list (dict): list of dictionaries of annual income statements (keys = table columns,
+            values = table entries).
+    """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
@@ -217,6 +240,15 @@ def get_income_statement(symbol, num_entries=1):
 
 
 def get_balance_sheet(symbol, num_entries=1):
+    """Fetches total summaries of the balance sheet for the previous num_entries years by summing up
+    the columns corresponding to that total. e.g. returns dict['total equity'] = retained_earnings + total_shareholder_equity
+        Args:
+            symbol (str): the company's stock ticker.
+            num_entries (int): the amount of fiscal years that should be returned.
+        Returns:
+            list (dict): list of dictionaries of annual balance sheet summaries (keys = balance sheet total
+            aggregates, values = summed entries of the columns under that aggregate).
+    """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
@@ -231,15 +263,11 @@ def get_balance_sheet(symbol, num_entries=1):
         ),
     )
     query_results = cur.fetchall()
-    # result = [dict(record) for record in query_results]
     result = []
     for entry in query_results:
         record = OrderedDict(entry)
-
         for column in summary_bs_columns:
-            record[column] = sum(
-                [float(record[x]) for x in summary_bs_components[column]]
-            )
+            record[column] = sum([float(record[x]) if isinstance(record[x], int) else 0 for x in summary_bs_components[column]])
 
         record = OrderedDict((k, record[k]) for k in revised_bs_order)
         record["fiscal_date_ending"] = str(record["fiscal_date_ending"].isoformat())
@@ -250,6 +278,14 @@ def get_balance_sheet(symbol, num_entries=1):
 
 
 def get_cash_flow(symbol, num_entries=1):
+    """Fetches the cashflow statement from the database.
+        Args:
+            symbol (str): the company's stock ticker.
+            num_entries (int): the amount of fiscal years that should be returned.
+        Returns:
+            list (dict): list of dictionaries of annual cashflow statements (keys = table columns,
+            values = table entries).
+    """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
@@ -266,13 +302,18 @@ def get_cash_flow(symbol, num_entries=1):
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
     for record in result:
-        record["fiscal_date_ending"] = str(record["fiscal_date_ending"].isoformat())
-
+        record['fiscal_date_ending'] = str(record['fiscal_date_ending'].isoformat())
     conn.close()
     return result
 
-
-def convert_to_opairs(df, label="4. close"):
+def convert_to_opairs(df, label='4. close'):
+    """Converts a dataframe into a single column (the 'label' column) where the index is a unix timestamp.
+        Args:
+            df (pd.DataFrame): dataframe containing all the price data on a stock.
+            label (str): the column from the dataframe to be converted into a unix timestamp indexed list.
+        Returns:
+            list: list of [unix timestamp, label data entry] lists, formatted this way for Highcharts display.
+    """
     series = df[label].reset_index()
     series["index"] = (
         pd.to_datetime(series["index"]) - pd.Timestamp("1970-01-01")
@@ -281,6 +322,12 @@ def convert_to_opairs(df, label="4. close"):
 
 
 def calculate_summary(df):
+    """Construct a summary of the dataframe by returning stats from the most recent day, and the min/max/ave. volume for the previous year.
+        Args:
+            df (pd.DataFrame): dataframe containing price history.
+        Returns:
+            result (dict) : dictionary containing summary statistics.
+    """
     result = {}
     if type(df) == pd.core.frame.DataFrame and df.shape[0] > 0:
         result["previous_close"] = df.iloc[-2]["4. close"] if df.shape[0] >= 2 else 0
@@ -308,13 +355,21 @@ def calculate_summary(df):
 
 
 def get_financials_data(symbol, func):
+    """Fetches the financial data for a given stock symbol.
+        Args:
+            symbol (str): the company's stock ticker.
+            func (function): function for fetching financial data (get_cash_flow,
+            get_balance_sheet, get_income_statement).
+        Returns:
+            list (dict): list of dictionaries of financial data (keys = table columns,
+            values = table entries). Each dictionary corresponds to a fiscal year.
+    """
     income_statement = func(symbol)
     if symbol and income_statement:
         data = {"name": symbol, "data": income_statement}
     else:
         abort(400, "Financials data not found")
     return data
-
 
 ################################
 # Please leave all routes here #
@@ -418,21 +473,24 @@ class Daily_Prediction(Resource):
             "multistep_series",
             "cnn",
         ]:
-            dispatch_data = {
-                "error": f"Prediction type: {prediction_type} not supported"
-            }
+                abort(500, f"Prediction type: {prediction_type} not supported")
         elif data_needed > sample_df["4. close"].shape[0]:
-            dispatch_data = {
-                "error": f"Not enough data available: sample has {sample_df['4. close'].shape[0]} but predictor needs {data_needed}"
-            }
+                abort(500, f"Not enough data available: sample has {sample_df['4. close'].shape[0]} but predictor needs {data_needed}")
         else:
             close_data = sample_df["4. close"][-data_needed:].values
+            data_minimum = np.min(sample_df["4. close"][:].values)
+            data_maximum = np.max(sample_df["4. close"][:].values)
             for i in np.where(np.isnan(close_data))[0]:
                 close_data[i] = (
                     close_data[i - 1] if not np.isnan(close_data[i - 1]) else 0
                 )
 
-            data = {"inference_mode": prediction_type, "data": close_data.tolist()}
+            data = {
+                "inference_mode": prediction_type,
+                "data": close_data.tolist(),
+                "orig_data_min": data_minimum,
+                "orig_data_max": data_maximum,
+                }
             headers = {
                 "Content-Type": "application/json",
             }
@@ -441,8 +499,6 @@ class Daily_Prediction(Resource):
             try:
                 r = requests.post(url=endpoint, data=dumps(data), headers=headers)
 
-                # TODO: cleanup processing, this is really ugly.
-                # Ideally auto-limit sequence sizes
                 prediction_result = []
                 if r.status_code == requests.codes.ok:
                     prediction_result = r.json()
@@ -476,7 +532,7 @@ class Daily_Prediction(Resource):
                     "data": prediction_data_s,
                 }
             except Exception as e:
-                abort(500, "")
+                abort(500, f"{e}")
 
         return Response(dumps({"data": dispatch_data}), status=200)
 
