@@ -1,7 +1,6 @@
 import investmentConstants from "../constants/investmentConstants";
 import investmentAPI from "../../api/investment";
 import { Dispatch } from "redux";
-import portfolioActions from "./portfolioActions";
 
 const investmentActions = {
   createStockPending: () => ({
@@ -31,7 +30,7 @@ const investmentActions = {
         `${purchaseDate}T${purchaseTime}`
       );
       dispatch(investmentActions.createStockSuccess());
-      portfolioActions.getPortfolios();
+      dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
       dispatch(investmentActions.createStockFailure(error.message));
     }
@@ -47,7 +46,7 @@ const investmentActions = {
     type: investmentConstants.GET_STOCKS_FAILURE,
     payload: error,
   }),
-  getStocks: (portfolioName: string) => async (dispatch: Dispatch) => {
+  getStocks: (portfolioName: string): any => async (dispatch: Dispatch) => {
     dispatch(investmentActions.getStocksPending());
     try {
       const { data } = await investmentAPI.getStocks(portfolioName);
@@ -69,11 +68,12 @@ const investmentActions = {
     payload: error,
   }),
   deleteStock: (payload: DeleteStockPayload) => async (dispatch: Dispatch) => {
-    const { investmentID } = payload;
+    const { investmentID, portfolioName } = payload;
     dispatch(investmentActions.deleteStockPending(investmentID));
     try {
       const { data } = await investmentAPI.deleteStock(investmentID);
       dispatch(investmentActions.deleteStockSuccess(data));
+      dispatch(investmentActions.getStocks(portfolioName));
     } catch (error) {
       dispatch(investmentActions.deleteStockFailure(error.message));
     }

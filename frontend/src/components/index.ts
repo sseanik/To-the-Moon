@@ -30,3 +30,4 @@ export { default as AddBlockComponent } from "./AddBlockComponent";
 export { default as AddPortfolioBlockForm } from "./AddPortfolioBlockForm";
 export { default as PortfolioPerformance } from "./PortfolioPerformance";
 export { default as PaperTradeController } from "./PaperTradeController";
+export { default as PredictionController } from "./PredictionController"; 

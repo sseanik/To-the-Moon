@@ -65,9 +65,9 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
         {loading ? (
           <ClipLoader color="green" loading={loading} />
         ) : (
-          stocks.map((stockProps, id) => (
-            <div>
-              <StockInfo key={id} {...stockProps} />
+          stocks.map((stockProps, idx: number) => (
+            <div key={idx}>
+              <StockInfo {...stockProps} />
               <hr style={{ borderTop: "1px solid white" }} />
             </div>
           ))

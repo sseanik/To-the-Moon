@@ -4,11 +4,14 @@
 
 from json import dumps
 import re
-from flask import request, Response
+import bcrypt
+from flask import request, Response, current_app
 from database import create_DB_connection
 from token_util import generate_token, get_id_from_token
 from flask_restx import Namespace, Resource, abort
-import bcrypt
+from flask_mail import Message
+from notification import send_async_register_email
+from threading import Thread
 from models import login_model, register_model, token_parser
 
 # ---------------------------------------------------------------------------- #
@@ -75,6 +78,19 @@ def register_user(first_name, last_name, email, username, password):
     conn.commit()
     cur.close()
     conn.close()
+
+    # Send a register email in a thread
+    Thread(
+        target=send_async_register_email,
+        args=[
+            current_app._get_current_object(),
+            email,
+            first_name,
+            last_name,
+            username,
+            user_id,
+        ],
+    ).start()
 
     # successful return
     return {
