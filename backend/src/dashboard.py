@@ -73,7 +73,10 @@ def create_user_dashboard(user_id):
     finally:
         conn.close()
     response = {
-        "message" : "Dashboard created"
+        "message" : "Dashboard created",
+        "data": {
+            "id": query_results[0][0]
+        }
     }
     return response
 
@@ -97,7 +100,10 @@ def delete_user_dashboard(dashboard_id):
     finally:
         conn.close()
     response = {
-        "message" : "Dashboard deleted"
+        "message" : "Dashboard deleted",
+        "data": {
+            "id": query_result[0][0]
+        }
     }
     return response
 
@@ -250,9 +256,6 @@ def get_block(block_id):
         "type": block_type,
         "meta": meta
     }
-    # data = []
-    # for result in query_results:
-    #     data.append(result[0])
     response = {
         "data": data
     }
@@ -297,7 +300,10 @@ def delete_block(block_id):
         conn.close()
     
     response = {
-        "message" : "Block deleted"
+        "message" : "Block deleted",
+        "data": {
+            "id": query_result[0][0]
+        }
     }
     return response
 
