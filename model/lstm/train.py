@@ -1,5 +1,3 @@
-# # # WORK IN PROGRESS # # #
-
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,7 +23,6 @@ class JSONLoader:
             return data, metadata
 
 def data_to_supervised_multistep(data, n_steps_in=60, n_steps_out=1):
-    #(???) flatten data if multidimensional
     X_train = []
     y_train = []
     for i in range(n_steps_in, train_cutoff):

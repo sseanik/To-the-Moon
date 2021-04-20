@@ -25,3 +25,4 @@ export { default as CreateEditNoteForm } from "./CreateEditNoteForm";
 export { default as CreateNotePopover } from "./CreateNotePopover";
 export { default as PortfolioPerformance } from "./PortfolioPerformance";
 export { default as PaperTradeController } from "./PaperTradeController";
+export { default as PredictionController } from "./PredictionController"; 
