@@ -120,8 +120,9 @@ def delete_portfolio(user_id, portfolio_name):
 ############# Investment helper functions #################
 def total_stock_change(stock_ticker, purchase_price):
     # Get investment current price
-    quick_data = TimeSeries().get_quick_quote(stock_ticker)
-    current_price = float(quick_data["Global Quote"]["05. price"])
+    batch = Stock(stock_ticker)
+    batch = batch.get_quote()
+    current_price = batch.latestPrice[stock_ticker]
     return (current_price - purchase_price) * 100 / purchase_price
 
 

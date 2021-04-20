@@ -12,9 +12,9 @@ from models import (
     token_parser,
 )
 
-#######################
-# GLOBAL DECLARATIONS #
-#######################
+# ---------------------------------------------------------------------------- #
+#                              Global Declarations                             #
+# ---------------------------------------------------------------------------- #
 
 DASHBOARD_NS = Namespace(
     "dashboard", "Dashboard feature to track user selected content"
