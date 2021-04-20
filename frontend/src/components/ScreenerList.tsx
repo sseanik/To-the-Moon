@@ -1,28 +1,21 @@
 import { useEffect } from "react";
-import { Container, Col, Row, Alert, Button } from "react-bootstrap";
+import { Container, Col, Row, Alert } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
 import LoadScreenerParamsButton from "./LoadScreenerParamsButton";
 import DeleteScreenerButton from "./DeleteScreenerButton";
 
-import {
-  ScreenerQuery,
-  paramsObjToString,
-} from "../helpers/ScreenerQuery";
+import { ScreenerQuery, paramsObjToString } from "../helpers/ScreenerQuery";
 
 interface screenerListParams {
   name: string;
   params: ScreenerQuery;
 }
 
-interface loadScreenersParams {
+interface loadScreenersParams {}
 
-}
-
-interface Props {
-
-}
+interface Props {}
 
 interface StateProps {
   loading: boolean;
@@ -35,14 +28,12 @@ interface DispatchProps {
   loadScreeners: (payload: loadScreenersParams) => void;
 }
 
-const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
-  props
-) => {
+const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (props) => {
   const { loading, error, data, loadScreeners } = props;
 
   useEffect(() => {
     loadScreeners({});
-  }, [loadScreeners])
+  }, [loadScreeners]);
 
   const loadingSpinnerComponent = (
     <div>
@@ -51,11 +42,7 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
     </div>
   );
 
-  const alertComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
+  const alertComponent = <Alert variant="danger">{error}</Alert>;
 
   const tableComponent = (
     <Container>
@@ -64,38 +51,45 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (
       </Row>
       <hr />
       <Row className="justify-content-center">
-        <Col className="text-center" lg={2}>Name</Col>
-        <Col className="text-center" lg={4}>Parameters</Col>
-        <Col className="text-center" lg={2}>Options</Col>
+        <Col className="text-center" lg={2}>
+          Name
+        </Col>
+        <Col className="text-center" lg={4}>
+          Parameters
+        </Col>
+        <Col className="text-center" lg={2}>
+          Options
+        </Col>
       </Row>
       <hr />
       {error ? alertComponent : null}
-      {loading ? loadingSpinnerComponent :
-      data.map((entry: screenerListParams, idx) => (
-        <Row className="justify-content-center">
-          <Col className="text-center" lg={2}>
-            {entry['name']}
-          </Col>
-          <Col className="text-center" lg={4}>
-            {entry['params'] ? paramsObjToString(entry['params']) : null}
-          </Col>
-          <Col className="text-center" lg={2}>
+      {loading
+        ? loadingSpinnerComponent
+        : data.map((entry: screenerListParams, idx) => (
             <Row className="justify-content-center">
-              <Col lg={6}>
-                <LoadScreenerParamsButton parametersObj={entry['params']} />
+              <Col className="text-center" lg={2}>
+                {entry["name"]}
               </Col>
-              <Col lg={6}>
-                <DeleteScreenerButton name={entry['name']} />
+              <Col className="text-center" lg={4}>
+                {entry["params"] ? paramsObjToString(entry["params"]) : null}
+              </Col>
+              <Col className="text-center" lg={2}>
+                <Row className="justify-content-center">
+                  <Col lg={6}>
+                    <LoadScreenerParamsButton parametersObj={entry["params"]} />
+                  </Col>
+                  <Col lg={6}>
+                    <DeleteScreenerButton name={entry["name"]} />
+                  </Col>
+                </Row>
               </Col>
             </Row>
-          </Col>
-        </Row>
-      ))}
+          ))}
     </Container>
   );
 
-  return (tableComponent);
-}
+  return tableComponent;
+};
 
 const mapStateToProps = (state: any) => ({
   loading: state.screenerReducer.list.loading,
@@ -111,7 +105,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ScreenerList);
+export default connect(mapStateToProps, mapDispatchToProps)(ScreenerList);

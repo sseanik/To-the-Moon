@@ -1,12 +1,9 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import {
   Container,
   Row,
   Col,
-  Tabs,
-  Tab,
   Button,
-  Alert,
   Badge,
   Dropdown,
   DropdownButton,
@@ -14,11 +11,13 @@ import {
   FormControl,
 } from "react-bootstrap";
 
-import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
 
-import { statusBadgeModifier, statusBadgeText } from "../helpers/StatusFormatModifiers";
+import {
+  statusBadgeModifier,
+  statusBadgeText,
+} from "../helpers/StatusFormatModifiers";
 
 interface getPaperTradingParams {
   symbol: string;
@@ -30,7 +29,7 @@ interface getPaperTradingParams {
 }
 
 interface tradeStratParams {
-  [key: string]: { idtype: string, name: string };
+  [key: string]: { idtype: string; name: string };
 }
 
 interface Props {
@@ -47,7 +46,9 @@ interface DispatchProps {
   getPaperTradingResults: (payload: getPaperTradingParams) => void;
 }
 
-const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (props) => {
+const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (
+  props
+) => {
   const { loading, data, error, getPaperTradingResults, symbol } = props;
 
   const [paperTradeParams, setPaperTradeParams] = useState<object | any>({
@@ -61,28 +62,18 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
 
   const tradeStratOpts: tradeStratParams = useMemo(() => {
     return {
-      "RSIStack": { idtype: "RSIStack", name: "Relative Strength Index"},
-      "SMACrossOver1": { idtype: "SMACrossOver1", name: "Simple MA Crossover" },
-      "SMACrossOver2": { idtype: "SMACrossOver2", name: "Simple MA Crossover with BBands" }, 
+      RSIStack: { idtype: "RSIStack", name: "Relative Strength Index" },
+      SMACrossOver1: { idtype: "SMACrossOver1", name: "Simple MA Crossover" },
+      SMACrossOver2: {
+        idtype: "SMACrossOver2",
+        name: "Simple MA Crossover with BBands",
+      },
     };
   }, []);
 
-  const loadingSpinnerComponent = (
-    <div>
-      <ClipLoader color={"green"} loading={loading} />
-      <h5>Loading Statistics ...</h5>
-    </div>
-  );
-
-  const alertComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
-
   const fetchPaperTrades = () => {
-    getPaperTradingResults({ ... paperTradeParams });
-  }
+    getPaperTradingResults({ ...paperTradeParams });
+  };
 
   const paperTradeControlComponent = (
     <Container className="generic-container-scrolling">
@@ -97,8 +88,11 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
               aria-describedby="basic-addon1"
               type="number"
               value={paperTradeParams.initial_cash}
-              onChange={(e) => {
-                setPaperTradeParams({...paperTradeParams, initial_cash: e.target.value});
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setPaperTradeParams({
+                  ...paperTradeParams,
+                  initial_cash: e.target.value,
+                });
               }}
             />
           </InputGroup>
@@ -115,8 +109,11 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
               aria-describedby="basic-addon1"
               type="number"
               value={paperTradeParams.commission}
-              onChange={(e) => {
-                setPaperTradeParams({...paperTradeParams, commission: e.target.value});
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setPaperTradeParams({
+                  ...paperTradeParams,
+                  commission: e.target.value,
+                });
               }}
             />
           </InputGroup>
@@ -138,8 +135,10 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
                   key={key}
                   href="#/action-1"
                   onClick={() => {
-                    setPaperTradeParams({...paperTradeParams,
-                      strategy: tradeStratOpts[key].idtype})
+                    setPaperTradeParams({
+                      ...paperTradeParams,
+                      strategy: tradeStratOpts[key].idtype,
+                    });
                   }}
                 >
                   {value.name}
@@ -160,8 +159,11 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
               aria-describedby="basic-addon1"
               type="date"
               value={paperTradeParams.fromdate}
-              onChange={(e) => {
-                setPaperTradeParams({...paperTradeParams, fromdate: e.target.value});
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setPaperTradeParams({
+                  ...paperTradeParams,
+                  fromdate: e.target.value,
+                });
               }}
             />
           </InputGroup>
@@ -178,8 +180,11 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
               aria-describedby="basic-addon1"
               type="date"
               value={paperTradeParams.todate}
-              onChange={(e) => {
-                setPaperTradeParams({...paperTradeParams, todate: e.target.value});
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setPaperTradeParams({
+                  ...paperTradeParams,
+                  todate: e.target.value,
+                });
               }}
             />
           </InputGroup>
@@ -189,18 +194,8 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
       <Row>
         <Col className="text-left font-weight-bold">Simulation Status: </Col>
         <Col>
-          <Badge
-            variant={statusBadgeModifier(
-              data,
-              loading,
-              error,
-            )}
-          >
-            {statusBadgeText(
-              data,
-              loading,
-              error,
-            )}
+          <Badge variant={statusBadgeModifier(data, loading, error)}>
+            {statusBadgeText(data, loading, error)}
           </Badge>
         </Col>
       </Row>
@@ -208,21 +203,23 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
       <Row>
         <Col className="text-left font-weight-bold"># orders: </Col>
         <Col className="text-right">
-          {data.hasOwnProperty("n_orders") ? data['n_orders'] : "N/A"}
+          {data.hasOwnProperty("n_orders") ? data["n_orders"] : "N/A"}
         </Col>
       </Row>
       <hr />
       <Row>
         <Col className="text-left font-weight-bold">Value Change: </Col>
         <Col className="text-right">
-          {data.hasOwnProperty("change_value") ? data['change_value'] : "N/A"}
+          {data.hasOwnProperty("change_value") ? data["change_value"] : "N/A"}
         </Col>
       </Row>
       <hr />
       <Row>
         <Col className="text-left font-weight-bold">Value Change (%): </Col>
         <Col className="text-right">
-          {data.hasOwnProperty("change_value_percentage") ? data['change_value_percentage']: "N/A"}
+          {data.hasOwnProperty("change_value_percentage")
+            ? data["change_value_percentage"]
+            : "N/A"}
         </Col>
       </Row>
       <hr />
@@ -240,7 +237,7 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (prop
   );
 
   return paperTradeControlComponent;
-}
+};
 
 const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.paperTradingResults.loading,
@@ -255,4 +252,7 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaperTradeController);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PaperTradeController);

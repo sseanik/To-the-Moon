@@ -12,7 +12,7 @@ import {
 
 interface LoadScreenerParams {
   // parametersObj: ScreenerQuery;
-  parameters: string; 
+  parameters: string;
 }
 
 interface StateProps {
@@ -32,8 +32,8 @@ interface Props {
 const LoadScreenerParamsButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
-  const { loading, error, data, getScreenerResults, parametersObj } = props;
-  console.log(`PARAMS: `, parametersObj)
+  const { loading, error, getScreenerResults, parametersObj } = props;
+  console.log(`PARAMS: `, parametersObj);
 
   return (
     <Container fluid>
@@ -70,4 +70,7 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoadScreenerParamsButton);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LoadScreenerParamsButton);
