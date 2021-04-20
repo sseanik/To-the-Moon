@@ -76,7 +76,7 @@ const AddBlockComponent: React.FC<StateProps> = (props) => {
   );
 
   return (
-    <Col className="border rounded mx-2 justify-content-center align-items-center bg-dark">
+    <Col className="border rounded mx-2 p-3 justify-content-center align-items-center bg-dark">
       {error ? <Alert variant="danger">{error}</Alert> : null}
       {loading
         ? loadingSpinnerComponent

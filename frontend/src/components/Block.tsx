@@ -102,7 +102,7 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
 
   return (
     <Col
-      className="border rounded mx-2 justify-content-center align-items-center bg-dark"
+      className="border rounded mx-2 p-3 justify-content-center align-items-center bg-dark"
       onMouseEnter={() => setShowDelete(true)}
       onMouseLeave={() => setShowDelete(false)}
     >
