@@ -1,16 +1,25 @@
-import { Col, Alert } from "react-bootstrap";
+import { useState } from "react";
+import { Col, Alert, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import PortfolioInfo from "./PortfolioInfo";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import dashboardActions from "../redux/actions/dashboardActions";
 
 interface Props {
-  id: string | null;
+  blockId: string;
 }
 
 interface StateProps {
   meta: MetaState;
   loading: LoadingState;
   error: ErrorState;
+  deleting: boolean;
+}
+
+interface DispatchProps {
+  deleteBlock: (payload: DeleteBlockParams) => void;
 }
 
 interface MetaState {
@@ -30,13 +39,45 @@ interface ErrorState {
   [key: string]: string;
 }
 
-const Block: React.FC<Props & StateProps> = (props) => {
-  const { id, meta, loading, error } = props;
+interface DeleteBlockParams {
+  blockId: string;
+}
 
-  const blockType = id && meta.hasOwnProperty(id) ? meta[id].type : "";
-  const blockMeta = id && meta.hasOwnProperty(id) ? meta[id].meta : null;
-  const blockLoading = id && loading.hasOwnProperty(id) ? loading[id] : false;
-  const blockError = id && error.hasOwnProperty(id) ? error[id] : "";
+const deleteButtonStyle = {
+  transition: "0.3s",
+  position: "absolute",
+  left: "2%",
+  margin: "auto",
+} as React.CSSProperties;
+
+const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
+  const { blockId, meta, loading, error, deleting, deleteBlock } = props;
+  const [showDelete, setShowDelete] = useState(false);
+
+  const blockType =
+    blockId && meta.hasOwnProperty(blockId) ? meta[blockId].type : "";
+  const blockMeta =
+    blockId && meta.hasOwnProperty(blockId) ? meta[blockId].meta : null;
+  const blockLoading =
+    blockId && loading.hasOwnProperty(blockId) ? loading[blockId] : false;
+  const blockError =
+    blockId && error.hasOwnProperty(blockId) ? error[blockId] : "";
+
+  const deleteComponent = (
+    <Button
+      style={
+        showDelete
+          ? { ...deleteButtonStyle, opacity: 1, top: "2%" }
+          : { ...deleteButtonStyle, opacity: 0, top: "-2%" }
+      }
+      disabled={deleting}
+      variant="danger"
+      onClick={() => deleteBlock({ blockId })}
+    >
+      <FontAwesomeIcon icon={faTrash} />
+      <span className="ml-3">{deleting ? "Removing..." : "Remove"}</span>
+    </Button>
+  );
 
   const loadingSpinnerComponent = (
     <div>
@@ -49,7 +90,10 @@ const Block: React.FC<Props & StateProps> = (props) => {
     switch (type) {
       case "portfolio":
         return (
-          <PortfolioInfo name={blockMeta ? blockMeta.portfolio_name : null} />
+          <PortfolioInfo
+            viewOnly={true}
+            name={blockMeta ? blockMeta.portfolio_name : null}
+          />
         );
       default:
         return <></>;
@@ -57,7 +101,12 @@ const Block: React.FC<Props & StateProps> = (props) => {
   };
 
   return (
-    <Col className="border rounded mx-1 p-4 bg-light justify-content-center align-items-center">
+    <Col
+      className="border rounded mx-1 p-4 bg-light justify-content-center align-items-center"
+      onMouseEnter={() => setShowDelete(true)}
+      onMouseLeave={() => setShowDelete(false)}
+    >
+      {blockId ? deleteComponent : null}
       {blockError ? <Alert variant="danger">{blockError}</Alert> : null}
       {blockLoading ? loadingSpinnerComponent : null}
       {blockComponent(blockType)}
@@ -69,6 +118,15 @@ const mapStateToProps = (state: any) => ({
   meta: state.dashboardReducer.meta,
   loading: state.dashboardReducer.getBlocksMeta.loading,
   error: state.dashboardReducer.getBlocksMeta.error,
+  deleting: state.dashboardReducer.deleteBlock.loading,
 });
 
-export default connect(mapStateToProps)(Block);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    deleteBlock: (payload: DeleteBlockParams) => {
+      dispatch(dashboardActions.deleteBlock(payload));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Block);
