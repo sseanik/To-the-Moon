@@ -29,9 +29,9 @@ const BlocksContainer: React.FC<StateProps & DispatchProps> = (props) => {
 
   const blockComponent = (idx: number) =>
     idx > blocks.length ? (
-      <Block id={null} />
+      <Block blockId={""} />
     ) : blocks[idx] ? (
-      <Block id={blocks[idx]} />
+      <Block blockId={blocks[idx]} />
     ) : (
       <AddBlockComponent />
     );

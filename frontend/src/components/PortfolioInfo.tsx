@@ -6,10 +6,11 @@ import { PortfolioPerformance } from ".";
 
 interface Props {
   name: string;
+  viewOnly?: boolean;
 }
 
 const PortfolioInfo: React.FC<Props> = (props) => {
-  const { name } = props;
+  const { name, viewOnly = false } = props;
 
   return (
     <Container>
@@ -22,9 +23,11 @@ const PortfolioInfo: React.FC<Props> = (props) => {
               <FontAwesomeIcon icon={faSignInAlt} size="2x" />
             </Button>
           </Col>
-          <Col>
-            <DeletePortfolioButton portfolioName={name} />
-          </Col>
+          {!viewOnly ? (
+            <Col>
+              <DeletePortfolioButton portfolioName={name} />{" "}
+            </Col>
+          ) : null}
         </Row>
       </Container>
     </Container>

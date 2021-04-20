@@ -1,35 +1,21 @@
 import { useState } from "react";
-import { Col, Alert, Container, Button } from "react-bootstrap";
+import { Col, Row, Alert, Container, Button, Tab, Nav } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
-import dashboardActions from "../redux/actions/dashboardActions";
+import { AddPortfolioBlockForm } from ".";
 
 interface StateProps {
-  dashboardId: string;
   loading: boolean;
   error: string;
 }
 
-interface DispatchProps {
-  createBlock: (payload: CreateBlockParams) => void;
-}
-
-interface CreateBlockParams {
-  dashboardId: string;
-  type: string;
-  meta: { [key: string]: any };
-}
-
-interface CreateBlockFormValues
-
 const createBlockStyle = {
   margin: "auto",
   borderRadius: "20px",
-  boxShadow: "5px 10px 18px #888888",
 } as React.CSSProperties;
 
-const AddBlockComponent: React.FC<StateProps & DispatchProps> = (props) => {
-  const { dashboardId, loading, error, createBlock } = props;
+const AddBlockComponent: React.FC<StateProps> = (props) => {
+  const { loading, error } = props;
   const [showForm, setShowForm] = useState(false);
 
   const loadingSpinnerComponent = (
@@ -41,50 +27,66 @@ const AddBlockComponent: React.FC<StateProps & DispatchProps> = (props) => {
 
   const formComponent = (
     <Container>
-      {showForm ? (
-        <div>
-          <Button
-            variant="danger"
-            size="lg"
-            style={createBlockStyle}
-            onClick={() => setShowForm(!showForm)}
-          >
-            Close
-          </Button>
-        </div>
-      ) : (
-        <Button
-          variant="success"
-          size="lg"
-          style={createBlockStyle}
-          onClick={() => setShowForm(!showForm)}
-        >
-          Add Block
-        </Button>
-      )}
+      <Button
+        variant="danger"
+        size="lg"
+        style={createBlockStyle}
+        className="mb-3"
+        onClick={() => setShowForm(!showForm)}
+      >
+        Close
+      </Button>
+      <Tab.Container defaultActiveKey="Portfolio">
+        <Row>
+          <Col sm={3}>
+            <Nav variant="pills" className="flex-column">
+              <Nav.Item>
+                <Nav.Link eventKey="Portfolio">Portfolio</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="News">News</Nav.Link>
+              </Nav.Item>
+            </Nav>
+          </Col>
+          <Col sm={9}>
+            <Tab.Content>
+              <Tab.Pane eventKey="Portfolio">
+                <h4>Add a Portfolio Block</h4>
+                <AddPortfolioBlockForm />
+              </Tab.Pane>
+              <Tab.Pane eventKey="News">
+                <h4>Add a News Block</h4>
+              </Tab.Pane>
+            </Tab.Content>
+          </Col>
+        </Row>
+      </Tab.Container>
     </Container>
+  );
+
+  const addBlockButton = (
+    <Button
+      variant="success"
+      size="lg"
+      style={createBlockStyle}
+      onClick={() => setShowForm(!showForm)}
+    >
+      Add Block
+    </Button>
   );
 
   return (
     <Col className="border rounded mx-1 p-4 bg-light justify-content-center align-items-center">
       {error ? <Alert variant="danger">{error}</Alert> : null}
       {loading ? loadingSpinnerComponent : null}
-      {formComponent}
+      {showForm ? formComponent : addBlockButton}
     </Col>
   );
 };
 
 const mapStateToProps = (state: any) => ({
-  dashboardId: state.dashboardReducer.dashboardId,
   loading: state.dashboardReducer.createBlock.loading,
   error: state.dashboardReducer.createBlock.error,
 });
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    createBlock: (payload: CreateBlockParams) =>
-      dispatch(dashboardActions.createBlock(payload)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AddBlockComponent);
+export default connect(mapStateToProps)(AddBlockComponent);
