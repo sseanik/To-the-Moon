@@ -2,23 +2,45 @@
 #   Server Module   #
 #####################
 
-
+import os
 import sys
 from json import dumps
 from definitions import local_storage_dir
+from threading import Thread
+
 from flask import Flask, Response
 from flask_cors import CORS
 from flask_restx import Api, Namespace, Resource, abort
+from flask_mail import Mail
+
 from forum import FORUM_NS
 from news import NEWS_NS
 from notes import NOTES_NS
+from notification import NOTIFICATION_NS, send_news_email
 from portfolio import PORTFOLIO_NS
 from screener import SCREENER_NS
 from stock import STOCK_NS
 from user import USER_NS
 from watchlist import WATCHLIST_NS
 
-APP = Flask(__name__)
+# Create a custom Flask class to allow for initial thread
+class MyFlaskApp(Flask):
+    def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
+        if not self.debug or os.getenv("WERKZEUG_RUN_MAIN") == "true":
+            # Create the Portfolio/News notification thread
+            with self.app_context():
+                Thread(
+                    target=send_news_email,
+                    args=[self],
+                ).start()
+        super(MyFlaskApp, self).run(
+            host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options
+        )
+
+
+APP = MyFlaskApp(__name__)
+
+
 CORS(APP)
 API = Api(
     APP,
@@ -26,15 +48,28 @@ API = Api(
     version="1.0",
     description="A description",
 )
-API.add_namespace(FORUM_NS)
-API.add_namespace(NEWS_NS)
-API.add_namespace(NOTES_NS)
-API.add_namespace(PORTFOLIO_NS)
-API.add_namespace(SCREENER_NS)
-API.add_namespace(STOCK_NS)
-API.add_namespace(USER_NS)
-API.add_namespace(WATCHLIST_NS)
 
+API.add_namespace(USER_NS)
+API.add_namespace(STOCK_NS)
+API.add_namespace(PORTFOLIO_NS)
+API.add_namespace(NEWS_NS)
+API.add_namespace(FORUM_NS)
+API.add_namespace(NOTES_NS)
+API.add_namespace(SCREENER_NS)
+API.add_namespace(WATCHLIST_NS)
+API.add_namespace(NOTIFICATION_NS)
+
+MAIL_SETTINGS = {
+    "MAIL_SERVER": "smtp.gmail.com",
+    "MAIL_PORT": 465,
+    "MAIL_USE_TLS": False,
+    "MAIL_USE_SSL": True,
+    "MAIL_USERNAME": "tothemoon.comp3900@gmail.com",
+    "MAIL_PASSWORD": "tothemoon123",
+}
+APP.config.update(MAIL_SETTINGS)
+MAIL = Mail(APP)
+APP.MAIL = MAIL
 
 ###################################
 # Please leave all functions here #
@@ -95,13 +130,13 @@ class Echo(Resource):
         return dumps({"data": data, "storage": local_storage_dir})
 
 
-@DUMMY.route("abort")
+@DUMMY.route("/abort")
 class ErrorAbort(Resource):
     def get(self):
         abort(500, "This is an Error Message")
 
 
-@DUMMY.route("response")
+@DUMMY.route("/response")
 class ErrorResponse(Resource):
     def get(self):
         return Response(dumps({"message": "This is an Error Message"}), status=500)

@@ -44,8 +44,6 @@ def get_stock_news(stock_symbol, article_count):
 
 
 # Given a list of stock symbols, return a list of num_articles amount of related news articles
-
-
 def get_portfolio_news(stock_symbols, num_articles):
     unique_stocks = set(stock_symbols)
     # Either have 1 news article related to each stock, or minimum num_articles in total
@@ -64,8 +62,6 @@ def get_portfolio_news(stock_symbols, num_articles):
 
 
 # Given a number of articles, return a list of general finance news articles
-
-
 def get_general_news(num_articles):
     url = "https://finnhub.io/api/v1/news"
     querystring = {"category": "general", "token": NEWS_API_TOKEN}
