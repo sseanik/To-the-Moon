@@ -4,12 +4,14 @@
 
 import time
 from json import dumps
+from threading import Thread
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from database import create_DB_connection
+from notification import send_async_reply_email
 from token_util import get_id_from_token
 from better_profanity import profanity
-from flask import request, Response
+from flask import request, Response, current_app
 from flask_restx import Namespace, Resource, abort
 from models import (
     token_parser,
@@ -114,6 +116,18 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
         inserted_comment["vote_difference"] = 0
         if not parent_id:
             inserted_comment["replies"] = []
+        else:
+            # Send a reply notification email in a thread
+            Thread(
+                target=send_async_reply_email,
+                args=[
+                    current_app._get_current_object(),
+                    inserted_comment["stock_ticker"],
+                    inserted_comment["reply_id"],
+                    inserted_comment["username"],
+                    inserted_comment["content"],
+                ],
+            ).start()
     except:
         conn.close()
         abort(400, "Invalid data was provided to the Database")
@@ -658,4 +672,3 @@ class DownvoteReply(Resource):
         data = request.get_json()
         result = vote_on_reply(user_id, data["reply_id"], upvote=False)
         return Response(dumps(result), status=200)
-
