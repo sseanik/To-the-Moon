@@ -18,7 +18,7 @@ const WatchlistInfo: React.FC<StateProps & Props> = (props) => {
   const { username, watchlist_name, watchlist_id, author_username } = props;
   return (
     <Col
-      className="border rounded mx-1 my-2 p-4 portfolio-info bg-light"
+      className="border rounded mx-1 my-2 p-4 portfolio-info bg-dark"
       lg={4}
       md={6}
     >

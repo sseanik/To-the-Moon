@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  height: 100vh;
 }
 
 .App-logo {
@@ -39,6 +40,13 @@
 
 .app-container {
   padding-top: 100px;
+  padding-bottom: 100px;
+  background-image: url(./resources/stars_background.png);
+  min-height: 100vh;
+}
+
+.slide-pane__content {
+  background-image: url(./resources/stars_with_grass_background.png);
 }
 
 .pane-overlay {
@@ -93,4 +101,9 @@ div.financials-subhead-2 {
 
 div.financials-subhead-3 {
   padding-left: 125px;
+}
+
+.trending-investment {
+  margin: 20px;
+  max-width: 250px;
 }

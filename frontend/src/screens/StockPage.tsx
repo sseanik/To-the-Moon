@@ -11,8 +11,6 @@ import {
   Badge,
   Dropdown,
   DropdownButton,
-  InputGroup,
-  FormControl,
 } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
@@ -30,7 +28,10 @@ import {
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
-import { statusBadgeModifier, statusBadgeText } from "../helpers/StatusFormatModifiers";
+import {
+  statusBadgeModifier,
+  statusBadgeText,
+} from "../helpers/StatusFormatModifiers";
 
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
@@ -105,8 +106,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     getPredictionDaily,
     predictionDailyLoading,
     predictionDailyError,
-    paperTradingLoading,
-    paperTradingError,
   } = props;
 
   const chartComponent = useRef<any | null>(null);
@@ -138,7 +137,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       text: "Share Price",
     },
     rangeSelector: RangeSelectorOptions(setDisplayIntra),
-    series: [{ data: [] }, ],
+    series: [{ data: [] }],
     legend: { enabled: true, layout: "horizontal" },
   });
   const [durChoice, setdurChoice] = useState<string>("durMonths3");
@@ -167,22 +166,16 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     }
   };
 
-  const setZoom = (lower: number, upper: number) => {
-    if (chartComponent && chartComponent.current) {
-      chartComponent.current.chart.xAxis[0].setExtremes(lower, upper);
-    }
-  };
-
   const makePlotFlags = (orderList: Array<any>, orderType: string) => {
     let result: Array<any> = [];
     for (let i = 0; i < orderList.length; i++) {
       const order = orderList[i];
-      if (order['type'] === orderType) {
+      if (order["type"] === orderType) {
         let flag = {
-          x: order['time'],
+          x: order["time"],
           // y: order['price'],
-          title: `${order['type']}`,
-          text: `${order['name']} ${order['type']} of ${order['size']}`,
+          title: `${order["type"]}`,
+          text: `${order["name"]} ${order["type"]} of ${order["size"]}`,
         };
         result.push(flag);
       }
@@ -215,32 +208,34 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       }
 
       let papertrades = JSON.parse(JSON.stringify(paperTradingResults));
-      let indicator = papertrades.indicator ? {name: "Strategy Indicator", data: papertrades.indicator} : null;
+      let indicator = papertrades.indicator
+        ? { name: "Strategy Indicator", data: papertrades.indicator }
+        : null;
       let papertradeData = papertrades.orders ? papertrades.orders : null;
 
       let displaySeries = predictions
         ? [...seriesDailyList, predictions]
         : seriesDailyList;
-      displaySeries = indicator ? [... displaySeries, indicator] : displaySeries;
+      displaySeries = indicator ? [...displaySeries, indicator] : displaySeries;
 
       if (papertradeData) {
         let buyOrders = makePlotFlags(papertradeData, "Buy");
         let buyFlags = {
-          type: 'flags',
-          name: 'Buy orders',
+          type: "flags",
+          name: "Buy orders",
           data: buyOrders,
-          onSeries: '4. close',
-          shape: 'squarepin',
+          onSeries: "4. close",
+          shape: "squarepin",
           width: 40,
         };
         let sellOrders = makePlotFlags(papertradeData, "Sell");
         let sellFlags = {
-          type: 'flags',
-          name: 'Sell orders',
+          type: "flags",
+          name: "Sell orders",
           y: 30,
           data: sellOrders,
-          onSeries: '4. close',
-          shape: 'circlepin',
+          onSeries: "4. close",
+          shape: "circlepin",
           width: 40,
         };
         displaySeries = [...displaySeries, buyFlags, sellFlags];
@@ -269,12 +264,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         constructorType={"stockChart"}
         options={graphOptions}
       />
-      <Row className="justify-content-center">
+      <Row className="justify-content-around">
         <Col>
-          <Button variant="outline-info" onClick={fetchStock}>
+          <Button variant="info" onClick={fetchStock}>
             Refresh data
           </Button>
-          <Button variant="outline-info" onClick={resetZoom}>
+        </Col>
+        <Col>
+          <Button variant="info" onClick={resetZoom}>
             Reset Zoom
           </Button>
         </Col>
@@ -298,7 +295,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     <Container className="generic-container-scrolling">
       <hr />
       <Row>
-        <Col>Prediction Status: </Col>
+        <Col className="text-left font-weight-bold">Prediction Status: </Col>
         <Col>
           <Badge
             variant={statusBadgeModifier(
@@ -317,10 +314,10 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>Duration: </Col>
+        <Col className="text-left font-weight-bold">Duration: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="dark"
             id="dropdown-basic-button"
             title={durOpts[durChoice].display + " " + durOpts[durChoice].units}
           >
@@ -344,10 +341,10 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>Model: </Col>
+        <Col className="text-left font-weight-bold">Model: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="dark"
             id="dropdown-basic-button"
             title={predictOpts[preChoice].name}
           >
@@ -372,7 +369,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       <hr />
       <Row>
         <Button
-          variant="outline-primary"
+          variant="primary"
           onClick={() => {
             fetchPredictDaily();
           }}
@@ -398,33 +395,33 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               defaultActiveKey="summary"
               id="sec-view-info-selector"
             >
-              <Tab eventKey="summary" title="Summary">
+              <Tab eventKey="summary" title="Summary" className="bg-dark">
                 <DataSummary />
               </Tab>
-              <Tab eventKey="statistics" title="Statistics">
+              <Tab eventKey="statistics" title="Statistics" className="bg-dark">
                 <DataFundamentals />
               </Tab>
-              <Tab eventKey="financials" title="Financials">
+              <Tab eventKey="financials" title="Financials" className="bg-dark">
                 <Tabs
                   className="justify-content-center mt-2"
                   defaultActiveKey="incomestatement"
                   id="sec-view-financials"
                 >
-                  <Tab eventKey="incomestatement" title="Income Statement">
+                  <Tab eventKey="incomestatement" title="Income Statement" className="bg-dark">
                     <DataIncomeStatement symbol={symbol} />
                   </Tab>
-                  <Tab eventKey="balancesheet" title="Balance Sheet">
+                  <Tab eventKey="balancesheet" title="Balance Sheet" className="bg-dark">
                     <DataBalanceSheet symbol={symbol} />
                   </Tab>
-                  <Tab eventKey="cashflow" title="Cash Flow Statement">
+                  <Tab eventKey="cashflow" title="Cash Flow Statement" className="bg-dark">
                     <DataCashFlow symbol={symbol} />
                   </Tab>
                 </Tabs>
               </Tab>
-              <Tab eventKey="prediction" title="Market Prediction">
+              <Tab eventKey="prediction" title="Market Prediction" className="bg-dark">
                 {predictionControlComponent}
               </Tab>
-              <Tab eventKey="paperTrading" title="Paper Trading">
+              <Tab eventKey="paperTrading" title="Paper Trading" className="bg-dark">
                 <PaperTradeController symbol={symbol} />
               </Tab>
             </Tabs>

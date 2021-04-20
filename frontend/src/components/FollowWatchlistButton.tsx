@@ -50,7 +50,7 @@ const FollowWatchlistButton: React.FC<StateProps & DispatchProps & Props> = (
     />
   ) : following.includes(watchlistID) ? (
     <Button
-      variant="outline-primary"
+      variant="primary"
       onClick={() => deleteFollowing(watchlistID)}
     >
       <FontAwesomeIcon className="mr-2" icon={faStar} />

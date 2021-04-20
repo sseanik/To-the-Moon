@@ -1,6 +1,5 @@
 import { Container, Col, Row, Button, Form, Alert } from "react-bootstrap";
 import * as Yup from "yup";
-import { useHistory } from "react-router-dom";
 import { Formik } from "formik";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
@@ -11,7 +10,7 @@ import {
   industryChoices,
   exchangeChoices,
   sectorChoices,
-} from "../helpers/ScreenerQuery"
+} from "../helpers/ScreenerQuery";
 
 interface ScreenerFormValues {
   screenerName: string | null;
@@ -55,7 +54,7 @@ const initialValues = {
   betaUpper: null,
   payoutRatioLower: null,
   payoutRatioUpper: null,
-}
+};
 
 const schema = Yup.object({
   exchange: Yup.array().of(Yup.string()),
@@ -71,7 +70,7 @@ const schema = Yup.object({
   betaUpper: Yup.number().nullable(true),
   payoutRatioLower: Yup.number().nullable(true),
   payoutRatioUpper: Yup.number().nullable(true),
-})
+});
 
 // Add Props
 
@@ -92,41 +91,43 @@ interface DispatchProps {
 }
 
 const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const {
-    resultsLoading,
-    resultsData,
-    resultsError,
-    saveLoading,
-    saveData,
-    saveError,
-    getScreenerResults,
-    saveScreener
-  } = props;
-  const history = useHistory();
+  const { saveData, saveError, getScreenerResults, saveScreener } = props;
 
   const formToParamsObj = (values: ScreenerFormValues) => {
     const yrLow = values.intradayLower;
     const yrHigh = values.intradayUpper;
     return {
-      'securities_overviews': {
-        "exchange": values.exchange,
-        "market_cap": [values.marketcapLow ? values.marketcapLow : null, values.marketcapHigh ? values.marketcapHigh : null],
-        "yearly_low": typeof yrLow === "number" && yrLow >= 0 ? yrLow : null,
-        "yearly_high": typeof yrHigh === "number" && yrHigh >= 0 ? yrHigh : null,
-        "eps": [values.epsLower ? values.epsLower : null, values.epsUpper ? values.epsUpper : null],
-        "beta": [values.betaLower ? values.betaLower : null, values.betaUpper ? values.betaUpper : null],
-        "payout_ratio": [values.payoutRatioLower ? values.payoutRatioLower : null, values.payoutRatioUpper ? values.payoutRatioUpper : null],
-        "sector": values.sector, // to array
-        "industry": values.industry, // to array
-      }
+      securities_overviews: {
+        exchange: values.exchange,
+        market_cap: [
+          values.marketcapLow ? values.marketcapLow : null,
+          values.marketcapHigh ? values.marketcapHigh : null,
+        ],
+        yearly_low: typeof yrLow === "number" && yrLow >= 0 ? yrLow : null,
+        yearly_high: typeof yrHigh === "number" && yrHigh >= 0 ? yrHigh : null,
+        eps: [
+          values.epsLower ? values.epsLower : null,
+          values.epsUpper ? values.epsUpper : null,
+        ],
+        beta: [
+          values.betaLower ? values.betaLower : null,
+          values.betaUpper ? values.betaUpper : null,
+        ],
+        payout_ratio: [
+          values.payoutRatioLower ? values.payoutRatioLower : null,
+          values.payoutRatioUpper ? values.payoutRatioUpper : null,
+        ],
+        sector: values.sector, // to array
+        industry: values.industry, // to array
+      },
     };
-  }
+  };
 
   const doSubmit = (values: ScreenerFormValues) => {
     const paramObj = formToParamsObj(values);
     const parameters = paramsObjToScreenerParams(paramObj);
     getScreenerResults({ parameters });
-  }
+  };
 
   const doSave = (values: ScreenerFormValues) => {
     const parameters = formToParamsObj(values);
@@ -136,14 +137,10 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
     } else {
       console.warn("Name cannot be null");
     }
-  }
+  };
 
   return (
-    <Formik
-      onSubmit={doSubmit}
-      initialValues={initialValues}
-      schema={schema}
-    >
+    <Formik onSubmit={doSubmit} initialValues={initialValues} schema={schema}>
       {({
         handleSubmit,
         handleChange,
@@ -156,84 +153,84 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
           <Form noValidate onSubmit={handleSubmit}>
             <Container>
               <Row>
-              <Col>
-                <Form.Group controlId="formSelectExchange">
-                  <Form.Label>Exchange</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    as="select"
-                    name="exchange"
-                    type="text"
-                    value={values.exchange}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.exchange && touched.exchange}
-                    multiple
-                  >
-                    {exchangeChoices.map((entry) =>
-                      <option>{entry}</option>
-                    )}
-                  </Form.Control>
-                  {errors.exchange && touched.exchange ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.exchange}
-                    </Form.Control.Feedback>
-                  ) : null}
-                </Form.Group>
-                <Form.Group controlId="formSelectSector">
-                  <Form.Label>Sector</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    as="select"
-                    name="sector"
-                    type="text"
-                    value={values.sector}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.sector && touched.sector}
-                    multiple
-                  >
-                    {sectorChoices.map((entry) =>
-                      <option>{entry}</option>
-                    )}
-                  </Form.Control>
-                  {errors.sector && touched.sector ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.sector}
-                    </Form.Control.Feedback>
-                  ) : null}
-                </Form.Group>
-                <Form.Group controlId="formSelectSector">
-                  <Form.Label>Industry</Form.Label>
-                  <Form.Control
-                    className="mr-sm-2"
-                    as="select"
-                    name="industry"
-                    type="text"
-                    value={values.industry}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={!!errors.industry && touched.industry}
-                    multiple
-                  >
-                    {values.sector.map((value) =>
-                      industryChoices.hasOwnProperty(value) ?
-                      industryChoices[value].map((entry) =>
+                <Col>
+                  <Form.Group controlId="formSelectExchange">
+                    <Form.Label>Exchange</Form.Label>
+                    <Form.Control
+                      className="mr-sm-2"
+                      as="select"
+                      name="exchange"
+                      type="text"
+                      value={values.exchange}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      isInvalid={!!errors.exchange && touched.exchange}
+                      multiple
+                    >
+                      {exchangeChoices.map((entry) => (
                         <option>{entry}</option>
-                      )
-                      : ""
-                    )}
-                  </Form.Control>
-                  {errors.industry && touched.industry ? (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.industry}
-                    </Form.Control.Feedback>
-                  ) : null}
-                </Form.Group>
-              </Col>
-              <Col>
-                <Form.Group controlId="marketcap">
-                  <Form.Label>Market Capitalisation</Form.Label>
+                      ))}
+                    </Form.Control>
+                    {errors.exchange && touched.exchange ? (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.exchange}
+                      </Form.Control.Feedback>
+                    ) : null}
+                  </Form.Group>
+                  <Form.Group controlId="formSelectSector">
+                    <Form.Label>Sector</Form.Label>
+                    <Form.Control
+                      className="mr-sm-2"
+                      as="select"
+                      name="sector"
+                      type="text"
+                      value={values.sector}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      isInvalid={!!errors.sector && touched.sector}
+                      multiple
+                    >
+                      {sectorChoices.map((entry) => (
+                        <option>{entry}</option>
+                      ))}
+                    </Form.Control>
+                    {errors.sector && touched.sector ? (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.sector}
+                      </Form.Control.Feedback>
+                    ) : null}
+                  </Form.Group>
+                  <Form.Group controlId="formSelectSector">
+                    <Form.Label>Industry</Form.Label>
+                    <Form.Control
+                      className="mr-sm-2"
+                      as="select"
+                      name="industry"
+                      type="text"
+                      value={values.industry}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      isInvalid={!!errors.industry && touched.industry}
+                      multiple
+                    >
+                      {values.sector.map((value) =>
+                        industryChoices.hasOwnProperty(value)
+                          ? industryChoices[value].map((entry) => (
+                              <option>{entry}</option>
+                            ))
+                          : ""
+                      )}
+                    </Form.Control>
+                    {errors.industry && touched.industry ? (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.industry}
+                      </Form.Control.Feedback>
+                    ) : null}
+                  </Form.Group>
+                </Col>
+                <Col>
+                  <Form.Group controlId="marketcap">
+                    <Form.Label>Market Capitalisation</Form.Label>
                     <Row>
                       <Col>
                         <Form.Control
@@ -244,7 +241,9 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                           value={undefined}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          isInvalid={!!errors.marketcapLow && touched.marketcapLow}
+                          isInvalid={
+                            !!errors.marketcapLow && touched.marketcapLow
+                          }
                         />
                         {errors.marketcapLow && touched.marketcapLow ? (
                           <Form.Control.Feedback type="invalid">
@@ -261,7 +260,9 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                           value={undefined}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          isInvalid={!!errors.marketcapHigh && touched.marketcapHigh}
+                          isInvalid={
+                            !!errors.marketcapHigh && touched.marketcapHigh
+                          }
                         />
                         {errors.marketcapHigh && touched.marketcapHigh ? (
                           <Form.Control.Feedback type="invalid">
@@ -270,87 +271,91 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                         ) : null}
                       </Col>
                     </Row>
-                </Form.Group>
-                <Form.Group controlId="priceIntraday">
-                  <Form.Label>Intraday Price</Form.Label>
-                  <Row>
-                    <Col>
-                      <Form.Control
-                        className="mr-sm-2"
-                        type="number"
-                        name="intradayLower"
-                        placeholder="Lower"
-                        value={undefined}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={!!errors.intradayLower && touched.intradayLower}
-                      />
-                      {errors.intradayLower && touched.intradayLower ? (
-                        <Form.Control.Feedback type="invalid">
-                          {errors.intradayLower}
-                        </Form.Control.Feedback>
-                      ) : null}
-                    </Col>
-                    <Col>
-                      <Form.Control
-                        className="mr-sm-2"
-                        type="number"
-                        name="intradayUpper"
-                        placeholder="Upper"
-                        value={undefined}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={!!errors.intradayUpper && touched.intradayUpper}
-                      />
-                      {errors.intradayUpper && touched.intradayUpper ? (
-                        <Form.Control.Feedback type="invalid">
-                          {errors.intradayUpper}
-                        </Form.Control.Feedback>
-                      ) : null}
-                    </Col>
-                  </Row>
-                </Form.Group>
-                <Form.Group controlId="eps">
-                  <Form.Label>EPS</Form.Label>
-                  <Row>
-                    <Col>
-                      <Form.Control
-                        className="mr-sm-2"
-                        name="epsLower"
-                        type="number"
-                        placeholder="Lower"
-                        value={undefined}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={!!errors.epsLower && touched.epsLower}
-                      />
-                      {errors.epsLower && touched.epsLower ? (
-                        <Form.Control.Feedback type="invalid">
-                          {errors.epsLower}
-                        </Form.Control.Feedback>
-                      ) : null}
-                    </Col>
-                    <Col>
-                      <Form.Control
-                        className="mr-sm-2"
-                        name="epsUpper"
-                        type="number"
-                        placeholder="Upper"
-                        value={undefined}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={!!errors.epsUpper && touched.epsUpper}
-                      />
-                      {errors.epsUpper && touched.epsUpper ? (
-                        <Form.Control.Feedback type="invalid">
-                          {errors.epsUpper}
-                        </Form.Control.Feedback>
-                      ) : null}
-                    </Col>
-                  </Row>
-                </Form.Group>
-                <Form.Group controlId="beta">
-                  <Form.Label>Beta</Form.Label>
+                  </Form.Group>
+                  <Form.Group controlId="priceIntraday">
+                    <Form.Label>Intraday Price</Form.Label>
+                    <Row>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          type="number"
+                          name="intradayLower"
+                          placeholder="Lower"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={
+                            !!errors.intradayLower && touched.intradayLower
+                          }
+                        />
+                        {errors.intradayLower && touched.intradayLower ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.intradayLower}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          type="number"
+                          name="intradayUpper"
+                          placeholder="Upper"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={
+                            !!errors.intradayUpper && touched.intradayUpper
+                          }
+                        />
+                        {errors.intradayUpper && touched.intradayUpper ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.intradayUpper}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                    </Row>
+                  </Form.Group>
+                  <Form.Group controlId="eps">
+                    <Form.Label>EPS</Form.Label>
+                    <Row>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          name="epsLower"
+                          type="number"
+                          placeholder="Lower"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={!!errors.epsLower && touched.epsLower}
+                        />
+                        {errors.epsLower && touched.epsLower ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.epsLower}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                      <Col>
+                        <Form.Control
+                          className="mr-sm-2"
+                          name="epsUpper"
+                          type="number"
+                          placeholder="Upper"
+                          value={undefined}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={!!errors.epsUpper && touched.epsUpper}
+                        />
+                        {errors.epsUpper && touched.epsUpper ? (
+                          <Form.Control.Feedback type="invalid">
+                            {errors.epsUpper}
+                          </Form.Control.Feedback>
+                        ) : null}
+                      </Col>
+                    </Row>
+                  </Form.Group>
+                  <Form.Group controlId="beta">
+                    <Form.Label>Beta</Form.Label>
                     <Row>
                       <Col>
                         <Form.Control
@@ -387,9 +392,9 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                         ) : null}
                       </Col>
                     </Row>
-                </Form.Group>
-                <Form.Group controlId="payoutRatio">
-                  <Form.Label>Payout Ratio</Form.Label>
+                  </Form.Group>
+                  <Form.Group controlId="payoutRatio">
+                    <Form.Label>Payout Ratio</Form.Label>
                     <Row>
                       <Col>
                         <Form.Control
@@ -400,7 +405,10 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                           value={undefined}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          isInvalid={!!errors.payoutRatioLower && touched.payoutRatioLower}
+                          isInvalid={
+                            !!errors.payoutRatioLower &&
+                            touched.payoutRatioLower
+                          }
                         />
                         {errors.payoutRatioLower && touched.payoutRatioLower ? (
                           <Form.Control.Feedback type="invalid">
@@ -417,7 +425,10 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                           value={undefined}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          isInvalid={!!errors.payoutRatioUpper && touched.payoutRatioUpper}
+                          isInvalid={
+                            !!errors.payoutRatioUpper &&
+                            touched.payoutRatioUpper
+                          }
                         />
                         {errors.payoutRatioUpper && touched.payoutRatioUpper ? (
                           <Form.Control.Feedback type="invalid">
@@ -426,8 +437,8 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                         ) : null}
                       </Col>
                     </Row>
-                </Form.Group>
-              </Col>
+                  </Form.Group>
+                </Col>
               </Row>
             </Container>
             <Container>
@@ -454,25 +465,43 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
             <Container>
               <Row className="justify-content-md-center">
                 <Col xs lg="2">
-                  <Button disabled={false} size="lg" variant="success" onClick={() => { doSubmit(values); }}>Filter</Button>
+                  <Button
+                    disabled={false}
+                    size="lg"
+                    variant="success"
+                    onClick={() => {
+                      doSubmit(values);
+                    }}
+                  >
+                    Filter
+                  </Button>
                 </Col>
                 <Col xs lg="2">
-                  <Button disabled={!values.screenerName} size="lg" variant="primary" onClick={() => { doSave(values); }}>Save</Button>
+                  <Button
+                    disabled={!values.screenerName}
+                    size="lg"
+                    variant="primary"
+                    onClick={() => {
+                      doSave(values);
+                    }}
+                  >
+                    Save
+                  </Button>
                 </Col>
               </Row>
             </Container>
             <Container>
               <Row className="justify-content-center p-2">
                 <Col xs lg="6">
-                  {saveError ?
+                  {saveError ? (
                     <Alert variant="danger">
                       {`Save failed: ${saveError}`}
                     </Alert>
-                  : !saveError && saveData ?
-                    <Alert variant="success">
-                      {`Save succeeded`}
-                    </Alert>
-                  : ""}
+                  ) : !saveError && saveData ? (
+                    <Alert variant="success">{`Save succeeded`}</Alert>
+                  ) : (
+                    ""
+                  )}
                 </Col>
               </Row>
             </Container>
@@ -481,7 +510,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
       }}
     </Formik>
   );
-}
+};
 
 // Add mapStateToProps
 const mapStateToProps = (state: any) => ({

@@ -72,7 +72,7 @@ const ParentComment: React.FC<StateProps & Props> = (props) => {
 
   return (
     <Row className="my-1 w-100">
-      <Container fluid className="border border-secondary rounded pt-2">
+      <Container fluid className="border border-secondary rounded pt-2 bg-dark">
         {is_deleted ? (
           <Row>
             <Col md={2}>

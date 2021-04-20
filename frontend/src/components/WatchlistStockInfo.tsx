@@ -22,7 +22,7 @@ const WatchlistStockInfo: React.FC<Props> = (props) => {
   } = props;
 
   return (
-    <Row className="border-bottom border-light my-2 w-100 align-items-center py-1">
+    <Row className="my-2 w-100 align-items-center py-1">
       <Col>
         <a href={`/stock/${stock_ticker}`}>{stock_ticker}</a>
       </Col>

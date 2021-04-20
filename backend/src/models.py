@@ -139,10 +139,10 @@ def notes_model(namespace):
         {
             "title": fields.String(required=True, example="Note Title"),
             "content": fields.String(required=True, example="Note Content"),
-            "stock_symbols": fields.String(required=True, example="TSLA"),
-            "portfolio_names": fields.String(required=True, example="Portfolio A"),
-            "external_references": fields.String(required=True, example=""),
-            "internal_references": fields.String(required=True, example=""),
+            "stock_symbols": fields.List(fields.String(example="TSLA")),
+            "portfolio_names": fields.List(fields.String(example="Portfolio A")),
+            "external_references": fields.List(fields.String(example="")),
+            "internal_references": fields.List(fields.String(example="")),
         },
     )
 
@@ -153,10 +153,10 @@ def notes_edit_model(namespace):
         {
             "new_title": fields.String(required=True, example="Note Title"),
             "content": fields.String(required=True, example="Note Content"),
-            "stock_symbols": fields.String(required=True, example="TSLA"),
-            "portfolio_names": fields.String(required=True, example="Portfolio A"),
-            "external_references": fields.String(required=True, example=""),
-            "internal_references": fields.String(required=True, example=""),
+            "stock_symbols": fields.List(fields.String(example="TSLA")),
+            "portfolio_names": fields.List(fields.String(example="Portfolio A")),
+            "external_references": fields.List(fields.String(example="")),
+            "internal_references": fields.List(fields.String(example="")),
         },
     )
 

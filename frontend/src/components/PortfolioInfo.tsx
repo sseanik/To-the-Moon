@@ -13,7 +13,7 @@ const PortfolioInfo: React.FC<Props> = (props) => {
   const { name, viewOnly = false } = props;
 
   return (
-    <Container>
+    <Container className="bg-dark">
       <h2 className="my-2">{name}</h2>
       <PortfolioPerformance name={name} />
       <Container fluid className="w-75">

@@ -126,7 +126,7 @@ const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
               isInvalid={!!errors.purchaseTime}
             />
 
-            <Button variant="outline-primary" type="submit" className="my-2">
+            <Button variant="primary" type="submit" className="my-2">
               Add Investment
             </Button>
           </Form>
