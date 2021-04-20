@@ -1,9 +1,13 @@
+import { Action } from "redux";
 import newsConstants from "../constants/newsConstants";
 
-export const landingNewsReducer = (state = {
-  loading: false,
-  data: [],
-}, action) => {
+export const landingNewsReducer = (
+  state = {
+    loading: false,
+    data: [],
+  },
+  action: NewsAction
+) => {
   switch (action.type) {
     case newsConstants.NEWS_PENDING:
       return {
@@ -21,16 +25,19 @@ export const landingNewsReducer = (state = {
         ...state,
         loading: false,
         data: [],
-      }
+      };
     default:
       return state;
   }
 };
 
-export const stockNewsReducer = (state = {
-  loading: false,
-  data: [],
-}, action) => {
+export const stockNewsReducer = (
+  state = {
+    loading: false,
+    data: [],
+  },
+  action: NewsAction
+) => {
   switch (action.type) {
     case newsConstants.NEWS_PENDING:
       return {
@@ -48,8 +55,14 @@ export const stockNewsReducer = (state = {
         ...state,
         loading: false,
         data: [],
-      }
+      };
     default:
       return state;
   }
 };
+
+interface NewsAction extends Action {
+  payload: {
+    articles: string[];
+  };
+}

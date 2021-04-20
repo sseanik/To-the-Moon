@@ -1,51 +1,9 @@
+import { Action } from "redux";
+import { SimpleReduxState } from "../../types/generalTypes";
 import screenerConstants from "../constants/screenerConstants";
 
-const initialState = {
-  // input parameters e.g. market cap
-  parameters: {
-    loading: false,
-    error: null,
-    data: {
-      region: [""],
-      marketcap: "",
-      intradayLower: 0,
-      intradayUpper: 0,
-      sector: [""],
-      industry: [""],
-    },
-  },
-  saveStatus: {
-    loading: false,
-    error: null,
-    data: "",
-  },
-  // screened stocks
-  results: {
-    loading: false,
-    error: null,
-    data: [
-      // {"stock ticker": "TEST", "price": 694.20, 'price change': 2.34, 'price change percentage': 0.00619, 'volume': 2429302, 'market capitalization': 374434639073, 'PE ratio': 59.67},
-    ],
-  },
-  // screener list
-  list: {
-    loading: false,
-    error: null,
-    data: [
-      {"name": "E", "params": {}},
-    ],
-  },
-  // deletion status
-  deletion: {
-    loading: false,
-    error: null,
-    data: "",
-    deleting: [],
-  }
-};
-
-const screenerReducer = (state = initialState, action) => {
-  switch(action.type) {
+const screenerReducer = (state = initialState, action: ScreenerAction) => {
+  switch (action.type) {
     // Save screener and associated params
     // Note: params are not returned in the endpoint or in the dispatch
     case screenerConstants.SAVE_SCREENER_PENDING:
@@ -54,7 +12,7 @@ const screenerReducer = (state = initialState, action) => {
         saveStatus: {
           ...state.saveStatus,
           loading: true,
-          error: null,
+          error: "",
         },
       };
     case screenerConstants.SAVE_SCREENER_SUCCESS:
@@ -63,7 +21,7 @@ const screenerReducer = (state = initialState, action) => {
         saveStatus: {
           ...state.saveStatus,
           loading: false,
-          error: null,
+          error: "",
           data: action.payload,
         },
       };
@@ -83,7 +41,7 @@ const screenerReducer = (state = initialState, action) => {
         results: {
           ...state.results,
           loading: true,
-          error: null,
+          error: "",
         },
       };
     case screenerConstants.GET_SCREENER_RESULTS_SUCCESS:
@@ -92,7 +50,7 @@ const screenerReducer = (state = initialState, action) => {
         results: {
           ...state.results,
           loading: false,
-          error: null,
+          error: "",
           data: action.payload.data,
         },
       };
@@ -112,7 +70,7 @@ const screenerReducer = (state = initialState, action) => {
         list: {
           ...state.list,
           loading: true,
-          error: null,
+          error: "",
         },
       };
     case screenerConstants.LOAD_SCREENERS_SUCCESS:
@@ -121,7 +79,7 @@ const screenerReducer = (state = initialState, action) => {
         list: {
           ...state.list,
           loading: false,
-          error: null,
+          error: "",
           data: action.payload.data,
         },
       };
@@ -142,7 +100,7 @@ const screenerReducer = (state = initialState, action) => {
         deletion: {
           ...state.deletion,
           loading: true,
-          error: null,
+          error: "",
           deleting: [...state.deletion.deleting, action.payload],
         },
       };
@@ -152,7 +110,7 @@ const screenerReducer = (state = initialState, action) => {
         deletion: {
           ...state.deletion,
           loading: false,
-          error: null,
+          error: "",
           data: action.payload.message,
           deleting: state.deletion.deleting.filter(
             (name) => name === action.payload
@@ -172,7 +130,107 @@ const screenerReducer = (state = initialState, action) => {
       };
     default:
       return state;
-    }
+  }
+};
+
+interface ScreenerAction extends Action {
+  payload: {
+    data?: any;
+    error?: string;
+    message?: string;
+  };
+}
+
+interface ParameterState extends SimpleReduxState {
+  data: {
+    region: string[];
+    marketcap: string;
+    intradayLower: number;
+    intradayUpper: number;
+    sector: string[];
+    industry: string[];
+  };
+}
+
+interface SaveStatusState extends SimpleReduxState {
+  data: string;
+}
+
+interface Result {
+  stock_ticker: string;
+  price: number;
+  price_change: number;
+  price_change_percentage: number;
+  volume: number;
+  "market capitilization": number;
+  "PE ratio": number;
+}
+
+interface ResultsState extends SimpleReduxState {
+  data: Result[];
+}
+
+interface DataList {
+  name: string;
+  params: Object;
+}
+
+interface ListState extends SimpleReduxState {
+  data: DataList[];
+}
+
+interface DeletionState extends SaveStatusState {
+  deleting: string[];
+}
+
+interface InitialState {
+  parameters: ParameterState;
+  saveStatus: SaveStatusState;
+  results: ResultsState;
+  list: ListState;
+  deletion: DeletionState;
+}
+
+const initialState: InitialState = {
+  // input parameters e.g. market cap
+  parameters: {
+    loading: false,
+    error: "",
+    data: {
+      region: [""],
+      marketcap: "",
+      intradayLower: 0,
+      intradayUpper: 0,
+      sector: [""],
+      industry: [""],
+    },
+  },
+  saveStatus: {
+    loading: false,
+    error: "",
+    data: "",
+  },
+  // screened stocks
+  results: {
+    loading: false,
+    error: "",
+    data: [
+      // {"stock ticker": "TEST", "price": 694.20, 'price change': 2.34, 'price change percentage': 0.00619, 'volume': 2429302, 'market capitalization': 374434639073, 'PE ratio': 59.67},
+    ],
+  },
+  // screener list
+  list: {
+    loading: false,
+    error: "",
+    data: [{ name: "E", params: {} }],
+  },
+  // deletion status
+  deletion: {
+    loading: false,
+    error: "",
+    data: "",
+    deleting: [],
+  },
 };
 
 export default screenerReducer;

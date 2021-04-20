@@ -97,7 +97,7 @@ const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
                     values.timestamp = new Date().getTime();
                   }}
                 >
-                  Add Reply
+                  {parentID ? "Add Reply" : "Add Comment"}
                 </Button>
               </Col>
             </Form.Row>

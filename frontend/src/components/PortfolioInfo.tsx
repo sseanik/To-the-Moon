@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSignInAlt } from "@fortawesome/free-solid-svg-icons";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { Col, Container, Row, Button } from "react-bootstrap";
 import DeletePortfolioButton from "./DeletePortfolioButton";
 import { PortfolioPerformance } from ".";
@@ -20,7 +20,7 @@ const PortfolioInfo: React.FC<Props> = (props) => {
         <Row>
           <Col className="align-middle">
             <Button className="portfolio-controls" href={`/portfolio/${name}`}>
-              <FontAwesomeIcon icon={faSignInAlt} size="2x" />
+              <FontAwesomeIcon icon={faEdit} size="2x" />
             </Button>
           </Col>
           {!viewOnly ? (

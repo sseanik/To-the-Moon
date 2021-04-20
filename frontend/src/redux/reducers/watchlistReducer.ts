@@ -1,103 +1,7 @@
+import { SimpleReduxState, PayloadAction } from "../../types/generalTypes";
 import watchlistConstants from "../constants/watchlistConstants";
 
-// should be set in another file, will be used across all reducers
-interface Action {
-  type: string;
-  payload?: Object;
-}
-
-interface StockParams {
-  stock_ticker: string;
-  proportion: number;
-  price: number;
-  price_change_percentage: number;
-  volume: number;
-  market_capitalization: number;
-  PE_ratio: number;
-}
-
-interface WatchlistParams {
-  watchlist_id: string;
-  watchlist_name: string;
-  author_username: string;
-  description: string;
-  stocks: StockParams[];
-}
-
-// same as above
-interface SimpleReduxState {
-  loading: boolean;
-  error: string;
-}
-
-interface MultipleDeleteReduxState {
-  deleting: string[];
-  error: string;
-}
-
-interface WatchlistsState extends SimpleReduxState {
-  watchlists: WatchlistParams[];
-}
-
-interface FollowingState extends SimpleReduxState {
-  following: string[];
-}
-
-interface WatchlistState extends SimpleReduxState {
-  watchlist?: Object;
-}
-
-interface InitialState {
-  getWatchlists: WatchlistsState;
-  addWatchlist: SimpleReduxState;
-  deleteWatchlist: MultipleDeleteReduxState;
-  getFollowing: FollowingState;
-  addFollowing: SimpleReduxState;
-  deleteFollowing: SimpleReduxState;
-  getWatchlist: WatchlistState;
-}
-
-const initialState: InitialState = {
-  getWatchlists: {
-    loading: false,
-    error: "",
-    watchlists: [],
-  },
-  addWatchlist: {
-    loading: false,
-    error: "",
-  },
-  deleteWatchlist: {
-    deleting: [],
-    error: "",
-  },
-  getFollowing: {
-    loading: false,
-    error: "",
-    following: [],
-  },
-  addFollowing: {
-    loading: false,
-    error: "",
-  },
-  deleteFollowing: {
-    loading: false,
-    error: "",
-  },
-  getWatchlist: {
-    loading: false,
-    error: "",
-    watchlist: {
-      watchlist_id: "",
-      watchlist_name: "",
-      author_username: "",
-      description: "",
-      stocks: [],
-    },
-  },
-};
-
-const watchlistReducer = (state = initialState, action: Action) => {
+const watchlistReducer = (state = initialState, action: PayloadAction) => {
   switch (action.type) {
     case watchlistConstants.GET_WATCHLISTS_PENDING:
       return {
@@ -308,6 +212,91 @@ const watchlistReducer = (state = initialState, action: Action) => {
     default:
       return state;
   }
+};
+
+interface StockParams {
+  stock_ticker: string;
+  proportion: number;
+  price: number;
+  price_change_percentage: number;
+  volume: number;
+  market_capitalization: number;
+  PE_ratio: number;
+}
+
+interface WatchlistParams {
+  watchlist_id: string;
+  watchlist_name: string;
+  author_username: string;
+  description: string;
+  stocks: StockParams[];
+}
+
+interface MultipleDeleteReduxState {
+  deleting: string[];
+  error: string;
+}
+
+interface WatchlistsState extends SimpleReduxState {
+  watchlists: WatchlistParams[];
+}
+
+interface FollowingState extends SimpleReduxState {
+  following: string[];
+}
+
+interface WatchlistState extends SimpleReduxState {
+  watchlist?: Object;
+}
+
+interface InitialState {
+  getWatchlists: WatchlistsState;
+  addWatchlist: SimpleReduxState;
+  deleteWatchlist: MultipleDeleteReduxState;
+  getFollowing: FollowingState;
+  addFollowing: SimpleReduxState;
+  deleteFollowing: SimpleReduxState;
+  getWatchlist: WatchlistState;
+}
+
+const initialState: InitialState = {
+  getWatchlists: {
+    loading: false,
+    error: "",
+    watchlists: [],
+  },
+  addWatchlist: {
+    loading: false,
+    error: "",
+  },
+  deleteWatchlist: {
+    deleting: [],
+    error: "",
+  },
+  getFollowing: {
+    loading: false,
+    error: "",
+    following: [],
+  },
+  addFollowing: {
+    loading: false,
+    error: "",
+  },
+  deleteFollowing: {
+    loading: false,
+    error: "",
+  },
+  getWatchlist: {
+    loading: false,
+    error: "",
+    watchlist: {
+      watchlist_id: "",
+      watchlist_name: "",
+      author_username: "",
+      description: "",
+      stocks: [],
+    },
+  },
 };
 
 export default watchlistReducer;

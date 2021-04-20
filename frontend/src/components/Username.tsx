@@ -28,7 +28,7 @@ const Username: React.FC<StateProps & DispatchProps> = (props) => {
       logout();
       history.push("/");
     }
-  }, []);
+  });
 
   const usernameComponent = (
     <Navbar.Text className="mr-sm-2">Signed in as: {username}</Navbar.Text>

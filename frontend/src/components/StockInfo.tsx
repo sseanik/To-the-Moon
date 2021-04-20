@@ -29,7 +29,7 @@ const StockInfo: React.FC<Props> = (props) => {
       <Col>{purchase_date}</Col>
       <Col>${purchase_price}</Col>
       <Col className={total_change >= 0 ? "text-success" : "text-danger"}>
-        ${total_change.toFixed(2)}
+        {total_change.toFixed(2)}%
       </Col>
       <Col>
         <DeleteStockButton investmentID={investment_id} />

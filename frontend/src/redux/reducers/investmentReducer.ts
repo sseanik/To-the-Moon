@@ -1,29 +1,15 @@
+import { Action } from "redux";
+import { SimpleReduxState } from "../../types/generalTypes";
 import investmentConstants from "../constants/investmentConstants";
 
-const initialState = {
-  createStock: {
-    loading: false,
-    error: null,
-  },
-  getStocks: {
-    loading: false,
-    stocks: [],
-  },
-  deleteStock: {
-    loading: false,
-    error: null,
-    deleting: [],
-  },
-};
-
-const investmentReducer = (state = initialState, action) => {
+const investmentReducer = (state = initialState, action: InvestmentAction) => {
   switch (action.type) {
     case investmentConstants.CREATE_STOCK_PENDING:
       return {
         ...state,
         createStock: {
           loading: true,
-          error: null,
+          error: "",
         },
       };
     case investmentConstants.CREATE_STOCK_SUCCESS:
@@ -31,7 +17,7 @@ const investmentReducer = (state = initialState, action) => {
         ...state,
         createStock: {
           loading: false,
-          error: null,
+          error: "",
         },
       };
     case investmentConstants.CREATE_STOCK_FAILURE:
@@ -71,8 +57,7 @@ const investmentReducer = (state = initialState, action) => {
       return {
         ...state,
         deleteStock: {
-          loading: true,
-          error: null,
+          error: "",
           deleting: [...state.deleteStock.deleting, action.payload],
         },
       };
@@ -80,8 +65,7 @@ const investmentReducer = (state = initialState, action) => {
       return {
         ...state,
         deleteStock: {
-          loading: false,
-          error: null,
+          error: "",
           deleting: state.deleteStock.deleting.filter(
             (id) => id === action.payload
           ),
@@ -91,16 +75,48 @@ const investmentReducer = (state = initialState, action) => {
       return {
         ...state,
         deleteStock: {
-          loading: false,
-          error: action.payload.error,
-          deleting: state.deleteStock.deleting.filter(
-            (id) => id === action.payload
-          ),
+          error: action.payload,
+          deleting: [],
         },
       };
     default:
       return state;
   }
+};
+
+interface InvestmentAction extends Action {
+  payload: any;
+}
+
+interface GetStocksState {
+  loading: boolean;
+  stocks: string[];
+}
+
+interface InitialState {
+  createStock: SimpleReduxState;
+  getStocks: GetStocksState;
+  deleteStock: MultipleDeleteState;
+}
+
+interface MultipleDeleteState {
+  error: string;
+  deleting: string[];
+}
+
+const initialState: InitialState = {
+  createStock: {
+    loading: false,
+    error: "",
+  },
+  getStocks: {
+    loading: false,
+    stocks: [],
+  },
+  deleteStock: {
+    error: "",
+    deleting: [],
+  },
 };
 
 export default investmentReducer;

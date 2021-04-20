@@ -57,8 +57,12 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
               onChange={handleChange}
               onBlur={handleBlur}
               isInvalid={!!errors.newName && touched.newName}
-              isValid={!errors.newName && touched.newName}
             />
+            {errors.newName ? (
+              <Form.Control.Feedback type="invalid">
+                {errors.newName}
+              </Form.Control.Feedback>
+            ) : null}
 
             <Button type="submit" variant="success" className="mt-2">
               Add Portfolio

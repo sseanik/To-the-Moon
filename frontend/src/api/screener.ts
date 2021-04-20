@@ -1,10 +1,11 @@
-import * as config from '../config.json';
-import Utils from './utils';
+import * as config from "../config.json";
+import { ScreenerQuery } from "../helpers/ScreenerQuery";
+import Utils from "./utils";
 
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const ScreenerAPI = {
-  save: (name, parameters) => {
+  save: (name: string, parameters: ScreenerQuery) => {
     const endpoint = `/screener/save?name=${name}`;
     const options = {
       method: "POST",
@@ -29,7 +30,7 @@ const ScreenerAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  delete: (name) => {
+  delete: (name: string) => {
     const endpoint = `/screener/delete?name=${name}`;
     const options = {
       method: "DELETE",
@@ -41,7 +42,7 @@ const ScreenerAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getData: (parameters) => {
+  getData: (parameters: string) => {
     const endpoint = `/screener`;
     const options = {
       method: "GET",
@@ -54,6 +55,6 @@ const ScreenerAPI = {
 
     return Utils.getJSON(`${url}${endpoint}${parameters}`, options);
   },
-}
+};
 
 export default ScreenerAPI;

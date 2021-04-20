@@ -27,7 +27,7 @@ const DeleteWatchlistButton: React.FC<StateProps & DispatchProps & Props> = (
       disabled={deleting.includes(watchlistID)}
       onClick={() => deleteWatchlist(watchlistID)}
     >
-      <FontAwesomeIcon icon={faTrash} />
+      <FontAwesomeIcon icon={faTrash} size="2x" />
     </Button>
   );
 };

@@ -1,10 +1,14 @@
+import { Action } from "redux";
 import trendConstants from "../constants/trendConstants";
 
-const trendReducer = (state = {
-  loading: false,
-  error: null,
-  data: [],
-}, action) => {
+const trendReducer = (
+  state = {
+    loading: false,
+    error: null,
+    data: [],
+  },
+  action: TrendAction
+) => {
   switch (action.type) {
     case trendConstants.TRENDING_INVESTMENTS_PENDING:
       return {
@@ -23,10 +27,21 @@ const trendReducer = (state = {
         ...state,
         loading: false,
         error: action.payload,
-      }
+      };
     default:
       return state;
   }
 };
+
+interface StockCount {
+  stock: string;
+  count: number;
+}
+
+interface TrendAction extends Action {
+  payload: {
+    data: StockCount[];
+  };
+}
 
 export default trendReducer;

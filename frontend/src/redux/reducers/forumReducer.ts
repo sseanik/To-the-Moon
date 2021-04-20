@@ -1,54 +1,8 @@
+import { Action } from "redux";
+import { SimpleReduxState } from "../../types/generalTypes";
 import forumConstants from "../constants/forumConstants";
 
-const initialState = {
-  addParent: {
-    loading: false,
-    error: null,
-  },
-  addChild: {
-    error: null,
-    adding: [],
-  },
-  getComments: {
-    loading: false,
-    error: null,
-  },
-  editParent: {
-    editing: [],
-    error: null,
-  },
-  editChild: {
-    editing: [],
-    error: null,
-  },
-  deleteParent: {
-    deleting: [],
-    error: null,
-  },
-  deleteChild: {
-    deleting: [],
-    error: null,
-  },
-  upvoteParent: {
-    upvoting: [],
-    error: null,
-  },
-  upvoteChild: {
-    upvoting: [],
-    error: null,
-  },
-  downvoteParent: {
-    downvoting: [],
-    error: null,
-  },
-  downvoteChild: {
-    downvoting: [],
-    error: null,
-  },
-  comments: [],
-};
-
-const forumReducer = (state = initialState, action) => {
+const forumReducer = (state = initialState, action: ForumAction) => {
   switch (action.type) {
     case forumConstants.ADD_PARENT_PENDING:
       return {
@@ -95,7 +49,7 @@ const forumReducer = (state = initialState, action) => {
         // insert the new reply first temporarily
         comments: state.comments.map((comment) =>
           comment.comment_id === action.payload.comment_id
-            ? { ...comment, replies: [action.payload, ...comment.replies] }
+            ? { ...comment, replies: [action.payload, ...comment.replies!] }
             : comment
         ),
       };
@@ -180,7 +134,7 @@ const forumReducer = (state = initialState, action) => {
           comment.comment_id === action.payload.comment_id
             ? {
                 ...comment,
-                replies: comment.replies.map((reply) =>
+                replies: comment.replies!.map((reply) =>
                   reply.reply_id === action.payload.reply_id
                     ? {
                         ...reply,
@@ -217,11 +171,11 @@ const forumReducer = (state = initialState, action) => {
         deleteParent: {
           error: null,
           deleting: state.deleteParent.deleting.filter(
-            (commentID) => commentID !== action.payload
+            (commentID) => commentID !== action.payload.commentID
           ),
         },
         comments: state.comments.map((comment) =>
-          comment.comment_id === action.payload
+          comment.comment_id === action.payload.commentID
             ? { ...comment, is_deleted: true }
             : comment
         ),
@@ -255,7 +209,7 @@ const forumReducer = (state = initialState, action) => {
           comment.comment_id === action.payload.parentID
             ? {
                 ...comment,
-                replies: comment.replies.map((reply) =>
+                replies: comment.replies!.map((reply) =>
                   reply.reply_id === action.payload.commentID
                     ? { ...reply, is_deleted: true }
                     : reply
@@ -286,11 +240,11 @@ const forumReducer = (state = initialState, action) => {
         upvoteParent: {
           error: null,
           upvoting: state.upvoteParent.upvoting.filter(
-            (commentID) => commentID !== action.payload
+            (commentID) => commentID !== action.payload.commentID
           ),
         },
         comments: state.comments.map((comment) =>
-          comment.comment_id === action.payload
+          comment.comment_id === action.payload.commentID
             ? {
                 ...comment,
                 is_upvoted: true,
@@ -335,7 +289,7 @@ const forumReducer = (state = initialState, action) => {
           comment.comment_id === action.payload.parentID
             ? {
                 ...comment,
-                replies: comment.replies.map((reply) =>
+                replies: comment.replies!.map((reply) =>
                   reply.reply_id === action.payload.commentID
                     ? {
                         ...reply,
@@ -377,11 +331,11 @@ const forumReducer = (state = initialState, action) => {
         downvoteParent: {
           error: null,
           downvoting: state.downvoteParent.downvoting.filter(
-            (commentID) => commentID !== action.payload
+            (commentID) => commentID !== action.payload.commentID
           ),
         },
         comments: state.comments.map((comment) =>
-          comment.comment_id === action.payload
+          comment.comment_id === action.payload.commentID
             ? {
                 ...comment,
                 is_downvoted: true,
@@ -426,7 +380,7 @@ const forumReducer = (state = initialState, action) => {
           comment.comment_id === action.payload.parentID
             ? {
                 ...comment,
-                replies: comment.replies.map((reply) =>
+                replies: comment.replies!.map((reply) =>
                   reply.reply_id === action.payload.commentID
                     ? {
                         ...reply,
@@ -457,6 +411,121 @@ const forumReducer = (state = initialState, action) => {
     default:
       return state;
   }
+};
+
+interface ForumAction extends Action {
+  payload: {
+    comment_id?: string;
+    commentID?: string;
+    parentID?: string;
+    reply_id?: string;
+    content?: string;
+  };
+}
+
+interface Comment {
+  comment_id: string;
+  reply_id?: string;
+  stock_ticker: string;
+  username: string;
+  time_stamp: number;
+  content: string;
+  is_edited: boolean;
+  is_deleted: boolean;
+  is_upvoted: boolean;
+  is_downvoted: boolean;
+  upvotes: number;
+  downvotes: number;
+  vote_difference: number;
+  replies?: Comment[];
+}
+
+interface AddChildState {
+  adding: string[];
+  error: string;
+}
+
+interface EditingState {
+  editing: string[];
+  error: string;
+}
+
+interface DeletingState {
+  deleting: string[];
+  error: string;
+}
+
+interface UpvotingState {
+  upvoting: string[];
+  error: string;
+}
+
+interface DownvotingState {
+  downvoting: string[];
+  error: string;
+}
+
+interface InitialState {
+  addParent: SimpleReduxState;
+  addChild: AddChildState;
+  getComments: SimpleReduxState;
+  editParent: EditingState;
+  editChild: EditingState;
+  deleteParent: DeletingState;
+  deleteChild: DeletingState;
+  upvoteParent: UpvotingState;
+  upvoteChild: UpvotingState;
+  downvoteParent: DownvotingState;
+  downvoteChild: DownvotingState;
+  comments: Comment[];
+}
+
+const initialState: InitialState = {
+  addParent: {
+    loading: false,
+    error: "",
+  },
+  addChild: {
+    error: "",
+    adding: [],
+  },
+  getComments: {
+    loading: false,
+    error: "",
+  },
+  editParent: {
+    editing: [],
+    error: "",
+  },
+  editChild: {
+    editing: [],
+    error: "",
+  },
+  deleteParent: {
+    deleting: [],
+    error: "",
+  },
+  deleteChild: {
+    deleting: [],
+    error: "",
+  },
+  upvoteParent: {
+    upvoting: [],
+    error: "",
+  },
+  upvoteChild: {
+    upvoting: [],
+    error: "",
+  },
+  downvoteParent: {
+    downvoting: [],
+    error: "",
+  },
+  downvoteChild: {
+    downvoting: [],
+    error: "",
+  },
+  comments: [],
 };
 
 export default forumReducer;

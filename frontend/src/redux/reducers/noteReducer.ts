@@ -1,39 +1,7 @@
+import { Action } from "redux";
 import noteConstants from "../constants/noteConstants";
 
-const initialState = {
-  allNotes: {
-    show: false,
-    loading: false,
-    data: [],
-    error: null,
-  },
-  relevantNotes: {
-    loading: false,
-    data: [],
-    error: null,
-  },
-  createNote: {
-    loading: false,
-    message: "",
-    error: null,
-  },
-  editNote: {
-    note: null,
-    loading: false,
-    error: null,
-  },
-  deleteNote: {
-    note: null,
-    loading: false,
-    error: null,
-  },
-  touched: {
-    allNotes: true,
-    relevantNotes: true,
-  },
-};
-
-const noteReducer = (state = initialState, action) => {
+const noteReducer = (state = initialState, action: NoteAction) => {
   switch (action.type) {
     // Toggle
     case noteConstants.TOGGLE_NOTELIST:
@@ -60,7 +28,7 @@ const noteReducer = (state = initialState, action) => {
         deleteNote: {
           ...state.editNote,
           error: null,
-        }
+        },
       };
     case noteConstants.GET_USER_NOTES_SUCCESS:
       return {
@@ -223,6 +191,57 @@ const noteReducer = (state = initialState, action) => {
     default:
       return state;
   }
+};
+
+interface NoteAction extends Action {
+  payload: {
+    message?: string;
+    old_title?: string;
+    title?: string;
+    data?: Note[];
+  };
+}
+
+interface Note {
+  title: string;
+  content: string;
+  stock_symbols: string[];
+  portfolio_names: string[];
+  external_references: string[];
+  internal_references: string[];
+}
+
+const initialState = {
+  allNotes: {
+    show: false,
+    loading: false,
+    data: [],
+    error: null,
+  },
+  relevantNotes: {
+    loading: false,
+    data: [],
+    error: null,
+  },
+  createNote: {
+    loading: false,
+    message: "",
+    error: null,
+  },
+  editNote: {
+    note: null,
+    loading: false,
+    error: null,
+  },
+  deleteNote: {
+    note: null,
+    loading: false,
+    error: null,
+  },
+  touched: {
+    allNotes: true,
+    relevantNotes: true,
+  },
 };
 
 export default noteReducer;

@@ -12,7 +12,6 @@ interface DeleteStockParams {
 }
 
 interface StateProps {
-  loading: boolean;
   error: Object;
   deleting: Array<string>;
 }
@@ -33,13 +32,13 @@ const DeleteStockButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
   const { name: portfolioName } = useParams<RouteMatchParams>();
-  const { loading, error, deleting, deleteStock, investmentID } = props;
+  const { error, deleting, deleteStock, investmentID } = props;
 
   return (
     <Container fluid>
       {error ? <Alert variant="danger">{error}</Alert> : null}
-      {loading && deleting.includes(investmentID) ? (
-        <ClipLoader color={"green"} loading={loading} />
+      {deleting.includes(investmentID) ? (
+        <ClipLoader color={"green"} loading={deleting.includes(investmentID)} />
       ) : (
         <Button
           variant="danger"
@@ -54,7 +53,6 @@ const DeleteStockButton: React.FC<StateProps & DispatchProps & Props> = (
 };
 
 const mapStateToProps = (state: any) => ({
-  loading: state.investmentReducer.deleteStock.loading,
   error: state.investmentReducer.deleteStock.error,
   deleting: state.investmentReducer.deleteStock.deleting,
 });

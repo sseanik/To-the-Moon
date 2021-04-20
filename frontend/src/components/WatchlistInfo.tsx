@@ -1,6 +1,6 @@
-import { faSignInAlt } from "@fortawesome/free-solid-svg-icons";
+import { faInfo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import { connect } from "react-redux";
 import DeleteWatchlistButton from "./DeleteWatchlistButton";
 
@@ -18,17 +18,20 @@ const WatchlistInfo: React.FC<StateProps & Props> = (props) => {
   const { username, watchlist_name, watchlist_id, author_username } = props;
   return (
     <Col
-      className="border rounded mx-1 my-2 p-4 portfolio-info bg-dark"
+      className="border rounded mx-1 my-2 p-4 watchlist-info bg-light"
       lg={4}
       md={6}
     >
       <h2 className="my-2">{watchlist_name}</h2>
-      <Container className="w-75">
+      <Container fluid className="w-75">
         <Row>
           <Col className="align-middle">
-            <a href={`/watchlist/${watchlist_id}`}>
-              <FontAwesomeIcon icon={faSignInAlt} size="2x" />
-            </a>
+            <Button
+              className="watchlist-controls"
+              href={`/watchlist/${watchlist_id}`}
+            >
+              <FontAwesomeIcon icon={faInfo} size="2x" />
+            </Button>
           </Col>
           {username === author_username ? (
             <Col>
