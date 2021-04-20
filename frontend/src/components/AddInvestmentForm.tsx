@@ -13,6 +13,14 @@ interface RouteMatchParams {
 interface AddInvestmentFormParams {
   portfolioName: string;
   stockTicker: string;
+  numShares: string;
+  purchaseDate: string;
+  purchaseTime: string;
+}
+
+interface SubmitParams {
+  portfolioName: string;
+  stockTicker: string;
   numShares: number;
   purchaseDate: string;
   purchaseTime: string;
@@ -24,7 +32,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  createStock: (payload: AddInvestmentFormParams) => void;
+  createStock: (payload: SubmitParams) => void;
 }
 
 const schema = Yup.object({
@@ -37,7 +45,7 @@ const schema = Yup.object({
 const initialValues: AddInvestmentFormParams = {
   portfolioName: "",
   stockTicker: "",
-  numShares: 1,
+  numShares: "1",
   purchaseDate: new Date().toLocaleDateString().split("/").reverse().join("-"),
   purchaseTime: new Date().toLocaleTimeString(),
 };
@@ -52,7 +60,9 @@ const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   const formComponent = (
     <Formik
-      onSubmit={createStock}
+      onSubmit={(values) => {
+        createStock({ ...values, numShares: parseInt(values.numShares) });
+      }}
       initialValues={initialValues}
       validationSchema={schema}
     >
@@ -149,7 +159,7 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    createStock: (formPayload: AddInvestmentFormParams) => {
+    createStock: (formPayload: SubmitParams) => {
       dispatch(investmentActions.createStock(formPayload));
     },
   };
