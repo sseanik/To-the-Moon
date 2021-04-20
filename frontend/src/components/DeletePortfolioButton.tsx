@@ -1,7 +1,6 @@
 import { Alert, Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import portfolioActions from "../redux/actions/portfolioActions";
-import ClipLoader from "react-spinners/ClipLoader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
@@ -26,27 +25,18 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
   const { error, deleting, deletePortfolio, portfolioName } = props;
-  const deleteButton = (
-    <Button
-      className="portfolio-controls"
-      variant="danger"
-      onClick={() => deletePortfolio({ portfolioName })}
-    >
-      <FontAwesomeIcon icon={faTrash} />
-    </Button>
-  );
 
   return (
     <Container fluid className="deleteButton">
       {error ? <Alert variant="danger">{error}</Alert> : null}
-      {deleting.includes(portfolioName) ? (
-        <ClipLoader
-          color={"green"}
-          loading={deleting.includes(portfolioName)}
-        />
-      ) : (
-        deleteButton
-      )}
+      <Button
+        className="portfolio-controls"
+        variant="danger"
+        disabled={deleting.includes(portfolioName)}
+        onClick={() => deletePortfolio({ portfolioName })}
+      >
+        <FontAwesomeIcon icon={faTrash} size="2x" />
+      </Button>
     </Container>
   );
 };

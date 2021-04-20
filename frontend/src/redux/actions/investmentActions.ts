@@ -1,6 +1,7 @@
 import investmentConstants from "../constants/investmentConstants";
 import investmentAPI from "../../api/investment";
 import { Dispatch } from "redux";
+import portfolioActions from "./portfolioActions";
 
 const investmentActions = {
   createStockPending: () => ({
@@ -30,6 +31,7 @@ const investmentActions = {
         `${purchaseDate}T${purchaseTime}`
       );
       dispatch(investmentActions.createStockSuccess());
+      portfolioActions.getPortfolios();
     } catch (error) {
       dispatch(investmentActions.createStockFailure(error.message));
     }

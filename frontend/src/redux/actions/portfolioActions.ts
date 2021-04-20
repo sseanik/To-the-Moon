@@ -6,8 +6,9 @@ const portfolioActions = {
   createPortfolioPending: () => ({
     type: portfolioConstants.CREATE_PORTFOLIO_PENDING,
   }),
-  createPortfolioSuccess: () => ({
+  createPortfolioSuccess: (response: CreatePortfolioPayload) => ({
     type: portfolioConstants.CREATE_PORTFOLIO_SUCCESS,
+    payload: response,
   }),
   createPortfolioFailure: (error: string) => ({
     type: portfolioConstants.CREATE_PORTFOLIO_FAILURE,
@@ -20,7 +21,7 @@ const portfolioActions = {
     try {
       const { newName } = payload;
       await portfolioAPI.createPortfolio(newName);
-      dispatch(portfolioActions.createPortfolioSuccess());
+      dispatch(portfolioActions.createPortfolioSuccess(payload));
       portfolioActions.getPortfolios();
     } catch (error) {
       dispatch(portfolioActions.createPortfolioFailure(error.message));

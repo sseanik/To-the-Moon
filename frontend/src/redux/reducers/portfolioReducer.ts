@@ -19,6 +19,13 @@ const portfolioReducer = (state = initialState, action: PortfolioAction) => {
           loading: false,
           error: "",
         },
+        getPortfolios: {
+          loading: false,
+          portfolios: [
+            ...state.getPortfolios.portfolios,
+            action.payload.newName,
+          ],
+        },
       };
     case portfolioConstants.CREATE_PORTFOLIO_FAILURE:
       return {
@@ -104,7 +111,13 @@ const portfolioReducer = (state = initialState, action: PortfolioAction) => {
         deletePortfolio: {
           error: "",
           deleting: state.deletePortfolio.deleting.filter(
-            (name) => name === action.payload.portfolioName
+            (name) => name !== action.payload.portfolioName
+          ),
+        },
+        getPortfolios: {
+          loading: false,
+          portfolios: state.getPortfolios.portfolios.filter(
+            (name) => name !== action.payload.portfolioName
           ),
         },
       };
