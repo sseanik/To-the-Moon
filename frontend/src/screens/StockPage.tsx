@@ -293,7 +293,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     <Container className="generic-container-scrolling">
       <hr />
       <Row>
-        <Col>Prediction Status: </Col>
+        <Col className="text-left font-weight-bold">Prediction Status: </Col>
         <Col>
           <Badge
             variant={statusBadgeModifier(
@@ -312,7 +312,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>Duration: </Col>
+        <Col className="text-left font-weight-bold">Duration: </Col>
         <Col>
           <DropdownButton
             variant="outline-dark"
@@ -339,7 +339,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <hr />
       <Row>
-        <Col>Model: </Col>
+        <Col className="text-left font-weight-bold">Model: </Col>
         <Col>
           <DropdownButton
             variant="outline-dark"
