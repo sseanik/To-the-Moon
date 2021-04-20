@@ -6,17 +6,14 @@ import { PortfolioPerformance } from ".";
 
 interface Props {
   name: string;
+  viewOnly?: boolean;
 }
 
 const PortfolioInfo: React.FC<Props> = (props) => {
-  const { name } = props;
+  const { name, viewOnly = false } = props;
 
   return (
-    <Col
-      className="border rounded mx-1 p-4 portfolio-info bg-dark"
-      lg={4}
-      md={6}
-    >
+    <Container>
       <h2 className="my-2">{name}</h2>
       <PortfolioPerformance name={name} />
       <Container fluid className="w-75">
@@ -26,12 +23,14 @@ const PortfolioInfo: React.FC<Props> = (props) => {
               <FontAwesomeIcon icon={faEdit} size="2x" />
             </Button>
           </Col>
-          <Col>
-            <DeletePortfolioButton portfolioName={name} />
-          </Col>
+          {!viewOnly ? (
+            <Col>
+              <DeletePortfolioButton portfolioName={name} />{" "}
+            </Col>
+          ) : null}
         </Row>
       </Container>
-    </Col>
+    </Container>
   );
 };
 

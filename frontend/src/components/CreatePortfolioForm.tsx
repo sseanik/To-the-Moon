@@ -11,7 +11,7 @@ interface CreatePortfolioFormValues {
 
 interface StateProps {
   loading: boolean;
-  error: Object;
+  error: string;
 }
 
 interface DispatchProps {

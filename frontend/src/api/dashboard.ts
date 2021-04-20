@@ -3,9 +3,9 @@ import Utils from "./utils";
 
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
-const investmentAPI = {
-  getStockTotalChange: (id: string) => {
-    const endpoint = `/portfolio/investment/total-change?id=${encodeURI(id)}`;
+const DashboardAPI = {
+  getUserDashboards: () => {
+    const endpoint = "/dashboard";
     const options = {
       method: "GET",
       headers: {
@@ -16,14 +16,36 @@ const investmentAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  addStock: (
-    portfolio: string,
-    stockTicker: string,
-    numShares: number,
-    purchaseDate: string
+  createUserDashboard: () => {
+    const endpoint = "/dashboard";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+    };
+
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  getDashboardBlocks: (dashboardId: string) => {
+    const endpoint = `/dashboard/${encodeURI(dashboardId)}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: Utils.getToken(),
+      },
+    };
+
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  createDashboardBlock: (
+    dashboardId: string,
+    type: string,
+    meta: { [key: string]: any }
   ) => {
-    const purchaseUnix = new Date(purchaseDate).getTime() / 1000;
-    const endpoint = `/portfolio/investment?portfolio=${encodeURI(portfolio)}`;
+    const endpoint = `/dashboard/${encodeURI(dashboardId)}`;
     const options = {
       method: "POST",
       headers: {
@@ -31,16 +53,15 @@ const investmentAPI = {
         Authorization: Utils.getToken(),
       },
       body: JSON.stringify({
-        num_shares: numShares,
-        purchase_date: purchaseUnix,
-        stock_ticker: stockTicker,
+        type,
+        meta,
       }),
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  deleteStock: (id: string) => {
-    const endpoint = `/portfolio/investment?id=${encodeURI(id)}`;
+  deleteDashboard: (dashboardId: string) => {
+    const endpoint = `/dashboard/${encodeURI(dashboardId)}`;
     const options = {
       method: "DELETE",
       headers: {
@@ -51,8 +72,8 @@ const investmentAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getStocks: (portfolioName: string) => {
-    const endpoint = `/portfolio/investment?portfolio=${encodeURI(portfolioName)}`;
+  getBlockMeta: (blockId: string) => {
+    const endpoint = `/dashboard/block/${encodeURI(blockId)}`;
     const options = {
       method: "GET",
       headers: {
@@ -63,10 +84,10 @@ const investmentAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getTrendingStocks: (n: number) => {
-    const endpoint = `/portfolio/investment/trending?n=${encodeURI(n.toString())}`;
+  deleteBlock: (blockId: string) => {
+    const endpoint = `/dashboard/block/${encodeURI(blockId)}`;
     const options = {
-      method: "GET",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
@@ -77,4 +98,4 @@ const investmentAPI = {
   },
 };
 
-export default investmentAPI;
+export default DashboardAPI;

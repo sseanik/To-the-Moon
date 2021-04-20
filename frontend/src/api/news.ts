@@ -5,7 +5,7 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const NewsAPI = {
   getFeaturedNews: (count = 5) => {
-    const endpoint = `/news/general?count=${count}`;
+    const endpoint = `/news/general?count=${encodeURI(count.toString())}`;
     const options = {
       method: "GET",
       headers: {
@@ -17,7 +17,7 @@ const NewsAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getNewsByStock: (stock: string) => {
-    const endpoint = `/news?symbol=${stock}`;
+    const endpoint = `/news?symbol=${encodeURI(stock)}`;
     const options = {
       method: "GET",
       headers: {

@@ -17,7 +17,7 @@ const portfolioAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getPortfolioPerformance: (name: string) => {
-    const endpoint = `/portfolio/performance?name=${name}`;
+    const endpoint = `/portfolio/performance?name=${encodeURI(name)}`;
     const options = {
       method: "GET",
       headers: {
@@ -29,7 +29,7 @@ const portfolioAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   createPortfolio: (name: string) => {
-    const endpoint = `/portfolio?name=${name}`;
+    const endpoint = `/portfolio?name=${encodeURI(name)}`;
     const options = {
       method: "POST",
       headers: {
@@ -41,7 +41,7 @@ const portfolioAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   editPortfolio: (oldName: string, newName: string) => {
-    const endpoint = `/portfolio?name=${oldName}`;
+    const endpoint = `/portfolio?name=${encodeURI(oldName)}`;
     const options = {
       method: "PUT",
       headers: {
@@ -56,7 +56,7 @@ const portfolioAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   deletePortfolio: (name: string) => {
-    const endpoint = `/portfolio?name=${name}`;
+    const endpoint = `/portfolio?name=${encodeURI(name)}`;
     const options = {
       method: "DELETE",
       headers: {
