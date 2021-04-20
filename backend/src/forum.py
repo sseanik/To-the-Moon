@@ -1,21 +1,38 @@
-####################
-#   Forum Module   #
-####################
+# ---------------------------------------------------------------------------- #
+#                                 Forum Module                                 #
+# ---------------------------------------------------------------------------- #
+
 import time
+from json import dumps
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from database import create_DB_connection
 from token_util import get_id_from_token
 from better_profanity import profanity
-from json import dumps
-from flask import Blueprint, request
+from flask import request, Response
+from flask_restx import Namespace, Resource, abort
+from models import (
+    token_parser,
+    forum_parser,
+    comment_model,
+    comment_delete_model,
+    comment_edit_model,
+    comment_vote_model,
+    reply_model,
+    reply_delete_model,
+    reply_edit_model,
+    reply_vote_model,
+)
 
-FORUM_ROUTES = Blueprint('forum', __name__)
+# ---------------------------------------------------------------------------- #
+#                              Global Declarations                             #
+# ---------------------------------------------------------------------------- #
 
+FORUM_NS = Namespace("forum", "User discussion on Stock Pages")
 
-###################################
-# Please leave all functions here #
-###################################
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 
 def validate_timestamp(timestamp):
@@ -40,19 +57,17 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     """
     # Check that the content is not too large
     if len(content) >= 5000:
-        return {
-            'status':400,
-            'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
-            'comment': {}
-        }
+        abort(
+            400,
+            (
+                "Comment content cannot be larger than 5000 characters. ",
+                "Please reduce comment size.",
+            ),
+        )
 
     # If the timestamp is not between yesterday or tomorrow
     if not validate_timestamp(timestamp):
-        return {
-            'status': 400,
-            'message': 'Timestamp provided is invalid',
-            'comment': {}
-        }
+        abort(400, "Timestamp provided is invalid")
 
     # Censor rude words
     content = profanity.censor(content)
@@ -65,54 +80,50 @@ def post_comment(user_id, stock_ticker, timestamp, content, parent_id=None):
     if not parent_id:
         insert_query = """
             WITH inserted_comment as (
-            INSERT INTO forum_comment (stock_ticker, author_id, time_stamp, content) 
-            VALUES (%s, %s, %s, %s) 
+            INSERT INTO forum_comment (stock_ticker, author_id, time_stamp, content)
+            VALUES (%s, %s, %s, %s)
             RETURNING *
             ) SELECT i.comment_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.is_deleted
             FROM inserted_comment i
             JOIN users u on i.author_id = u.id;
-        """.replace("\n", "")
+        """.replace(
+            "\n", ""
+        )
         values = (stock_ticker, user_id, timestamp, content)
     # Otherwise, using the provided parent id, it is a child comment (reply)
     else:
         insert_query = """
             WITH inserted_reply as (
-            INSERT INTO forum_reply (comment_id, stock_ticker, author_id, time_stamp, content) 
-            VALUES (%s, %s, %s, %s, %s) 
+            INSERT INTO forum_reply (comment_id, stock_ticker, author_id, time_stamp, content)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING *
             ) SELECT i.reply_id, i.stock_ticker, u.username, i.time_stamp, i.content, i.is_edited, i.comment_id
             FROM inserted_reply i
             JOIN users u on i.author_id = u.id;
-        """.replace("\n", "")
+        """.replace(
+            "\n", ""
+        )
         values = (parent_id, stock_ticker, user_id, timestamp, content)
 
-    
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
     try:
         cur.execute(insert_query, values)
-        status = 200
-        message = "Submitted successfully"
         inserted_comment = dict(cur.fetchall()[0])
-        inserted_comment['upvotes'] = 0
-        inserted_comment['downvotes'] = 0
-        inserted_comment['vote_difference'] = 0
+        inserted_comment["upvotes"] = 0
+        inserted_comment["downvotes"] = 0
+        inserted_comment["vote_difference"] = 0
         if not parent_id:
-            inserted_comment['replies'] = []
+            inserted_comment["replies"] = []
     except:
-        status = 400
-        message = "Invalid data was provided to the Database"
-        inserted_comment = {}
+        conn.close()
+        abort(400, "Invalid data was provided to the Database")
 
-    
     conn.commit()
     cur.close()
     conn.close()
 
-    return {
-        'status': status,
-        'message': message,
-        'comment': inserted_comment
-    }
+    return {"message": "Submitted successfully", "comment": inserted_comment}
+
 
 def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     """Edit the contents of a comment.
@@ -125,24 +136,22 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
         parent_id (uuid, optional): The UUID of the Parent Comment's User. Defaults to None.
 
     Returns:
-        dict: Status Code, accompanying message, comment object    
+        dict: Status Code, accompanying message, comment object
 
     """
     # Check that the content is not too large
     if len(content) >= 5000:
-        return {
-            'status':400,
-            'message': 'Comment content cannot be larger than 5000 characters. Please reduce comment size.',
-            'comment': {}
-        }
+        abort(
+            400,
+            (
+                "Comment content cannot be larger than 5000 characters. ",
+                "Please reduce comment size.",
+            ),
+        )
 
     # If the timestamp is not between yesterday or tomorrow
     if not validate_timestamp(timestamp):
-        return {
-            'status': 400,
-            'message': 'Timestamp provided is invalid',
-            'comment': {}
-        }
+        abort(400, "Timestamp provided is invalid")
     # Censor rude words
     content = profanity.censor(content)
 
@@ -151,10 +160,10 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # Attempt to insert values into the DB, handling invalid Data cases in the insert
-    
+
     try:
         if not parent_id:
-            sqlQuery = '''
+            sql_query = """
                 WITH edited_comment as (
                     UPDATE forum_comment SET time_stamp=%s, content=%s, is_edited=TRUE
                     WHERE comment_id=%s AND author_id=%s
@@ -162,9 +171,9 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
                 ) SELECT e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, e.is_deleted, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
                 FROM edited_comment e
                 JOIN users u on e.author_id = u.id;
-            '''
+            """
         else:
-            sqlQuery = '''
+            sql_query = """
                 WITH edited_comment as (
                     UPDATE forum_reply SET time_stamp=%s, content=%s, is_edited=TRUE
                     WHERE reply_id=%s AND author_id=%s
@@ -172,41 +181,34 @@ def edit_comment(user_id, comment_id, timestamp, content, parent_id=None):
                 ) SELECT e.reply_id, e.comment_id, e.stock_ticker, u.username, e.time_stamp, e.content, e.is_edited, array_to_json(e.upvote_user_ids) AS upvote_user_ids, array_to_json(e.downvote_user_ids) AS downvote_user_ids
                 FROM edited_comment e
                 JOIN users u on e.author_id = u.id;
-            '''
+            """
         values = (timestamp, content, comment_id, user_id)
-        cur.execute(sqlQuery, values)
+        cur.execute(sql_query, values)
         db_reply = cur.fetchall()
         # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
         if not db_reply:
-            response = {
-                'status' : 400,
-                'message' : "User does not have permission to edit this comment."
-            }
+            abort(400, "User does not have permission to edit this comment.")
         else:
-        # If rows have been updated, return the newly updated row.
+            # If rows have been updated, return the newly updated row.
             updated_comment = dict(db_reply[0])
-            updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
-            updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
-            updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+            updated_comment["upvotes"] = len(updated_comment["upvote_user_ids"])
+            updated_comment["downvotes"] = len(updated_comment["downvote_user_ids"])
+            updated_comment["vote difference"] = (
+                updated_comment["upvotes"] - updated_comment["downvotes"]
+            )
             updated_comment.pop("upvote_user_ids")
             updated_comment.pop("downvote_user_ids")
             response = {
-                'status' : 200,
-                'message' : "Comment updated",
-                'comment' : updated_comment
+                "message": "Comment updated",
+                "comment": updated_comment,
             }
     except:
-        response = {
-            'status' : 400,
-            'message' : 'Something went wrong when editing.'
-        }
-    
+        abort(400, "Something went wrong when editing.")
+
     conn.commit()
     cur.close()
     conn.close()
     return response
-
-    
 
 
 def delete_comment(user_id, comment_id, parent_id=None):
@@ -231,63 +233,73 @@ def delete_comment(user_id, comment_id, parent_id=None):
                 WITH deleted_comment as (
                     UPDATE forum_comment SET content=%s, is_deleted=TRUE
                     WHERE comment_id=%s and author_id=%s
-                    RETURNING * 
+                    RETURNING *
                 ) SELECT d.comment_id, d.stock_ticker, u.username, d.time_stamp, d.content, d.is_edited, d.is_deleted, array_to_json(d.upvote_user_ids) AS upvote_user_ids, array_to_json(d.downvote_user_ids) AS downvote_user_ids
                 FROM deleted_comment d
                 JOIN users u on d.author_id = u.id;
-            """.replace("\n", "")
+            """.replace(
+                "\n", ""
+            )
             values = ("", comment_id, user_id)
-            cur.execute(insert_query, values)   
+            cur.execute(insert_query, values)
             db_reply = cur.fetchall()
-            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+            # If no rows have been updated, so the user cannot edit this comment.
             if not db_reply:
-                response = {
-                    'status' : 400,
-                    'message' : "User does not have permission to edit this comment."
-                }
+                abort(400, "User does not have permission to edit this comment.")
             else:
-            # If rows have been updated, return the newly updated row.
+                # If rows have been updated, return the newly updated row.
                 updated_comment = dict(db_reply[0])
-                updated_comment['upvotes'] = len(updated_comment['upvote_user_ids'])
-                updated_comment['downvotes'] = len(updated_comment['downvote_user_ids'])
-                updated_comment['vote difference'] = updated_comment['upvotes'] - updated_comment['downvotes']
+                updated_comment["upvotes"] = len(updated_comment["upvote_user_ids"])
+                updated_comment["downvotes"] = len(updated_comment["downvote_user_ids"])
+                updated_comment["vote difference"] = (
+                    updated_comment["upvotes"] - updated_comment["downvotes"]
+                )
                 updated_comment.pop("upvote_user_ids")
                 updated_comment.pop("downvote_user_ids")
                 response = {
-                    'status' : 200,
-                    'message' : "Comment deleted.",
-                    'comment' : updated_comment
+                    "message": "Comment deleted.",
+                    "comment": updated_comment,
                 }
         # Otherwise, using the provided parent id, it is a child comment (reply)
         else:
             insert_query = """
                 DELETE FROM forum_reply WHERE reply_id=%s and author_id=%s
                 RETURNING TRUE
-            """.replace("\n", "")
+            """.replace(
+                "\n", ""
+            )
             values = (comment_id, user_id)
             cur.execute(insert_query, values)
             db_reply = cur.fetchall()
-            # If no rows have been updated, author_id != user_id so the user cannot edit this comment.
+            # If no rows have been updated, the user cannot edit this comment.
             if not db_reply:
-                response = {
-                    'status' : 400,
-                    'message' : "User does not have permission to delete this comment."
-                }
+                abort(400, "User does not have permission to delete this comment.")
             else:
-                response = {
-                "status" : 200, 
-                "message" : "Child comment deleted."
-                }
+                response = {"message": "Child comment deleted."}
     except:
-        response = {
-            "status" : 400, 
-            "message" : "Something when wrong when trying to delete."
-        }
+        abort(400, "Something when wrong when trying to delete.")
 
     conn.commit()
     cur.close()
     conn.close()
     return response
+
+def sort_stock_comments(comments):
+    # Sort the parent comments by vote_difference (descending order)
+    sorted_parents = sorted(
+        comments, 
+        key=lambda comment : comment["vote_difference"], 
+        reverse=True
+    )
+    # Sort the parent's child comments by vote_difference (descending order)
+    for i in range(len(sorted_parents)):
+        sorted_parents[i]["replies"] = sorted(
+            sorted_parents[i]["replies"], 
+            key=lambda reply : reply["vote_difference"], 
+            reverse=True
+        )
+        
+    return sorted_parents
 
 
 def get_stock_comments(user_id, stock_ticker):
@@ -297,119 +309,118 @@ def get_stock_comments(user_id, stock_ticker):
 
     # Select Query returning parent comments and their children
     select_query = """
-        SELECT 
-        c.comment_id, 
-        c.stock_ticker, 
-        u.username, 
-        c.time_stamp, 
-        c.content, 
-        array_to_json(c.upvote_user_ids) AS upvote_user_ids, 
+        SELECT
+        c.comment_id,
+        c.stock_ticker,
+        u.username,
+        c.time_stamp,
+        c.content,
+        array_to_json(c.upvote_user_ids) AS upvote_user_ids,
         array_to_json(c.downvote_user_ids) AS downvote_user_ids,
-        c.is_edited, 
-        c.is_deleted, 
-        COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies 
-        FROM 
-        forum_comment c 
-        JOIN users u ON (c.author_id = u.id) 
+        c.is_edited,
+        c.is_deleted,
+        COALESCE(JSON_AGG((r)), '[]' :: JSON) AS replies
+        FROM
+        forum_comment c
+        JOIN users u ON (c.author_id = u.id)
         LEFT JOIN(
-            SELECT 
-            f.reply_id, 
-            f.stock_ticker, 
-            u.username, 
-            f.time_stamp, 
-            f.content, 
-            f.upvote_user_ids, 
-            f.downvote_user_ids, 
-            f.is_edited, 
-            f.comment_id 
-            FROM 
-            forum_reply f 
-            LEFT JOIN users u ON (f.author_id = u.id) 
-            GROUP BY 
-            f.reply_id, 
+            SELECT
+            f.reply_id,
+            f.stock_ticker,
+            u.username,
+            f.time_stamp,
+            f.content,
+            f.upvote_user_ids,
+            f.downvote_user_ids,
+            f.is_edited,
+            f.comment_id
+            FROM
+            forum_reply f
+            LEFT JOIN users u ON (f.author_id = u.id)
+            GROUP BY
+            f.reply_id,
             u.username
-        ) AS r ON (c.comment_id = r.comment_id) 
-        WHERE 
+        ) AS r ON (c.comment_id = r.comment_id)
+        WHERE
         c.stock_ticker = %s
-        GROUP BY 
-        c.comment_id, 
+        GROUP BY
+        c.comment_id,
         u.username
-    """.replace("\n", "")
+    """.replace(
+        "\n", ""
+    )
 
     try:
         cur.execute(select_query, (stock_ticker,))
         query_results = cur.fetchall()
-        status = 200
-        message = "Submitted successfully"
     except:
-        query_results = []
-        status = 400
-        message = "Invalid data was provided to the Database"
+        conn.close()
+        abort(400, "Invalid data was provided to the Database")
 
     cur.close()
     conn.close()
 
-    for i in range(len(query_results)):
+    for i, _ in enumerate(query_results):
         # Convert from RealDictCursor to Dictionary
         query_results[i] = dict(query_results[i])
 
         # Add upvoted and downvoted fields to comments
-        query_results[i]['is_upvoted'] = False
-        query_results[i]['is_downvoted'] = False
+        query_results[i]["is_upvoted"] = False
+        query_results[i]["is_downvoted"] = False
 
         # If the user id is present in the votes, update fields
-        if user_id in query_results[i]['upvote_user_ids']:
-            query_results[i]['is_upvoted'] = True
-        elif user_id in query_results[i]['downvote_user_ids']:
-            query_results[i]['is_upvoted'] = True
+        if user_id in query_results[i]["upvote_user_ids"]:
+            query_results[i]["is_upvoted"] = True
+        elif user_id in query_results[i]["downvote_user_ids"]:
+            query_results[i]["is_upvoted"] = True
 
         # Add upvote and downvote count fields
-        query_results[i]['upvotes'] = len(query_results[i]['upvote_user_ids'])
-        query_results[i]['downvotes'] = len(
-            query_results[i]['downvote_user_ids'])
-        query_results[i]['vote_difference'] = query_results[i]['upvotes'] - \
-            query_results[i]['downvotes']
+        query_results[i]["upvotes"] = len(query_results[i]["upvote_user_ids"])
+        query_results[i]["downvotes"] = len(query_results[i]["downvote_user_ids"])
+        query_results[i]["vote_difference"] = (
+            query_results[i]["upvotes"] - query_results[i]["downvotes"]
+        )
 
         # Remove user_ids exposed in upvotes and downvotes
-        del query_results[i]['upvote_user_ids']
-        del query_results[i]['downvote_user_ids']
+        del query_results[i]["upvote_user_ids"]
+        del query_results[i]["downvote_user_ids"]
 
         # Fix the case of [None], into []
-        if query_results[i]['replies'] == [None]:
-            query_results[i]['replies'] = []
+        if query_results[i]["replies"] == [None]:
+            query_results[i]["replies"] = []
             continue
 
-        for j in range(len(query_results[i]['replies'])):
+        for j in range(len(query_results[i]["replies"])):
             # Add upvote and downvote fields to replies
-            query_results[i]['replies'][j]['is_upvoted'] = False
-            query_results[i]['replies'][j]['is_downvoted'] = False
+            query_results[i]["replies"][j]["is_upvoted"] = False
+            query_results[i]["replies"][j]["is_downvoted"] = False
 
             # If the user is present in the reply votes, update fields
-            if user_id in query_results[i]['replies'][j]['upvote_user_ids']:
-                query_results[i]['replies'][j]['is_upvoted'] = True
-            elif user_id in query_results[i]['replies'][j]['downvote_user_ids']:
-                query_results[i]['replies'][j]['is_downvoted'] = True
+            if user_id in query_results[i]["replies"][j]["upvote_user_ids"]:
+                query_results[i]["replies"][j]["is_upvoted"] = True
+            elif user_id in query_results[i]["replies"][j]["downvote_user_ids"]:
+                query_results[i]["replies"][j]["is_downvoted"] = True
 
             # Add number of upvotes and downvote fields
-            query_results[i]['replies'][j]['upvotes'] = len(
-                query_results[i]['replies'][j]['upvote_user_ids'])
-            query_results[i]['replies'][j]['downvotes'] = len(
-                query_results[i]['replies'][j]['downvote_user_ids'])
-            query_results[i]['replies'][j]['vote_difference'] = query_results[i]['replies'][j]['upvotes'] - \
-                query_results[i]['replies'][j]['downvotes']
+            query_results[i]["replies"][j]["upvotes"] = len(
+                query_results[i]["replies"][j]["upvote_user_ids"]
+            )
+            query_results[i]["replies"][j]["downvotes"] = len(
+                query_results[i]["replies"][j]["downvote_user_ids"]
+            )
+            query_results[i]["replies"][j]["vote_difference"] = (
+                query_results[i]["replies"][j]["upvotes"]
+                - query_results[i]["replies"][j]["downvotes"]
+            )
 
             # Remove upvote and downvote user ids
-            del query_results[i]['replies'][j]['upvote_user_ids']
-            del query_results[i]['replies'][j]['downvote_user_ids']
+            del query_results[i]["replies"][j]["upvote_user_ids"]
+            del query_results[i]["replies"][j]["downvote_user_ids"]
 
     # TODO: Sort Weighting
+    query_results = sort_stock_comments(query_results)
 
-    return {
-        'status': status,
-        'message': message,
-        'comments': query_results
-    }
-
+    return {"message": "Comments Successfully Fetched", "comments": query_results}
 
 
 def vote_on_comment(user_id, comment_id, upvote=True):
@@ -428,36 +439,28 @@ def vote_on_comment(user_id, comment_id, upvote=True):
         # Function returns the edited row
         voted_comment = dict(cur.fetchall()[0])
         # Calculate the new amount of upvotes and downvotes
-        voted_comment['upvotes'] = len(voted_comment['upvote_user_ids'])
-        voted_comment['downvotes'] = len(voted_comment['downvote_user_ids'])
-        voted_comment['vote_difference'] = voted_comment['upvotes'] - \
-            voted_comment['downvotes']
+        voted_comment["upvotes"] = len(voted_comment["upvote_user_ids"])
+        voted_comment["downvotes"] = len(voted_comment["downvote_user_ids"])
+        voted_comment["vote_difference"] = (
+            voted_comment["upvotes"] - voted_comment["downvotes"]
+        )
         # Remove columns that contain exposed user ids
-        del voted_comment['upvote_user_ids']
-        del voted_comment['downvote_user_ids']
-        # Success strings
-        status = 200
-        message = "Submitted successfully"
+        del voted_comment["upvote_user_ids"]
+        del voted_comment["downvote_user_ids"]
     # If the user attempts to vote on a deleted comment
     except psycopg2.errors.InternalError:
-        status = 400
-        message = "Cannot vote on a deleted comment"
-        comment = {}
+        conn.close()
+        abort(400, "Cannot vote on a deleted comment")
     # If the data provided is invalid
     except:
-        status = 400
-        message = "Invalid data provided to the database"
-        comment = {}
+        conn.close()
+        abort(400, "Invalid data provided to the database")
 
     conn.commit()
     cur.close()
     conn.close()
 
-    return {
-        'status': status,
-        'message': message,
-        'comment': comment
-    }
+    return {"message": "Submitted successfully", "comment": voted_comment}
 
 
 def vote_on_reply(user_id, reply_id, upvote=True):
@@ -476,97 +479,200 @@ def vote_on_reply(user_id, reply_id, upvote=True):
         # Function returns the edited row
         voted_comment = dict(cur.fetchall()[0])
         # Calculate the new amount of upvotes and downvotes
-        voted_comment['upvotes'] = len(voted_comment['upvote_user_ids'])
-        voted_comment['downvotes'] = len(voted_comment['downvote_user_ids'])
-        voted_comment['vote_difference'] = voted_comment['upvotes'] - \
-            voted_comment['downvotes']
+        voted_comment["upvotes"] = len(voted_comment["upvote_user_ids"])
+        voted_comment["downvotes"] = len(voted_comment["downvote_user_ids"])
+        voted_comment["vote_difference"] = (
+            voted_comment["upvotes"] - voted_comment["downvotes"]
+        )
         # Remove columns that contain exposed user ids
-        del voted_comment['upvote_user_ids']
-        del voted_comment['downvote_user_ids']
-        # Success strings
-        status = 200
-        message = "Submitted successfully"
+        del voted_comment["upvote_user_ids"]
+        del voted_comment["downvote_user_ids"]
     # If the data provided is invalid
     except:
-        status = 400
-        message = "Invalid data provided to the database"
-        comment = {}
+        conn.close()
+        abort(400, "Invalid data provided to the database")
 
     conn.commit()
     cur.close()
     conn.close()
 
-    return {
-        'status': status,
-        'message': message,
-        'comment': comment
-    }
+    return {"message": "Submitted successfully", "comment": voted_comment}
 
 
-################################
-# Please leave all routes here #
-################################
-
-@FORUM_ROUTES.route('/forum', methods=['GET'])
-def get_comments():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    stock_ticker = request.args.get('stockTicker')
-    result = get_stock_comments(user_id, stock_ticker)
-    return dumps(result)
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
 
-@FORUM_ROUTES.route('/forum/comment', methods=['POST'])
-def submit_comment():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = post_comment(
-        user_id, data['stockTicker'], data['timestamp'], data['content'])
-    return dumps(result)
+@FORUM_NS.route("")
+class Forum(Resource):
+    @FORUM_NS.doc(
+        description="Fetch all the comments and child comments for a given Stock Page."
+    )
+    @FORUM_NS.expect(token_parser(FORUM_NS), forum_parser(FORUM_NS), validate=True)
+    @FORUM_NS.response(200, "Successfully found Stock comments")
+    @FORUM_NS.response(400, "Invalid Data was provided")
+    def get(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        stock_ticker = request.args.get("stockTicker")
+        result = get_stock_comments(user_id, stock_ticker)
+        return Response(dumps(result), status=200)
 
 
-@FORUM_ROUTES.route('/forum/reply', methods=['POST'])
-def submit_reply():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = post_comment(
-        user_id, data['stockTicker'], int(data['timestamp']), data['content'], data['parentID'])
-    return dumps(result)
+@FORUM_NS.route("/comment")
+class Comment(Resource):
+    @FORUM_NS.doc(
+        description="Post a new comment to a Stock page given the content provided."
+    )
+    @FORUM_NS.expect(token_parser(FORUM_NS), comment_model(FORUM_NS), validate=True)
+    @FORUM_NS.response(200, "Successfully posted comment")
+    @FORUM_NS.response(400, "Invalid data was provided")
+    def post(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = post_comment(
+            user_id, data["stockTicker"], data["timestamp"], data["content"]
+        )
+        return Response(dumps(result), status=201)
+
+    @FORUM_NS.doc(
+        description="Make a Parent Comment disabled and prevented against voting."
+    )
+    @FORUM_NS.expect(
+        token_parser(FORUM_NS), comment_delete_model(FORUM_NS), validate=True
+    )
+    @FORUM_NS.response(200, "Child comment successfully deleted")
+    @FORUM_NS.response(400, "Invalid data was provided")
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = delete_comment(user_id, data["comment_id"])
+        return Response(dumps(result), status=200)
+
+    @FORUM_NS.doc(description="Edit the Comment given the provided content.")
+    @FORUM_NS.expect(
+        token_parser(FORUM_NS), comment_edit_model(FORUM_NS), validate=True
+    )
+    @FORUM_NS.response(200, "Comment successfully updated")
+    @FORUM_NS.response(400, "Invalid data was provided")
+    def put(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = edit_comment(
+            user_id, data["comment_id"], data["time_stamp"], data["content"]
+        )
+        return Response(dumps(result), status=200)
 
 
-@FORUM_ROUTES.route('/forum/deleteComment', methods=['DELETE'])
-def delete_user_comment():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = delete_comment(user_id, data['comment_id'])
-    return dumps(result)
+@FORUM_NS.route("/reply")
+class Reply(Resource):
+    @FORUM_NS.doc(description="Create a reply with the provided Parent ID and content.")
+    @FORUM_NS.expect(token_parser(FORUM_NS), reply_model(FORUM_NS), validate=True)
+    @FORUM_NS.response(200, "Successfully submitted reply")
+    @FORUM_NS.response(400, "Invalid data was provided")
+    def post(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = post_comment(
+            user_id,
+            data["stockTicker"],
+            int(data["timestamp"]),
+            data["content"],
+            data["parentID"],
+        )
+        return Response(dumps(result), status=201)
+
+    @FORUM_NS.doc(description="Delete a reply given the parent and reply IDs.")
+    @FORUM_NS.expect(
+        token_parser(FORUM_NS), reply_delete_model(FORUM_NS), validate=True
+    )
+    @FORUM_NS.response(200, "Successfully delete reply")
+    @FORUM_NS.response(400, "Invalid data was provided")
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = delete_comment(user_id, data["comment_id"], data["parent_id"])
+        return Response(dumps(result), status=200)
+
+    @FORUM_NS.doc(description="Edit a Reply with new content at the new time.")
+    @FORUM_NS.expect(token_parser(FORUM_NS), reply_edit_model(FORUM_NS), validate=True)
+    @FORUM_NS.response(200, "Successfully edited reply")
+    @FORUM_NS.response(400, "Invalid data was provided")
+    def put(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = edit_comment(
+            user_id,
+            data["comment_id"],
+            data["time_stamp"],
+            data["content"],
+            data["parent_id"],
+        )
+        return Response(dumps(result), status=200)
 
 
-@FORUM_ROUTES.route('/forum/deleteReply', methods=['DELETE'])
-def delete_user_reply():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = delete_comment(user_id, data['comment_id'], data['parent_id'])
-    return dumps(result)
+@FORUM_NS.route("/comment/upvote")
+class UpvoteComment(Resource):
+    @FORUM_NS.doc(description="Upvote the Comment given the Comment ID.")
+    @FORUM_NS.expect(
+        token_parser(FORUM_NS), comment_vote_model(FORUM_NS), validate=True
+    )
+    @FORUM_NS.response(200, "Successfully upvoted comment")
+    @FORUM_NS.response(400, "No comment with the Comment ID was found")
+    def put(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = vote_on_comment(user_id, data["comment_id"])
+        return Response(dumps(result), status=200)
 
 
-@FORUM_ROUTES.route('/forum/editReply', methods=['PUT'])
-def edit_users_reply():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'], data['parent_id'])
-    return dumps(result)
+@FORUM_NS.route("/comment/downvote")
+class DownvoteComment(Resource):
+    @FORUM_NS.doc(description="Downvote the Comment given the Comment ID.")
+    @FORUM_NS.expect(
+        token_parser(FORUM_NS), comment_vote_model(FORUM_NS), validate=True
+    )
+    @FORUM_NS.response(200, "Successfully downvoted comment")
+    @FORUM_NS.response(404, "No comment with the Comment ID was found")
+    def put(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = vote_on_comment(user_id, data["comment_id"], upvote=False)
+        return Response(dumps(result), status=200)
 
 
-@FORUM_ROUTES.route('/forum/editComment', methods=['PUT'])
-def edit_users_comment():
-    token = request.headers.get('Authorization')
-    user_id = get_id_from_token(token)
-    data = request.get_json()
-    result = edit_comment(user_id, data['comment_id'], data['time_stamp'], data['content'])
-    return dumps(result)
+@FORUM_NS.route("/reply/upvote")
+class UpvoteReply(Resource):
+    @FORUM_NS.doc(description="Upvote the Reply given the Reply ID.")
+    @FORUM_NS.expect(token_parser(FORUM_NS), reply_vote_model(FORUM_NS), validate=True)
+    @FORUM_NS.response(200, "Successfully upvoted reply")
+    @FORUM_NS.response(404, "No reply with the Reply ID was found")
+    def put(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = vote_on_reply(user_id, data["reply_id"])
+        return Response(dumps(result), status=200)
+
+
+@FORUM_NS.route("/reply/downvote")
+class DownvoteReply(Resource):
+    @FORUM_NS.doc(description="Downvote the Reply given the Reply ID.")
+    @FORUM_NS.expect(token_parser(FORUM_NS), reply_vote_model(FORUM_NS), validate=True)
+    @FORUM_NS.response(200, "Successfully downvoted reply")
+    @FORUM_NS.response(404, "No reply with the Reply ID was found")
+    def put(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = vote_on_reply(user_id, data["reply_id"], upvote=False)
+        return Response(dumps(result), status=200)

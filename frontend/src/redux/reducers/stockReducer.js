@@ -31,6 +31,11 @@ const initialState = {
     error: null,
     data: {}
   },
+  paperTradingResults: {
+    loading: false,
+    error: null,
+    data: {}
+  },
 };
 
 const stockReducer = (state = initialState, action) => {
@@ -176,6 +181,35 @@ const stockReducer = (state = initialState, action) => {
       ...state,
       predictionDaily: {
         ...state.predictionDaily,
+        loading: false,
+        error: action.payload,
+      },
+    };
+    // Paper Trading Results
+    case stockConstants.GET_PAPER_TRADING_PENDING:
+    return {
+      ...state,
+      paperTradingResults: {
+        ...state.paperTradingResults,
+        loading: true,
+        error: null,
+      },
+    };
+    case stockConstants.GET_PAPER_TRADING_SUCCESS:
+    return {
+      ...state,
+      paperTradingResults: {
+        ...state.paperTradingResults,
+        loading: false,
+        error: null,
+        data: action.payload.data
+      },
+    };
+    case stockConstants.GET_PAPER_TRADING_FAILURE:
+    return {
+      ...state,
+      paperTradingResults: {
+        ...state.paperTradingResults,
         loading: false,
         error: action.payload,
       },
