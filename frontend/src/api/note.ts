@@ -91,7 +91,7 @@ const NoteAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   deleteNote: (title: string) => {
-    const endpoint = `/notes?title=${title}`;
+    const endpoint = `/notes?title=${encodeURI(title)}`;
     const options = {
       method: "DELETE",
       headers: {

@@ -7,6 +7,7 @@ const watchlistReducer = (state = initialState, action: PayloadAction) => {
       return {
         ...state,
         getWatchlists: {
+          ...state.getWatchlists,
           loading: true,
           error: "",
         },
@@ -15,6 +16,7 @@ const watchlistReducer = (state = initialState, action: PayloadAction) => {
       return {
         ...state,
         getWatchlists: {
+          ...state.getWatchlists,
           loading: false,
           error: "",
           watchlists: action.payload,
@@ -24,6 +26,7 @@ const watchlistReducer = (state = initialState, action: PayloadAction) => {
       return {
         ...state,
         getWatchlists: {
+          ...state.getWatchlists,
           loading: false,
           error: action.payload,
           watchlists: [],
@@ -176,15 +179,19 @@ const watchlistReducer = (state = initialState, action: PayloadAction) => {
       return {
         ...state,
         getWatchlist: {
+          ...state.getWatchlist,
           loading: true,
           error: "",
-          watchlist: undefined,
+          watchlist: {
+            ...initialState.getWatchlist.watchlist,
+          },
         },
       };
     case watchlistConstants.GET_WATCHLIST_SUCCESS:
       return {
         ...state,
         getWatchlist: {
+          ...state.getWatchlist,
           loading: false,
           error: "",
           watchlist: action.payload,
@@ -194,9 +201,12 @@ const watchlistReducer = (state = initialState, action: PayloadAction) => {
       return {
         ...state,
         getWatchlist: {
+          ...state.getWatchlist,
           loading: false,
           error: action.payload,
-          watchlist: undefined,
+          watchlist: {
+            ...initialState.getWatchlist.watchlist,
+          },
         },
       };
     default:

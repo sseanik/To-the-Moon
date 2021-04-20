@@ -5,31 +5,31 @@ const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const StockAPI = {
   getBasic: (symbol: string) => {
-    const endpoint = `/stock?symbol=${symbol}`;
+    const endpoint = `/stock?symbol=${encodeURI(symbol)}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getIncome: (symbol: string) => {
-    const endpoint = `/stock/income_statement?symbol=${symbol}`;
+    const endpoint = `/stock/income_statement?symbol=${encodeURI(symbol)}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getBalance: (symbol: string) => {
-    const endpoint = `/stock/balance_sheet?symbol=${symbol}`;
+    const endpoint = `/stock/balance_sheet?symbol=${encodeURI(symbol)}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getCashFlow: (symbol: string) => {
-    const endpoint = `/stock/cash_flow_statement?symbol=${symbol}`;
+    const endpoint = `/stock/cash_flow_statement?symbol=${encodeURI(symbol)}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getPredictionDaily: (symbol: string, predictionType: string) => {
-    const endpoint = `/stock/get_prediction_daily?symbol=${symbol}&prediction_type=${predictionType}`;
+    const endpoint = `/stock/get_prediction_daily?symbol=${encodeURI(symbol)}&prediction_type=${encodeURI(predictionType)}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);

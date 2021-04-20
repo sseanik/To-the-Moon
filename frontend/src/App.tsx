@@ -14,12 +14,13 @@ import {
   PortfolioPage,
   CreatePortfolioPage,
   SearchStockPage,
+  PortfoliosPage,
+  DashboardPage,
+  WatchlistPage,
+  WatchlistsPage,
   ScreenersPage,
 } from "./screens";
 import { Header, NoteList } from "./components";
-import PortfoliosPage from "./screens/PortfoliosPage";
-import WatchlistPage from "./screens/WatchlistPage";
-import WatchlistsPage from "./screens/WatchlistsPage";
 import Footer from "./components/Footer";
 
 const initialState = {};
@@ -58,6 +59,7 @@ function App() {
                 <Route path="/stock" component={SearchStockPage} exact />
                 <Route path="/stock/:symbol" component={StockPage} />
                 <Route path="/portfolios" component={PortfoliosPage} />
+                <Route path="/dashboard" component={DashboardPage} />
                 <Route path="/screeners" component={ScreenersPage} />
                 <Route path="/watchlists" component={WatchlistsPage} />
                 <Route
