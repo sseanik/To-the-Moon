@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import { Container, Alert } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
-import { DashboardContainer } from "../components";
+import { AddDashboardContainer, DashboardContainer } from "../components";
 import dashboardActions from "../redux/actions/dashboardActions";
 
 interface StateProps {
+  dashboardId: string;
   loading: boolean;
   error: string;
 }
@@ -15,7 +16,7 @@ interface DispatchProps {
 }
 
 const DashboardPage: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, error, getDashboards } = props;
+  const { dashboardId, loading, error, getDashboards } = props;
 
   useEffect(() => {
     getDashboards();
@@ -31,13 +32,19 @@ const DashboardPage: React.FC<StateProps & DispatchProps> = (props) => {
   return (
     <Container fluid>
       {error ? <Alert variant="danger">{error}</Alert> : null}
-      {loading ? loadingSpinnerComponent : null}
-      <DashboardContainer />
+      {loading ? (
+        loadingSpinnerComponent
+      ) : dashboardId ? (
+        <DashboardContainer />
+      ) : (
+        <AddDashboardContainer />
+      )}
     </Container>
   );
 };
 
 const mapStateToProps = (state: any) => ({
+  dashboardId: state.dashboardReducer.dashboardId,
   loading: state.dashboardReducer.getDashboards.loading,
   error: state.dashboardReducer.getDashboards.error,
 });

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Container, Alert } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
-import { BlocksContainer } from "../components";
+import { BlocksContainer } from ".";
 import dashboardActions from "../redux/actions/dashboardActions";
 
 interface StateProps {

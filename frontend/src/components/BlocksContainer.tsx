@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Container, Row } from "react-bootstrap";
 import { connect } from "react-redux";
-import { Block, AddBlockComponent } from "../components";
+import { Block, AddBlockContainer } from "../components";
 import dashboardActions from "../redux/actions/dashboardActions";
 
 interface StateProps {
@@ -33,7 +33,7 @@ const BlocksContainer: React.FC<StateProps & DispatchProps> = (props) => {
     ) : blocks[idx] ? (
       <Block blockId={blocks[idx]} />
     ) : (
-      <AddBlockComponent />
+      <AddBlockContainer />
     );
 
   return (

@@ -14,7 +14,7 @@ const createBlockStyle = {
   borderRadius: "20px",
 } as React.CSSProperties;
 
-const AddBlockComponent: React.FC<StateProps> = (props) => {
+const AddBlockContainer: React.FC<StateProps> = (props) => {
   const { loading, error } = props;
   const [showForm, setShowForm] = useState(false);
 
@@ -92,4 +92,4 @@ const mapStateToProps = (state: any) => ({
   error: state.dashboardReducer.createBlock.error,
 });
 
-export default connect(mapStateToProps)(AddBlockComponent);
+export default connect(mapStateToProps)(AddBlockContainer);
