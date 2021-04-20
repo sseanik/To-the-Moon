@@ -50,41 +50,45 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (props) => {
         <h1>Saved Screeners</h1>
       </Row>
       <hr />
-      <Row className="justify-content-center">
-        <Col className="text-center" lg={2}>
-          Name
-        </Col>
-        <Col className="text-center" lg={4}>
-          Parameters
-        </Col>
-        <Col className="text-center" lg={2}>
-          Options
-        </Col>
-      </Row>
-      <hr />
-      {error ? alertComponent : null}
-      {loading
-        ? loadingSpinnerComponent
-        : data.map((entry: screenerListParams, idx) => (
-            <Row className="justify-content-center">
-              <Col className="text-center" lg={2}>
-                {entry["name"]}
-              </Col>
-              <Col className="text-center" lg={4}>
-                {entry["params"] ? paramsObjToString(entry["params"]) : null}
-              </Col>
-              <Col className="text-center" lg={2}>
-                <Row className="justify-content-center">
-                  <Col lg={6}>
-                    <LoadScreenerParamsButton parametersObj={entry["params"]} />
-                  </Col>
-                  <Col lg={6}>
-                    <DeleteScreenerButton name={entry["name"]} />
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-          ))}
+      <Container className="py-3 bg-dark">
+        <Row className="justify-content-center">
+          <Col className="text-center" lg={2}>
+            Name
+          </Col>
+          <Col className="text-center" lg={4}>
+            Parameters
+          </Col>
+          <Col className="text-center" lg={2}>
+            Options
+          </Col>
+        </Row>
+        <hr style={{ borderTop: "1px solid white" }} />
+        {error ? alertComponent : null}
+        {loading
+          ? loadingSpinnerComponent
+          : data.map((entry: screenerListParams, idx) => (
+              <Row className="justify-content-center">
+                <Col className="text-center" lg={2}>
+                  {entry["name"]}
+                </Col>
+                <Col className="text-center" lg={4}>
+                  {entry["params"] ? paramsObjToString(entry["params"]) : null}
+                </Col>
+                <Col className="text-center" lg={2}>
+                  <Row className="justify-content-center">
+                    <Col lg={6}>
+                      <LoadScreenerParamsButton
+                        parametersObj={entry["params"]}
+                      />
+                    </Col>
+                    <Col lg={6}>
+                      <DeleteScreenerButton name={entry["name"]} />
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+            ))}
+      </Container>
     </Container>
   );
 

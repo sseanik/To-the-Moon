@@ -1,3 +1,4 @@
+import "bootswatch/dist/darkly/bootstrap.min.css";
 import "./App.css";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import configureStore from "./redux/configureStore";

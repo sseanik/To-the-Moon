@@ -248,7 +248,7 @@ def get_all_notes(user_id):
 class Notes(Resource):
     @NOTES_NS.doc(description="Create a note")
     @NOTES_NS.expect(token_parser(NOTES_NS), notes_model(NOTES_NS), validate=True)
-    @NOTES_NS.response(200, "Successfully created note")
+    @NOTES_NS.response(201, "Successfully created note")
     @NOTES_NS.response(404, "Invalid data was provided")
     def post(self):
         token = request.headers.get("Authorization")

@@ -13,7 +13,7 @@ const PortfolioInfo: React.FC<Props> = (props) => {
 
   return (
     <Col
-      className="border rounded mx-1 p-4 portfolio-info bg-light"
+      className="border rounded mx-1 p-4 portfolio-info bg-dark"
       lg={4}
       md={6}
     >

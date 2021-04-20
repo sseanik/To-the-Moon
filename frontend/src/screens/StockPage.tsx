@@ -264,12 +264,14 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         constructorType={"stockChart"}
         options={graphOptions}
       />
-      <Row className="justify-content-center">
+      <Row className="justify-content-around">
         <Col>
-          <Button variant="outline-info" onClick={fetchStock}>
+          <Button variant="info" onClick={fetchStock}>
             Refresh data
           </Button>
-          <Button variant="outline-info" onClick={resetZoom}>
+        </Col>
+        <Col>
+          <Button variant="info" onClick={resetZoom}>
             Reset Zoom
           </Button>
         </Col>
@@ -315,7 +317,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         <Col className="text-left font-weight-bold">Duration: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="dark"
             id="dropdown-basic-button"
             title={durOpts[durChoice].display + " " + durOpts[durChoice].units}
           >
@@ -342,7 +344,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         <Col className="text-left font-weight-bold">Model: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="dark"
             id="dropdown-basic-button"
             title={predictOpts[preChoice].name}
           >
@@ -367,7 +369,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       <hr />
       <Row>
         <Button
-          variant="outline-primary"
+          variant="primary"
           onClick={() => {
             fetchPredictDaily();
           }}
@@ -393,33 +395,33 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               defaultActiveKey="summary"
               id="sec-view-info-selector"
             >
-              <Tab eventKey="summary" title="Summary">
+              <Tab eventKey="summary" title="Summary" className="bg-dark">
                 <DataSummary />
               </Tab>
-              <Tab eventKey="statistics" title="Statistics">
+              <Tab eventKey="statistics" title="Statistics" className="bg-dark">
                 <DataFundamentals />
               </Tab>
-              <Tab eventKey="financials" title="Financials">
+              <Tab eventKey="financials" title="Financials" className="bg-dark">
                 <Tabs
                   className="justify-content-center mt-2"
                   defaultActiveKey="incomestatement"
                   id="sec-view-financials"
                 >
-                  <Tab eventKey="incomestatement" title="Income Statement">
+                  <Tab eventKey="incomestatement" title="Income Statement" className="bg-dark">
                     <DataIncomeStatement symbol={symbol} />
                   </Tab>
-                  <Tab eventKey="balancesheet" title="Balance Sheet">
+                  <Tab eventKey="balancesheet" title="Balance Sheet" className="bg-dark">
                     <DataBalanceSheet symbol={symbol} />
                   </Tab>
-                  <Tab eventKey="cashflow" title="Cash Flow Statement">
+                  <Tab eventKey="cashflow" title="Cash Flow Statement" className="bg-dark">
                     <DataCashFlow symbol={symbol} />
                   </Tab>
                 </Tabs>
               </Tab>
-              <Tab eventKey="prediction" title="Market Prediction">
+              <Tab eventKey="prediction" title="Market Prediction" className="bg-dark">
                 {predictionControlComponent}
               </Tab>
-              <Tab eventKey="paperTrading" title="Paper Trading">
+              <Tab eventKey="paperTrading" title="Paper Trading" className="bg-dark">
                 <PaperTradeController symbol={symbol} />
               </Tab>
             </Tabs>

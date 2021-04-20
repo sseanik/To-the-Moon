@@ -91,7 +91,7 @@ const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
               </Col>
               <Col md={2}>
                 <Button
-                  variant="outline-dark"
+                  variant="dark"
                   type="submit"
                   onClick={() => {
                     values.timestamp = new Date().getTime();

@@ -88,7 +88,7 @@ const EditPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
               </Form.Text>
             )}
 
-            <Button type="submit" variant="outline-success" className="my-2">
+            <Button type="submit" variant="success" className="my-2">
               Change Name
             </Button>
           </Form>

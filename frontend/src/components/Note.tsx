@@ -125,7 +125,7 @@ const Note: React.FC<NoteEntry & StateProps & DispatchProps> = (props) => {
           className="mx-1"
           onClick={handleNoteEditToggle}
         >
-          {currentNoteEditing ? "Editing" : "Edit"}
+          {currentNoteEditing ? "Editing..." : "Edit"}
         </Button>
         <Button
           disabled={currentNoteDeleting || currentNoteEditing}

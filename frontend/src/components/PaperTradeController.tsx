@@ -124,7 +124,7 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (
         <Col className="text-left font-weight-bold">Strategy: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="dark"
             id="dropdown-basic-button"
             title={tradeStratOpts[paperTradeParams.strategy].name}
           >
@@ -225,7 +225,7 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (
       <hr />
       <Row>
         <Button
-          variant="outline-primary"
+          variant="primary"
           onClick={() => {
             fetchPaperTrades();
           }}
