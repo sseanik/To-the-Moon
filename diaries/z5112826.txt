@@ -52,3 +52,21 @@ Implemented:
 - Integration of prediction results into share price view
 
 Did some investigation into how to implement screeners and further prediction models to implement e.g. sentiment analysis. 
+
+Week 8
+======
+Implemented: 
+- Trading simulation (backtesting) environment setup and strategies
+- Backtesting frontend - additional information tab
+- Screeners frontend - query form
+
+Todo: 
+- Backtesting - get this working with other companies 
+- Screeners frontend - save/delete/list functionality 
+
+Week 9
+======
+Implemented: 
+- Backtesting - wrap in server endpoint, parametrise initial cash, commissions and other settings
+- Backtesting frontend - parameter form, refactor into separate component
+- Screeners frontend - display save, delete and list results
