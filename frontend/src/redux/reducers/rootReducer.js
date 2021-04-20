@@ -8,6 +8,7 @@ import stockReducer from "./stockReducer";
 import trendReducer from "./trendReducer";
 import noteReducer from "./noteReducer";
 import watchlistReducer from "./watchlistReducer";
+import dashboardReducer from "./dashboardReducer";
 export default combineReducers({
   userReducer,
   portfolioReducer,
@@ -19,4 +20,5 @@ export default combineReducers({
   trendReducer,
   noteReducer,
   watchlistReducer,
+  dashboardReducer,
 });

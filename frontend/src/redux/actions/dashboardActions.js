@@ -67,7 +67,7 @@ const dashboardActions = {
   }),
   getBlocksSuccess: (response) => ({
     type: dashboardConstants.GET_DASHBOARD_BLOCKS_SUCCESS,
-    payload: response
+    payload: response,
   }),
   getBlocksFailure: (error) => ({
     type: dashboardConstants.GET_DASHBOARD_BLOCKS_FAILURE,
@@ -83,25 +83,26 @@ const dashboardActions = {
       dispatch(dashboardActions.getBlocksFailure(error.message));
     }
   },
-  getBlockMetaPending: () => ({
+  getBlockMetaPending: (blockId) => ({
     type: dashboardConstants.GET_BLOCK_META_PENDING,
+    payload: { blockId },
   }),
-  getBlockMetaSuccess: (response) => ({
+  getBlockMetaSuccess: (blockId, response) => ({
     type: dashboardConstants.GET_BLOCK_META_SUCCESS,
-    payload: response
+    payload: { blockId, response },
   }),
-  getBlockMetaFailure: (error) => ({
+  getBlockMetaFailure: (blockId, error) => ({
     type: dashboardConstants.GET_BLOCK_META_FAILURE,
-    payload: error,
+    payload: { blockId, error },
   }),
   getBlockMeta: (payload) => async (dispatch) => {
-    dispatch(dashboardActions.getBlockMetaPending());
+    const { blockId } = payload;
+    dispatch(dashboardActions.getBlockMetaPending(blockId));
     try {
-      const { blockId } = payload;
       const { data } = await dashboardAPI.getBlockMeta(blockId);
-      dispatch(dashboardActions.getBlockMetaSuccess(data));
+      dispatch(dashboardActions.getBlockMetaSuccess(blockId, data));
     } catch (error) {
-      dispatch(dashboardActions.getBlockMetaFailure(error.message));
+      dispatch(dashboardActions.getBlockMetaFailure(blockId, error.message));
     }
   },
   createBlockPending: () => ({
@@ -109,7 +110,7 @@ const dashboardActions = {
   }),
   createBlockSuccess: (response) => ({
     type: dashboardConstants.CREATE_BLOCK_SUCCESS,
-    payload: response
+    payload: response,
   }),
   createBlockFailure: (error) => ({
     type: dashboardConstants.CREATE_BLOCK_FAILURE,
@@ -119,7 +120,11 @@ const dashboardActions = {
     dispatch(dashboardActions.createBlockPending());
     try {
       const { dashboardId, type, meta } = payload;
-      const { data } = await dashboardAPI.createDashboardBlock(dashboardId, type, meta);
+      const { data } = await dashboardAPI.createDashboardBlock(
+        dashboardId,
+        type,
+        meta
+      );
       dispatch(dashboardActions.createBlockSuccess(data));
     } catch (error) {
       dispatch(dashboardActions.createDashboardFailure(error.message));
@@ -130,7 +135,7 @@ const dashboardActions = {
   }),
   deleteBlockSuccess: (response) => ({
     type: dashboardConstants.DELETE_BLOCK_SUCCESS,
-    payload: response
+    payload: response,
   }),
   deleteBlockFailure: (error) => ({
     type: dashboardConstants.DELETE_BLOCK_FAILURE,

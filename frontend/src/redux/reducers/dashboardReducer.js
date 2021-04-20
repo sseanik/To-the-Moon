@@ -18,8 +18,8 @@ const initialState = {
     error: null,
   },
   getBlocksMeta: {
-    loading: false,
-    error: null,
+    loading: {},
+    error: {},
   },
   createBlock: {
     loading: false,
@@ -29,7 +29,7 @@ const initialState = {
     loading: false,
     error: null,
   },
-  dashboardId: null,
+  dashboardId: "",
   blocks: [],
   meta: {},
 };
@@ -60,7 +60,7 @@ const dashboardReducer = (state = initialState, action) => {
     case dashboardConstants.GET_DASHBOARDS_FAILURE:
       return {
         ...state,
-        dashboardId: null,
+        dashboardId: "",
         getDashboards: {
           ...state.getDashboards,
           loading: false,
@@ -77,10 +77,9 @@ const dashboardReducer = (state = initialState, action) => {
         },
       };
     case dashboardConstants.CREATE_DASHBOARD_SUCCESS:
-      const { id } = action.payload;
       return {
         ...state,
-        dashboardId: id,
+        dashboardId: action.payload.id,
         createDashboard: {
           ...state.createDashboard,
           loading: false,
@@ -108,7 +107,7 @@ const dashboardReducer = (state = initialState, action) => {
     case dashboardConstants.DELETE_DASHBOARD_SUCCESS:
       return {
         ...state,
-        dashboardId: null,
+        dashboardId: "",
         blocks: [],
         meta: {},
         deleteDashboard: {
@@ -154,33 +153,43 @@ const dashboardReducer = (state = initialState, action) => {
         },
       };
     case dashboardConstants.GET_BLOCK_META_PENDING:
+      const newLoadingPending = { ...state.getBlocksMeta.loading };
+      newLoadingPending[action.payload.blockId] = true;
+      const newErrorPending = { ...state.getBlocksMeta.error };
+      newErrorPending[action.payload.blockId] = null;
       return {
         ...state,
         getBlocksMeta: {
           ...state.getBlocksMeta,
-          loading: true,
-          error: null,
+          loading: { ...newLoadingPending },
+          error: { ...newErrorPending },
         },
       };
     case dashboardConstants.GET_BLOCK_META_SUCCESS:
-      const { id, type, meta } = action.payload;
-      const newBlockMeta = {};
+      const { id, type, meta } = action.payload.response;
+      const newBlockMeta = { ...state.meta };
       newBlockMeta[id] = { type, meta };
+      const newLoadingSuccess = { ...state.getBlocksMeta.loading };
+      newLoadingSuccess[action.payload.blockId] = false;
       return {
         ...state,
-        meta: { ...state.meta, ...newBlockMeta },
+        meta: { ...newBlockMeta },
         getBlocksMeta: {
           ...state.getBlocksMeta,
-          loading: false,
+          loading: { ...newLoadingSuccess },
         },
       };
     case dashboardConstants.GET_BLOCK_META_FAILURE:
+      const newLoadingFailure = { ...state.getBlocksMeta.loading };
+      newLoadingFailure[action.payload.blockId] = false;
+      const newErrorFailure = { ...state.getBlocksMeta.error };
+      newErrorFailure[action.payload.blockId] = action.payload.error;
       return {
         ...state,
         getBlocksMeta: {
           ...state.getBlocksMeta,
-          loading: false,
-          error: action.payload,
+          loading: { ...newLoadingFailure },
+          error: { ...newErrorFailure },
         },
       };
     case dashboardConstants.CREATE_BLOCK_PENDING:
@@ -190,17 +199,16 @@ const dashboardReducer = (state = initialState, action) => {
           ...state.createBlock,
           loading: true,
           error: null,
-        }
+        },
       };
     case dashboardConstants.CREATE_BLOCK_SUCCESS:
-      const { id } = action.payload;
       return {
         ...state,
-        blocks: [...state.blocks, id],
+        blocks: [...state.blocks, action.payload.id],
         createBlock: {
           ...state.createBlock,
           loading: false,
-        }
+        },
       };
     case dashboardConstants.CREATE_BLOCK_FAILURE:
       return {
@@ -209,7 +217,7 @@ const dashboardReducer = (state = initialState, action) => {
           ...state.createBlock,
           loading: false,
           error: action.payload,
-        }
+        },
       };
     case dashboardConstants.DELETE_BLOCK_PENDING:
       return {
@@ -218,18 +226,16 @@ const dashboardReducer = (state = initialState, action) => {
           ...state.deleteBlock,
           loading: true,
           error: null,
-        }
+        },
       };
     case dashboardConstants.DELETE_BLOCK_SUCCESS:
-      const { id } = action.payload;
-
       return {
         ...state,
-        blocks: state.blocks.filter(item => item !== id),
+        blocks: state.blocks.filter((item) => item !== action.payload.id),
         deleteBlock: {
           ...state.deleteBlock,
           loading: false,
-        }
+        },
       };
     case dashboardConstants.DELETE_BLOCK_FAILURE:
       return {
@@ -238,7 +244,7 @@ const dashboardReducer = (state = initialState, action) => {
           ...state.deleteBlock,
           loading: false,
           error: action.payload,
-        }
+        },
       };
     default:
       return state;
