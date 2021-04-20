@@ -167,7 +167,7 @@ def investment_model(namespace):
         {
             "num_shares": fields.Integer(required=True, example=5),
             "stock_ticker": fields.String(required=True, example="TSLA"),
-            "purchase_date": fields.String(required=True, example="TODO"),
+            "purchase_date": fields.Integer(required=True, example=16000),
         },
     )
 
