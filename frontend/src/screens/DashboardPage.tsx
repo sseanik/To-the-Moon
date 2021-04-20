@@ -19,7 +19,7 @@ const DashboardPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   useEffect(() => {
     getDashboards();
-  }, []);
+  }, [getDashboards]);
 
   const loadingSpinnerComponent = (
     <div>

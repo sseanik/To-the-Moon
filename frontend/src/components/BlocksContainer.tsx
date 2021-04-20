@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 import { connect } from "react-redux";
 import { Block, AddBlockComponent } from "../components";
 import dashboardActions from "../redux/actions/dashboardActions";
