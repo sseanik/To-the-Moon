@@ -281,6 +281,7 @@ def delete_block(block_id):
     except:
         conn.close()
         abort(500, "Error occurred while deleting from store")
+    deleted_block_id = query_result[0][0]
 
     # Delete from references table
     sql_query = """
@@ -302,7 +303,7 @@ def delete_block(block_id):
     response = {
         "message" : "Block deleted",
         "data": {
-            "id": query_result[0][0]
+            "id": deleted_block_id
         }
     }
     return response
