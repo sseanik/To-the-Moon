@@ -47,7 +47,7 @@ const DashboardAPI = {
   ) => {
     const endpoint = `/dashboard/${encodeURI(dashboardId)}`;
     const options = {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
