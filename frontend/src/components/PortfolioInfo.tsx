@@ -12,11 +12,7 @@ const PortfolioInfo: React.FC<Props> = (props) => {
   const { name } = props;
 
   return (
-    <Col
-      className="border rounded mx-1 p-4 portfolio-info bg-light"
-      lg={4}
-      md={6}
-    >
+    <Container>
       <h2 className="my-2">{name}</h2>
       <PortfolioPerformance name={name} />
       <Container fluid className="w-75">
@@ -31,7 +27,7 @@ const PortfolioInfo: React.FC<Props> = (props) => {
           </Col>
         </Row>
       </Container>
-    </Col>
+    </Container>
   );
 };
 
