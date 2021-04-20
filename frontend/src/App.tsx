@@ -17,6 +17,7 @@ import {
   DashboardPage,
   WatchlistPage,
   WatchlistsPage,
+  ScreenersPage,
 } from "./screens";
 import { Header, NoteList } from "./components";
 
@@ -53,6 +54,7 @@ function App() {
               <Route path="/stock/:symbol" component={StockPage} />
               <Route path="/portfolios" component={PortfoliosPage} />
               <Route path="/dashboard" component={DashboardPage} />
+              <Route path="/screeners" component={ScreenersPage} />
               <Route path="/watchlists" component={WatchlistsPage} />
               <Route path="/watchlist/:watchlistID" component={WatchlistPage} />
             </Switch>

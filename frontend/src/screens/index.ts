@@ -10,3 +10,4 @@ export { default as SearchStockPage } from "./SearchStockPage";
 export { default as DashboardPage } from "./DashboardPage";
 export { default as WatchlistPage} from "./WatchlistPage";
 export { default as WatchlistsPage} from "./WatchlistsPage";
+export { default as ScreenersPage } from "./ScreenersPage";

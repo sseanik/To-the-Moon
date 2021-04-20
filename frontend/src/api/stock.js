@@ -2,6 +2,7 @@ import * as config from "../config.json";
 import Utils from "./utils";
 
 const url = `http://localhost:${config.BACKEND_PORT}`;
+const urlTrading = `http://localhost:${5002}`;
 
 const StockAPI = {
   getBasic: (symbol) => {
@@ -31,6 +32,12 @@ const StockAPI = {
   getPredictionDaily: (symbol, predictionType) => {
     const endpoint = `/stock/get_prediction_daily?symbol=${encodeURI(symbol)}&prediction_type=${encodeURI(predictionType)}`;
     const options = { method: "GET" };
+
+    return Utils.getJSON(`${url}${endpoint}`, options);
+  },
+  getPaperTradingResults: (symbol, initial_cash, commission, strategy, fromdate, todate) => {
+    const endpoint = `/stock/get_backtest?symbol=${symbol}&initial_cash=${initial_cash}&commission=${commission}&strategy=${strategy}&fromdate=${fromdate}&todate=${todate}`;
+    const options = {method: 'GET'};
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },

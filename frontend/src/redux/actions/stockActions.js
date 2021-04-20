@@ -57,6 +57,17 @@ const stockActions = {
     type: stockConstants.GET_PREDICTION_DAILY_FAILURE,
     payload: error,
   }),
+  getPaperTradingResultsPending: () => ({
+    type: stockConstants.GET_PAPER_TRADING_PENDING,
+  }),
+  getPaperTradingResultsSuccess: (response) => ({
+    type: stockConstants.GET_PAPER_TRADING_SUCCESS,
+    payload: response,
+  }),
+  getPaperTradingResultsFailure: (error) => ({
+    type: stockConstants.GET_PAPER_TRADING_FAILURE ,
+    payload: error,
+  }),
   getStockBasic: (payload) => {
     return async (dispatch) => {
       dispatch(stockActions.getStockBasicPending());
@@ -116,6 +127,18 @@ const stockActions = {
         dispatch(stockActions.getPredictionDailyFailure(error.message));
       }
     };
+  },
+  getPaperTradingResults: (payload) => {
+    return async (dispatch) => {
+      dispatch(stockActions.getPaperTradingResultsPending());
+      try {
+        const { symbol, initial_cash, commission, strategy, fromdate, todate } = payload;
+        const res = await StockAPI.getPaperTradingResults(symbol, initial_cash, commission, strategy, fromdate, todate);
+        dispatch(stockActions.getPaperTradingResultsSuccess(res));
+      } catch (error) {
+        dispatch(stockActions.getPaperTradingResultsFailure(error.message));
+      }
+    }
   },
 };
 

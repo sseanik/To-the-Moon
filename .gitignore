@@ -6,9 +6,12 @@ backend/src/__pycache__/
 backend/src/.env
 backend/src/TODO
 venv/*
+*/venv/*
+*/__pycache__/*
 demo/*.json
 storage/*
 
 *.pickle
 model/*/venv/*
+backend/src/venv/*
 demo/.ipynb_checkpoints/
