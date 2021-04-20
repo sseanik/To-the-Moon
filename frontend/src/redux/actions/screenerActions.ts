@@ -60,7 +60,7 @@ const screenerActions = {
         const { name, parameters } = payload;
         const res = await ScreenerAPI.save(name, parameters);
         dispatch(screenerActions.saveScreenerSuccess(res));
-        screenerActions.loadScreeners();
+        dispatch(screenerActions.loadScreeners());
       } catch (error) {
         dispatch(screenerActions.saveScreenerFailure(error.message));
       }
@@ -80,7 +80,7 @@ const screenerActions = {
     };
   },
 
-  loadScreeners: () => {
+  loadScreeners: (): any => {
     return async (dispatch: Dispatch) => {
       dispatch(screenerActions.loadScreenersPending());
       try {
@@ -99,7 +99,7 @@ const screenerActions = {
       try {
         const res = await ScreenerAPI.delete(name);
         dispatch(screenerActions.deleteScreenerSuccess(res));
-        screenerActions.loadScreeners();
+        dispatch(screenerActions.loadScreeners());
       } catch (error) {
         dispatch(screenerActions.deleteScreenerFailure(error.message));
       }

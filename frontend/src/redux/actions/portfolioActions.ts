@@ -22,7 +22,7 @@ const portfolioActions = {
       const { newName } = payload;
       await portfolioAPI.createPortfolio(newName);
       dispatch(portfolioActions.createPortfolioSuccess(payload));
-      portfolioActions.getPortfolios();
+      dispatch(portfolioActions.getPortfolios());
     } catch (error) {
       dispatch(portfolioActions.createPortfolioFailure(error.message));
     }
@@ -38,7 +38,7 @@ const portfolioActions = {
     type: portfolioConstants.GET_PORTFOLIOS_FAILURE,
     payload: error,
   }),
-  getPortfolios: () => async (dispatch: Dispatch) => {
+  getPortfolios: (): any => async (dispatch: Dispatch) => {
     dispatch(portfolioActions.getPortfoliosPending());
     try {
       const { data } = await portfolioAPI.getPortfolios();
@@ -100,7 +100,7 @@ const portfolioActions = {
     try {
       await portfolioAPI.deletePortfolio(portfolioName);
       dispatch(portfolioActions.deletePortfolioSuccess({ portfolioName }));
-      portfolioActions.getPortfolios();
+      dispatch(portfolioActions.getPortfolios());
     } catch (error) {
       dispatch(portfolioActions.deletePortfolioFailure(error.message));
     }
