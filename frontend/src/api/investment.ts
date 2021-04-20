@@ -64,7 +64,7 @@ const investmentAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getTrendingStocks: (n: number) => {
-    const endpoint = `/portfolio/investment/trending?n=${encodeURI(n)}`;
+    const endpoint = `/portfolio/investment/trending?n=${encodeURI(n.toString())}`;
     const options = {
       method: "GET",
       headers: {
