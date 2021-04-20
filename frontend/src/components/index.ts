@@ -21,6 +21,7 @@ export { default as Username } from "./Username";
 export { default as CreateEditNoteForm } from "./CreateEditNoteForm";
 export { default as CreateNotePopover } from "./CreateNotePopover";
 export { default as DashboardContainer } from "./DashboardContainer";
+export { default as BlocksContainer } from "./BlocksContainer";
 export { default as Block } from "./Block";
 export { default as AddBlockComponent } from "./AddBlockComponent";
 export { default as PortfolioPerformance } from "./PortfolioPerformance";
