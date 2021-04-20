@@ -67,17 +67,19 @@ const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
           <FollowWatchlistButton watchlistID={watchlistID} />
         </Col>
       </Row>
-      <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold">
-        <Col>Stock Name</Col>
-        <Col>Proportion</Col>
-        <Col>Price</Col>
-        <Col>Volume</Col>
-        <Col>Market Cap</Col>
-        <Col>PE Ratio</Col>
-      </Row>
-      {watchlist.stocks.map((stockProps: StockParams, idx: number) => (
-        <WatchlistStockInfo key={idx} {...stockProps} />
-      ))}
+      <Container className="bg-dark">
+        <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold">
+          <Col>Stock Name</Col>
+          <Col>Proportion</Col>
+          <Col>Price</Col>
+          <Col>Volume</Col>
+          <Col>Market Cap</Col>
+          <Col>PE Ratio</Col>
+        </Row>
+        {watchlist.stocks.map((stockProps: StockParams, idx: number) => (
+          <WatchlistStockInfo key={idx} {...stockProps} />
+        ))}
+      </Container>
     </Container>
   );
 };

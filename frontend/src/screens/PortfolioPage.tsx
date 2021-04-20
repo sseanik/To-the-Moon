@@ -51,7 +51,7 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
         <h1>{name}</h1>
       </Row>
       <PortfolioPerformance name={name} />
-      <Container>
+      <Container className="bg-dark">
         <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
           <Col>Stock Name</Col>
           <Col># Shares</Col>

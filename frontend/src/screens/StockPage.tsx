@@ -395,33 +395,33 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               defaultActiveKey="summary"
               id="sec-view-info-selector"
             >
-              <Tab eventKey="summary" title="Summary">
+              <Tab eventKey="summary" title="Summary" className="bg-dark">
                 <DataSummary />
               </Tab>
-              <Tab eventKey="statistics" title="Statistics">
+              <Tab eventKey="statistics" title="Statistics" className="bg-dark">
                 <DataFundamentals />
               </Tab>
-              <Tab eventKey="financials" title="Financials">
+              <Tab eventKey="financials" title="Financials" className="bg-dark">
                 <Tabs
                   className="justify-content-center mt-2"
                   defaultActiveKey="incomestatement"
                   id="sec-view-financials"
                 >
-                  <Tab eventKey="incomestatement" title="Income Statement">
+                  <Tab eventKey="incomestatement" title="Income Statement" className="bg-dark">
                     <DataIncomeStatement symbol={symbol} />
                   </Tab>
-                  <Tab eventKey="balancesheet" title="Balance Sheet">
+                  <Tab eventKey="balancesheet" title="Balance Sheet" className="bg-dark">
                     <DataBalanceSheet symbol={symbol} />
                   </Tab>
-                  <Tab eventKey="cashflow" title="Cash Flow Statement">
+                  <Tab eventKey="cashflow" title="Cash Flow Statement" className="bg-dark">
                     <DataCashFlow symbol={symbol} />
                   </Tab>
                 </Tabs>
               </Tab>
-              <Tab eventKey="prediction" title="Market Prediction">
+              <Tab eventKey="prediction" title="Market Prediction" className="bg-dark">
                 {predictionControlComponent}
               </Tab>
-              <Tab eventKey="paperTrading" title="Paper Trading">
+              <Tab eventKey="paperTrading" title="Paper Trading" className="bg-dark">
                 <PaperTradeController symbol={symbol} />
               </Tab>
             </Tabs>
