@@ -51,8 +51,8 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
         <h1>{name}</h1>
       </Row>
       <PortfolioPerformance name={name} />
-      <Container className="bg-dark">
-        <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold align-items-center">
+      <Container className="p-3 bg-dark">
+        <Row className="border-secondary py-2 w-100 font-weight-bold align-items-center">
           <Col>Stock Name</Col>
           <Col># Shares</Col>
           <Col>Purchase Date</Col>
@@ -60,11 +60,17 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
           <Col>Total Change</Col>
           <Col>Delete Stock</Col>
         </Row>
+        <hr style={{ borderTop: "1px solid white" }} />
         {error ? <Alert variant="danger">{error}</Alert> : null}
         {loading ? (
           <ClipLoader color="green" loading={loading} />
         ) : (
-          stocks.map((stockProps, id) => <StockInfo key={id} {...stockProps} />)
+          stocks.map((stockProps, id) => (
+            <div>
+              <StockInfo key={id} {...stockProps} />
+              <hr style={{ borderTop: "1px solid white" }} />
+            </div>
+          ))
         )}
       </Container>
       <Row className="justify-content-center mt-4">

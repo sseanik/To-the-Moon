@@ -68,7 +68,7 @@ const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
         </Col>
       </Row>
       <Container className="bg-dark">
-        <Row className="border-bottom border-secondary py-2 w-100 font-weight-bold">
+        <Row className="py-2 w-100 font-weight-bold">
           <Col>Stock Name</Col>
           <Col>Proportion</Col>
           <Col>Price</Col>
@@ -76,8 +76,12 @@ const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
           <Col>Market Cap</Col>
           <Col>PE Ratio</Col>
         </Row>
+        <hr style={{ borderTop: "1px solid white" }} />
         {watchlist.stocks.map((stockProps: StockParams, idx: number) => (
-          <WatchlistStockInfo key={idx} {...stockProps} />
+          <div>
+            <WatchlistStockInfo key={idx} {...stockProps} />
+            <hr style={{ borderTop: "1px solid white" }} />
+          </div>
         ))}
       </Container>
     </Container>

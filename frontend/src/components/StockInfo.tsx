@@ -21,7 +21,7 @@ const StockInfo: React.FC<Props> = (props) => {
   } = props;
 
   return (
-    <Row className="border-bottom border-light my-2 w-100 align-items-center">
+    <Row className="my-2 w-100 align-items-center">
       <Col>
         <a href={`/stock/${stock_ticker}`}>{stock_ticker}</a>
       </Col>
