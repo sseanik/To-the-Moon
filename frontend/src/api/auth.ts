@@ -4,7 +4,13 @@ import Utils from "./utils";
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const AuthAPI = {
-  register: (username, firstName, lastName, email, password) => {
+  register: (
+    username: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => {
     const endpoint = "/user/register";
     const options = {
       method: "POST",
@@ -20,7 +26,7 @@ const AuthAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  login: (email, password) => {
+  login: (email: string, password: string) => {
     const endpoint = "/user/login";
     const options = {
       method: "POST",

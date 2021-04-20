@@ -1,5 +1,6 @@
 import portfolioConstants from "../constants/portfolioConstants";
 import portfolioAPI from "../../api/portfolio";
+import { Dispatch } from "redux";
 
 const portfolioActions = {
   createPortfolioPending: () => ({
@@ -8,17 +9,19 @@ const portfolioActions = {
   createPortfolioSuccess: () => ({
     type: portfolioConstants.CREATE_PORTFOLIO_SUCCESS,
   }),
-  createPortfolioFailure: (error) => ({
+  createPortfolioFailure: (error: string) => ({
     type: portfolioConstants.CREATE_PORTFOLIO_FAILURE,
     payload: error,
   }),
-  createPortfolio: (payload) => async (dispatch) => {
+  createPortfolio: (payload: CreatePortfolioPayload) => async (
+    dispatch: Dispatch
+  ) => {
     dispatch(portfolioActions.createPortfolioPending());
     try {
       const { newName } = payload;
       await portfolioAPI.createPortfolio(newName);
       dispatch(portfolioActions.createPortfolioSuccess());
-      dispatch(portfolioActions.getPortfolios());
+      portfolioActions.getPortfolios();
     } catch (error) {
       dispatch(portfolioActions.createPortfolioFailure(error.message));
     }
@@ -26,15 +29,15 @@ const portfolioActions = {
   getPortfoliosPending: () => ({
     type: portfolioConstants.GET_PORTFOLIOS_PENDING,
   }),
-  getPortfoliosSuccess: (response) => ({
+  getPortfoliosSuccess: (response: GetPortfoliosResponse) => ({
     type: portfolioConstants.GET_PORTFOLIOS_SUCCESS,
     payload: response,
   }),
-  getPortfoliosFailure: (error) => ({
+  getPortfoliosFailure: (error: string) => ({
     type: portfolioConstants.GET_PORTFOLIOS_FAILURE,
     payload: error,
   }),
-  getPortfolios: () => async (dispatch) => {
+  getPortfolios: () => async (dispatch: Dispatch) => {
     dispatch(portfolioActions.getPortfoliosPending());
     try {
       const { data } = await portfolioAPI.getPortfolios();
@@ -43,22 +46,30 @@ const portfolioActions = {
       dispatch(portfolioActions.getPortfoliosFailure(error.message));
     }
   },
-  getPortfolioPerfPending: (portfolio) => ({
+  getPortfolioPerfPending: (portfolio: string) => ({
     type: portfolioConstants.GET_PORTFOLIO_PERF_PENDING,
     payload: { portfolio },
   }),
-  getPortfolioPerfSuccess: (portfolio, response) => ({
+  getPortfolioPerfSuccess: (
+    portfolio: string,
+    response: GetPortfolioPerfResponse
+  ) => ({
     type: portfolioConstants.GET_PORTFOLIO_PERF_SUCCESS,
     payload: { portfolio, response },
   }),
-  getPortfolioPerfFailure: (portfolio, error) => ({
+  getPortfolioPerfFailure: (
+    portfolio: string,
+    error: GetPortfolioPerfResponse
+  ) => ({
     type: portfolioConstants.GET_PORTFOLIO_PERF_SUCCESS,
     payload: { portfolio, error },
   }),
-  getPortfolioPerf: (payload) => async (dispatch) => {
+  getPortfolioPerf: (payload: GetPortfolioPerfPayload) => async (
+    dispatch: Dispatch
+  ) => {
     const { name } = payload;
     dispatch(portfolioActions.getPortfolioPerfPending(name));
-    let resPayload = {};
+    let resPayload: GetPortfolioPerfResponse = {};
     try {
       const { data } = await portfolioAPI.getPortfolioPerformance(name);
       resPayload[name] = data;
@@ -68,25 +79,27 @@ const portfolioActions = {
       dispatch(portfolioActions.getPortfolioPerfFailure(name, resPayload));
     }
   },
-  deletePortfolioPending: (portfolioName) => ({
+  deletePortfolioPending: (portfolioName: string) => ({
     type: portfolioConstants.DELETE_PORTFOLIO_PENDING,
     payload: portfolioName,
   }),
-  deletePortfolioSuccess: (response) => ({
+  deletePortfolioSuccess: (response: DeletePortfolioPayload) => ({
     type: portfolioConstants.DELETE_PORTFOLIO_SUCCESS,
     payload: response,
   }),
-  deletePortfolioFailure: (error) => ({
+  deletePortfolioFailure: (error: string) => ({
     type: portfolioConstants.DELETE_PORTFOLIO_FAILURE,
     payload: error,
   }),
-  deletePortfolios: (payload) => async (dispatch) => {
+  deletePortfolios: (payload: DeletePortfolioPayload) => async (
+    dispatch: Dispatch
+  ) => {
     const { portfolioName } = payload;
     dispatch(portfolioActions.deletePortfolioPending(portfolioName));
     try {
-      const { data } = await portfolioAPI.deletePortfolio(portfolioName);
-      dispatch(portfolioActions.deletePortfolioSuccess(data));
-      dispatch(portfolioActions.getPortfolios());
+      await portfolioAPI.deletePortfolio(portfolioName);
+      dispatch(portfolioActions.deletePortfolioSuccess({ portfolioName }));
+      portfolioActions.getPortfolios();
     } catch (error) {
       dispatch(portfolioActions.deletePortfolioFailure(error.message));
     }
@@ -94,15 +107,17 @@ const portfolioActions = {
   editPortfolioPending: () => ({
     type: portfolioConstants.EDIT_PORTFOLIO_PENDING,
   }),
-  editPortfolioSuccess: (response) => ({
+  editPortfolioSuccess: (response: EditPortfolioPayload) => ({
     type: portfolioConstants.EDIT_PORTFOLIO_SUCCESS,
     payload: response,
   }),
-  editPortfolioFailure: (error) => ({
+  editPortfolioFailure: (error: string) => ({
     type: portfolioConstants.EDIT_PORTFOLIO_FAILURE,
     payload: error,
   }),
-  editPortfolio: (payload) => async (dispatch) => {
+  editPortfolio: (payload: EditPortfolioPayload) => async (
+    dispatch: Dispatch
+  ) => {
     const { oldName, newName } = payload;
     dispatch(portfolioActions.editPortfolioPending());
     try {
@@ -113,5 +128,42 @@ const portfolioActions = {
     }
   },
 };
+
+interface CreatePortfolioPayload {
+  newName: string;
+}
+
+interface GetPortfolioPerfPayload {
+  name: string;
+}
+
+interface DeletePortfolioPayload {
+  portfolioName: string;
+}
+
+interface EditPortfolioPayload {
+  oldName: string;
+  newName: string;
+}
+
+interface GetPortfoliosResponse {
+  data: string[];
+}
+
+interface InvestmentInfo {
+  investment_id: string;
+  purchase_price: string;
+  num_shares: number;
+  purchase_date: string;
+  total_change: number;
+  stock_ticker: string;
+}
+
+interface GetPortfolioPerfResponse {
+  [key: string]: {
+    portfolio_change: number;
+    investments: InvestmentInfo[];
+  };
+}
 
 export default portfolioActions;

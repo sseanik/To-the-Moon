@@ -3,9 +3,9 @@ import Utils from "./utils";
 
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
-const NoteAPI = {
-  getUserNotes: () => {
-    const endpoint = "/notes";
+const portfolioAPI = {
+  getPortfolios: () => {
+    const endpoint = "/portfolio";
     const options = {
       method: "GET",
       headers: {
@@ -16,15 +16,8 @@ const NoteAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getRelevantNotes: (stocks, portfolios) => {
-    let endpoint = `/notes/relevant?`;
-    for (const stock of stocks) {
-      endpoint += `stock=${stock}&`;
-    }
-    for (const portfolio of portfolios) {
-      endpoint += `portfolio=${portfolio}&`;
-    }
-    endpoint = endpoint.slice(0, -1);
+  getPortfolioPerformance: (name: string) => {
+    const endpoint = `/portfolio/performance?name=${name}`;
     const options = {
       method: "GET",
       headers: {
@@ -35,43 +28,20 @@ const NoteAPI = {
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  createNote: (
-    title,
-    content,
-    stock_symbols,
-    portfolio_names,
-    external_references,
-    internal_references
-  ) => {
-    const endpoint = "/notes";
+  createPortfolio: (name: string) => {
+    const endpoint = `/portfolio?name=${name}`;
     const options = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
       },
-      body: JSON.stringify({
-        title,
-        content,
-        stock_symbols,
-        portfolio_names,
-        external_references,
-        internal_references,
-      }),
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  editNote: (
-    old_title,
-    new_title,
-    content,
-    stock_symbols,
-    portfolio_names,
-    external_references,
-    internal_references
-  ) => {
-    const endpoint = `/notes?note=${old_title}`;
+  editPortfolio: (oldName: string, newName: string) => {
+    const endpoint = `/portfolio?name=${oldName}`;
     const options = {
       method: "PUT",
       headers: {
@@ -79,19 +49,14 @@ const NoteAPI = {
         Authorization: Utils.getToken(),
       },
       body: JSON.stringify({
-        new_title,
-        content,
-        stock_symbols,
-        portfolio_names,
-        external_references,
-        internal_references,
+        name: newName,
       }),
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  deleteNote: (title) => {
-    const endpoint = `/notes?title=${title}`;
+  deletePortfolio: (name: string) => {
+    const endpoint = `/portfolio?name=${name}`;
     const options = {
       method: "DELETE",
       headers: {
@@ -104,4 +69,4 @@ const NoteAPI = {
   },
 };
 
-export default NoteAPI;
+export default portfolioAPI;

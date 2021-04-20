@@ -1,75 +1,76 @@
 import stockConstants from "../constants/stockConstants";
 import StockAPI from "../../api/stock";
+import { Dispatch } from "redux";
 
 const stockActions = {
   getStockBasicPending: () => ({
     type: stockConstants.GET_STOCK_BASIC_PENDING,
   }),
-  getStockBasicSuccess: (response) => ({
+  getStockBasicSuccess: (response: BasicStockResponse) => ({
     type: stockConstants.GET_STOCK_BASIC_SUCCESS,
     payload: response,
   }),
-  getStockBasicFailure: (error) => ({
+  getStockBasicFailure: (error: string) => ({
     type: stockConstants.GET_STOCK_BASIC_FAILURE,
     payload: error,
   }),
   getStockIncomePending: () => ({
     type: stockConstants.GET_STOCK_INCOME_PENDING,
   }),
-  getStockIncomeSuccess: (response) => ({
+  getStockIncomeSuccess: (response: any) => ({
     type: stockConstants.GET_STOCK_INCOME_SUCCESS,
     payload: response,
   }),
-  getStockIncomeFailure: (error) => ({
+  getStockIncomeFailure: (error: string) => ({
     type: stockConstants.GET_STOCK_INCOME_FAILURE,
     payload: error,
   }),
   getStockBalancePending: () => ({
     type: stockConstants.GET_STOCK_BALANCE_PENDING,
   }),
-  getStockBalanceSuccess: (response) => ({
+  getStockBalanceSuccess: (response: any) => ({
     type: stockConstants.GET_STOCK_BALANCE_SUCCESS,
     payload: response,
   }),
-  getStockBalanceFailure: (error) => ({
+  getStockBalanceFailure: (error: string) => ({
     type: stockConstants.GET_STOCK_BALANCE_FAILURE,
     payload: error,
   }),
   getStockCashFlowPending: () => ({
     type: stockConstants.GET_STOCK_CASHFLOW_PENDING,
   }),
-  getStockCashFlowSuccess: (response) => ({
+  getStockCashFlowSuccess: (response: any) => ({
     type: stockConstants.GET_STOCK_CASHFLOW_SUCCESS,
     payload: response,
   }),
-  getStockCashFlowFailure: (error) => ({
+  getStockCashFlowFailure: (error: string) => ({
     type: stockConstants.GET_STOCK_CASHFLOW_FAILURE,
     payload: error,
   }),
   getPredictionDailyPending: () => ({
     type: stockConstants.GET_PREDICTION_DAILY_PENDING,
   }),
-  getPredictionDailySuccess: (response) => ({
+  getPredictionDailySuccess: (response: any) => ({
     type: stockConstants.GET_PREDICTION_DAILY_SUCCESS,
     payload: response,
   }),
-  getPredictionDailyFailure: (error) => ({
+  getPredictionDailyFailure: (error: string) => ({
     type: stockConstants.GET_PREDICTION_DAILY_FAILURE,
     payload: error,
   }),
   getPaperTradingResultsPending: () => ({
     type: stockConstants.GET_PAPER_TRADING_PENDING,
   }),
-  getPaperTradingResultsSuccess: (response) => ({
+  getPaperTradingResultsSuccess: (response: any) => ({
     type: stockConstants.GET_PAPER_TRADING_SUCCESS,
     payload: response,
   }),
-  getPaperTradingResultsFailure: (error) => ({
-    type: stockConstants.GET_PAPER_TRADING_FAILURE ,
+  getPaperTradingResultsFailure: (error: string) => ({
+    type: stockConstants.GET_PAPER_TRADING_FAILURE,
     payload: error,
   }),
-  getStockBasic: (payload) => {
-    return async (dispatch) => {
+  getStockBasic: (payload: SimpleStockPayload) => {
+    return async (dispatch: Dispatch) => {
       dispatch(stockActions.getStockBasicPending());
       try {
         const { symbol } = payload;
@@ -80,8 +81,8 @@ const stockActions = {
       }
     };
   },
-  getStockIncome: (payload) => {
-    return async (dispatch) => {
+  getStockIncome: (payload: SimpleStockPayload) => {
+    return async (dispatch: Dispatch) => {
       dispatch(stockActions.getStockIncomePending());
       try {
         const { symbol } = payload;
@@ -92,8 +93,8 @@ const stockActions = {
       }
     };
   },
-  getStockBalance: (payload) => {
-    return async (dispatch) => {
+  getStockBalance: (payload: SimpleStockPayload) => {
+    return async (dispatch: Dispatch) => {
       dispatch(stockActions.getStockBalancePending());
       try {
         const { symbol } = payload;
@@ -104,8 +105,8 @@ const stockActions = {
       }
     };
   },
-  getStockCashFlow: (payload) => {
-    return async (dispatch) => {
+  getStockCashFlow: (payload: SimpleStockPayload) => {
+    return async (dispatch: Dispatch) => {
       dispatch(stockActions.getStockCashFlowPending());
       try {
         const { symbol } = payload;
@@ -116,8 +117,8 @@ const stockActions = {
       }
     };
   },
-  getPredictionDaily: (payload) => {
-    return async (dispatch) => {
+  getPredictionDaily: (payload: PredictionPayload) => {
+    return async (dispatch: Dispatch) => {
       dispatch(stockActions.getPredictionDailyPending());
       try {
         const { symbol, predictionType } = payload;
@@ -128,18 +129,69 @@ const stockActions = {
       }
     };
   },
-  getPaperTradingResults: (payload) => {
-    return async (dispatch) => {
+  getPaperTradingResults: (payload: PaperTradingResultsPayload) => {
+    return async (dispatch: Dispatch) => {
       dispatch(stockActions.getPaperTradingResultsPending());
       try {
-        const { symbol, initial_cash, commission, strategy, fromdate, todate } = payload;
-        const res = await StockAPI.getPaperTradingResults(symbol, initial_cash, commission, strategy, fromdate, todate);
+        const {
+          symbol,
+          initial_cash,
+          commission,
+          strategy,
+          fromdate,
+          todate,
+        } = payload;
+        const res = await StockAPI.getPaperTradingResults(
+          symbol,
+          initial_cash,
+          commission,
+          strategy,
+          fromdate,
+          todate
+        );
         dispatch(stockActions.getPaperTradingResultsSuccess(res));
       } catch (error) {
         dispatch(stockActions.getPaperTradingResultsFailure(error.message));
       }
-    }
+    };
   },
 };
+
+interface SimpleStockPayload {
+  symbol: string;
+}
+
+interface PredictionPayload extends SimpleStockPayload {
+  predictionType: string;
+}
+
+interface PaperTradingResultsPayload extends SimpleStockPayload {
+  initial_cash: number;
+  commission: number;
+  strategy: string;
+  fromdate: string;
+  todate: string;
+}
+
+interface BasicStockResponse {
+  name: string;
+  data: {
+    data: {
+      "2. high": GraphPoint[];
+      "3. low": GraphPoint[];
+      "4. close": GraphPoint[];
+    };
+    data_intraday: {
+      "4. close": GraphPoint[];
+    };
+    summary: Object[];
+    fundamentals: Object[];
+  };
+}
+
+interface GraphPoint {
+  timestamp: number;
+  value: number;
+}
 
 export default stockActions;

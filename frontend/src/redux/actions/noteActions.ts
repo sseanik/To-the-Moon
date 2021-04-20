@@ -1,3 +1,4 @@
+import { Dispatch } from "redux";
 import NoteAPI from "../../api/note";
 import noteConstants from "../constants/noteConstants";
 
@@ -5,62 +6,62 @@ const noteActions = {
   getUserNotesPending: () => ({
     type: noteConstants.GET_USER_NOTES_PENDING,
   }),
-  getUserNotesSuccess: (response) => ({
+  getUserNotesSuccess: (response: GetNotesResponse) => ({
     type: noteConstants.GET_USER_NOTES_SUCCESS,
     payload: response,
   }),
-  getUserNotesFailure: (error) => ({
+  getUserNotesFailure: (error: string) => ({
     type: noteConstants.GET_USER_NOTES_FAILURE,
     payload: error,
   }),
   getRelevantNotesPending: () => ({
     type: noteConstants.GET_RELEVANT_NOTES_PENDING,
   }),
-  getRelevantNotesSuccess: (response) => ({
+  getRelevantNotesSuccess: (response: GetNotesResponse) => ({
     type: noteConstants.GET_RELEVANT_NOTES_SUCCESS,
     payload: response,
   }),
-  getRelevantNotesFailure: (error) => ({
+  getRelevantNotesFailure: (error: string) => ({
     type: noteConstants.GET_RELEVANT_NOTES_FAILURE,
     payload: error,
   }),
   createNotePending: () => ({
     type: noteConstants.CREATE_NOTE_PENDING,
   }),
-  createNoteSuccess: (response) => ({
+  createNoteSuccess: (response: CreateNoteResponse) => ({
     type: noteConstants.CREATE_NOTE_SUCCESS,
     payload: response,
   }),
-  createNoteFailure: (error) => ({
+  createNoteFailure: (error: string) => ({
     type: noteConstants.CREATE_NOTE_FAILURE,
     payload: error,
   }),
-  editNotePending: (payload) => ({
+  editNotePending: (payload: EditNotePayload) => ({
     type: noteConstants.EDIT_NOTE_PENDING,
     payload,
   }),
   editNoteSuccess: () => ({
     type: noteConstants.EDIT_NOTE_SUCCESS,
   }),
-  editNoteFailure: (error) => ({
+  editNoteFailure: (error: string) => ({
     type: noteConstants.EDIT_NOTE_FAILURE,
     payload: error,
   }),
-  deleteNotePending: (payload) => ({
+  deleteNotePending: (payload: DeleteNotePayload) => ({
     type: noteConstants.DELETE_NOTE_PENDING,
     payload,
   }),
   deleteNoteSuccess: () => ({
     type: noteConstants.DELETE_NOTE_SUCCESS,
   }),
-  deleteNoteFailure: (error) => ({
+  deleteNoteFailure: (error: string) => ({
     type: noteConstants.DELETE_NOTE_FAILURE,
     payload: error,
   }),
   toggleNoteList: () => ({
     type: noteConstants.TOGGLE_NOTELIST,
   }),
-  getUserNotes: () => async (dispatch) => {
+  getUserNotes: () => async (dispatch: Dispatch) => {
     dispatch(noteActions.getUserNotesPending());
     try {
       const res = await NoteAPI.getUserNotes();
@@ -69,7 +70,9 @@ const noteActions = {
       dispatch(noteActions.getUserNotesFailure(error.message));
     }
   },
-  getRelevantNotes: (payload) => async (dispatch) => {
+  getRelevantNotes: (payload: RelevantNewsPayload) => async (
+    dispatch: Dispatch
+  ) => {
     dispatch(noteActions.getRelevantNotesPending());
     try {
       const { stock_symbols, portfolio_names } = payload;
@@ -82,7 +85,7 @@ const noteActions = {
       dispatch(noteActions.getRelevantNotesFailure(error.message));
     }
   },
-  createNote: (payload) => async (dispatch) => {
+  createNote: (payload: CreateNotePayload) => async (dispatch: Dispatch) => {
     dispatch(noteActions.createNotePending());
     try {
       const {
@@ -106,7 +109,7 @@ const noteActions = {
       dispatch(noteActions.createNoteFailure(error.message));
     }
   },
-  editNote: (payload) => async (dispatch) => {
+  editNote: (payload: EditNotePayload) => async (dispatch: Dispatch) => {
     dispatch(noteActions.editNotePending(payload));
     try {
       const {
@@ -118,7 +121,7 @@ const noteActions = {
         external_references,
         internal_references,
       } = payload;
-      const res = await NoteAPI.editNote(
+      await NoteAPI.editNote(
         old_title,
         new_title,
         content,
@@ -127,21 +130,66 @@ const noteActions = {
         external_references,
         internal_references
       );
-      dispatch(noteActions.editNoteSuccess(res));
+      dispatch(noteActions.editNoteSuccess());
     } catch (error) {
       dispatch(noteActions.editNoteFailure(error.message));
     }
   },
-  deleteNote: (payload) => async (dispatch) => {
+  deleteNote: (payload: DeleteNotePayload) => async (dispatch: Dispatch) => {
     dispatch(noteActions.deleteNotePending(payload));
     try {
       const { title } = payload;
-      const res = await NoteAPI.deleteNote(title);
-      dispatch(noteActions.deleteNoteSuccess(res));
+      await NoteAPI.deleteNote(title);
+      dispatch(noteActions.deleteNoteSuccess());
     } catch (error) {
       dispatch(noteActions.deleteNoteFailure(error.message));
     }
   },
 };
+
+interface RelevantNewsPayload {
+  stock_symbols: string[];
+  portfolio_names: string[];
+}
+
+interface CreateNotePayload {
+  title: string;
+  content: string;
+  stock_symbols: string[];
+  portfolio_names: string[];
+  external_references: string[];
+  internal_references: string[];
+}
+
+interface EditNotePayload {
+  old_title: string;
+  new_title: string;
+  content: string;
+  stock_symbols: string[];
+  portfolio_names: string[];
+  external_references: string[];
+  internal_references: string[];
+}
+
+interface DeleteNotePayload {
+  title: string;
+}
+
+interface CreateNoteResponse {
+  message: string;
+}
+
+interface GetNotesResponse {
+  data: NoteInfo[];
+}
+
+interface NoteInfo {
+  title: string;
+  content: string;
+  stock_symbols: string[];
+  portfolio_names: string[];
+  external_references: string[];
+  internal_references: string[];
+}
 
 export default noteActions;

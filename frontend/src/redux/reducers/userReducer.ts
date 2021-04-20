@@ -1,25 +1,9 @@
 import userConstants from "../constants/userConstants";
 import Utils from "../../api/utils";
+import { Action } from "redux";
+import { SimpleReduxState } from "../../types/generalTypes";
 
-const initialState = {
-  registerUser: {
-    loading: false,
-    message: null,
-    error: null,
-  },
-  loginUser: {
-    loading: false,
-    message: null,
-    error: null,
-  },
-  user: {
-    loading: true,
-  },
-  token: Utils.getToken(),
-  username: null,
-};
-
-const userReducer = (state = initialState, action) => {
+const userReducer = (state = initialState, action: UserAction) => {
   switch (action.type) {
     // Register
     case userConstants.REGISTER_PENDING:
@@ -28,8 +12,8 @@ const userReducer = (state = initialState, action) => {
         registerUser: {
           ...state.registerUser,
           loading: true,
-          message: null,
-          error: null,
+          message: "",
+          error: "",
         },
       };
     case userConstants.REGISTER_SUCCESS:
@@ -59,8 +43,8 @@ const userReducer = (state = initialState, action) => {
         loginUser: {
           ...state.loginUser,
           loading: true,
-          message: null,
-          error: null,
+          message: "",
+          error: "",
         },
       };
     case userConstants.LOGIN_SUCCESS:
@@ -120,6 +104,44 @@ const userReducer = (state = initialState, action) => {
     default:
       return state;
   }
+};
+
+interface UserAction extends Action {
+  payload: {
+    token?: string;
+    username?: string;
+    message?: string;
+  };
+}
+
+interface MessageUserState extends SimpleReduxState {
+  message: string;
+}
+
+interface InitialState {
+  registerUser: MessageUserState;
+  loginUser: MessageUserState;
+  user: { loading: boolean };
+  token: string | null;
+  username: string;
+}
+
+const initialState: InitialState = {
+  registerUser: {
+    loading: false,
+    message: "",
+    error: "",
+  },
+  loginUser: {
+    loading: false,
+    message: "",
+    error: "",
+  },
+  user: {
+    loading: true,
+  },
+  token: Utils.getToken(),
+  username: "",
 };
 
 export default userReducer;

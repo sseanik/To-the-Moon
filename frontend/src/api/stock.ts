@@ -4,43 +4,43 @@ import Utils from "./utils";
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const StockAPI = {
-  getBasic: (symbol) => {
+  getBasic: (symbol: string) => {
     const endpoint = `/stock?symbol=${symbol}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getIncome: (symbol) => {
+  getIncome: (symbol: string) => {
     const endpoint = `/stock/income_statement?symbol=${symbol}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getBalance: (symbol) => {
+  getBalance: (symbol: string) => {
     const endpoint = `/stock/balance_sheet?symbol=${symbol}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getCashFlow: (symbol) => {
+  getCashFlow: (symbol: string) => {
     const endpoint = `/stock/cash_flow_statement?symbol=${symbol}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getPredictionDaily: (symbol, predictionType) => {
+  getPredictionDaily: (symbol: string, predictionType: string) => {
     const endpoint = `/stock/get_prediction_daily?symbol=${symbol}&prediction_type=${predictionType}`;
     const options = { method: "GET" };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getPaperTradingResults: (
-    symbol,
-    initial_cash,
-    commission,
-    strategy,
-    fromdate,
-    todate
+    symbol: string,
+    initial_cash: number,
+    commission: number,
+    strategy: string,
+    fromdate: string,
+    todate: string
   ) => {
     const endpoint = `/stock/get_backtest?symbol=${symbol}&initial_cash=${initial_cash}&commission=${commission}&strategy=${strategy}&fromdate=${fromdate}&todate=${todate}`;
     const options = { method: "GET" };

@@ -103,8 +103,8 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    loadScreeners: (payload: loadScreenersParams) => {
-      dispatch(screenerActions.loadScreeners(payload));
+    loadScreeners: () => {
+      dispatch(screenerActions.loadScreeners());
     },
   };
 };

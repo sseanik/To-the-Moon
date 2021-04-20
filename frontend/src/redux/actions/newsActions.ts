@@ -1,3 +1,4 @@
+import { Dispatch } from "redux";
 import NewsAPI from "../../api/news";
 import newsConstants from "../constants/newsConstants";
 
@@ -5,15 +6,15 @@ const newsActions = {
   newsPending: () => ({
     type: newsConstants.NEWS_PENDING,
   }),
-  newsSuccess: (response) => ({
+  newsSuccess: (response: GeneralNewsResponse) => ({
     type: newsConstants.NEWS_SUCCESS,
     payload: response,
   }),
-  newsFailure: (error) => ({
+  newsFailure: (error: string) => ({
     type: newsConstants.NEWS_FAILURE,
     payload: error,
   }),
-  getGeneralNews: () => async (dispatch) => {
+  getGeneralNews: () => async (dispatch: Dispatch) => {
     dispatch(newsActions.newsPending());
     try {
       const res = await NewsAPI.getFeaturedNews();
@@ -22,7 +23,7 @@ const newsActions = {
       dispatch(newsActions.newsFailure(error.message));
     }
   },
-  getNewsByStock: (stockSymbol) => async (dispatch) => {
+  getNewsByStock: (stockSymbol: string) => async (dispatch: Dispatch) => {
     dispatch(newsActions.newsPending());
     try {
       const res = await NewsAPI.getNewsByStock(stockSymbol);
@@ -32,5 +33,9 @@ const newsActions = {
     }
   },
 };
+
+interface GeneralNewsResponse {
+  articles: string;
+}
 
 export default newsActions;

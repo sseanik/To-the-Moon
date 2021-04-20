@@ -1,5 +1,5 @@
-import * as config from '../config.json';
-import Utils from './utils';
+import * as config from "../config.json";
+import Utils from "./utils";
 
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
@@ -7,21 +7,21 @@ const NewsAPI = {
   getFeaturedNews: (count = 5) => {
     const endpoint = `/news/general?count=${count}`;
     const options = {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${Utils.getToken()}`,
       },
     };
 
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  getNewsByStock: (stock) => {
+  getNewsByStock: (stock: string) => {
     const endpoint = `/news?symbol=${stock}`;
     const options = {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${Utils.getToken()}`,
       },
     };
