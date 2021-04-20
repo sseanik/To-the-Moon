@@ -23,7 +23,7 @@ const investmentAPI = {
     purchaseDate: string
   ) => {
     const purchaseUnix = new Date(purchaseDate).getTime() / 1000;
-    const endpoint = `/portfolio/investment?portfolio=${portfolio}`;
+    const endpoint = `/portfolio/investment?portfolio=${encodeURI(portfolio)}`;
     const options = {
       method: "POST",
       headers: {

@@ -110,6 +110,18 @@ def create_vote_plpgsql_functions():
     conn.close()
 
 
+def create_dashboard_tables():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute(open("Tables/dashboards.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/dashboard_blocks.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/dashboard_references.sql", "r").read())
+    conn.commit()
+    conn.close()
+
+
 def fill_securities_overview_table(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -402,6 +414,7 @@ if __name__ == "__main__":
     # create_comment_tables()
     # create_notes_table()
     # create_watchlist_tables()
+    # create_dashboard_tables
 
     # Basic materials sector
     # fill_overview_and_financial_tables('BHP')

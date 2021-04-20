@@ -43,7 +43,7 @@ const forumAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   getComments: (stockTicker: string) => {
-    const endpoint = `/forum?stockTicker=${stockTicker}`;
+    const endpoint = `/forum?stockTicker=${encodeURI(stockTicker)}`;
     const options = {
       method: "GET",
       headers: {

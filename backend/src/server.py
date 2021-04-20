@@ -22,6 +22,7 @@ from screener import SCREENER_NS
 from stock import STOCK_NS
 from user import USER_NS
 from watchlist import WATCHLIST_NS
+from dashboard import DASHBOARD_NS
 
 # Create a custom Flask class to allow for initial thread
 class MyFlaskApp(Flask):
@@ -44,9 +45,9 @@ APP = MyFlaskApp(__name__)
 CORS(APP)
 API = Api(
     APP,
-    title="To the Moon Backend",
+    title="To the Moon API 🌕",
     version="1.0",
-    description="A description",
+    description="The API interface for the stock portfolio management platform - To The Moon.",
 )
 
 API.add_namespace(USER_NS)
@@ -54,6 +55,7 @@ API.add_namespace(STOCK_NS)
 API.add_namespace(PORTFOLIO_NS)
 API.add_namespace(NEWS_NS)
 API.add_namespace(FORUM_NS)
+API.add_namespace(DASHBOARD_NS)
 API.add_namespace(NOTES_NS)
 API.add_namespace(SCREENER_NS)
 API.add_namespace(WATCHLIST_NS)
@@ -70,6 +72,7 @@ MAIL_SETTINGS = {
 APP.config.update(MAIL_SETTINGS)
 MAIL = Mail(APP)
 APP.MAIL = MAIL
+
 
 ###################################
 # Please leave all functions here #
@@ -105,7 +108,7 @@ def default_handler(err):
 # APP.register_blueprint(USER_ROUTES)
 # APP.register_blueprint(WATCHLIST_ROUTES)
 # APP.register_blueprint(NOTE_ROUTES)
-
+# APP.register_blueprint(DASHBOARD_ROUTES)
 
 #############################
 # Flask App setup and start #

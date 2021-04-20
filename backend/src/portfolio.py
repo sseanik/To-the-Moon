@@ -88,6 +88,7 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
             + "'.",
         }
         # TODO: update notes table
+        # TODO: update dashboard_blocks table
     else:
         abort(400, "Already a portfolio named" + new_portfolio_name + ".")
     # Commit changes, close connection and return response to user

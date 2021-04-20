@@ -19,10 +19,10 @@ const NoteAPI = {
   getRelevantNotes: (stocks: string[], portfolios: string[]) => {
     let endpoint = `/notes/relevant?`;
     for (const stock of stocks) {
-      endpoint += `stock=${stock}&`;
+      endpoint += `stock=${encodeURI(stock)}&`;
     }
     for (const portfolio of portfolios) {
-      endpoint += `portfolio=${portfolio}&`;
+      endpoint += `portfolio=${encodeURI(portfolio)}&`;
     }
     endpoint = endpoint.slice(0, -1);
     const options = {
@@ -71,7 +71,7 @@ const NoteAPI = {
     external_references: string[],
     internal_references: string[]
   ) => {
-    const endpoint = `/notes?note=${old_title}`;
+    const endpoint = `/notes?note=${encodeURI(old_title)}`;
     const options = {
       method: "PUT",
       headers: {
