@@ -102,14 +102,14 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
 
   return (
     <Col
-      className="border rounded mx-1 p-4 bg-light justify-content-center align-items-center"
+      className="border rounded mx-2 justify-content-center align-items-center bg-dark"
       onMouseEnter={() => setShowDelete(true)}
       onMouseLeave={() => setShowDelete(false)}
     >
       {blockId ? deleteComponent : null}
       {blockError ? <Alert variant="danger">{blockError}</Alert> : null}
-      {blockLoading ? loadingSpinnerComponent : null}
-      {blockComponent(blockType)}
+      {blockLoading ? loadingSpinnerComponent : blockComponent(blockType)}
+      
     </Col>
   );
 };

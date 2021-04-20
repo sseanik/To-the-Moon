@@ -36,7 +36,7 @@ const PortfoliosPage: React.FC<StateProps & DispatchProps> = (props) => {
         ) : (
           portfolios.map((portfolioName, id) => (
             <Col
-              className="border rounded mx-1 p-4 portfolio-info bg-light"
+              className="border rounded mx-1 p-4 portfolio-info bg-dark"
               lg={4}
               md={6}
             >

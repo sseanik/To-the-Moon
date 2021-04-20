@@ -38,11 +38,11 @@ const BlocksContainer: React.FC<StateProps & DispatchProps> = (props) => {
 
   return (
     <Container fluid>
-      <Row className="my-1" style={rowStyle}>
+      <Row className="my-3" style={rowStyle}>
         {blockComponent(0)}
         {blockComponent(1)}
       </Row>
-      <Row className="my-1" style={rowStyle}>
+      <Row className="my-3" style={rowStyle}>
         {blockComponent(2)}
         {blockComponent(3)}
       </Row>
