@@ -40,30 +40,27 @@ const DeleteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
     isDownvoted,
   } = props;
 
-  const buttonComponent = isDownvoted ? (
-    <Button variant="danger">
-      <FontAwesomeIcon icon={faThumbsDown} />
-    </Button>
-  ) : (
+  const downvote = () => {
+    parentID
+      ? downvoteChild({ commentID, parentID })
+      : downvoteParent({ commentID });
+  };
+
+  const remove = () => {
+    console.log("yeet");
+  };
+
+  return (
     <Button
-      variant="light"
-      onClick={() =>
-        parentID
-          ? downvoteChild({ commentID, parentID })
-          : downvoteParent({ commentID })
+      variant={isDownvoted ? "danger" : "light"}
+      onClick={isDownvoted ? remove : downvote}
+      disabled={
+        parentDownvoting.includes(commentID) ||
+        childDownvoting.includes(commentID)
       }
     >
       <FontAwesomeIcon icon={faThumbsDown} />
     </Button>
-  );
-
-  return parentDownvoting.includes(commentID) ||
-    childDownvoting.includes(commentID) ? (
-    <Button variant="light" disabled>
-      <FontAwesomeIcon icon={faThumbsDown} />
-    </Button>
-  ) : (
-    buttonComponent
   );
 };
 

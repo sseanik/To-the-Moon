@@ -40,30 +40,26 @@ const UpvoteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
     isUpvoted,
   } = props;
 
-  const buttonComponent = isUpvoted ? (
-    <Button variant="success">
-      <FontAwesomeIcon icon={faThumbsUp} />
-    </Button>
-  ) : (
+  const upvote = () => {
+    parentID
+      ? upvoteChild({ commentID, parentID })
+      : upvoteParent({ commentID });
+  };
+
+  const remove = () => {
+    console.log("yeet");
+  };
+
+  return (
     <Button
-      variant="light"
-      onClick={() =>
-        parentID
-          ? upvoteChild({ commentID, parentID })
-          : upvoteParent({ commentID })
+      variant={isUpvoted ? "success" : "light"}
+      onClick={isUpvoted ? remove : upvote}
+      disabled={
+        parentUpvoting.includes(commentID) || childUpvoting.includes(commentID)
       }
     >
       <FontAwesomeIcon icon={faThumbsUp} />
     </Button>
-  );
-
-  return parentUpvoting.includes(commentID) ||
-    childUpvoting.includes(commentID) ? (
-    <Button variant="light" disabled>
-      <FontAwesomeIcon icon={faThumbsUp} />
-    </Button>
-  ) : (
-    buttonComponent
   );
 };
 
