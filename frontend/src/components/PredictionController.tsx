@@ -94,7 +94,7 @@ const PredictionController: React.FC<StateProps & DispatchProps & Props> = (prop
         <Col className="text-left font-weight-bold">Duration: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="outline-light"
             id="dropdown-basic-button"
             title={durOpts[durChoice].display + " " + durOpts[durChoice].units}
           >
@@ -121,7 +121,7 @@ const PredictionController: React.FC<StateProps & DispatchProps & Props> = (prop
         <Col className="text-left font-weight-bold">Model: </Col>
         <Col>
           <DropdownButton
-            variant="outline-dark"
+            variant="outline-light"
             id="dropdown-basic-button"
             title={predictOpts[preChoice].name}
           >
