@@ -77,7 +77,11 @@ const ChildComment: React.FC<StateProps & Props> = (props) => {
           <Col md={1}>
             <p
               className={
-                vote_difference >= 0 ? "text-success m-0" : "text-danger m-0"
+                vote_difference > 0
+                  ? "text-success m-0"
+                  : vote_difference < 0
+                  ? "text-danger m-0"
+                  : "m-0"
               }
             >
               {vote_difference}
