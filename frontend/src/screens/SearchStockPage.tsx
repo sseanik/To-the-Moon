@@ -37,7 +37,10 @@ const SearchStockPage: React.FC = () => {
       </Row>
       <h1>List of Offered Stocks</h1>
       {offeredStocks.map((stockInfo, idx) => (
-        <Row key={idx} className="border-top border-bottom py-2">
+        <Row
+          key={idx}
+          className="border-top border-bottom py-2 align-items-center"
+        >
           <Col>
             <a href={`/stock/${stockInfo.ticker}`}>{stockInfo.ticker}</a>
           </Col>

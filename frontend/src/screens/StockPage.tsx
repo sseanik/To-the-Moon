@@ -264,7 +264,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         {loadingSpinnerComponent}
       </Row>
       <Row>{error ? alertComponent : null}</Row>
-      <Row className="justify-content-center">
+      <Row className="justify-content-center align-items-center">
         <Col>
           <Container>
             <Tabs
