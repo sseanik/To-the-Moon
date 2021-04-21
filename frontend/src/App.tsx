@@ -45,7 +45,7 @@ function App() {
             fluid
             className="mt-3 app-container justify-content-center"
           >
-            <Container className="dark-blue-container">
+            <div className="dark-blue-container">
               <Switch>
                 <Route path="/" component={LandingPage} exact />
                 <Route
@@ -67,7 +67,7 @@ function App() {
                   component={WatchlistPage}
                 />
               </Switch>
-            </Container>
+            </div>
             <NoteList />
           </Container>
           <Footer />
