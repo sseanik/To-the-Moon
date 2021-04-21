@@ -20,9 +20,9 @@ interface StockParams {
 }
 
 interface StateProps {
-  loading: boolean;
-  error: Object;
-  stocks: Array<StockParams>;
+  loading: { [key: string]: boolean };
+  error: string;
+  stocks: { [key: string]: Array<StockParams> };
 }
 
 interface DispatchProps {
@@ -40,6 +40,11 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
   const [publishing, setPublishing] = useState(false);
+
+  const portfolioLoading: boolean =
+    loading && loading.hasOwnProperty(name) ? loading[name] : false;
+  const portfolioStocks: Array<StockParams> =
+    stocks && stocks.hasOwnProperty(name) ? stocks[name] : [];
 
   useEffect(() => {
     getStocks(name);
@@ -62,10 +67,10 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
         </Row>
         <hr style={{ borderTop: "1px solid white" }} />
         {error ? <Alert variant="danger">{error}</Alert> : null}
-        {loading ? (
-          <ClipLoader color="green" loading={loading} />
+        {portfolioLoading ? (
+          <ClipLoader color="green" loading={portfolioLoading} />
         ) : (
-          stocks.map((stockProps, idx: number) => (
+          portfolioStocks.map((stockProps, idx: number) => (
             <div key={idx}>
               <StockInfo {...stockProps} />
               <hr style={{ borderTop: "1px solid white" }} />
