@@ -120,10 +120,10 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  upvoteParent: (comment_id: string) => {
+  upvoteParent: (comment_id: string, remove = false) => {
     const endpoint = "/forum/comment/upvote";
     const options = {
-      method: "PUT",
+      method: remove ? "DELETE" : "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
@@ -134,10 +134,10 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  downvoteParent: (comment_id: string) => {
+  downvoteParent: (comment_id: string, remove = false) => {
     const endpoint = "/forum/comment/downvote";
     const options = {
-      method: "PUT",
+      method: remove ? "DELETE" : "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
@@ -148,10 +148,10 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  upvoteChild: (reply_id: string, comment_id: string) => {
+  upvoteChild: (reply_id: string, comment_id: string, remove = false) => {
     const endpoint = "/forum/reply/upvote";
     const options = {
-      method: "PUT",
+      method: remove ? "DELETE" : "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
@@ -163,10 +163,10 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  downvoteChild: (reply_id: string, comment_id: string) => {
+  downvoteChild: (reply_id: string, comment_id: string, remove = false) => {
     const endpoint = "/forum/reply/downvote";
     const options = {
-      method: "PUT",
+      method: remove ? "DELETE" : "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
