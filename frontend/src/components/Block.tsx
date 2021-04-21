@@ -92,6 +92,7 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
         return (
           <PortfolioInfo
             viewOnly={true}
+            detailed={blockMeta ? blockMeta.detailed : null}
             name={blockMeta ? blockMeta.portfolio_name : null}
           />
         );
@@ -109,7 +110,6 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
       {blockId ? deleteComponent : null}
       {blockError ? <Alert variant="danger">{blockError}</Alert> : null}
       {blockLoading ? loadingSpinnerComponent : blockComponent(blockType)}
-      
     </Col>
   );
 };

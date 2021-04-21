@@ -10,7 +10,7 @@ import investmentActions from "../redux/actions/investmentActions";
 import { connect } from "react-redux";
 import PublishPortfolioForm from "../components/PublishPortfolioForm";
 
-interface StockParams {
+export interface StockParams {
   investment_id: string;
   stock_ticker: string;
   num_shares: number;
