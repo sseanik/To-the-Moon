@@ -265,15 +265,15 @@ const forumActions = {
     }
   },
   removeUpvoteParentPending: (commentID: string) => ({
-    type: forumConstants.UPVOTE_PARENT_PENDING,
+    type: forumConstants.REMOVE_UPVOTE_PARENT_PENDING,
     payload: commentID,
   }),
   removeUpvoteParentSuccess: (response: CommentIDPayload) => ({
-    type: forumConstants.UPVOTE_PARENT_SUCCESS,
+    type: forumConstants.REMOVE_UPVOTE_PARENT_SUCCESS,
     payload: response,
   }),
   removeUpvoteParentFailure: (error: string) => ({
-    type: forumConstants.UPVOTE_PARENT_FAILURE,
+    type: forumConstants.REMOVE_UPVOTE_PARENT_FAILURE,
     payload: error,
   }),
   removeUpvoteParent: (payload: CommentIDPayload) => async (
@@ -289,15 +289,15 @@ const forumActions = {
     }
   },
   removeUpvoteChildPending: (commentID: string) => ({
-    type: forumConstants.UPVOTE_CHILD_PENDING,
+    type: forumConstants.REMOVE_UPVOTE_CHILD_PENDING,
     payload: commentID,
   }),
   removeUpvoteChildSuccess: (response: CommentIDPayload) => ({
-    type: forumConstants.UPVOTE_CHILD_SUCCESS,
+    type: forumConstants.REMOVE_UPVOTE_CHILD_SUCCESS,
     payload: response,
   }),
   removeUpvoteChildFailure: (error: string) => ({
-    type: forumConstants.UPVOTE_CHILD_FAILURE,
+    type: forumConstants.REMOVE_UPVOTE_CHILD_FAILURE,
     payload: error,
   }),
   removeUpvoteChild: (payload: CommentIDPayload) => async (
@@ -313,15 +313,15 @@ const forumActions = {
     }
   },
   removeDownvoteParentPending: (commentID: string) => ({
-    type: forumConstants.DOWNVOTE_PARENT_PENDING,
+    type: forumConstants.REMOVE_DOWNVOTE_PARENT_PENDING,
     payload: commentID,
   }),
   removeDownvoteParentSuccess: (response: CommentIDPayload) => ({
-    type: forumConstants.DOWNVOTE_PARENT_SUCCESS,
+    type: forumConstants.REMOVE_DOWNVOTE_PARENT_SUCCESS,
     payload: response,
   }),
   removeDownvoteParentFailure: (error: string) => ({
-    type: forumConstants.DOWNVOTE_PARENT_FAILURE,
+    type: forumConstants.REMOVE_DOWNVOTE_PARENT_FAILURE,
     payload: error,
   }),
   removeDownvoteParent: (payload: CommentIDPayload) => async (
@@ -337,15 +337,15 @@ const forumActions = {
     }
   },
   removeDownvoteChildPending: (commentID: string) => ({
-    type: forumConstants.DOWNVOTE_CHILD_PENDING,
+    type: forumConstants.REMOVE_DOWNVOTE_CHILD_PENDING,
     payload: commentID,
   }),
   removeDownvoteChildSuccess: (response: CommentIDPayload) => ({
-    type: forumConstants.DOWNVOTE_CHILD_SUCCESS,
+    type: forumConstants.REMOVE_DOWNVOTE_CHILD_SUCCESS,
     payload: response,
   }),
   removeDownvoteChildFailure: (error: string) => ({
-    type: forumConstants.DOWNVOTE_CHILD_FAILURE,
+    type: forumConstants.REMOVE_DOWNVOTE_CHILD_FAILURE,
     payload: error,
   }),
   removeDownvoteChild: (payload: CommentIDPayload) => async (
