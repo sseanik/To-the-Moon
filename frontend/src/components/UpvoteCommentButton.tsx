@@ -17,8 +17,8 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  upvoteParent: (payload: UpvoteCommentParams) => void;
-  upvoteChild: (payload: UpvoteCommentParams) => void;
+  upvoteParent: (payload: UpvoteCommentParams, remove: boolean) => void;
+  upvoteChild: (payload: UpvoteCommentParams, remove: boolean) => void;
 }
 
 interface Props {
@@ -40,20 +40,14 @@ const UpvoteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
     isUpvoted,
   } = props;
 
-  const upvote = () => {
-    parentID
-      ? upvoteChild({ commentID, parentID })
-      : upvoteParent({ commentID });
-  };
-
-  const remove = () => {
-    console.log("yeet");
-  };
-
   return (
     <Button
       variant={isUpvoted ? "success" : "light"}
-      onClick={isUpvoted ? remove : upvote}
+      onClick={() => {
+        parentID
+          ? upvoteChild({ commentID, parentID }, isUpvoted)
+          : upvoteParent({ commentID }, isUpvoted);
+      }}
       disabled={
         parentUpvoting.includes(commentID) || childUpvoting.includes(commentID)
       }
@@ -72,11 +66,15 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    upvoteParent: (payload: UpvoteCommentParams) => {
-      dispatch(forumActions.upvoteParent(payload));
+    upvoteParent: (payload: UpvoteCommentParams, remove: boolean) => {
+      remove
+        ? dispatch(forumActions.removeUpvoteParent(payload))
+        : dispatch(forumActions.upvoteParent(payload));
     },
-    upvoteChild: (payload: UpvoteCommentParams) => {
-      dispatch(forumActions.upvoteChild(payload));
+    upvoteChild: (payload: UpvoteCommentParams, remove: boolean) => {
+      remove
+        ? dispatch(forumActions.removeUpvoteChild(payload))
+        : dispatch(forumActions.upvoteChild(payload));
     },
   };
 };

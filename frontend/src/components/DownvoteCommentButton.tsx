@@ -17,8 +17,8 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  downvoteParent: (payload: DownvoteCommentParams) => void;
-  downvoteChild: (payload: DownvoteCommentParams) => void;
+  downvoteParent: (payload: DownvoteCommentParams, remove: boolean) => void;
+  downvoteChild: (payload: DownvoteCommentParams, remove: boolean) => void;
 }
 
 interface Props {
@@ -40,20 +40,14 @@ const DeleteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
     isDownvoted,
   } = props;
 
-  const downvote = () => {
-    parentID
-      ? downvoteChild({ commentID, parentID })
-      : downvoteParent({ commentID });
-  };
-
-  const remove = () => {
-    console.log("yeet");
-  };
-
   return (
     <Button
       variant={isDownvoted ? "danger" : "light"}
-      onClick={isDownvoted ? remove : downvote}
+      onClick={() => {
+        parentID
+          ? downvoteChild({ commentID, parentID }, isDownvoted)
+          : downvoteParent({ commentID }, isDownvoted);
+      }}
       disabled={
         parentDownvoting.includes(commentID) ||
         childDownvoting.includes(commentID)
@@ -73,10 +67,10 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    downvoteParent: (payload: DownvoteCommentParams) => {
+    downvoteParent: (payload: DownvoteCommentParams, remove: boolean) => {
       dispatch(forumActions.downvoteParent(payload));
     },
-    downvoteChild: (payload: DownvoteCommentParams) => {
+    downvoteChild: (payload: DownvoteCommentParams, remove: boolean) => {
       dispatch(forumActions.downvoteChild(payload));
     },
   };
