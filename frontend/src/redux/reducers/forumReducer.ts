@@ -9,7 +9,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
         ...state,
         addParent: {
           loading: true,
-          error: null,
+          error: "",
         },
       };
     case forumConstants.ADD_PARENT_SUCCESS:
@@ -17,7 +17,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
         ...state,
         addParent: {
           loading: false,
-          error: null,
+          error: "",
         },
         comments: [action.payload, ...state.comments],
       };
@@ -33,7 +33,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         addChild: {
-          error: null,
+          error: "",
           adding: [...state.addChild.adding, action.payload],
         },
       };
@@ -41,7 +41,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         addChild: {
-          error: null,
+          error: "",
           adding: state.addChild.adding.filter(
             (commentID) => commentID !== action.payload.comment_id
           ),
@@ -66,12 +66,12 @@ const forumReducer = (state = initialState, action: ForumAction) => {
     case forumConstants.GET_COMMENTS_PENDING:
       return {
         ...state,
-        getComments: { loading: true, error: null },
+        getComments: { loading: true, error: "" },
       };
     case forumConstants.GET_COMMENTS_SUCCESS:
       return {
         ...state,
-        getComments: { loading: false, error: null },
+        getComments: { loading: false, error: "" },
         comments: action.payload,
       };
     case forumConstants.GET_COMMENTS_FAILURE:
@@ -84,7 +84,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         editParent: {
-          error: null,
+          error: "",
           editing: [...state.editParent.editing, action.payload.commentID],
         },
       };
@@ -92,7 +92,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         editParent: {
-          error: null,
+          error: "",
           editing: state.editParent.editing.filter(
             (commentID) => commentID !== action.payload.comment_id
           ),
@@ -107,7 +107,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         editParent: {
-          error: null,
+          error: "",
           editing: state.editParent.editing.filter(
             (commentID) => commentID !== action.payload.comment_id
           ),
@@ -117,7 +117,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         editChild: {
-          error: null,
+          error: "",
           editing: [...state.editChild.editing, action.payload.commentID],
         },
       };
@@ -125,7 +125,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         editChild: {
-          error: null,
+          error: "",
           editing: state.editChild.editing.filter(
             (commentID) => commentID !== action.payload.reply_id
           ),
@@ -151,7 +151,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         editChild: {
-          error: null,
+          error: "",
           editing: state.editChild.editing.filter(
             (commentID) => commentID !== action.payload.comment_id
           ),
@@ -161,7 +161,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         deleteParent: {
-          error: null,
+          error: "",
           deleting: [...state.deleteParent.deleting, action.payload],
         },
       };
@@ -169,7 +169,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         deleteParent: {
-          error: null,
+          error: "",
           deleting: state.deleteParent.deleting.filter(
             (commentID) => commentID !== action.payload.commentID
           ),
@@ -192,7 +192,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         deleteChild: {
-          error: null,
+          error: "",
           deleting: [...state.deleteChild.deleting, action.payload],
         },
       };
@@ -200,7 +200,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         deleteChild: {
-          error: null,
+          error: "",
           deleting: state.deleteChild.deleting.filter(
             (commentID) => commentID !== action.payload.commentID
           ),
@@ -230,7 +230,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         upvoteParent: {
-          error: null,
+          error: "",
           upvoting: [...state.upvoteParent.upvoting, action.payload],
         },
       };
@@ -238,7 +238,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         upvoteParent: {
-          error: null,
+          error: "",
           upvoting: state.upvoteParent.upvoting.filter(
             (commentID) => commentID !== action.payload.commentID
           ),
@@ -272,7 +272,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         upvoteChild: {
-          error: null,
+          error: "",
           upvoting: [...state.upvoteChild.upvoting, action.payload],
         },
       };
@@ -280,7 +280,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         upvoteChild: {
-          error: null,
+          error: "",
           upvoting: state.upvoteChild.upvoting.filter(
             (commentID) => commentID !== action.payload.commentID
           ),
@@ -321,7 +321,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         downvoteParent: {
-          error: null,
+          error: "",
           downvoting: [...state.downvoteParent.downvoting, action.payload],
         },
       };
@@ -329,7 +329,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         downvoteParent: {
-          error: null,
+          error: "",
           downvoting: state.downvoteParent.downvoting.filter(
             (commentID) => commentID !== action.payload.commentID
           ),
@@ -363,7 +363,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         downvoteChild: {
-          error: null,
+          error: "",
           downvoting: [...state.downvoteChild.downvoting, action.payload],
         },
       };
@@ -371,7 +371,7 @@ const forumReducer = (state = initialState, action: ForumAction) => {
       return {
         ...state,
         downvoteChild: {
-          error: null,
+          error: "",
           downvoting: state.downvoteChild.downvoting.filter(
             (commentID) => commentID !== action.payload.commentID
           ),
@@ -406,6 +406,164 @@ const forumReducer = (state = initialState, action: ForumAction) => {
         downvoteChild: {
           error: action.payload,
           downvoting: [],
+        },
+      };
+    case forumConstants.REMOVE_UPVOTE_PARENT_PENDING:
+      return {
+        ...state,
+        removeUpvoteParent: {
+          error: "",
+          removing: [...state.removeUpvoteParent.removing, action.payload],
+        },
+      };
+    case forumConstants.REMOVE_UPVOTE_PARENT_SUCCESS:
+      return {
+        ...state,
+        removeUpvoteParent: {
+          error: "",
+          removing: state.removeUpvoteParent.removing.filter(
+            (commentID) => commentID !== action.payload.commentID
+          ),
+        },
+        comments: state.comments.map((comment) =>
+          comment.comment_id === action.payload.commentID
+            ? {
+                ...comment,
+                is_upvoted: false,
+                upvotes: comment.upvotes - 1,
+                vote_difference: comment.vote_difference - 1,
+              }
+            : comment
+        ),
+      };
+    case forumConstants.REMOVE_UPVOTE_PARENT_FAILURE:
+      return {
+        ...state,
+        removeUpvoteParent: {
+          error: action.payload,
+          removing: [],
+        },
+      };
+    case forumConstants.REMOVE_UPVOTE_CHILD_PENDING:
+      return {
+        ...state,
+        removeUpvoteChild: {
+          error: "",
+          removing: [...state.removeUpvoteChild.removing, action.payload],
+        },
+      };
+    case forumConstants.REMOVE_UPVOTE_CHILD_SUCCESS:
+      return {
+        ...state,
+        removeUpvoteChild: {
+          error: "",
+          removing: state.removeUpvoteChild.removing.filter(
+            (commentID) => commentID !== action.payload.commentID
+          ),
+        },
+        comments: state.comments.map((comment) =>
+          comment.comment_id === action.payload.parentID
+            ? {
+                ...comment,
+                replies: comment.replies!.map((reply) =>
+                  reply.reply_id === action.payload.commentID
+                    ? {
+                        ...reply,
+                        is_upvoted: false,
+                        upvotes: reply.upvotes - 1,
+                        vote_difference: reply.vote_difference - 1,
+                      }
+                    : reply
+                ),
+              }
+            : comment
+        ),
+      };
+    case forumConstants.REMOVE_UPVOTE_CHILD_FAILURE:
+      return {
+        ...state,
+        removeUpvoteChild: {
+          error: action.payload,
+          removing: [],
+        },
+      };
+    case forumConstants.REMOVE_DOWNVOTE_PARENT_PENDING:
+      return {
+        ...state,
+        removeDownvoteParent: {
+          error: "",
+          removing: [...state.removeDownvoteParent.removing, action.payload],
+        },
+      };
+    case forumConstants.REMOVE_DOWNVOTE_PARENT_SUCCESS:
+      return {
+        ...state,
+        removeDownvoteParent: {
+          error: "",
+          removing: state.removeDownvoteParent.removing.filter(
+            (commentID) => commentID !== action.payload.commentID
+          ),
+        },
+        comments: state.comments.map((comment) =>
+          comment.comment_id === action.payload.commentID
+            ? {
+                ...comment,
+                is_downvoted: false,
+                downvotes: comment.downvotes - 1,
+                vote_difference: comment.vote_difference + 1,
+              }
+            : comment
+        ),
+      };
+    case forumConstants.REMOVE_DOWNVOTE_PARENT_FAILURE:
+      return {
+        ...state,
+        removeDownvoteParent: {
+          error: action.payload,
+          removing: [],
+        },
+      };
+    case forumConstants.REMOVE_DOWNVOTE_CHILD_PENDING:
+      return {
+        ...state,
+        removeDownvoteChild: {
+          error: "",
+          removing: [...state.removeDownvoteChild.removing, action.payload],
+        },
+      };
+    case forumConstants.REMOVE_DOWNVOTE_CHILD_SUCCESS:
+      return {
+        ...state,
+        removeDownvoteChild: {
+          error: "",
+          removing: state.removeDownvoteChild.removing.filter(
+            (commentID) => commentID !== action.payload.commentID
+          ),
+        },
+        comments: state.comments.map((comment) =>
+          comment.comment_id === action.payload.parentID
+            ? {
+                ...comment,
+                replies: comment.replies!.map((reply) =>
+                  reply.reply_id === action.payload.commentID
+                    ? {
+                        ...reply,
+                        is_downvoted: false,
+                        downvotes: reply.downvotes - 1,
+                        vote_difference: reply.vote_difference + 1,
+                      }
+                    : reply
+                ),
+              }
+            : comment
+        ),
+      };
+    case forumConstants.REMOVE_DOWNVOTE_CHILD_FAILURE:
+      return {
+        ...state,
+        removeDownvoteChild: {
+          error: action.payload,
+          removing: [],
         },
       };
     default:
@@ -465,6 +623,11 @@ interface DownvotingState {
   error: string;
 }
 
+interface RemovingState {
+  removing: string[];
+  error: string;
+}
+
 interface InitialState {
   addParent: SimpleReduxState;
   addChild: AddChildState;
@@ -477,6 +640,10 @@ interface InitialState {
   upvoteChild: UpvotingState;
   downvoteParent: DownvotingState;
   downvoteChild: DownvotingState;
+  removeUpvoteParent: RemovingState;
+  removeUpvoteChild: RemovingState;
+  removeDownvoteParent: RemovingState;
+  removeDownvoteChild: RemovingState;
   comments: Comment[];
 }
 
@@ -523,6 +690,22 @@ const initialState: InitialState = {
   },
   downvoteChild: {
     downvoting: [],
+    error: "",
+  },
+  removeUpvoteParent: {
+    removing: [],
+    error: "",
+  },
+  removeUpvoteChild: {
+    removing: [],
+    error: "",
+  },
+  removeDownvoteParent: {
+    removing: [],
+    error: "",
+  },
+  removeDownvoteChild: {
+    removing: [],
     error: "",
   },
   comments: [],

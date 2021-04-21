@@ -264,6 +264,102 @@ const forumActions = {
       dispatch(forumActions.downvoteChildFailure(error.message));
     }
   },
+  removeUpvoteParentPending: (commentID: string) => ({
+    type: forumConstants.UPVOTE_PARENT_PENDING,
+    payload: commentID,
+  }),
+  removeUpvoteParentSuccess: (response: CommentIDPayload) => ({
+    type: forumConstants.UPVOTE_PARENT_SUCCESS,
+    payload: response,
+  }),
+  removeUpvoteParentFailure: (error: string) => ({
+    type: forumConstants.UPVOTE_PARENT_FAILURE,
+    payload: error,
+  }),
+  removeUpvoteParent: (payload: CommentIDPayload) => async (
+    dispatch: Dispatch
+  ) => {
+    const { commentID } = payload;
+    dispatch(forumActions.removeUpvoteParentPending(commentID));
+    try {
+      dispatch(forumActions.removeUpvoteParentSuccess({ commentID }));
+      await forumAPI.upvoteParent(commentID, true);
+    } catch (error) {
+      dispatch(forumActions.removeUpvoteParentFailure(error.message));
+    }
+  },
+  removeUpvoteChildPending: (commentID: string) => ({
+    type: forumConstants.UPVOTE_CHILD_PENDING,
+    payload: commentID,
+  }),
+  removeUpvoteChildSuccess: (response: CommentIDPayload) => ({
+    type: forumConstants.UPVOTE_CHILD_SUCCESS,
+    payload: response,
+  }),
+  removeUpvoteChildFailure: (error: string) => ({
+    type: forumConstants.UPVOTE_CHILD_FAILURE,
+    payload: error,
+  }),
+  removeUpvoteChild: (payload: CommentIDPayload) => async (
+    dispatch: Dispatch
+  ) => {
+    const { commentID, parentID } = payload;
+    dispatch(forumActions.removeUpvoteChildPending(commentID));
+    try {
+      dispatch(forumActions.removeUpvoteChildSuccess(payload));
+      await forumAPI.upvoteChild(commentID, parentID!, true);
+    } catch (error) {
+      dispatch(forumActions.removeUpvoteChildFailure(error.message));
+    }
+  },
+  removeDownvoteParentPending: (commentID: string) => ({
+    type: forumConstants.DOWNVOTE_PARENT_PENDING,
+    payload: commentID,
+  }),
+  removeDownvoteParentSuccess: (response: CommentIDPayload) => ({
+    type: forumConstants.DOWNVOTE_PARENT_SUCCESS,
+    payload: response,
+  }),
+  removeDownvoteParentFailure: (error: string) => ({
+    type: forumConstants.DOWNVOTE_PARENT_FAILURE,
+    payload: error,
+  }),
+  removeDownvoteParent: (payload: CommentIDPayload) => async (
+    dispatch: Dispatch
+  ) => {
+    const { commentID } = payload;
+    dispatch(forumActions.removeDownvoteParentPending(commentID));
+    try {
+      dispatch(forumActions.removeDownvoteParentSuccess({ commentID }));
+      await forumAPI.downvoteParent(commentID, true);
+    } catch (error) {
+      dispatch(forumActions.removeDownvoteParentFailure(error.message));
+    }
+  },
+  removeDownvoteChildPending: (commentID: string) => ({
+    type: forumConstants.DOWNVOTE_CHILD_PENDING,
+    payload: commentID,
+  }),
+  removeDownvoteChildSuccess: (response: CommentIDPayload) => ({
+    type: forumConstants.DOWNVOTE_CHILD_SUCCESS,
+    payload: response,
+  }),
+  removeDownvoteChildFailure: (error: string) => ({
+    type: forumConstants.DOWNVOTE_CHILD_FAILURE,
+    payload: error,
+  }),
+  removeDownvoteChild: (payload: CommentIDPayload) => async (
+    dispatch: Dispatch
+  ) => {
+    const { commentID, parentID } = payload;
+    dispatch(forumActions.removeDownvoteChildPending(commentID));
+    try {
+      dispatch(forumActions.removeDownvoteChildSuccess(payload));
+      await forumAPI.downvoteChild(commentID, parentID!, true);
+    } catch (error) {
+      dispatch(forumActions.removeDownvoteChildFailure(error.message));
+    }
+  },
 };
 
 interface AddCommentPayload {
