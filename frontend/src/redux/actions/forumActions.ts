@@ -188,7 +188,9 @@ const forumActions = {
     type: forumConstants.UPVOTE_PARENT_FAILURE,
     payload: error,
   }),
-  upvoteParent: (payload: CommentIDPayload) => async (dispatch: Dispatch) => {
+  upvoteParent: (payload: CommentIDPayload): any => async (
+    dispatch: Dispatch
+  ) => {
     const { commentID } = payload;
     dispatch(forumActions.upvoteParentPending(commentID));
     try {
@@ -210,7 +212,9 @@ const forumActions = {
     type: forumConstants.UPVOTE_CHILD_FAILURE,
     payload: error,
   }),
-  upvoteChild: (payload: CommentIDPayload) => async (dispatch: Dispatch) => {
+  upvoteChild: (payload: CommentIDPayload): any => async (
+    dispatch: Dispatch
+  ) => {
     const { commentID, parentID } = payload;
     dispatch(forumActions.upvoteChildPending(commentID));
     try {
@@ -232,7 +236,9 @@ const forumActions = {
     type: forumConstants.DOWNVOTE_PARENT_FAILURE,
     payload: error,
   }),
-  downvoteParent: (payload: CommentIDPayload) => async (dispatch: Dispatch) => {
+  downvoteParent: (payload: CommentIDPayload): any => async (
+    dispatch: Dispatch
+  ) => {
     const { commentID } = payload;
     dispatch(forumActions.downvoteParentPending(commentID));
     try {
@@ -254,7 +260,9 @@ const forumActions = {
     type: forumConstants.DOWNVOTE_CHILD_FAILURE,
     payload: error,
   }),
-  downvoteChild: (payload: CommentIDPayload) => async (dispatch: Dispatch) => {
+  downvoteChild: (payload: CommentIDPayload): any => async (
+    dispatch: Dispatch
+  ) => {
     const { commentID, parentID } = payload;
     dispatch(forumActions.downvoteChildPending(commentID));
     try {
@@ -276,7 +284,7 @@ const forumActions = {
     type: forumConstants.REMOVE_UPVOTE_PARENT_FAILURE,
     payload: error,
   }),
-  removeUpvoteParent: (payload: CommentIDPayload) => async (
+  removeUpvoteParent: (payload: CommentIDPayload): any => async (
     dispatch: Dispatch
   ) => {
     const { commentID } = payload;
@@ -300,7 +308,7 @@ const forumActions = {
     type: forumConstants.REMOVE_UPVOTE_CHILD_FAILURE,
     payload: error,
   }),
-  removeUpvoteChild: (payload: CommentIDPayload) => async (
+  removeUpvoteChild: (payload: CommentIDPayload): any => async (
     dispatch: Dispatch
   ) => {
     const { commentID, parentID } = payload;
@@ -324,7 +332,7 @@ const forumActions = {
     type: forumConstants.REMOVE_DOWNVOTE_PARENT_FAILURE,
     payload: error,
   }),
-  removeDownvoteParent: (payload: CommentIDPayload) => async (
+  removeDownvoteParent: (payload: CommentIDPayload): any => async (
     dispatch: Dispatch
   ) => {
     const { commentID } = payload;
@@ -348,7 +356,7 @@ const forumActions = {
     type: forumConstants.REMOVE_DOWNVOTE_CHILD_FAILURE,
     payload: error,
   }),
-  removeDownvoteChild: (payload: CommentIDPayload) => async (
+  removeDownvoteChild: (payload: CommentIDPayload): any => async (
     dispatch: Dispatch
   ) => {
     const { commentID, parentID } = payload;

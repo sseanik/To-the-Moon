@@ -2,6 +2,7 @@ import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "react-bootstrap";
 import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import forumActions from "../redux/actions/forumActions";
 
 interface UpvoteCommentParams {
@@ -64,7 +65,7 @@ const mapStateToProps = (state: any) => ({
   childUpvoting: state.forumReducer.upvoteChild.upvoting,
 });
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     upvoteParent: (payload: UpvoteCommentParams, remove: boolean) => {
       remove

@@ -2,6 +2,7 @@ import { faThumbsDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "react-bootstrap";
 import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import forumActions from "../redux/actions/forumActions";
 
 interface DownvoteCommentParams {
@@ -65,7 +66,7 @@ const mapStateToProps = (state: any) => ({
   childDownvoting: state.forumReducer.downvoteChild.downvoting,
 });
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     downvoteParent: (payload: DownvoteCommentParams, remove: boolean) => {
       remove
