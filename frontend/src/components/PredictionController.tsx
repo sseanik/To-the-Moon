@@ -1,25 +1,25 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import {
-  Container,
-  Row,
-  Col,
-  Tabs,
-  Tab,
-  Button,
-  Alert,
   Badge,
+  Button,
+  Container,
+  Col,
   Dropdown,
   DropdownButton,
-  InputGroup,
-  FormControl,
+  Row,
 } from "react-bootstrap";
 
-import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
 
-import { statusBadgeModifier, statusBadgeText } from "../helpers/StatusFormatModifiers";
-import { durationOptionsObj, predictionOptionsObj } from "../helpers/PredictionHelpers";
+import {
+  statusBadgeModifier,
+  statusBadgeText,
+} from "../helpers/StatusFormatModifiers";
+import {
+  durationOptionsObj,
+  predictionOptionsObj,
+} from "../helpers/PredictionHelpers";
 
 interface getPredictionDailyParams {
   symbol: string;
@@ -52,8 +52,20 @@ interface DispatchProps {
   getPredictionDaily: (payload: getPredictionDailyParams) => void;
 }
 
-const PredictionController: React.FC<StateProps & DispatchProps & Props> = (props) => {
-  const { predictionDaily, predictionDailyLoading, predictionDailyError, getPredictionDaily, symbol, durChoice, setdurChoice, preChoice, setPreChoice } = props;
+const PredictionController: React.FC<StateProps & DispatchProps & Props> = (
+  props
+) => {
+  const {
+    predictionDaily,
+    predictionDailyLoading,
+    predictionDailyError,
+    getPredictionDaily,
+    symbol,
+    durChoice,
+    setdurChoice,
+    preChoice,
+    setPreChoice,
+  } = props;
 
   const fetchPredictDaily = () => {
     const predictionType = predictOpts[preChoice].idtype;
@@ -158,7 +170,7 @@ const PredictionController: React.FC<StateProps & DispatchProps & Props> = (prop
   );
 
   return predictionControlComponent;
-}
+};
 
 const mapStateToProps = (state: any) => ({
   predictionDailyLoading: state.stockReducer.predictionDaily.loading,
@@ -173,4 +185,7 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PredictionController);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PredictionController);
