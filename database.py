@@ -414,7 +414,7 @@ if __name__ == "__main__":
     # create_comment_tables()
     # create_notes_table()
     # create_watchlist_tables()
-    # create_dashboard_tables
+    # create_dashboard_tables()
 
     # Basic materials sector
     # fill_overview_and_financial_tables('BHP')
