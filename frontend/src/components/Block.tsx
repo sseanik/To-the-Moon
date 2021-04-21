@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Col, Alert, Button } from "react-bootstrap";
+import { Col, Alert, Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import PortfolioInfo from "./PortfolioInfo";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import dashboardActions from "../redux/actions/dashboardActions";
+import { StockNewsCarousel, StockGraph } from ".";
 
 interface Props {
   blockId: string;
@@ -48,6 +49,7 @@ const deleteButtonStyle = {
   position: "absolute",
   left: "2%",
   margin: "auto",
+  zIndex: 10,
 } as React.CSSProperties;
 
 const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
@@ -96,6 +98,14 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
             name={blockMeta ? blockMeta.portfolio_name : null}
           />
         );
+      case "news":
+        return (
+          <StockNewsCarousel
+            stock={blockMeta ? blockMeta.stock_ticker : null}
+          />
+        );
+      case "stock":
+        return <StockGraph stock={blockMeta ? blockMeta.stock_ticker : null} />;
       default:
         return <></>;
     }
