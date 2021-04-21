@@ -223,7 +223,7 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (
         </Col>
       </Row>
       <hr />
-      <Row className="pb-3 justify-content-center">
+      <Row className="py-2 justify-content-center">
         <Button
           variant="primary"
           onClick={() => {

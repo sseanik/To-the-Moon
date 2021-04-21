@@ -76,7 +76,7 @@ interface DispatchProps {
   getPredictionDaily: (payload: getPredictionDailyParams) => void;
 }
 
-const graphStyle = {
+const graphBorderStyle = {
   border: "7px solid grey",
 };
 
@@ -222,7 +222,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   const graphComponent = (
     <Container>
-      <div style={graphStyle}>
+      <div style={graphBorderStyle}>
         <HighchartsReact
           ref={chartComponent}
           highcharts={Highcharts}
@@ -230,7 +230,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
           options={graphOptions}
         />
       </div>
-      <Row className="py-3 justify-content-around">
+      <Row className="py-1 justify-content-around">
         <Col>
           <Button variant="info" onClick={fetchStock}>
             Refresh data
