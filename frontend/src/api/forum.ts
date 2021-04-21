@@ -4,29 +4,13 @@ import Utils from "./utils";
 const url = `http://localhost:${config.BACKEND_PORT}`;
 
 const forumAPI = {
-  addParent: (stockTicker: string, timestamp: number, content: string) => {
-    const endpoint = "/forum/comment";
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: Utils.getToken(),
-      },
-      body: JSON.stringify({
-        stockTicker,
-        timestamp,
-        content,
-      }),
-    };
-    return Utils.getJSON(`${url}${endpoint}`, options);
-  },
-  addChild: (
+  addComment: (
     stockTicker: string,
     timestamp: number,
     content: string,
-    parentID: string
+    parentID?: string
   ) => {
-    const endpoint = "/forum/reply";
+    const endpoint = `/forum/${parentID ? "reply" : "comment"}`;
     const options = {
       method: "POST",
       headers: {
@@ -53,29 +37,13 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  editParent: (comment_id: string, time_stamp: number, content: string) => {
-    const endpoint = "/forum/comment";
-    const options = {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: Utils.getToken(),
-      },
-      body: JSON.stringify({
-        comment_id,
-        time_stamp,
-        content,
-      }),
-    };
-    return Utils.getJSON(`${url}${endpoint}`, options);
-  },
-  editChild: (
+  editComment: (
     comment_id: string,
     time_stamp: number,
     content: string,
-    parent_id: string
+    parent_id?: string
   ) => {
-    const endpoint = "/forum/reply";
+    const endpoint = `/forum/${parent_id ? "reply" : "comment"}`;
     const options = {
       method: "PUT",
       headers: {
