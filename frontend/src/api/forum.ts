@@ -59,22 +59,8 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  deleteParent: (comment_id: string) => {
-    const endpoint = "/forum/comment";
-    const options = {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: Utils.getToken(),
-      },
-      body: JSON.stringify({
-        comment_id,
-      }),
-    };
-    return Utils.getJSON(`${url}${endpoint}`, options);
-  },
-  deleteChild: (comment_id: string, parent_id: string) => {
-    const endpoint = "/forum/reply";
+  deleteComment: (comment_id: string, parent_id?: string) => {
+    const endpoint = `/forum/${parent_id ? "reply" : "comment"}`;
     const options = {
       method: "DELETE",
       headers: {

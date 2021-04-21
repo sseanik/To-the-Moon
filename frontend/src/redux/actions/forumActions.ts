@@ -146,7 +146,7 @@ const forumActions = {
     const { commentID } = payload;
     dispatch(forumActions.deleteParentPending(commentID));
     try {
-      await forumAPI.deleteParent(commentID);
+      await forumAPI.deleteComment(commentID);
       dispatch(forumActions.deleteParentSuccess({ commentID }));
     } catch (error) {
       dispatch(forumActions.deleteParentFailure(error.message));
@@ -170,7 +170,7 @@ const forumActions = {
     const { commentID, parentID } = payload;
     dispatch(forumActions.deleteChildPending(commentID));
     try {
-      await forumAPI.deleteChild(commentID, parentID!);
+      await forumAPI.deleteComment(commentID, parentID!);
       dispatch(forumActions.deleteChildSuccess(payload));
     } catch (error) {
       dispatch(forumActions.deleteChildFailure(error.message));
