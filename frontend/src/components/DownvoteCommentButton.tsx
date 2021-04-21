@@ -68,10 +68,14 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => {
   return {
     downvoteParent: (payload: DownvoteCommentParams, remove: boolean) => {
-      dispatch(forumActions.downvoteParent(payload));
+      remove
+        ? dispatch(forumActions.removeDownvoteParent(payload))
+        : dispatch(forumActions.downvoteParent(payload));
     },
     downvoteChild: (payload: DownvoteCommentParams, remove: boolean) => {
-      dispatch(forumActions.downvoteChild(payload));
+      remove
+        ? dispatch(forumActions.removeDownvoteChild(payload))
+        : dispatch(forumActions.downvoteChild(payload));
     },
   };
 };
