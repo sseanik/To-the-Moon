@@ -77,7 +77,8 @@ const forumAPI = {
   upvoteComment: (comment_id: string, reply_id?: string, remove = false) => {
     const endpoint = `/forum/${reply_id ? "reply" : "comment"}/upvote`;
     const options = {
-      method: remove ? "DELETE" : "PUT",
+      //method: remove ? "DELETE" : "PUT",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
@@ -92,7 +93,8 @@ const forumAPI = {
   downvoteComment: (comment_id: string, reply_id?: string, remove = false) => {
     const endpoint = `/forum/${reply_id ? "reply" : "comment"}/downvote`;
     const options = {
-      method: remove ? "DELETE" : "PUT",
+      //method: remove ? "DELETE" : "PUT",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: Utils.getToken(),
