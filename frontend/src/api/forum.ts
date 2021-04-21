@@ -92,7 +92,7 @@ const forumAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   deleteParent: (comment_id: string) => {
-    const endpoint = "/forum/deleteComment";
+    const endpoint = "/forum/comment";
     const options = {
       method: "DELETE",
       headers: {
@@ -106,7 +106,7 @@ const forumAPI = {
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
   deleteChild: (comment_id: string, parent_id: string) => {
-    const endpoint = "/forum/deleteReply";
+    const endpoint = "/forum/reply";
     const options = {
       method: "DELETE",
       headers: {
