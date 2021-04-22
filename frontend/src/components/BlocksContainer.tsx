@@ -18,6 +18,7 @@ interface GetBlockMetaParams {
 
 const rowStyle = {
   height: "40vh",
+  maxHeight: "40vh"
 };
 
 const BlocksContainer: React.FC<StateProps & DispatchProps> = (props) => {

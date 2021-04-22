@@ -35,24 +35,27 @@ const investmentActions = {
       dispatch(investmentActions.createStockFailure(error.message));
     }
   },
-  getStocksPending: () => ({
+  getStocksPending: (portfolio: string) => ({
     type: investmentConstants.GET_STOCKS_PENDING,
+    payload: { portfolio },
   }),
-  getStocksSuccess: (response: InvestmentInfo[]) => ({
+  getStocksSuccess: (portfolio: string, response: InvestmentInfo[]) => ({
     type: investmentConstants.GET_STOCKS_SUCCESS,
-    payload: response,
+    payload: { portfolio, response },
   }),
-  getStocksFailure: (error: string) => ({
+  getStocksFailure: (portfolio: string, error: string) => ({
     type: investmentConstants.GET_STOCKS_FAILURE,
-    payload: error,
+    payload: { portfolio, error },
   }),
   getStocks: (portfolioName: string): any => async (dispatch: Dispatch) => {
-    dispatch(investmentActions.getStocksPending());
+    dispatch(investmentActions.getStocksPending(portfolioName));
     try {
       const { data } = await investmentAPI.getStocks(portfolioName);
-      dispatch(investmentActions.getStocksSuccess(data));
+      dispatch(investmentActions.getStocksSuccess(portfolioName, data));
     } catch (error) {
-      dispatch(investmentActions.getStocksFailure(error.message));
+      dispatch(
+        investmentActions.getStocksFailure(portfolioName, error.message)
+      );
     }
   },
   deleteStockPending: (id: string) => ({

@@ -8,6 +8,7 @@ interface Props {
   purchase_date: string;
   purchase_price: string;
   total_change: number;
+  viewOnly?: boolean;
 }
 
 const StockInfo: React.FC<Props> = (props) => {
@@ -18,6 +19,7 @@ const StockInfo: React.FC<Props> = (props) => {
     purchase_price,
     stock_ticker,
     total_change,
+    viewOnly = false,
   } = props;
 
   return (
@@ -31,9 +33,11 @@ const StockInfo: React.FC<Props> = (props) => {
       <Col className={total_change >= 0 ? "text-success" : "text-danger"}>
         {total_change.toFixed(2)}%
       </Col>
-      <Col>
-        <DeleteStockButton investmentID={investment_id} />
-      </Col>
+      {!viewOnly ? (
+        <Col>
+          <DeleteStockButton investmentID={investment_id} />
+        </Col>
+      ) : null}
     </Row>
   );
 };
