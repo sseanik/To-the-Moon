@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Row, Col, Tabs, Tab, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Button } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
@@ -252,8 +252,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     </Container>
   );
 
-  const alertComponent = <Alert variant="danger">{error}</Alert>;
-
   const stockNameText =
     error || loading ? `${symbol}` : `${company} (${symbol})`;
 
@@ -263,7 +261,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         <h1>{stockNameText}</h1>
         {loadingSpinnerComponent}
       </Row>
-      <Row>{error ? alertComponent : null}</Row>
       <Row className="justify-content-center">
         <Col>
           <Container>

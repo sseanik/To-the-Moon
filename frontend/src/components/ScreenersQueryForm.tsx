@@ -1,4 +1,4 @@
-import { Container, Col, Row, Button, Form, Alert } from "react-bootstrap";
+import { Alert, Container, Col, Row, Button, Form } from "react-bootstrap";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { connect } from "react-redux";
@@ -75,10 +75,8 @@ const schema = Yup.object({
 interface StateProps {
   resultsLoading: boolean;
   resultsData: Array<any>;
-  resultsError: string;
   saveLoading: boolean;
   saveData: Array<any>;
-  saveError: string;
 }
 
 interface DispatchProps {
@@ -87,7 +85,7 @@ interface DispatchProps {
 }
 
 const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { saveData, saveError, getScreenerResults, saveScreener } = props;
+  const { saveData, getScreenerResults, saveScreener } = props;
 
   const formToParamsObj = (values: ScreenerFormValues) => {
     const yrLow = values.intradayLower;
@@ -436,7 +434,7 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                   </Form.Group>
                 </Col>
               </Row>
-              <Row>
+              <Row className="justify-content-center">
                 <Col xs lg="2">
                   <Button
                     disabled={false}
@@ -493,14 +491,10 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
             <Container>
               <Row className="justify-content-center p-2">
                 <Col xs lg="6">
-                  {saveError ? (
-                    <Alert variant="danger">
-                      {`Save failed: ${saveError}`}
-                    </Alert>
-                  ) : !saveError && saveData ? (
+                  {saveData ? (
                     <Alert variant="success">{`Save succeeded`}</Alert>
                   ) : (
-                    ""
+                    <></>
                   )}
                 </Col>
               </Row>
@@ -514,10 +508,8 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   resultsLoading: state.screenerReducer.results.loading,
-  resultsError: state.screenerReducer.results.error,
   resultsData: state.screenerReducer.results.data,
   saveLoading: state.screenerReducer.saveStatus.loading,
-  saveError: state.screenerReducer.saveStatus.error,
   saveData: state.screenerReducer.saveStatus.data,
 });
 

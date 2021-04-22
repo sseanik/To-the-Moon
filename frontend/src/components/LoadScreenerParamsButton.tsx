@@ -1,7 +1,6 @@
 import { Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
-import ClipLoader from "react-spinners/ClipLoader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignInAlt } from "@fortawesome/free-solid-svg-icons";
 
@@ -34,20 +33,17 @@ const LoadScreenerParamsButton: React.FC<StateProps & DispatchProps & Props> = (
 
   return (
     <Container fluid>
-      {loading ? (
-        <ClipLoader color={"green"} loading={loading} />
-      ) : (
-        <Button
-          variant="primary"
-          className="my-1"
-          onClick={() => {
-            const parameters = paramsObjToScreenerParams(parametersObj);
-            getScreenerResults({ parameters });
-          }}
-        >
-          <FontAwesomeIcon icon={faSignInAlt} />
-        </Button>
-      )}
+      <Button
+        variant="primary"
+        className="my-1"
+        disabled={loading}
+        onClick={() => {
+          const parameters = paramsObjToScreenerParams(parametersObj);
+          getScreenerResults({ parameters });
+        }}
+      >
+        <FontAwesomeIcon icon={faSignInAlt} />
+      </Button>
     </Container>
   );
 };
