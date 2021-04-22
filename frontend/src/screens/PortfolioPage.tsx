@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Container, Col, Row, Alert, Button, Tabs, Tab } from "react-bootstrap";
 import { useParams } from "react-router";
-import { NoteRelevant, PortfolioPerformance } from "../components";
-import AddInvestmentForm from "../components/AddInvestmentForm";
-import EditPortfolioForm from "../components/EditPortfolioForm";
-import StockInfo from "../components/StockInfo";
+import {
+  AddInvestmentForm,
+  EditPortfolioForm,
+  NoteRelevant,
+  PortfolioPerformance,
+  PublishPortfolioForm,
+  StockInfo,
+} from "../components";
 import ClipLoader from "react-spinners/ClipLoader";
 import investmentActions from "../redux/actions/investmentActions";
 import { connect } from "react-redux";
-import PublishPortfolioForm from "../components/PublishPortfolioForm";
 
 export interface StockParams {
   investment_id: string;

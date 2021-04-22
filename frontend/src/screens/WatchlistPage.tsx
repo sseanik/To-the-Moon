@@ -4,8 +4,7 @@ import { useParams } from "react-router";
 import watchlistActions from "../redux/actions/watchlistActions";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Alert, Col, Container, Row } from "react-bootstrap";
-import WatchlistStockInfo from "../components/WatchlistStockInfo";
-import FollowWatchlistButton from "../components/FollowWatchlistButton";
+import { WatchlistStockInfo, FollowWatchlistButton } from "../components";
 
 interface RouteMatchParams {
   watchlistID: string;

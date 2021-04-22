@@ -1,7 +1,9 @@
 import { Container, Row } from "react-bootstrap";
-import { ScreenersQueryForm } from "../components";
-import { ScreenersResults } from "../components";
-import { ScreenerList } from "../components";
+import {
+  ScreenersQueryForm,
+  ScreenersResults,
+  ScreenerList,
+} from "../components";
 
 const ScreenersPage: React.FC = () => {
   return (
@@ -20,6 +22,6 @@ const ScreenersPage: React.FC = () => {
       </Row>
     </Container>
   );
-}
+};
 
 export default ScreenersPage;

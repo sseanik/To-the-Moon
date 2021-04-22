@@ -20,8 +20,7 @@ import {
   WatchlistsPage,
   ScreenersPage,
 } from "./screens";
-import { Header, NoteList } from "./components";
-import Footer from "./components/Footer";
+import { Header, NoteList, Footer } from "./components";
 
 const initialState = {};
 

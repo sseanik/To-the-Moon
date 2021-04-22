@@ -6,15 +6,16 @@ import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
 
 import {
-  DataSummary,
-  DataFundamentals,
-  DataIncomeStatement,
   DataBalanceSheet,
   DataCashFlow,
-  StockNews,
+  DataFundamentals,
+  DataIncomeStatement,
+  DataSummary,
+  Forum,
   NoteRelevant,
-  PredictionController,
   PaperTradeController,
+  PredictionController,
+  StockNews,
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
@@ -22,7 +23,6 @@ import { durationOptionsObj } from "../helpers/PredictionHelpers";
 
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import Forum from "../components/Forum";
 require("highcharts/modules/annotations")(Highcharts);
 
 interface seriesT {

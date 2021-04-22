@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Row, Tab, Tabs } from "react-bootstrap";
 import { connect } from "react-redux";
-import WatchlistInfo from "../components/WatchlistInfo";
+import { WatchlistInfo } from "../components";
 import watchlistActions from "../redux/actions/watchlistActions";
 import ClipLoader from "react-spinners/ClipLoader";
 
