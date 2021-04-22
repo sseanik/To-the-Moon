@@ -1,5 +1,4 @@
 export { default as AboutUsPage } from "./AboutUsPage";
-export { default as CreatePortfolioPage } from "./CreatePortfolioPage";
 export { default as DashboardPage } from "./DashboardPage";
 export { default as LandingPage } from "./LandingPage";
 export { default as LoginPage } from "./LoginPage";

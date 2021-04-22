@@ -11,7 +11,6 @@ interface DeleteScreenerParams {
 
 interface StateProps {
   loading: boolean;
-  error: Object;
   deleting: Array<string>;
 }
 
