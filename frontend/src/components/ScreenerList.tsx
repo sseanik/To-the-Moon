@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Container, Col, Row, Alert } from "react-bootstrap";
+import { Container, Col, Row } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
@@ -20,16 +20,14 @@ interface Props {}
 interface StateProps {
   loading: boolean;
   data: Array<any>;
-  error: string;
 }
 
 interface DispatchProps {
-  // deleteScreener: (payload: deleteScreenerParams);
   loadScreeners: (payload: loadScreenersParams) => void;
 }
 
 const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (props) => {
-  const { loading, error, data, loadScreeners } = props;
+  const { loading, data, loadScreeners } = props;
 
   useEffect(() => {
     loadScreeners({});
@@ -38,11 +36,9 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (props) => {
   const loadingSpinnerComponent = (
     <div>
       <ClipLoader color={"green"} loading={loading} />
-      <h5>Loading Data ...</h5>
+      <h5>Loading screeners ...</h5>
     </div>
   );
-
-  const alertComponent = <Alert variant="danger">{error}</Alert>;
 
   const tableComponent = (
     <Container>
@@ -63,7 +59,6 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (props) => {
           </Col>
         </Row>
         <hr style={{ borderTop: "1px solid white" }} />
-        {error ? alertComponent : null}
         {loading
           ? loadingSpinnerComponent
           : data.map((entry: screenerListParams, idx) => (
@@ -91,13 +86,11 @@ const ScreenerList: React.FC<Props & StateProps & DispatchProps> = (props) => {
       </Container>
     </Container>
   );
-
   return tableComponent;
 };
 
 const mapStateToProps = (state: any) => ({
   loading: state.screenerReducer.list.loading,
-  error: state.screenerReducer.list.error,
   data: state.screenerReducer.list.data,
 });
 

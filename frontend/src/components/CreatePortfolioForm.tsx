@@ -1,6 +1,6 @@
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { Alert, Button, Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import portfolioActions from "../redux/actions/portfolioActions";
@@ -11,7 +11,6 @@ interface CreatePortfolioFormValues {
 
 interface StateProps {
   loading: boolean;
-  error: string;
 }
 
 interface DispatchProps {
@@ -29,7 +28,7 @@ const initialValues: CreatePortfolioFormValues = {
 };
 
 const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, error, createPortfolio } = props;
+  const { loading, createPortfolio } = props;
 
   const formComponent = (
     <Formik
@@ -47,7 +46,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="w-50">
-            {error ? <Alert variant="danger">{error}</Alert> : null}
+            <h5>Create a new portfolio:</h5>
             <Form.Control
               className="my-1"
               type="text"
@@ -65,7 +64,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
             ) : null}
 
             <Button type="submit" variant="success" className="mt-2">
-              Add Portfolio
+              Create
             </Button>
           </Form>
         );
@@ -85,7 +84,6 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.portfolioReducer.createPortfolio.loading,
-  error: state.portfolioReducer.createPortfolio.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

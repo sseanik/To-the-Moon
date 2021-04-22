@@ -1,6 +1,6 @@
 import "bootswatch/dist/darkly/bootstrap.min.css";
 import "./App.css";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Switch } from "react-router-dom";
 import configureStore from "./redux/configureStore";
 import { Provider } from "react-redux";
 import Container from "react-bootstrap/Container";
@@ -12,7 +12,6 @@ import {
   LoginPage,
   AboutUsPage,
   PortfolioPage,
-  CreatePortfolioPage,
   SearchStockPage,
   PortfoliosPage,
   DashboardPage,
@@ -20,8 +19,8 @@ import {
   WatchlistsPage,
   ScreenersPage,
 } from "./screens";
-import { Header, NoteList } from "./components";
-import Footer from "./components/Footer";
+import { Header, NoteList, Footer } from "./components";
+import { PrivateRoute, PublicRoute } from "./helpers/Routes";
 
 const initialState = {};
 
@@ -47,22 +46,38 @@ function App() {
           >
             <div className="dark-blue-container">
               <Switch>
-                <Route path="/" component={LandingPage} exact />
-                <Route
-                  path="/create_portfolio"
-                  component={CreatePortfolioPage}
+                <PublicRoute
+                  restricted={false}
+                  path="/"
+                  component={LandingPage}
+                  exact
                 />
-                <Route path="/portfolio/:name" component={PortfolioPage} />
-                <Route path="/about-us" component={AboutUsPage} />
-                <Route path="/login" component={LoginPage} />
-                <Route path="/signup" component={SignupPage} />
-                <Route path="/stock" component={SearchStockPage} exact />
-                <Route path="/stock/:symbol" component={StockPage} />
-                <Route path="/portfolios" component={PortfoliosPage} />
-                <Route path="/dashboard" component={DashboardPage} />
-                <Route path="/screeners" component={ScreenersPage} />
-                <Route path="/watchlists" component={WatchlistsPage} />
-                <Route
+                <PublicRoute
+                  restricted={true}
+                  path="/about-us"
+                  component={AboutUsPage}
+                />
+                <PublicRoute
+                  restricted={true}
+                  path="/login"
+                  component={LoginPage}
+                />
+                <PublicRoute
+                  restricted={true}
+                  path="/signup"
+                  component={SignupPage}
+                />
+                <PrivateRoute path="/stock" component={SearchStockPage} exact />
+                <PrivateRoute path="/stock/:symbol" component={StockPage} />
+                <PrivateRoute
+                  path="/portfolio/:name"
+                  component={PortfolioPage}
+                />
+                <PrivateRoute path="/portfolios" component={PortfoliosPage} />
+                <PrivateRoute path="/dashboard" component={DashboardPage} />
+                <PrivateRoute path="/screeners" component={ScreenersPage} />
+                <PrivateRoute path="/watchlists" component={WatchlistsPage} />
+                <PrivateRoute
                   path="/watchlist/:watchlistID"
                   component={WatchlistPage}
                 />

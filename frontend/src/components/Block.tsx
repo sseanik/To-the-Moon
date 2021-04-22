@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Col, Alert, Button } from "react-bootstrap";
+import { Col, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import PortfolioInfo from "./PortfolioInfo";
@@ -15,7 +15,6 @@ interface Props {
 interface StateProps {
   meta: MetaState;
   loading: LoadingState;
-  error: ErrorState;
   deleting: boolean;
 }
 
@@ -36,10 +35,6 @@ interface LoadingState {
   [key: string]: boolean;
 }
 
-interface ErrorState {
-  [key: string]: string;
-}
-
 interface DeleteBlockParams {
   blockId: string;
 }
@@ -53,7 +48,7 @@ const deleteButtonStyle = {
 } as React.CSSProperties;
 
 const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
-  const { blockId, meta, loading, error, deleting, deleteBlock } = props;
+  const { blockId, meta, loading, deleting, deleteBlock } = props;
   const [showDelete, setShowDelete] = useState(false);
 
   const blockType =
@@ -62,8 +57,6 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
     blockId && meta.hasOwnProperty(blockId) ? meta[blockId].meta : null;
   const blockLoading =
     blockId && loading.hasOwnProperty(blockId) ? loading[blockId] : false;
-  const blockError =
-    blockId && error.hasOwnProperty(blockId) ? error[blockId] : "";
 
   const deleteComponent = (
     <Button
@@ -118,7 +111,6 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
       onMouseLeave={() => setShowDelete(false)}
     >
       {blockId ? deleteComponent : null}
-      {blockError ? <Alert variant="danger">{blockError}</Alert> : null}
       {blockLoading ? loadingSpinnerComponent : blockComponent(blockType)}
     </Col>
   );
@@ -127,7 +119,6 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
 const mapStateToProps = (state: any) => ({
   meta: state.dashboardReducer.meta,
   loading: state.dashboardReducer.getBlocksMeta.loading,
-  error: state.dashboardReducer.getBlocksMeta.error,
   deleting: state.dashboardReducer.deleteBlock.loading,
 });
 

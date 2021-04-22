@@ -68,7 +68,6 @@ const userActions = {
     }
   },
   logout: () => (dispatch: Dispatch) => {
-    window.localStorage.removeItem("Token");
     dispatch(userActions.logoutSuccess());
   },
   getUsername: () => async (dispatch: Dispatch) => {

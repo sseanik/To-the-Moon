@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Col, Row, Alert, Container, Button, Tab, Nav } from "react-bootstrap";
+import { Col, Row, Container, Button, Tab, Nav } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import { AddPortfolioBlockForm, AddNewsBlockForm, AddStockBlockForm } from ".";
 
 interface StateProps {
   loading: boolean;
-  error: string;
 }
 
 const createBlockStyle = {
@@ -15,7 +14,7 @@ const createBlockStyle = {
 } as React.CSSProperties;
 
 const AddBlockContainer: React.FC<StateProps> = (props) => {
-  const { loading, error } = props;
+  const { loading } = props;
   const [showForm, setShowForm] = useState(false);
 
   const loadingSpinnerComponent = (
@@ -85,7 +84,6 @@ const AddBlockContainer: React.FC<StateProps> = (props) => {
 
   return (
     <Col className="border rounded mx-2 p-3 justify-content-center align-items-center bg-dark">
-      {error ? <Alert variant="danger">{error}</Alert> : null}
       {loading
         ? loadingSpinnerComponent
         : showForm
@@ -97,7 +95,6 @@ const AddBlockContainer: React.FC<StateProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.dashboardReducer.createBlock.loading,
-  error: state.dashboardReducer.createBlock.error,
 });
 
 export default connect(mapStateToProps)(AddBlockContainer);
