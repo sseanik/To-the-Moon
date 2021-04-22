@@ -26,7 +26,7 @@ const Username: React.FC<StateProps & DispatchProps> = (props) => {
     } else if (!username) {
       getUsername();
     }
-  });
+  }, [username, getUsername, history, token]);
 
   const usernameComponent = (
     <Navbar.Text className="mr-sm-2">Signed in as: {username}</Navbar.Text>

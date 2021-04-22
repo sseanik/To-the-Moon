@@ -72,6 +72,7 @@ const userReducer = (state = initialState, action: UserAction) => {
       window.localStorage.removeItem("Token");
       return {
         ...initialState,
+        token: null,
       };
     // Username
     case userConstants.GET_USERNAME_PENDING:
