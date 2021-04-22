@@ -15,3 +15,5 @@ storage/*
 model/*/venv/*
 backend/src/venv/*
 demo/.ipynb_checkpoints/
+
+/node_modules
