@@ -63,6 +63,7 @@ def create_portfolio(user_id, portfolio_name):
 # Note: does not check whether old_portfolio_name actually exists.
 # If it does exist, it changes its name to newportfolio_name. Otherwise does noting.
 def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
+    new_portfolio_name = new_portfolio_name.strip()
     # Check new name is within the max length
     if len(new_portfolio_name) >= 30:
         abort(400, "Portfolio name must be less than 30 characters.")
