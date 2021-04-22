@@ -85,7 +85,6 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
               Become an astronaut today! Sign up with us to start your journey{" "}
               <i>To The Moon</i>.
             </h4>
-            {error ? errorComponent : null}
             {message ? messageComponent : null}
             <Form.Control
               className="my-1"

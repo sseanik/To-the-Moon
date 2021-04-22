@@ -23,7 +23,7 @@ interface DispatchProps {
 }
 
 const TrendingInvestments: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, error, data, getTrendingStocks } = props;
+  const { loading, data, getTrendingStocks } = props;
 
   useEffect(() => {
     getTrendingStocks({ n: 5 });
