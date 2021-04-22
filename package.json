@@ -7,7 +7,7 @@
     "build": "npm run build-frontend && npm run build-backend",
     "build-frontend": "cd frontend && npm i && npm run build && npm i -g serve",
     "build-backend": "cd backend && pip3 install -r requirements.txt",
-    "start": "npm run build && concurrently \"serve -s -l 3000 frontend/build\" \"cd backend/src && FLASK_APP=server.py FLASK_ENV=\"production\" flask run --port=5000\" "
+    "start": "concurrently \"serve -s -l 3000 frontend/build\" \"cd backend/src && FLASK_APP=server.py FLASK_ENV=\"production\" flask run --port=5000\" "
   },
   "repository": {
     "type": "git",
