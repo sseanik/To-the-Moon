@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Alert, Button, Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useHistory, useParams } from "react-router";
@@ -13,7 +13,6 @@ interface RouteMatchParams {
 
 interface StateProps {
   loading: boolean;
-  error: string;
   oldName: string;
   newName: string;
 }
@@ -40,7 +39,7 @@ const schema = Yup.object({
 
 const EditPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
   const { name: portfolioName } = useParams<RouteMatchParams>();
-  const { loading, error, oldName, newName, editPortfolio } = props;
+  const { loading, oldName, newName, editPortfolio } = props;
   initialValues.oldName = portfolioName;
 
   const history = useHistory();
@@ -67,7 +66,6 @@ const EditPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="my-2">
-            {error ? <Alert variant="danger">{error}</Alert> : null}
             <Form.Label>New Portfolio Name</Form.Label>
             <Form.Control
               type="text"
@@ -106,7 +104,6 @@ const EditPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.portfolioReducer.editPortfolio.loading,
-  error: state.portfolioReducer.editPortfolio.error,
   oldName: state.portfolioReducer.editPortfolio.oldName,
   newName: state.portfolioReducer.editPortfolio.newName,
 });

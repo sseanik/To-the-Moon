@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { useParams } from "react-router";
 import watchlistActions from "../redux/actions/watchlistActions";
 import ClipLoader from "react-spinners/ClipLoader";
-import { Alert, Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { WatchlistStockInfo, FollowWatchlistButton } from "../components";
 
 interface RouteMatchParams {
@@ -30,7 +30,6 @@ interface WatchlistParams {
 
 interface StateProps {
   loading: boolean;
-  error: string;
   watchlist: WatchlistParams;
   username: string;
 }
@@ -41,7 +40,7 @@ interface DispatchProps {
 
 const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
   const { watchlistID } = useParams<RouteMatchParams>();
-  const { loading, error, watchlist, getWatchlist } = props;
+  const { loading, watchlist, getWatchlist } = props;
 
   useEffect(() => {
     getWatchlist(watchlistID);
@@ -51,7 +50,6 @@ const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
     <ClipLoader color={"green"} loading={loading} />
   ) : (
     <Container fluid>
-      {error ? <Alert variant="danger">{error}</Alert> : null}
       <Row className="justify-content-center mt-3">
         <h1>{watchlist.watchlist_name}</h1>
       </Row>
@@ -89,7 +87,6 @@ const WatchlistPage: React.FC<StateProps & DispatchProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.watchlistReducer.getWatchlist.loading,
-  error: state.watchlistReducer.getWatchlist.error,
   watchlist: state.watchlistReducer.getWatchlist.watchlist,
   username: state.userReducer.username,
 });

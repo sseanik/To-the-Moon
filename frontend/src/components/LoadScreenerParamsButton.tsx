@@ -1,4 +1,4 @@
-import { Alert, Button, Container } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -11,13 +11,11 @@ import {
 } from "../helpers/ScreenerQuery";
 
 interface LoadScreenerParams {
-  // parametersObj: ScreenerQuery;
   parameters: string;
 }
 
 interface StateProps {
   loading: boolean;
-  error: Object;
   data: Array<any>;
 }
 
@@ -32,12 +30,10 @@ interface Props {
 const LoadScreenerParamsButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
-  const { loading, error, getScreenerResults, parametersObj } = props;
-  console.log(`PARAMS: `, parametersObj);
+  const { loading, getScreenerResults, parametersObj } = props;
 
   return (
     <Container fluid>
-      {error ? <Alert variant="danger">{error}</Alert> : null}
       {loading ? (
         <ClipLoader color={"green"} loading={loading} />
       ) : (
@@ -58,7 +54,6 @@ const LoadScreenerParamsButton: React.FC<StateProps & DispatchProps & Props> = (
 
 const mapStateToProps = (state: any) => ({
   loading: state.screenerReducer.results.loading,
-  error: state.screenerReducer.results.error,
   data: state.screenerReducer.results.data,
 });
 

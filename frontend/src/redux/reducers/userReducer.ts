@@ -138,7 +138,7 @@ const initialState: InitialState = {
     error: "",
   },
   user: {
-    loading: true,
+    loading: false,
   },
   token: Utils.getToken(),
   username: "",

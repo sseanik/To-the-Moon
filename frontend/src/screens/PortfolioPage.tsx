@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Container, Col, Row, Alert, Button, Tabs, Tab } from "react-bootstrap";
+import { Container, Col, Row, Button, Tabs, Tab } from "react-bootstrap";
 import { useParams } from "react-router";
 import {
   AddInvestmentForm,
@@ -24,7 +24,6 @@ export interface StockParams {
 
 interface StateProps {
   loading: { [key: string]: boolean };
-  error: string;
   stocks: { [key: string]: Array<StockParams> };
 }
 
@@ -38,7 +37,7 @@ interface RouteMatchParams {
 
 const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
   const { name } = useParams<RouteMatchParams>();
-  const { loading, error, stocks, getStocks } = props;
+  const { loading, stocks, getStocks } = props;
 
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -69,7 +68,6 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
           <Col>Delete Stock</Col>
         </Row>
         <hr style={{ borderTop: "1px solid white" }} />
-        {error ? <Alert variant="danger">{error}</Alert> : null}
         {portfolioLoading ? (
           <ClipLoader color="green" loading={portfolioLoading} />
         ) : (

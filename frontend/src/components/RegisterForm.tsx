@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Form, Button, Alert, Row } from "react-bootstrap";
+import { Alert, Form, Button, Row } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -18,7 +18,6 @@ interface RegisterFormValues {
 interface StateProps {
   loading: boolean;
   message: string;
-  error: Object;
 }
 
 interface DispatchProps {
@@ -54,7 +53,7 @@ const schema = Yup.object({
 });
 
 const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, message, error, register } = props;
+  const { loading, message, register } = props;
   const history = useHistory();
 
   useEffect(() => {
@@ -63,8 +62,6 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
       history.push("/");
     }
   }, [message, history]);
-
-  const errorComponent = <Alert variant="danger">{error}</Alert>;
 
   const messageComponent = <Alert variant="success">{message}</Alert>;
 
@@ -201,7 +198,6 @@ const RegisterForm: React.FC<StateProps & DispatchProps> = (props) => {
 const mapStateToProps = (state: any) => ({
   loading: state.userReducer.registerUser.loading,
   message: state.userReducer.registerUser.message,
-  error: state.userReducer.registerUser.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
