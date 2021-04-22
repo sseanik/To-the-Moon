@@ -19,9 +19,13 @@ commission = 0.0
 
 run_strategy = RSIStack
 
-tickers = ['SPY']
+# tickers = ['LIN', 'SPY', 'TSLA']
+tickers = ['TSLA']
+# tickers = ['SPY']
 timeframes = {
     '1D':1,
+    # '3D':3,
+    # '5D':5,
 }
 timeframe_units = bt.TimeFrame.Days
 
@@ -69,7 +73,7 @@ orders = results.get_formatted_trades()
 
 
 print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
-import pdb; pdb.set_trace()
+# import pdb; pdb.set_trace()
 cerebro.plot(style='candlestick', barup='green', bardown='red')
 
 print("Finishing up")

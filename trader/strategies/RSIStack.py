@@ -21,16 +21,15 @@ class RSIStack(StrategyHelper):
         for d in self.datas:
             self.inds[d] = {}
             self.inds[d]['rsi'] = bt.ind.RSI(d)
-            self.inds[d]['rsiob'] = self.inds[d]['rsi'] >= self.p.rsi_overbought
-            self.inds[d]['rsios'] = self.inds[d]['rsi'] <= self.p.rsi_oversold
+            self.inds[d]['rsiobght'] = self.inds[d]['rsi'] >= self.p.rsi_overbought
+            self.inds[d]['rsiosold'] = self.inds[d]['rsi'] <= self.p.rsi_oversold
         for i in range(len(self.timeframes)-1, len(self.datas), len(self.timeframes)):
             self.inds[self.datas[i]]['atr'] = bt.ind.ATR(self.datas[i])
         self.make_ind_keys()
 
     def start(self):
-        # Timeframes must be entered from highest to lowest frequency.
-        # Getting the length of the lowest frequency timeframe will
-        # show us how many periods have passed
+        # Get the length of the lowest frequency timeframe
+        # to indicate the number of periods
         self.lenlowtframe = len(self.datas[-1])
         self.stacks = {}
 
@@ -41,20 +40,21 @@ class RSIStack(StrategyHelper):
             self.lenlowtframe += 1
             self.stacks = {}
 
+        for i in range(0, len(self.datas), len(self.timeframes)):
+            ticker = self.datas[i].p.dataname
+            self.stacks[ticker] = {}
+            self.stacks[ticker]['rsiobght'] = 0
+            self.stacks[ticker]['rsiosold'] = 0
+            self.stacks[ticker]['data'] = self.datas[i+len(self.timeframes)-1]
+
         for i, d in enumerate(self.datas):
             # Create a dictionary for each new symbol.
             ticker = d.p.dataname
-            if i % len(self.timeframes) == 0:
-                self.stacks[ticker] = {}
-                self.stacks[ticker]['rsiob'] = 0
-                self.stacks[ticker]['rsios'] = 0
-            if i % len(self.timeframes) == len(self.timeframes) -1:
-                self.stacks[ticker]['data'] = d
-            self.stacks[ticker]['rsiob'] += self.inds[d]['rsiob'][0]
-            self.stacks[ticker]['rsios'] += self.inds[d]['rsios'][0]
+            self.stacks[ticker]['rsiobght'] += self.inds[d]['rsiobght'][0]
+            self.stacks[ticker]['rsiosold'] += self.inds[d]['rsiosold'][0]
 
         for k,v in list(self.stacks.items()):
-            if v['rsiob'] < len(self.timeframes) and v['rsios'] < len(self.timeframes):
+            if v['rsiobght'] < len(self.timeframes) and v['rsiosold'] < len(self.timeframes):
                 del self.stacks[k]
 
         # Check if there are any stacks from the previous period
@@ -64,26 +64,24 @@ class RSIStack(StrategyHelper):
                 for k,v in self.stacks.items():
                     d = v['data']
                     size = self.broker.get_cash() // d
-                    if v['rsiob'] == len(self.timeframes) and \
+                    curr_atr = self.inds[d]['atr'][0]
+                    risk_rwd_range = (d + curr_atr, d-curr_atr*self.p.rrr)
+                    if v['rsiobght'] == len(self.timeframes) and \
                                      d.close[0] < d.close[-1]:
                         print(f"{d.p.dataname} overbought")
-                        risk = d + self.inds[d]['atr'][0]
-                        reward = d - self.inds[d]['atr'][0] * self.p.rrr
                         os = self.sell_bracket(data=d,
                                                price=d.close[0],
                                                size=size,
-                                               stopprice=risk,
-                                               limitprice=reward)
+                                               stopprice=risk_rwd_range[0],
+                                               limitprice=risk_rwd_range[1])
                         self.orefs = [o.ref for o in os]
-                    elif v['rsios'] == len(self.timeframes) and d.close[0] > d.close[-1]:
+                    elif v['rsiosold'] == len(self.timeframes) and d.close[0] > d.close[-1]:
                         print(f"{d.p.dataname} oversold")
-                        risk = d - self.inds[d]['atr'][0]
-                        reward = d + self.inds[d]['atr'][0] * self.p.rrr
                         os = self.buy_bracket(data=d,
                                               price=d.close[0],
                                               size=size,
-                                              stopprice=risk,
-                                              limitprice=reward)
+                                              stopprice=risk_rwd_range[0],
+                                              limitprice=risk_rwd_range[1])
                         self.orefs = [o.ref for o in os]
 
     def notify_order(self, order):
