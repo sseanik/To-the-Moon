@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Container, Row } from "react-bootstrap";
 import { connect } from "react-redux";
-import { Block, AddBlockContainer } from "../components";
+import { Block, AddBlockContainer } from ".";
 import dashboardActions from "../redux/actions/dashboardActions";
 
 interface StateProps {
@@ -18,6 +18,7 @@ interface GetBlockMetaParams {
 
 const rowStyle = {
   height: "40vh",
+  maxHeight: "40vh"
 };
 
 const BlocksContainer: React.FC<StateProps & DispatchProps> = (props) => {

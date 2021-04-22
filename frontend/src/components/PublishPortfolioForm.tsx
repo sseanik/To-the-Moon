@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import { Alert, Button, Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import * as Yup from "yup";
 import watchlistActions from "../redux/actions/watchlistActions";
@@ -12,7 +12,6 @@ interface RouteMatchParams {
 
 interface StateProps {
   loading: boolean;
-  error: string;
 }
 
 interface DispatchProps {
@@ -31,7 +30,7 @@ const schema = Yup.object({
 });
 
 const PublishPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, error, addWatchlist } = props;
+  const { loading, addWatchlist } = props;
   const { name: portfolioName } = useParams<RouteMatchParams>();
 
   const initialValues: PublishPortfolioParams = {
@@ -55,7 +54,6 @@ const PublishPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="my-2">
-            {error ? <Alert variant="danger">{error}</Alert> : null}
             <Form.Label>Watchlist Description</Form.Label>
             <Form.Control
               type="text"
@@ -94,7 +92,6 @@ const PublishPortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.watchlistReducer.addWatchlist.loading,
-  error: state.watchlistReducer.addWatchlist.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Col, Row, Alert, Container, Button, Tab, Nav } from "react-bootstrap";
+import { Col, Row, Container, Button, Tab, Nav } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
-import { AddPortfolioBlockForm } from ".";
+import { AddPortfolioBlockForm, AddNewsBlockForm, AddStockBlockForm } from ".";
 
 interface StateProps {
   loading: boolean;
-  error: string;
 }
 
 const createBlockStyle = {
@@ -15,7 +14,7 @@ const createBlockStyle = {
 } as React.CSSProperties;
 
 const AddBlockContainer: React.FC<StateProps> = (props) => {
-  const { loading, error } = props;
+  const { loading } = props;
   const [showForm, setShowForm] = useState(false);
 
   const loadingSpinnerComponent = (
@@ -44,7 +43,10 @@ const AddBlockContainer: React.FC<StateProps> = (props) => {
                 <Nav.Link eventKey="Portfolio">Portfolio</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="News">News</Nav.Link>
+                <Nav.Link eventKey="News">Stock News</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="Stock">Graph</Nav.Link>
               </Nav.Item>
             </Nav>
           </Col>
@@ -56,6 +58,11 @@ const AddBlockContainer: React.FC<StateProps> = (props) => {
               </Tab.Pane>
               <Tab.Pane eventKey="News">
                 <h4>Add a News Block</h4>
+                <AddNewsBlockForm />
+              </Tab.Pane>
+              <Tab.Pane eventKey="Stock">
+                <h4>Add a Stock Graph</h4>
+                <AddStockBlockForm />
               </Tab.Pane>
             </Tab.Content>
           </Col>
@@ -77,7 +84,6 @@ const AddBlockContainer: React.FC<StateProps> = (props) => {
 
   return (
     <Col className="border rounded mx-2 p-3 justify-content-center align-items-center bg-dark">
-      {error ? <Alert variant="danger">{error}</Alert> : null}
       {loading
         ? loadingSpinnerComponent
         : showForm
@@ -89,7 +95,6 @@ const AddBlockContainer: React.FC<StateProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.dashboardReducer.createBlock.loading,
-  error: state.dashboardReducer.createBlock.error,
 });
 
 export default connect(mapStateToProps)(AddBlockContainer);

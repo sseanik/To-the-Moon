@@ -1,4 +1,4 @@
-import { Alert, Button, Container } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import investmentActions from "../redux/actions/investmentActions";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -12,7 +12,6 @@ interface DeleteStockParams {
 }
 
 interface StateProps {
-  error: Object;
   deleting: Array<string>;
 }
 
@@ -32,11 +31,10 @@ const DeleteStockButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
   const { name: portfolioName } = useParams<RouteMatchParams>();
-  const { error, deleting, deleteStock, investmentID } = props;
+  const { deleting, deleteStock, investmentID } = props;
 
   return (
     <Container fluid>
-      {error ? <Alert variant="danger">{error}</Alert> : null}
       {deleting.includes(investmentID) ? (
         <ClipLoader color={"green"} loading={deleting.includes(investmentID)} />
       ) : (
@@ -53,7 +51,6 @@ const DeleteStockButton: React.FC<StateProps & DispatchProps & Props> = (
 };
 
 const mapStateToProps = (state: any) => ({
-  error: state.investmentReducer.deleteStock.error,
   deleting: state.investmentReducer.deleteStock.deleting,
 });
 

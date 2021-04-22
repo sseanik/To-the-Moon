@@ -10,6 +10,7 @@ from flask_restx import Namespace, Resource, abort
 from token_util import get_id_from_token
 from models import (
     token_parser,
+    create_dashboard_block_model
 )
 
 # ---------------------------------------------------------------------------- #
@@ -341,15 +342,23 @@ class Dashboard(Resource):
 @DASHBOARD_NS.route("/<id>")
 class UserDashboard(Resource):
     @DASHBOARD_NS.doc(description="Get a dashboard's blocks")
-    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
     @DASHBOARD_NS.response(200, "Successfully retrieved blocks")
     @DASHBOARD_NS.response(400, "Invalid data was provided")
     def get(self, id):
         response = get_dashboard_blocks(id)
         return Response(dumps(response), status=200)
 
-    @DASHBOARD_NS.doc(description="Create a new dashboard block")
-    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
+    # Create a new dashboard block - either of type portfolio, news or stock
+    # Params:
+    #   - portfolio:
+    #      - portfolio_name: string
+    #      - detailed: boolean
+    #   - news:
+    #      - stock_ticker: string
+    #   - stock:
+    #      - stock_ticker: string
+    @DASHBOARD_NS.doc(description="Create a new dashboard block. Currently supported types are portfolio, news and stock.")
+    @DASHBOARD_NS.expect(create_dashboard_block_model(DASHBOARD_NS), validate=True)
     @DASHBOARD_NS.response(201, "Successfully created dashboard block")
     @DASHBOARD_NS.response(400, "Invalid data was provided")
     def post(self, id):
@@ -358,7 +367,6 @@ class UserDashboard(Resource):
         return Response(dumps(response), status=201)
 
     @DASHBOARD_NS.doc(description="Remove a dashboard")
-    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
     @DASHBOARD_NS.response(200, "Successfully deleted dashboard")
     @DASHBOARD_NS.response(400, "Invalid data was provided")
     def delete(self, id):
@@ -369,7 +377,6 @@ class UserDashboard(Resource):
 @DASHBOARD_NS.route("/block/<id>")
 class UserDashboardBlocks(Resource):
     @DASHBOARD_NS.doc(description="Get a dashboard block's metadata")
-    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
     @DASHBOARD_NS.response(200, "Successfully retrieved block metadata")
     @DASHBOARD_NS.response(400, "Invalid data was provided")
     def get(self, id):
@@ -377,7 +384,6 @@ class UserDashboardBlocks(Resource):
         return Response(dumps(response), status=200)
 
     @DASHBOARD_NS.doc(description="Remove a dashboard block")
-    # @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
     @DASHBOARD_NS.response(200, "Successfully deleted dashboard block")
     @DASHBOARD_NS.response(400, "Invalid data was provided")
     def delete(self, id):

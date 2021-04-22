@@ -29,28 +29,37 @@ const investmentReducer = (state = initialState, action: InvestmentAction) => {
         },
       };
     case investmentConstants.GET_STOCKS_PENDING:
+      const newLoadingPending = { ...state.getStocks.loading };
+      newLoadingPending[action.payload.portfolio] = true;
       return {
         ...state,
         getStocks: {
-          loading: true,
-          stocks: [],
+          ...state.getStocks,
+          loading: { ...newLoadingPending },
         },
       };
     case investmentConstants.GET_STOCKS_SUCCESS:
+      const newLoadingSuccess = { ...state.getStocks.loading };
+      newLoadingSuccess[action.payload.portfolio] = false;
+      const newStocksSuccess = { ...state.getStocks.stocks };
+      newStocksSuccess[action.payload.portfolio] = action.payload.response;
       return {
         ...state,
         getStocks: {
-          loading: false,
-          stocks: action.payload,
+          ...state.getStocks,
+          loading: { ...newLoadingSuccess },
+          stocks: { ...newStocksSuccess },
         },
       };
     case investmentConstants.GET_STOCKS_FAILURE:
+      const newLoadingFailure = { ...state.getStocks.loading };
+      newLoadingFailure[action.payload.portfolio] = false;
       return {
         ...state,
         getStocks: {
-          loading: false,
-          stocks: [],
-          error: action.payload,
+          ...state.getStocks,
+          loading: { ...newLoadingFailure },
+          error: action.payload.error,
         },
       };
     case investmentConstants.DELETE_STOCK_PENDING:
@@ -89,8 +98,9 @@ interface InvestmentAction extends Action {
 }
 
 interface GetStocksState {
-  loading: boolean;
-  stocks: string[];
+  loading: { [key: string]: boolean };
+  stocks: { [key: string]: string[] };
+  error: string;
 }
 
 interface InitialState {
@@ -110,8 +120,9 @@ const initialState: InitialState = {
     error: "",
   },
   getStocks: {
-    loading: false,
-    stocks: [],
+    loading: {},
+    stocks: {},
+    error: "",
   },
   deleteStock: {
     error: "",

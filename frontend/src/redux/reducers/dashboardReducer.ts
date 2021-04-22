@@ -1,21 +1,83 @@
+import { Action } from "redux";
 import dashboardConstants from "../constants/dashboardConstants";
 
-const initialState = {
+interface LoadingState {
+  loading: boolean;
+}
+
+interface MultiLoadingState {
+  loading: { [key: string]: boolean };
+}
+
+interface ErrorState {
+  error: string;
+}
+
+interface MultiErrorState {
+  error: { [key: string]: string };
+}
+
+interface BlockMeta {
+  type: string;
+  meta: { [key: string]: any };
+}
+
+interface InitialState {
+  getDashboards: LoadingState & ErrorState;
+  createDashboard: LoadingState & ErrorState;
+  deleteDashboard: LoadingState & ErrorState;
+  getBlocks: LoadingState & ErrorState;
+  getBlocksMeta: MultiLoadingState & MultiErrorState;
+  createBlock: LoadingState & ErrorState;
+  deleteBlock: LoadingState & ErrorState;
+  dashboardId: string;
+  blocks: Array<string>;
+  meta: { [key: string]: BlockMeta };
+}
+
+type ErrorPayload = string;
+type GetDashboardPayload = string[];
+interface CreateDashboardPayload {
+  id: string;
+}
+interface Meta {
+  id: string;
+  type: string;
+  meta: { [key: string]: any };
+}
+interface BlockMetaPayload {
+  blockId: string;
+  response: Meta;
+}
+interface BlockMetaFailurePayload {
+  blockId: string;
+  error: ErrorPayload;
+}
+
+interface DashboardAction extends Action {
+  payload: ErrorPayload &
+    BlockMetaFailurePayload &
+    GetDashboardPayload &
+    CreateDashboardPayload &
+    BlockMetaPayload;
+}
+
+const initialState: InitialState = {
   getDashboards: {
     loading: false,
-    error: null,
+    error: "",
   },
   createDashboard: {
     loading: false,
-    error: null,
+    error: "",
   },
   deleteDashboard: {
     loading: false,
-    error: null,
+    error: "",
   },
   getBlocks: {
     loading: false,
-    error: null,
+    error: "",
   },
   getBlocksMeta: {
     loading: {},
@@ -23,18 +85,18 @@ const initialState = {
   },
   createBlock: {
     loading: false,
-    error: null,
+    error: "",
   },
   deleteBlock: {
     loading: false,
-    error: null,
+    error: "",
   },
   dashboardId: "",
   blocks: [],
   meta: {},
 };
 
-const dashboardReducer = (state = initialState, action) => {
+const dashboardReducer = (state = initialState, action: DashboardAction) => {
   switch (action.type) {
     case dashboardConstants.GET_DASHBOARDS_PENDING:
       return {
@@ -156,7 +218,7 @@ const dashboardReducer = (state = initialState, action) => {
       const newLoadingPending = { ...state.getBlocksMeta.loading };
       newLoadingPending[action.payload.blockId] = true;
       const newErrorPending = { ...state.getBlocksMeta.error };
-      newErrorPending[action.payload.blockId] = null;
+      newErrorPending[action.payload.blockId] = "";
       return {
         ...state,
         getBlocksMeta: {

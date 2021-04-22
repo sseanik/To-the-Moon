@@ -17,18 +17,16 @@ interface DispatchProps {
 }
 
 const Username: React.FC<StateProps & DispatchProps> = (props) => {
-  const { token, username, loading, logout, getUsername } = props;
+  const { token, username, loading, getUsername } = props;
   const history = useHistory();
 
   useEffect(() => {
-    if (token && !username) {
+    if (!token) {
+      history.push("/login");
+    } else if (!username) {
       getUsername();
     }
-    if (!token) {
-      logout();
-      history.push("/");
-    }
-  });
+  }, [username, getUsername, history, token]);
 
   const usernameComponent = (
     <Navbar.Text className="mr-sm-2">Signed in as: {username}</Navbar.Text>
