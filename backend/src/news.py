@@ -40,7 +40,7 @@ def get_stock_news(stock_symbol, article_count):
     if response.status_code == 200:
         return {"articles": response.json()[:article_count]}
     else:
-        abort(404, "Unable to fetch news")
+        abort(500, "Unable to fetch news")
 
 
 # Given a list of stock symbols, return a list of num_articles amount of related news articles
@@ -58,7 +58,7 @@ def get_portfolio_news(stock_symbols, num_articles):
     if len(news_articles) == article_count * len(unique_stocks):
         return {"articles": news_articles}
     else:
-        abort(404, "Unable to fetch news")
+        abort(500, "Unable to fetch news")
 
 
 # Given a number of articles, return a list of general finance news articles
@@ -69,7 +69,7 @@ def get_general_news(num_articles):
     if response.status_code == 200:
         return {"articles": response.json()[: int(num_articles)]}
     else:
-        abort(404, "Unable to fetch news")
+        abort(500, "Unable to fetch news")
 
 
 # ---------------------------------------------------------------------------- #
@@ -82,7 +82,7 @@ class News(Resource):
     @NEWS_NS.doc(description="Fetch news article related to a Stock Symbol.")
     @NEWS_NS.expect(news_parser(NEWS_NS), validate=True)
     @NEWS_NS.response(200, "Successfully fetched news")
-    @NEWS_NS.response(404, "News API Not Available")
+    @NEWS_NS.response(500, "News API Not Available")
     def get(self):
         stock_symbol = request.args.get("symbol")
         result = get_stock_news(stock_symbol, DEFAULT_NUM_ARTICLES)
@@ -96,7 +96,7 @@ class Portfolio(Resource):
     )
     @NEWS_NS.expect(news_stocks_parser(NEWS_NS), validate=True)
     @NEWS_NS.response(200, "Successfully fetched news")
-    @NEWS_NS.response(404, "News API Not Available")
+    @NEWS_NS.response(500, "News API Not Available")
     def get(self):
         data = request.args.getlist("stocks")
         result = get_portfolio_news(data, DEFAULT_NUM_ARTICLES)
@@ -108,7 +108,7 @@ class General(Resource):
     @NEWS_NS.doc(description="Fetch general finance news articles.")
     @NEWS_NS.expect(news_count_parser(NEWS_NS), validate=True)
     @NEWS_NS.response(200, "Successfully fetched news")
-    @NEWS_NS.response(404, "News API Not Available")
+    @NEWS_NS.response(500, "News API Not Available")
     def get(self):
         num_articles = request.args.get("count")
         result = get_general_news(num_articles)
