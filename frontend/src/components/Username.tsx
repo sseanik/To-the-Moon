@@ -17,16 +17,14 @@ interface DispatchProps {
 }
 
 const Username: React.FC<StateProps & DispatchProps> = (props) => {
-  const { token, username, loading, logout, getUsername } = props;
+  const { token, username, loading, getUsername } = props;
   const history = useHistory();
 
   useEffect(() => {
-    if (token && !username) {
-      getUsername();
-    }
     if (!token) {
-      logout();
-      history.push("/");
+      history.push("/login");
+    } else if (!username) {
+      getUsername();
     }
   });
 

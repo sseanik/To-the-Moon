@@ -29,6 +29,9 @@ const PortfoliosPage: React.FC<StateProps & DispatchProps> = (props) => {
       <Row className="justify-content-center my-3">
         <CreatePortfolioForm />
       </Row>
+      <Row className="justify-content-center mt-5">
+        <h5>Current Portfolios:</h5>
+      </Row>
       <Row className="my-2 justify-content-center">
         {loading ? (
           <ClipLoader color={"green"} loading={loading} />

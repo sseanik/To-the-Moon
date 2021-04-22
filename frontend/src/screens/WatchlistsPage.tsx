@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Row, Tab, Tabs } from "react-bootstrap";
+import { Row, Tab, Tabs, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import { WatchlistInfo } from "../components";
 import watchlistActions from "../redux/actions/watchlistActions";
@@ -46,53 +46,56 @@ const WatchlistsPage: React.FC<StateProps & DispatchProps> = (props) => {
   }, [getFollowing]);
 
   return (
-    <Tabs defaultActiveKey="following" className="justify-content-center">
-      <Tab eventKey="following" title="Followed Watchlists">
-        <Row className="my-2 justify-content-center">
-          {watchlistLoading || followingLoading ? (
-            <ClipLoader
-              color={"green"}
-              loading={watchlistLoading || followingLoading}
-            />
-          ) : (
-            watchlists
-              .filter((watchlistInfo: WatchlistParams) =>
-                following.includes(watchlistInfo.watchlist_id)
-              )
-              .map((watchlistInfo: WatchlistParams, idx: number) => (
+    <Container>
+      <h1>Watchlists</h1>
+      <Tabs defaultActiveKey="following" className="justify-content-center">
+        <Tab eventKey="following" title="Following">
+          <Row className="my-2 justify-content-center">
+            {watchlistLoading || followingLoading ? (
+              <ClipLoader
+                color={"green"}
+                loading={watchlistLoading || followingLoading}
+              />
+            ) : (
+              watchlists
+                .filter((watchlistInfo: WatchlistParams) =>
+                  following.includes(watchlistInfo.watchlist_id)
+                )
+                .map((watchlistInfo: WatchlistParams, idx: number) => (
+                  <WatchlistInfo key={idx} {...watchlistInfo} />
+                ))
+            )}
+          </Row>
+        </Tab>
+        <Tab eventKey="my" title="Published By You">
+          <Row className="my-2 justify-content-center">
+            {watchlistLoading ? (
+              <ClipLoader color={"green"} loading={watchlistLoading} />
+            ) : (
+              watchlists
+                .filter(
+                  (watchListInfo: WatchlistParams) =>
+                    watchListInfo.author_username === username
+                )
+                .map((watchlistInfo: WatchlistParams, idx: number) => (
+                  <WatchlistInfo key={idx} {...watchlistInfo} />
+                ))
+            )}
+          </Row>
+        </Tab>
+        <Tab eventKey="all" title="Browse">
+          <Row className="my-2 justify-content-center">
+            {watchlistLoading ? (
+              <ClipLoader color={"green"} loading={watchlistLoading} />
+            ) : (
+              watchlists.map((watchlistInfo: WatchlistParams, idx: number) => (
                 <WatchlistInfo key={idx} {...watchlistInfo} />
               ))
-          )}
-        </Row>
-      </Tab>
-      <Tab eventKey="my" title="My Watchlists">
-        <Row className="my-2 justify-content-center">
-          {watchlistLoading ? (
-            <ClipLoader color={"green"} loading={watchlistLoading} />
-          ) : (
-            watchlists
-              .filter(
-                (watchListInfo: WatchlistParams) =>
-                  watchListInfo.author_username === username
-              )
-              .map((watchlistInfo: WatchlistParams, idx: number) => (
-                <WatchlistInfo key={idx} {...watchlistInfo} />
-              ))
-          )}
-        </Row>
-      </Tab>
-      <Tab eventKey="all" title="All Watchlists">
-        <Row className="my-2 justify-content-center">
-          {watchlistLoading ? (
-            <ClipLoader color={"green"} loading={watchlistLoading} />
-          ) : (
-            watchlists.map((watchlistInfo: WatchlistParams, idx: number) => (
-              <WatchlistInfo key={idx} {...watchlistInfo} />
-            ))
-          )}
-        </Row>
-      </Tab>
-    </Tabs>
+            )}
+          </Row>
+        </Tab>
+      </Tabs>
+    </Container>
   );
 };
 

@@ -69,8 +69,8 @@ const userReducer = (state = initialState, action: UserAction) => {
       };
     // Logout
     case userConstants.LOGOUT:
+      window.localStorage.removeItem("Token");
       return {
-        ...state,
         ...initialState,
       };
     // Username
@@ -81,7 +81,6 @@ const userReducer = (state = initialState, action: UserAction) => {
           ...state.user,
           loading: true,
         },
-        username: null,
       };
     case userConstants.GET_USERNAME_SUCCESS:
       return {

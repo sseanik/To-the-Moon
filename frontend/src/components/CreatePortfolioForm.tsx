@@ -46,6 +46,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="w-50">
+            <h5>Create a new portfolio:</h5>
             <Form.Control
               className="my-1"
               type="text"
@@ -63,7 +64,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
             ) : null}
 
             <Button type="submit" variant="success" className="mt-2">
-              Add Portfolio
+              Create
             </Button>
           </Form>
         );
