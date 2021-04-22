@@ -37,7 +37,7 @@ interface DispatchProps {
 const schema = Yup.object({
   stockTicker: Yup.string()
     .required("Investment symbol is required.")
-    .min(3, "Investment symbol must be at least 3 characters.")
+    .min(1, "Investment symbol must be at least 1 character.")
     .max(5, "Investment symbol must be at most 5 characters"),
 });
 
