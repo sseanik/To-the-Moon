@@ -1,4 +1,4 @@
-import { Alert, Button, Container } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -11,7 +11,6 @@ interface DeleteScreenerParams {
 
 interface StateProps {
   loading: boolean;
-  error: Object;
   deleting: Array<string>;
 }
 
@@ -26,11 +25,10 @@ interface Props {
 const DeleteScreenerButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
-  const { loading, error, deleting, deleteScreener, name } = props;
+  const { loading, deleting, deleteScreener, name } = props;
 
   return (
     <Container fluid>
-      {error ? <Alert variant="danger">{error}</Alert> : null}
       {loading && deleting.includes(name) ? (
         <ClipLoader color={"green"} loading={loading} />
       ) : (
@@ -48,7 +46,6 @@ const DeleteScreenerButton: React.FC<StateProps & DispatchProps & Props> = (
 
 const mapStateToProps = (state: any) => ({
   loading: state.screenerReducer.deletion.loading,
-  error: state.screenerReducer.deletion.error,
   deleting: state.screenerReducer.deletion.deleting,
 });
 
@@ -60,4 +57,7 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteScreenerButton);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DeleteScreenerButton);

@@ -3,7 +3,7 @@ import forumActions from "../redux/actions/forumActions";
 import * as Yup from "yup";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
-import { Alert, Button, Col, Form } from "react-bootstrap";
+import { Button, Col, Form } from "react-bootstrap";
 
 interface EditCommentFormParams {
   commentID: string;
@@ -15,8 +15,6 @@ interface EditCommentFormParams {
 interface StateProps {
   parentEditing: string[];
   childEditing: string[];
-  parentError: string;
-  childError: string;
 }
 
 interface DispatchProps {
@@ -40,9 +38,7 @@ const EditCommentForm: React.FC<StateProps & DispatchProps & Props> = (
 ) => {
   const {
     parentEditing,
-    parentError,
     childEditing,
-    childError,
     editParent,
     editChild,
     commentID,
@@ -72,8 +68,6 @@ const EditCommentForm: React.FC<StateProps & DispatchProps & Props> = (
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="w-100 mt-2 ml-5">
-            {parentError ? <Alert variant="danger">{parentError}</Alert> : null}
-            {childError ? <Alert variant="danger">{childError}</Alert> : null}
             <Form.Row className="justify-content-between align-content-center">
               <Col md={8}>
                 <Form.Control
@@ -125,9 +119,7 @@ const EditCommentForm: React.FC<StateProps & DispatchProps & Props> = (
 
 const mapStateToProps = (state: any) => ({
   parentEditing: state.forumReducer.editParent.editing,
-  parentError: state.forumReducer.editParent.error,
   childEditing: state.forumReducer.editChild.editing,
-  childError: state.forumReducer.editChild.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

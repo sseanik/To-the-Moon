@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Container, Row } from "react-bootstrap";
 import { connect } from "react-redux";
-import { Block, AddBlockContainer } from "../components";
+import { Block, AddBlockContainer } from ".";
 import dashboardActions from "../redux/actions/dashboardActions";
 
 interface StateProps {
