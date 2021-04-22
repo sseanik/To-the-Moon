@@ -1,5 +1,9 @@
 import { combineReducers } from "redux";
-import { landingNewsReducer, stockNewsReducer } from "./newsReducer";
+import {
+  landingNewsReducer,
+  stockNewsReducer,
+  stockNewsMultiReducer,
+} from "./newsReducer";
 import userReducer from "./userReducer";
 import portfolioReducer from "./portfolioReducer";
 import forumReducer from "./forumReducer";
@@ -15,6 +19,7 @@ export default combineReducers({
   portfolioReducer,
   landingNewsReducer,
   stockNewsReducer,
+  stockNewsMultiReducer,
   forumReducer,
   stockReducer,
   investmentReducer,

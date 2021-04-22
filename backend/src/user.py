@@ -112,13 +112,13 @@ def login_user(email, password):
 
     # check if there is an existing user with this email
     if not user_info:
-        abort(404, "No user registered with given email")
+        abort(401, "No user registered with given email")
 
     user_id, hashed_password, username = user_info
 
     # check if the password is correct
     if not bcrypt.checkpw(password.encode("utf-8"), bytes(hashed_password)):
-        abort(404, "Incorrect password")
+        abort(401, "Incorrect password")
 
     # close database connection
     conn.commit()
@@ -194,7 +194,7 @@ class Login(Resource):
     )
     @USER_NS.expect(login_model(USER_NS), validate=True)
     @USER_NS.response(201, "Successfully logged in")
-    @USER_NS.response(404, "User with provided credentials not found")
+    @USER_NS.response(401, "User with provided credentials not found")
     def post(self):
         data = request.get_json()
         result = login_user(data["email"], data["password"])
@@ -206,7 +206,7 @@ class User(Resource):
     @USER_NS.doc(description="Given a user token, return a user's username.")
     @USER_NS.expect(token_parser(USER_NS), validate=True)
     @USER_NS.response(200, "Successfully found user")
-    @USER_NS.response(404, "User with provided Token not found")
+    @USER_NS.response(401, "User with provided Token not found")
     def get(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)

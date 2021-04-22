@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Col, Row, Alert, Container, Button, Tab, Nav } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
-import { AddPortfolioBlockForm } from ".";
+import { AddPortfolioBlockForm, AddNewsBlockForm, AddStockBlockForm } from ".";
 
 interface StateProps {
   loading: boolean;
@@ -44,7 +44,10 @@ const AddBlockContainer: React.FC<StateProps> = (props) => {
                 <Nav.Link eventKey="Portfolio">Portfolio</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="News">News</Nav.Link>
+                <Nav.Link eventKey="News">Stock News</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="Stock">Graph</Nav.Link>
               </Nav.Item>
             </Nav>
           </Col>
@@ -56,6 +59,11 @@ const AddBlockContainer: React.FC<StateProps> = (props) => {
               </Tab.Pane>
               <Tab.Pane eventKey="News">
                 <h4>Add a News Block</h4>
+                <AddNewsBlockForm />
+              </Tab.Pane>
+              <Tab.Pane eventKey="Stock">
+                <h4>Add a Stock Graph</h4>
+                <AddStockBlockForm />
               </Tab.Pane>
             </Tab.Content>
           </Col>

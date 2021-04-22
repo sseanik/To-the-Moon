@@ -6,6 +6,7 @@ import PortfolioInfo from "./PortfolioInfo";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import dashboardActions from "../redux/actions/dashboardActions";
+import { StockNewsCarousel, StockGraph } from ".";
 
 interface Props {
   blockId: string;
@@ -48,6 +49,7 @@ const deleteButtonStyle = {
   position: "absolute",
   left: "2%",
   margin: "auto",
+  zIndex: 10,
 } as React.CSSProperties;
 
 const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
@@ -92,9 +94,18 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
         return (
           <PortfolioInfo
             viewOnly={true}
+            detailed={blockMeta ? blockMeta.detailed : null}
             name={blockMeta ? blockMeta.portfolio_name : null}
           />
         );
+      case "news":
+        return (
+          <StockNewsCarousel
+            stock={blockMeta ? blockMeta.stock_ticker : null}
+          />
+        );
+      case "stock":
+        return <StockGraph stock={blockMeta ? blockMeta.stock_ticker : null} />;
       default:
         return <></>;
     }
@@ -109,7 +120,6 @@ const Block: React.FC<Props & StateProps & DispatchProps> = (props) => {
       {blockId ? deleteComponent : null}
       {blockError ? <Alert variant="danger">{blockError}</Alert> : null}
       {blockLoading ? loadingSpinnerComponent : blockComponent(blockType)}
-      
     </Col>
   );
 };
