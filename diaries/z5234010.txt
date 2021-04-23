@@ -26,4 +26,45 @@ Week 4:
 - added the loading functions to database python file. Then created a function fillOverviewAndFinancialTables() which takes a stock symbol and fills the overview table, income statement table, balance sheet table, and cashflow table.
 
 Week 5:
+- Adjusted schema for holdings.sql and portfolios.sql
+- Refactored portfolio and corrected portfolio routes
+- Adjusted financials fetching and moved code from AlphaVantageAPIWrapper.py to helper.py
+- Small changes to financials database/database.python
+- Researched potential stocks offered on our platform based (since we dont offer lots of stocks, our stocks must be accurate representations of each sector and industry). Then I filled the database financials tables with the appropriate stocks.
+- Decided to go with only American stocks from the NYSE
+
+Week 6:
+- Worked with Sean and Sarah about notes functionality and frontend look. We agreed on notes with a title, contents, and internal and external references. Notes can be tagged to multiple stocks and portfolios.
+- Wrote up notes schema (notes.sql). Added schema to database by adjusted database.py to read from notes.sql.
+- Added backend functionality for creating notes, editing notes, deleting notes, getting one note, getting all notes, getting relevant notes (e.g. notes tagged to certain stocks/portfolios). Added routes for each function.
+- Sean and I worked together on the forum functionality, coming to an agreement on backend functionality and frontent look. We created the database tables for the forums (CommentParent.sql and CommentChild.sql)
+- Added backend functionality for editing and deleting forum parent and child comments. Added routes for each function.
+- Created early edition of SVM and Linear Regression models for stock price prediction (This was done on Google Colab, not github). The models returned and R^2 score of 0.9765934658266332 and 0.9550076090291177, respectively.
+- Further price prediction planning with Junji.
+
+Week 7:
+- Further developed SVM and Linear Regression models on Google Colab. Added prediction visualisation. 
+- Refactored database.py. Removed old sql schemas, and adjusted datatypes in current sql schemas.
+- Adjusted forum functions to better match up with frontend and to reflect changes to our ideas in week 6.
+- Researched ways of allowing our app to batch call stock quotes and fast-changing stock info (e.g. daily volume, current price, daily price change, etc). I decided upon an API called IEXFiance to do the stock batch calls. I added IEXFinance to our requirements.txt and the token to the .env file.
+- Using database queries and the batch API calls, I implimented the portfolio performance backend functionality. Sarah agreed to adjust the frontend to display the portfolio performance for each portfolio.
+
+Week 8:
+- Adjustment to the return types of the forum edit functions.
+- On Jira I broke done the screeners tasks into frontend and backend subtasks
+- Expanded the securites_overviews schema to include more data (this additional data is used as parameters in the screening functionality).
+- Created screeners sql schema. Adjusted database.py to add this schema to the database.
+- Implimented backend functionality which applies a screener to the database and returns the stocks matching these parameters. IEXFinance is then used to batch call relevant information on each of these stocks for frontend display. Function route also added.
+- Implimented backend functionality for saving a users screener to the screeners table in the database. Added a load function which fetches a users screens. Also added a delete function so users can remove saved screeners from the database. Routes added for each function.
+- Junji agreed to do screeners frontend. We had discussion about screeners input's and output's, screeners UI, and the screeners functionality options. We decided against letting users edit their saved screeners. Instead they must delete the old screener and recreate then save the new screener.
+
+
+Week 9:
+watchlist backend functions
+watchlist schema's
+commented and edited stock.py
+
+
+going to add SVM model to the backend stock prediction functionality
+
 

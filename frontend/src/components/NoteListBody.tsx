@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { connect } from "react-redux";
 import noteActions from "../redux/actions/noteActions";
 import ClipLoader from "react-spinners/ClipLoader";
-import { Container, Row, Alert } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 import { Note, CreateNotePopover } from ".";
 
 export interface NoteEntry {
@@ -17,9 +17,7 @@ export interface NoteEntry {
 interface StateProps {
   loading: boolean;
   notes: Array<NoteEntry>;
-  error: string;
-  editError: string;
-  deleteError: string;
+  touched: boolean;
 }
 
 interface DispatchProps {
@@ -27,15 +25,13 @@ interface DispatchProps {
 }
 
 const NoteListBody: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, notes, error, editError, deleteError, getNotes } = props;
+  const { loading, notes, touched, getNotes } = props;
 
   useEffect(() => {
-    getNotes();
-  }, [getNotes]);
-
-  const errorComponent = (error: string) => (
-    <Alert variant="danger">{error}</Alert>
-  );
+    if (touched) {
+      getNotes();
+    }
+  }, [getNotes, touched]);
 
   const notesBody =
     notes.length > 0 ? (
@@ -52,9 +48,6 @@ const NoteListBody: React.FC<StateProps & DispatchProps> = (props) => {
 
   return (
     <Container>
-      {error ? errorComponent(error) : null}
-      {editError ? errorComponent(editError) : null}
-      {deleteError ? errorComponent(deleteError) : null}
       {loading ? (
         <Row className="justify-content-center my-2">
           <ClipLoader color={"green"} loading={loading}>
@@ -74,9 +67,7 @@ const NoteListBody: React.FC<StateProps & DispatchProps> = (props) => {
 const mapStateToProps = (state: any) => ({
   loading: state.noteReducer.allNotes.loading,
   notes: state.noteReducer.allNotes.data,
-  error: state.noteReducer.allNotes.error,
-  editError: state.noteReducer.editNote.error,
-  deleteError: state.noteReducer.deleteNote.error,
+  touched: state.noteReducer.touched.allNotes,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

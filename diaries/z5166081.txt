@@ -42,3 +42,18 @@ Implemented Logout, improved token management and loading spinners to move the a
 Created and implemented a new page for searching stocks.
 Implemented the Trending Investments component on the landing page, cleaned up and improved backend code for portfolio endpoints.
 Refactored stock page to use Redux for asynchronous requests, and include loading spinners and error handling.
+
+Week 7
+
+Implemented the frontend for the Notes feature including:
+- Notes Pane layout
+- Create, edit and deleting notes 
+
+Week 8
+
+Implmented relevant notes on Stock Page and Portfolio Page.
+Added portfolio performance to Portfolios Page to show individual performance of each portfolio.
+Implemented the schema for the Dashboards table and relevant API endpoints to CRUD dashboards and their blocks.
+
+Week 9
+Finalised dashboard backend and implemented frontend to display, create and delete dashboard blocks such as Portfolios, News and Stocks.

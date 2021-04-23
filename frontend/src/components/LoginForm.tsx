@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Form, Button, Alert } from "react-bootstrap";
+import { Alert, Form, Button, Row } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import userActions from "../redux/actions/userActions";
@@ -15,7 +15,6 @@ interface LoginFormValues {
 interface StateProps {
   loading: boolean;
   message: string;
-  error: Object;
 }
 
 interface DispatchProps {
@@ -33,7 +32,7 @@ const schema = Yup.object({
 });
 
 const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, message, error, login } = props;
+  const { loading, message, login } = props;
   const history = useHistory();
 
   useEffect(() => {
@@ -42,8 +41,6 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
       history.push("/");
     }
   }, [message, history]);
-
-  const errorComponent = <Alert variant="danger">{error}</Alert>;
 
   const messageComponent = <Alert variant="success">{message}</Alert>;
 
@@ -63,11 +60,7 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
       }) => {
         return (
           <Form onSubmit={handleSubmit}>
-            {error ? errorComponent : null}
             {message ? messageComponent : null}
-            <ClipLoader color={"green"} loading={loading}>
-              <span className="sr-only">Loading...</span>
-            </ClipLoader>
             <Form.Group controlId="formBasicEmail">
               <Form.Label>Email</Form.Label>
               <Form.Control
@@ -103,9 +96,13 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
                 </Form.Control.Feedback>
               ) : null}
             </Form.Group>
-
+            <Row className="justify-content-center">
+              <ClipLoader color={"green"} loading={loading}>
+                <span className="sr-only">Loading...</span>
+              </ClipLoader>
+            </Row>
             <Button disabled={loading} variant="primary" type="submit">
-              Login
+              {loading ? "Blasting off..." : "Login"}
             </Button>
           </Form>
         );
@@ -117,7 +114,6 @@ const LoginForm: React.FC<StateProps & DispatchProps> = (props) => {
 const mapStateToProps = (state: any) => ({
   loading: state.userReducer.loginUser.loading,
   message: state.userReducer.loginUser.message,
-  error: state.userReducer.loginUser.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

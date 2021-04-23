@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { Alert, Button, Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -13,6 +13,14 @@ interface RouteMatchParams {
 interface AddInvestmentFormParams {
   portfolioName: string;
   stockTicker: string;
+  numShares: string;
+  purchaseDate: string;
+  purchaseTime: string;
+}
+
+interface SubmitParams {
+  portfolioName: string;
+  stockTicker: string;
   numShares: number;
   purchaseDate: string;
   purchaseTime: string;
@@ -20,30 +28,29 @@ interface AddInvestmentFormParams {
 
 interface StateProps {
   loading: boolean;
-  error: Object;
 }
 
 interface DispatchProps {
-  createStock: (payload: AddInvestmentFormParams) => void;
+  createStock: (payload: SubmitParams) => void;
 }
 
 const schema = Yup.object({
   stockTicker: Yup.string()
     .required("Investment symbol is required.")
-    .min(3, "Investment symbol must be at least 3 characters.")
+    .min(1, "Investment symbol must be at least 1 character.")
     .max(5, "Investment symbol must be at most 5 characters"),
 });
 
 const initialValues: AddInvestmentFormParams = {
   portfolioName: "",
   stockTicker: "",
-  numShares: 1,
+  numShares: "1",
   purchaseDate: new Date().toLocaleDateString().split("/").reverse().join("-"),
   purchaseTime: new Date().toLocaleTimeString(),
 };
 
 const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, error, createStock } = props;
+  const { loading, createStock } = props;
   const { name } = useParams<RouteMatchParams>();
   initialValues.portfolioName = name;
 
@@ -52,7 +59,9 @@ const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
 
   const formComponent = (
     <Formik
-      onSubmit={createStock}
+      onSubmit={(values) => {
+        createStock({ ...values, numShares: parseInt(values.numShares) });
+      }}
       initialValues={initialValues}
       validationSchema={schema}
     >
@@ -66,7 +75,6 @@ const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="my-2 w-100">
-            {error ? <Alert variant="danger">{error}</Alert> : null}
             <Form.Label>Investment Symbol</Form.Label>
             <Form.Control
               type="text"
@@ -126,7 +134,7 @@ const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
               isInvalid={!!errors.purchaseTime}
             />
 
-            <Button variant="outline-primary" type="submit" className="my-2">
+            <Button variant="primary" type="submit" className="my-2">
               Add Investment
             </Button>
           </Form>
@@ -144,12 +152,11 @@ const AddInvestmentForm: React.FC<StateProps & DispatchProps> = (props) => {
 
 const mapStateToProps = (state: any) => ({
   loading: state.investmentReducer.createStock.loading,
-  error: state.investmentReducer.createStock.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    createStock: (formPayload: AddInvestmentFormParams) => {
+    createStock: (formPayload: SubmitParams) => {
       dispatch(investmentActions.createStock(formPayload));
     },
   };

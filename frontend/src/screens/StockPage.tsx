@@ -1,35 +1,29 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
-import {
-  Container,
-  Row,
-  Col,
-  Tabs,
-  Tab,
-  Button,
-  Alert,
-  Badge,
-  Dropdown,
-  DropdownButton,
-} from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Button } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
 
 import {
-  DataSummary,
-  DataFundamentals,
-  DataIncomeStatement,
   DataBalanceSheet,
   DataCashFlow,
+  DataFundamentals,
+  DataIncomeStatement,
+  DataSummary,
+  Forum,
+  NoteRelevant,
+  PaperTradeController,
+  PredictionController,
   StockNews,
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
+import { durationOptionsObj } from "../helpers/PredictionHelpers";
 
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import Forum from "../components/Forum";
+require("highcharts/modules/annotations")(Highcharts);
 
 interface seriesT {
   name: string;
@@ -62,10 +56,6 @@ interface durChoiceParams {
   [key: string]: { dur: number; display: string; units: string };
 }
 
-interface predictionModeParams {
-  [key: string]: { idtype: string; name: string; };
-}
-
 interface StateProps {
   loading: boolean;
   error: string;
@@ -73,15 +63,22 @@ interface StateProps {
   priceDataDaily: any;
   priceDataIntraday: any;
   predictionDaily: any;
+  paperTradingResults: any;
 
   predictionDailyLoading: any;
   predictionDailyError: any;
+  paperTradingLoading: any;
+  paperTradingError: any;
 }
 
 interface DispatchProps {
   getStockBasic: (payload: getStockBasicParams) => void;
   getPredictionDaily: (payload: getPredictionDailyParams) => void;
 }
+
+const graphBorderStyle = {
+  border: "7px solid grey",
+};
 
 const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const {
@@ -91,10 +88,8 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     priceDataDaily,
     priceDataIntraday,
     predictionDaily,
+    paperTradingResults,
     getStockBasic,
-    getPredictionDaily,
-    predictionDailyLoading,
-    predictionDailyError,
   } = props;
 
   const chartComponent = useRef<any | null>(null);
@@ -102,22 +97,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const symbol = params.symbol;
 
   const durOpts: durChoiceParams = useMemo(() => {
-    return {
-      durDays3: { dur: 3, display: "3", units: "days" },
-      durWeeks1: { dur: 5, display: "5", units: "days" },
-      durWeeks2: { dur: 10, display: "10", units: "days" },
-      durMonths1: { dur: 20, display: "20", units: "days" },
-      durMonths2: { dur: 40, display: "40", units: "days" },
-      durMonths3: { dur: 60, display: "60", units: "days" },
-    };
-  }, []);
-
-  const predictOpts: predictionModeParams = useMemo(() => {
-    return {
-      lstm_wlf: { idtype: "walk_forward", name: "Vanilla LSTM (Walk-Forward)" },
-      lstm_ser: { idtype: "multistep_series", name: "Vanilla LSTM (Series)" },
-      lcnn_wlf: { idtype: "cnn", name: "CNN-LSTM (Walk-Forward)" },
-    };
+    return durationOptionsObj;
   }, []);
 
   const [displayIntra, setDisplayIntra] = useState<boolean>(false);
@@ -136,11 +116,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     getStockBasic({ symbol });
   }, [getStockBasic, symbol]);
 
-  const fetchPredictDaily = () => {
-    const predictionType = predictOpts[preChoice].idtype;
-    getPredictionDaily({ symbol, predictionType });
-  };
-
   // TODO: predefined reset length
   const resetZoom = () => {
     if (
@@ -153,6 +128,23 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
       const upper = graphOptions.series[0].data[seriesLimit - 1][0];
       chartComponent.current.chart.xAxis[0].setExtremes(lower, upper);
     }
+  };
+
+  const makePlotFlags = (orderList: Array<any>, orderType: string) => {
+    let result: Array<any> = [];
+    for (let i = 0; i < orderList.length; i++) {
+      const order = orderList[i];
+      if (order["type"] === orderType) {
+        let flag = {
+          x: order["time"],
+          // y: order['price'],
+          title: `${order["type"]}`,
+          text: `${order["name"]} ${order["type"]} of ${order["size"]}`,
+        };
+        result.push(flag);
+      }
+    }
+    return result;
   };
 
   useEffect(() => {
@@ -172,16 +164,47 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     } else {
       const seriesDailyList = Object.entries(priceDataDaily).map((entry) => {
         const [key, value] = entry;
-        return { name: key, data: value };
+        return { name: key, id: key, data: value };
       });
       let predictions = JSON.parse(JSON.stringify(predictionDaily));
       if (predictions.data) {
         predictions.data = predictions.data.slice(0, durOpts[durChoice].dur);
       }
 
-      const displaySeries = predictions
+      let papertrades = JSON.parse(JSON.stringify(paperTradingResults));
+      let indicator = papertrades.indicator
+        ? { name: "Strategy Indicator", data: papertrades.indicator }
+        : null;
+      let papertradeData = papertrades.orders ? papertrades.orders : null;
+
+      let displaySeries = predictions
         ? [...seriesDailyList, predictions]
         : seriesDailyList;
+      displaySeries = indicator ? [...displaySeries, indicator] : displaySeries;
+
+      if (papertradeData) {
+        let buyOrders = makePlotFlags(papertradeData, "Buy");
+        let buyFlags = {
+          type: "flags",
+          name: "Buy orders",
+          data: buyOrders,
+          onSeries: "4. close",
+          shape: "squarepin",
+          width: 40,
+        };
+        let sellOrders = makePlotFlags(papertradeData, "Sell");
+        let sellFlags = {
+          type: "flags",
+          name: "Sell orders",
+          y: 30,
+          data: sellOrders,
+          onSeries: "4. close",
+          shape: "circlepin",
+          width: 40,
+        };
+        displaySeries = [...displaySeries, buyFlags, sellFlags];
+      }
+
       setGraphOptions((graphOptions: graphOptionsT) => ({
         ...graphOptions,
         series: displaySeries,
@@ -192,24 +215,29 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     priceDataDaily,
     priceDataIntraday,
     predictionDaily,
+    paperTradingResults,
     durChoice,
     durOpts,
   ]);
 
   const graphComponent = (
     <Container>
-      <HighchartsReact
-        ref={chartComponent}
-        highcharts={Highcharts}
-        constructorType={"stockChart"}
-        options={graphOptions}
-      />
-      <Row className="justify-content-center">
+      <div style={graphBorderStyle}>
+        <HighchartsReact
+          ref={chartComponent}
+          highcharts={Highcharts}
+          constructorType={"stockChart"}
+          options={graphOptions}
+        />
+      </div>
+      <Row className="py-1 justify-content-around">
         <Col>
-          <Button variant="outline-info" onClick={fetchStock}>
+          <Button variant="info" onClick={fetchStock}>
             Refresh data
           </Button>
-          <Button variant="outline-info" onClick={resetZoom}>
+        </Col>
+        <Col>
+          <Button variant="info" onClick={resetZoom}>
             Reset Zoom
           </Button>
         </Col>
@@ -220,146 +248,20 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   const loadingSpinnerComponent = (
     <Container>
       <ClipLoader color={"green"} loading={loading} />
-      <h5>Loading Data ...</h5>
+      <span className="sr-only">Loading Data ...</span>
     </Container>
   );
 
-  const alertComponent = <Alert variant="danger">{error}</Alert>;
-
-  const stockNameText = error ? `${symbol}` : `${company} (${symbol})`;
-
-  const statusBadgeModifier = (
-    prediction: Array<any>,
-    isLoading: boolean,
-    error: object | null
-  ) => {
-    const result =
-      prediction !== null && Object.keys(prediction).length > 0 && !isLoading
-        ? "success"
-        : isLoading
-        ? "primary"
-        : prediction === null || Object.keys(prediction).length === 0
-        ? "secondary"
-        : error
-        ? "danger"
-        : "danger";
-    return result;
-  };
-
-  const statusBadgeText = (
-    prediction: Array<any>,
-    isLoading: boolean,
-    error: object | null
-  ) => {
-    const result =
-      prediction !== null && Object.keys(prediction).length > 0 && !isLoading
-        ? "Fetched"
-        : isLoading
-        ? "Pending"
-        : Object.keys(prediction).length === 0 || prediction === null
-        ? "Not requested"
-        : error !== null
-        ? "Error"
-        : "Error";
-    return result;
-  };
-
-  const predictionControlComponent = (
-    <Container className="generic-container-scrolling">
-      <hr />
-      <Row>
-        <Col>Prediction Status: </Col>
-        <Col>
-          <Badge
-            variant={statusBadgeModifier(
-              predictionDaily,
-              predictionDailyLoading,
-              predictionDailyError
-            )}
-          >
-            {statusBadgeText(
-              predictionDaily,
-              predictionDailyLoading,
-              predictionDailyError
-            )}
-          </Badge>
-        </Col>
-      </Row>
-      <hr />
-      <Row>
-        <Col>Duration: </Col>
-        <Col>
-          <DropdownButton
-            variant="outline-dark"
-            id="dropdown-basic-button"
-            title={durOpts[durChoice].display + " " + durOpts[durChoice].units}
-          >
-            {Object.entries(durOpts).map((entry, idx) => {
-              const [key, value] = entry;
-
-              return (
-                <Dropdown.Item
-                  key={idx}
-                  href="#/action-1"
-                  onClick={() => {
-                    setdurChoice(key);
-                  }}
-                >
-                  {value.display + " " + value.units}
-                </Dropdown.Item>
-              );
-            })}
-          </DropdownButton>
-        </Col>
-      </Row>
-      <hr />
-      <Row>
-        <Col>Model: </Col>
-        <Col>
-        <DropdownButton
-          variant="outline-dark"
-          id="dropdown-basic-button"
-          title={predictOpts[preChoice].name}
-        >
-          {Object.entries(predictOpts).map((entry, idx) => {
-            const [key, value] = entry;
-
-            return (
-              <Dropdown.Item
-                key={idx}
-                href="#/action-1"
-                onClick={() => {
-                  setPreChoice(key);
-                }}
-              >
-                {value.name}
-              </Dropdown.Item>
-            );
-          })}
-        </DropdownButton>
-        </Col>
-      </Row>
-      <hr />
-      <Row>
-        <Button
-          variant="outline-primary"
-          onClick={() => {
-            fetchPredictDaily();
-          }}
-        >
-          Predict
-        </Button>
-      </Row>
-    </Container>
-  );
+  const stockNameText =
+    error || loading ? `${symbol}` : `${company} (${symbol})`;
 
   return (
     <Container>
       <Row className="justify-content-center mt-2">
-        <h1>{loading ? loadingSpinnerComponent : stockNameText}</h1>
+        <h1>{stockNameText}</h1>
+        {loadingSpinnerComponent}
       </Row>
-      <Row>{error ? alertComponent : null}</Row>
-      <Row className="justify-content-center">
+      <Row className="justify-content-center align-items-center">
         <Col>
           <Container>
             <Tabs
@@ -367,31 +269,60 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               defaultActiveKey="summary"
               id="sec-view-info-selector"
             >
-              <Tab eventKey="summary" title="Summary">
+              <Tab eventKey="summary" title="Summary" className="bg-dark">
                 <DataSummary />
               </Tab>
-              <Tab eventKey="statistics" title="Statistics">
+              <Tab eventKey="statistics" title="Statistics" className="bg-dark">
                 <DataFundamentals />
               </Tab>
-              <Tab eventKey="financials" title="Financials">
+              <Tab eventKey="financials" title="Financials" className="bg-dark">
                 <Tabs
                   className="justify-content-center mt-2"
                   defaultActiveKey="incomestatement"
                   id="sec-view-financials"
                 >
-                  <Tab eventKey="incomestatement" title="Income Statement">
+                  <Tab
+                    eventKey="incomestatement"
+                    title="Income Statement"
+                    className="bg-dark"
+                  >
                     <DataIncomeStatement symbol={symbol} />
                   </Tab>
-                  <Tab eventKey="balancesheet" title="Balance Sheet">
+                  <Tab
+                    eventKey="balancesheet"
+                    title="Balance Sheet"
+                    className="bg-dark"
+                  >
                     <DataBalanceSheet symbol={symbol} />
                   </Tab>
-                  <Tab eventKey="cashflow" title="Cash Flow Statement">
+                  <Tab
+                    eventKey="cashflow"
+                    title="Cash Flow Statement"
+                    className="bg-dark"
+                  >
                     <DataCashFlow symbol={symbol} />
                   </Tab>
                 </Tabs>
               </Tab>
-              <Tab eventKey="prediction" title="Market Prediction">
-                {predictionControlComponent}
+              <Tab
+                eventKey="prediction"
+                title="Market Prediction"
+                className="bg-dark"
+              >
+                <PredictionController
+                  symbol={symbol}
+                  durChoice={durChoice}
+                  setdurChoice={setdurChoice}
+                  preChoice={preChoice}
+                  setPreChoice={setPreChoice}
+                />
+              </Tab>
+              <Tab
+                eventKey="paperTrading"
+                title="Paper Trading"
+                className="bg-dark"
+              >
+                <PaperTradeController symbol={symbol} />
               </Tab>
             </Tabs>
           </Container>
@@ -403,7 +334,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
           <Tabs className="justify-content-center mt-2" defaultActiveKey="news">
             <Tab eventKey="news" title="News">
               <Row>
-                <h3>{`News related to ${symbol.toUpperCase()}`}</h3>
+                <h2>{`News related to ${symbol.toUpperCase()}`}</h2>
               </Row>
               <StockNews stock={symbol} />
             </Tab>
@@ -412,7 +343,11 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
                 <Forum stockTicker={symbol} />
               </Row>
             </Tab>
-            <Tab eventKey="other" title="Other"></Tab>
+            <Tab eventKey="notes" title="Relevant Notes">
+              <Row>
+                <NoteRelevant stock={[symbol]} />
+              </Row>
+            </Tab>
           </Tabs>
         </Container>
       </Row>
@@ -429,6 +364,9 @@ const mapStateToProps = (state: any) => ({
   priceDataDaily: state.stockReducer.basic.data.data,
   priceDataIntraday: state.stockReducer.basic.data.data_intraday,
   predictionDaily: state.stockReducer.predictionDaily.data,
+  paperTradingResults: state.stockReducer.paperTradingResults.data,
+  paperTradingLoading: state.stockReducer.paperTradingResults.loading,
+  paperTradingError: state.stockReducer.paperTradingResults.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

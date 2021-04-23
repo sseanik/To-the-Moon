@@ -1,8 +1,10 @@
-import { Alert, Button, Container } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import investmentActions from "../redux/actions/investmentActions";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useParams } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 interface DeleteStockParams {
   investmentID: string;
@@ -10,8 +12,6 @@ interface DeleteStockParams {
 }
 
 interface StateProps {
-  loading: boolean;
-  error: Object;
   deleting: Array<string>;
 }
 
@@ -31,19 +31,19 @@ const DeleteStockButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
   const { name: portfolioName } = useParams<RouteMatchParams>();
-  const { loading, error, deleting, deleteStock, investmentID } = props;
+  const { deleting, deleteStock, investmentID } = props;
 
   return (
     <Container fluid>
-      {error ? <Alert variant="danger">{error}</Alert> : null}
-      {loading && deleting.includes(investmentID) ? (
-        <ClipLoader color={"green"} loading={loading} />
+      {deleting.includes(investmentID) ? (
+        <ClipLoader color={"green"} loading={deleting.includes(investmentID)} />
       ) : (
         <Button
           variant="danger"
+          className="my-1"
           onClick={() => deleteStock({ investmentID, portfolioName })}
         >
-          🗑️ Delete
+          <FontAwesomeIcon icon={faTrash} />
         </Button>
       )}
     </Container>
@@ -51,8 +51,6 @@ const DeleteStockButton: React.FC<StateProps & DispatchProps & Props> = (
 };
 
 const mapStateToProps = (state: any) => ({
-  loading: state.investmentReducer.deleteStock.loading,
-  error: state.investmentReducer.deleteStock.error,
   deleting: state.investmentReducer.deleteStock.deleting,
 });
 

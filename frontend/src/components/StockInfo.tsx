@@ -1,4 +1,3 @@
-import React from "react";
 import { Row, Col } from "react-bootstrap";
 import DeleteStockButton from "./DeleteStockButton";
 
@@ -9,6 +8,7 @@ interface Props {
   purchase_date: string;
   purchase_price: string;
   total_change: number;
+  viewOnly?: boolean;
 }
 
 const StockInfo: React.FC<Props> = (props) => {
@@ -19,10 +19,11 @@ const StockInfo: React.FC<Props> = (props) => {
     purchase_price,
     stock_ticker,
     total_change,
+    viewOnly = false,
   } = props;
 
   return (
-    <Row className="border-bottom border-light my-2 w-100 align-items-center">
+    <Row className="my-2 w-100 align-items-center">
       <Col>
         <a href={`/stock/${stock_ticker}`}>{stock_ticker}</a>
       </Col>
@@ -30,11 +31,13 @@ const StockInfo: React.FC<Props> = (props) => {
       <Col>{purchase_date}</Col>
       <Col>${purchase_price}</Col>
       <Col className={total_change >= 0 ? "text-success" : "text-danger"}>
-        ${total_change.toFixed(2)}
+        {total_change.toFixed(2)}%
       </Col>
-      <Col>
-        <DeleteStockButton investmentID={investment_id} />
-      </Col>
+      {!viewOnly ? (
+        <Col>
+          <DeleteStockButton investmentID={investment_id} />
+        </Col>
+      ) : null}
     </Row>
   );
 };

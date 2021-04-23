@@ -1,12 +1,19 @@
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faThumbsUp, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
-import AddChildForm from "./AddChildForm";
+import {
+  faReply,
+  faWindowClose,
+  faEdit,
+} from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
-import ChildComment from "./ChildComment";
-import EditParentForm from "./EditParentForm";
 import { connect } from "react-redux";
-import DeleteParentButton from "./DeleteParentButton";
+import {
+  AddCommentForm,
+  ChildComment,
+  DeleteCommentButton,
+  EditCommentForm,
+  VoteCommentButton,
+} from ".";
 
 interface StateProps {
   currentUsername: string;
@@ -62,71 +69,78 @@ const ParentComment: React.FC<StateProps & Props> = (props) => {
 
   const [replying, setReplying] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [numReplies, setNumReplies] = useState(0);
 
   return (
     <Row className="my-1 w-100">
-      <Container fluid className="border border-secondary rounded pt-2">
+      <Container fluid className="border border-secondary rounded pt-2 bg-dark">
         {is_deleted ? (
           <Row>
             <Col md={2}>
-              <p className="font-weight-bold text-left">Deleted</p>
+              <p className="font-weight-bold text-left">[Deleted]</p>
             </Col>
           </Row>
         ) : (
-          <Row>
+          <Row className="mb-2">
             <Col md={2}>
-              <p className="font-weight-bold text-left">{username}</p>
-            </Col>
-            <Col md={2}>
-              <p className="text-muted">
+              <p className="font-weight-bold text-left d-inline mr-2">
+                {username}
+              </p>
+              <p className="text-muted d-inline mx-1">
                 {new Date(time_stamp).toLocaleDateString()}
               </p>
+              {is_edited ? (
+                <p className="text-muted d-inline mx-1">(edited)</p>
+              ) : null}
             </Col>
-            {is_edited ? (
-              <Col md={1}>
-                <p className="text-muted">(edited)</p>
-              </Col>
-            ) : null}
           </Row>
         )}
         <Row>
           <Col>
-            <p className="text-left">{is_deleted ? "Deleted" : content}</p>
+            <p className="text-left">{is_deleted ? "[Deleted]" : content}</p>
           </Col>
         </Row>
         {is_deleted ? null : (
           <Row className="justify-content-start mb-1 align-items-center">
             <Col md={1}>
-              <FontAwesomeIcon
-                icon={faThumbsUp}
-                className={is_upvoted ? "text-success" : ""}
+              <VoteCommentButton
+                commentID={comment_id}
+                isUpvoted={is_upvoted}
+                isDownvoted={is_downvoted}
+                voteType="upvote"
               />
             </Col>
             <Col md={1}>
               <p
                 className={
-                  vote_difference >= 0 ? "text-success m-0" : "text-danger m-0"
+                  vote_difference > 0
+                    ? "text-success m-0"
+                    : vote_difference < 0
+                    ? "text-danger m-0"
+                    : "m-0"
                 }
               >
                 {vote_difference}
               </p>
             </Col>
             <Col md={1}>
-              <FontAwesomeIcon
-                icon={faThumbsDown}
-                className={is_downvoted ? "text-danger" : ""}
+              <VoteCommentButton
+                commentID={comment_id}
+                isUpvoted={is_upvoted}
+                isDownvoted={is_downvoted}
+                voteType="downvote"
               />
             </Col>
             {replying ? (
               <Col md={1}>
                 <Button variant="light" onClick={() => setReplying(false)}>
-                  Cancel
+                  <FontAwesomeIcon icon={faWindowClose} />
                 </Button>
               </Col>
             ) : (
               <Col md={1}>
                 <Button variant="light" onClick={() => setReplying(true)}>
-                  Reply
+                  <FontAwesomeIcon icon={faReply} />
                 </Button>
               </Col>
             )}
@@ -134,20 +148,20 @@ const ParentComment: React.FC<StateProps & Props> = (props) => {
               editing ? (
                 <Col md={1}>
                   <Button variant="light" onClick={() => setEditing(false)}>
-                    Cancel
+                    <FontAwesomeIcon icon={faWindowClose} />
                   </Button>
                 </Col>
               ) : (
                 <Col md={1}>
                   <Button variant="light" onClick={() => setEditing(true)}>
-                    Edit
+                    <FontAwesomeIcon icon={faEdit} />
                   </Button>
                 </Col>
               )
             ) : null}
             {currentUsername === username ? (
               <Col md={1}>
-                <DeleteParentButton commentID={comment_id} />
+                <DeleteCommentButton commentID={comment_id} />
               </Col>
             ) : null}
           </Row>
@@ -155,15 +169,48 @@ const ParentComment: React.FC<StateProps & Props> = (props) => {
       </Container>
       <Container fluid>
         {replying ? (
-          <AddChildForm stockTicker={stock_ticker} parentID={comment_id} />
+          <AddCommentForm stockTicker={stock_ticker} parentID={comment_id} />
         ) : null}
       </Container>
       <Container fluid>
-        {editing ? <EditParentForm commentID={comment_id} /> : null}
+        {editing ? <EditCommentForm commentID={comment_id} /> : null}
       </Container>
-      {replies.map((replyProps: ReplyParams, idx: number) => {
-        return <ChildComment key={idx} {...replyProps} />;
-      })}
+      {replies
+        .slice(0, numReplies)
+        .map((replyProps: ReplyParams, idx: number) => {
+          return <ChildComment key={idx} {...replyProps} />;
+        })}
+      {replies.length === 0 ? null : numReplies === 0 ? (
+        <Button
+          variant="light"
+          className="mt-2 mb-1"
+          onClick={() => {
+            setNumReplies(numReplies + 5);
+          }}
+        >
+          View replies...
+        </Button>
+      ) : numReplies < replies.length ? (
+        <Button
+          variant="light"
+          className="mt-2 mb-1 ml-5"
+          onClick={() => {
+            setNumReplies(numReplies + 5);
+          }}
+        >
+          View more...
+        </Button>
+      ) : (
+        <Button
+          variant="light"
+          className="mt-2 mb-1 ml-5"
+          onClick={() => {
+            setNumReplies(0);
+          }}
+        >
+          Hide replies...
+        </Button>
+      )}
     </Row>
   );
 };

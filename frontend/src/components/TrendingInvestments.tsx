@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 import trendActions from "../redux/actions/trendActions";
 import { connect } from "react-redux";
-import { Container, Alert, Card } from "react-bootstrap";
+import { Row, Card, Container } from "react-bootstrap";
 
 interface TrendingStocksParams {
   n: number;
@@ -15,7 +15,6 @@ interface TrendingStockEntry {
 
 interface StateProps {
   loading: boolean;
-  error: string;
   data: Array<TrendingStockEntry>;
 }
 
@@ -24,7 +23,7 @@ interface DispatchProps {
 }
 
 const TrendingInvestments: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, error, data, getTrendingStocks } = props;
+  const { loading, data, getTrendingStocks } = props;
 
   useEffect(() => {
     getTrendingStocks({ n: 5 });
@@ -37,13 +36,11 @@ const TrendingInvestments: React.FC<StateProps & DispatchProps> = (props) => {
     </div>
   );
 
-  const alertComponent = <Alert variant="danger">{error}</Alert>;
-
   const trendingStockComponent = (
     trending: TrendingStockEntry,
     idx: number
   ) => (
-    <Card key={idx}>
+    <Card key={idx} className="trending-investment">
       <Card.Body>
         <Card.Title>{trending.stock}</Card.Title>
         <Card.Subtitle className="mb-2 text-muted">{`#${
@@ -62,19 +59,19 @@ const TrendingInvestments: React.FC<StateProps & DispatchProps> = (props) => {
   );
 
   return (
-    <Container>
-      {loading ? loadingSpinnerComponent : null}
-      {error ? alertComponent : null}
+    <Row className="justify-content-around">
+      <Container>
+        {loading ? loadingSpinnerComponent : null}
+      </Container>
       {data.map((trendingStock, idx) =>
         trendingStockComponent(trendingStock, idx)
       )}
-    </Container>
+    </Row>
   );
 };
 
 const mapStateToProps = (state: any) => ({
   loading: state.trendReducer.loading,
-  error: state.trendReducer.error,
   data: state.trendReducer.data,
 });
 
