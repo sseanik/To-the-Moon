@@ -11,7 +11,7 @@ Backend and Frontend compile scripts exist in the root directory of our code. Th
 2. Ensure you have nvm installed. Download it here: https://github.com/nvm-sh/nvm#installing-and-updating 
 3. Run `nvm install v14.15.4` to install node.
 4. Run `nvm use` to ensure you are using the correct version of node.
-5. Run `npm install -g install npm@7.5.2` to install npm.
+5. Run `npm install -g install npm@7.5.2` to install npm. If you are on windows, instead follow these instructions: https://github.com/felixrieseberg/npm-windows-upgrade to install the same version.
 6. Run `npm install` to install dependencies.
 7. Run `npm install -g serve` to install serve.
 8. In the root directory, run `npm run build` to build both frontend and backend.
