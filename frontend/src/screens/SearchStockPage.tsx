@@ -38,7 +38,10 @@ const SearchStockPage: React.FC = () => {
       <h1>Offered Stocks</h1>
       <h5>To The Moon 🚀 supports the following selection of US Stocks:</h5>
       {offeredStocks.map((stockInfo, idx) => (
-        <Row key={idx} className="border-top border-bottom py-2">
+        <Row
+          key={idx}
+          className="border-top border-bottom py-2 align-items-center"
+        >
           <Col>
             <a href={`/stock/${stockInfo.ticker}`}>{stockInfo.ticker}</a>
           </Col>

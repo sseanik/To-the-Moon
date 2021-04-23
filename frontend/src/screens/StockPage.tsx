@@ -261,7 +261,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         <h1>{stockNameText}</h1>
         {loadingSpinnerComponent}
       </Row>
-      <Row className="justify-content-center">
+      <Row className="justify-content-center align-items-center">
         <Col>
           <Container>
             <Tabs

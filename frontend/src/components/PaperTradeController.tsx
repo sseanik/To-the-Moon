@@ -210,7 +210,9 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (
       <Row>
         <Col className="text-left font-weight-bold">Value Change: </Col>
         <Col className="text-right">
-          {data.hasOwnProperty("change_value") ? data["change_value"] : "N/A"}
+          {data.hasOwnProperty("change_value")
+            ? data["change_value"].toFixed(2)
+            : "N/A"}
         </Col>
       </Row>
       <hr />
@@ -218,7 +220,7 @@ const PaperTradeController: React.FC<StateProps & DispatchProps & Props> = (
         <Col className="text-left font-weight-bold">Value Change (%): </Col>
         <Col className="text-right">
           {data.hasOwnProperty("change_value_percentage")
-            ? data["change_value_percentage"]
+            ? data["change_value_percentage"].toFixed(3)
             : "N/A"}
         </Col>
       </Row>
