@@ -22,6 +22,13 @@ PASS = os.getenv("DBPASS")
 
 
 def create_DB_connection():
+    """Create a Database connection, connecting the the RDS database.
+    This function is used primarily over the app and closing the connection
+    is handled by the invoked functions.
+
+    Returns:
+        connection: Connection to the database
+    """
     try:
         conn = psycopg2.connect(
             host=ENDPOINT, port=PORT, database=DBNAME, user=USER, password=PASS
@@ -409,73 +416,35 @@ def fill_all_companies():
 
 
 if __name__ == "__main__":
-    pass
-    # create_user_table()
     # create_portfolios_table()
     # create_holdings_table()
+    # create_user_table()
     # create_securities_overview_table()
+    # create_notes_table()
+    # create_watchlist_tables()
+    # create_comment_tables()
+    # create_screeners_table()
+    # create_vote_plpgsql_functions()
+    # create_dashboard_tables()
     # create_income_statements_table()
     # create_balance_sheets_table()
     # create_cashflow_statements_table()
-    # create_comment_tables()
-    # create_notes_table()
-    # create_watchlist_tables()
-    # create_dashboard_tables()
 
     # Basic materials sector
-    # fill_overview_and_financial_tables('BHP')
-    # fill_overview_and_financial_tables('LIN')
-
-    # Technology sector
-    # fill_overview_and_financial_tables('ORCL')
-    # fill_overview_and_financial_tables('IBM')
-
     # Consumer defence sector
-    # fill_overview_and_financial_tables('WMT')
-    # fill_overview_and_financial_tables('KO')
-
     # Utilities sector
-    # fill_overview_and_financial_tables('NEE')
-
     # Energy sector
-    # create_vote_plpgsql_functions()
-    # create_comment_tables()
-    # createDBConnection()
-    # createPortfolioTable()
-    # createHoldingsTable()
-    # createSecuritiesoverviewTable()
-    # fillSecuritiesoverviewTable('IBM')
-    # createIncomestatementsTable()
-    # fillIncomestatements('IBM')
-    # createBalanceSheetsTable()
-    # fillBalanceSheets('IBM')
-    # createCashflowstatementsTable()
-    # fillCashflowstatements('IBM')
-
-    # Basic materials
-    # filloverviewAndFinancialTables('BHP')
-
     # Technology sector
-
     # Consumer cyclical sector
-
     # Real estate sector
-
     # Healthcare sector
-
     # Communication services sector
-
     # Industrials sector
-    # create_user_table()
-    # create_portfolios_table()
-    # create_holdings_table()
-    # create_securities_overviewTable()
-    # create_income_statementsTable()
-    # create_balance_sheets_table()
-    # create_cashflow_statements_table()
-    # create_comment_tables()
-    # create_notes_table()
-    # create_screeners_table()
-    # create_watchlist_tables()
+
+    # fill_securities_overview_table(symbol)
+    # fill_income_statements(symbol)
+    # fill_balance_sheets(symbol)
+    # fill_cashflow_statements(symbol)
+    # fill_overview_and_financial_tables(symbol)
 
     # fill_all_companies()
