@@ -134,7 +134,11 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
   };
 
   return (
-    <Formik onSubmit={doSubmit} initialValues={initialValues} schema={schema}>
+    <Formik
+      onSubmit={doSubmit}
+      initialValues={initialValues}
+      validationSchema={schema}
+    >
       {({
         handleSubmit,
         handleChange,

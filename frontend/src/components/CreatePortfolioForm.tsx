@@ -34,7 +34,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
     <Formik
       onSubmit={createPortfolio}
       initialValues={initialValues}
-      schema={schema}
+      validationSchema={schema}
     >
       {({
         handleSubmit,
@@ -57,7 +57,7 @@ const CreatePortfolioForm: React.FC<StateProps & DispatchProps> = (props) => {
               onBlur={handleBlur}
               isInvalid={!!errors.newName && touched.newName}
             />
-            {errors.newName ? (
+            {errors.newName && touched.newName ? (
               <Form.Control.Feedback type="invalid">
                 {errors.newName}
               </Form.Control.Feedback>
