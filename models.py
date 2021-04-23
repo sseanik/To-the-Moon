@@ -181,6 +181,16 @@ def portfolio_model(namespace):
     )
 
 
+def create_dashboard_block_model(namespace):
+    return namespace.model(
+        "create_block",
+        {
+            "type": fields.String(required=True, example="portfolio"),
+            "meta": fields.Raw,
+        },
+    )
+
+
 # ---------------------------------------------------------------------------- #
 #                                    PARSERS                                   #
 # ---------------------------------------------------------------------------- #
