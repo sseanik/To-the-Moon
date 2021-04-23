@@ -37,10 +37,10 @@ Backend and Frontend compile scripts exist in the root directory of our code. Th
 2. Visit http://localhost:3000 to start using To The Moon.
 
 #### Prediction Model & Backtesting Services - with Docker
-In separate terminals:
+In a terminal:
 1. Run `docker load < caps_prediction.tar.gz` to load the image. Make sure you are using the relative path to the image.
 2. Run `docker run -p 3001:5000 -it caps_prediction_lstm` to start the prediction model.
-
+In a separate terminal:
 1. Run `docker load < backtrading.tar.gz` to load the image. Make sure you are using the relative path to the image.
 2. Run `docker run -p 3002:5000 -it backtrading` to start the backtrader.
 
