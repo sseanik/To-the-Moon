@@ -823,7 +823,7 @@ class DownvoteReply(Resource):
     @FORUM_NS.expect(token_parser(FORUM_NS), reply_vote_model(FORUM_NS), validate=True)
     @FORUM_NS.response(200, "Successfully removed downvote from reply")
     @FORUM_NS.response(404, "No reply with the Reply ID was found")
-    def put(self):
+    def delete(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
         data = request.get_json()
