@@ -11,10 +11,10 @@ interface DownvoteCommentParams {
 }
 
 interface StateProps {
-  parentError: string;
   parentDownvoting: string[];
-  childError: string;
   childDownvoting: string[];
+  parentUpvoting: string[];
+  childUpvoting: string[];
 }
 
 interface DispatchProps {
@@ -34,6 +34,8 @@ const DeleteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
   const {
     parentDownvoting,
     childDownvoting,
+    parentUpvoting,
+    childUpvoting,
     downvoteParent,
     downvoteChild,
     commentID,
@@ -51,7 +53,9 @@ const DeleteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
       }}
       disabled={
         parentDownvoting.includes(commentID) ||
-        childDownvoting.includes(commentID)
+        childDownvoting.includes(commentID) ||
+        parentUpvoting.includes(commentID) ||
+        childUpvoting.includes(commentID)
       }
     >
       <FontAwesomeIcon icon={faThumbsDown} />
@@ -60,10 +64,10 @@ const DeleteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
 };
 
 const mapStateToProps = (state: any) => ({
-  parentError: state.forumReducer.downvoteParent.error,
   parentDownvoting: state.forumReducer.downvoteParent.downvoting,
-  childError: state.forumReducer.downvoteChild.error,
   childDownvoting: state.forumReducer.downvoteChild.downvoting,
+  parentUpvoting: state.forumReducer.upvoteParent.upvoting,
+  childUpvoting: state.forumReducer.upvoteChild.upvoting,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
