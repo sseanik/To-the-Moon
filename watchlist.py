@@ -5,13 +5,18 @@
 from json import dumps
 from decimal import Decimal
 import psycopg2
+import simplejson
+
 from flask import request, Response
+from flask_restx import Namespace, Resource, abort
+from iexfinance.stocks import Stock
+
 from database import create_DB_connection
 from token_util import get_id_from_token
-from iexfinance.stocks import Stock
-import simplejson
-from flask_restx import Namespace, Resource, abort
 
+# ---------------------------------------------------------------------------- #
+#                              GLOBAL DECLARATIONS                             #
+# ---------------------------------------------------------------------------- #
 
 WATCHLIST_NS = Namespace(
     "watchlist", "Watchlist content published and followed by users"
