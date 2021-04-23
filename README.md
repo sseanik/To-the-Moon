@@ -18,8 +18,10 @@ Backend and Frontend compile scripts exist in the root directory of our code. Th
 
 #### Prediction Model & Backtesting Services - with Docker
 1. Ensure you have docker installed. Download it here: https://docs.docker.com/get-docker/ 
-2. Download the docker images for Prediction https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EczkCySKX_tLpcQTAO3o2YkBXn8ovaOdzwiJLRbMO_dAxA?e=7lj7Pl and Backtrading https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EaSEggHd90JKuGKusyYq80gBoAZIz2HiAzJLmSJJR0qikQ?e=Rk70g2 .
-3. Run `docker load < caps_prediction.tar.gz` and `docker load < backtrading.tar.gz` to load the images. Make sure you are using the relative path to the images.
+2. Download the docker images for the two services:
+- Prediction https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EczkCySKX_tLpcQTAO3o2YkBXn8ovaOdzwiJLRbMO_dAxA?e=7lj7Pl
+- Backtrading https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EaSEggHd90JKuGKusyYq80gBoAZIz2HiAzJLmSJJR0qikQ?e=Rk70g2 .
+4. Run `docker load < caps_prediction.tar.gz` and `docker load < backtrading.tar.gz` to load the images. Make sure you are using the relative path to the images.
 
 #### Prediction Model & Backtesting Services - as Web Server
 1. Ensure you have python3 version >= 3.7.4 and pip3. Download the appropriate version, if needed, here: https://www.python.org/downloads/ and https://pip.pypa.io/en/stable/installing/ 
