@@ -28,9 +28,8 @@ def send_news_email(app):
             cur = conn.cursor(cursor_factory=RealDictCursor)
             # Get all unique stock tickers
             select_query = """
-                SELECT JSON_AGG(DISTINCT s.stock_ticker) as tickers 
-                FROM securities_overviews s
-                JOIN holdings h ON (s.stock_ticker = h.stock_ticker)
+                SELECT JSON_AGG(DISTINCT h.stock_ticker) as tickers
+                FROM holdings h
             """.replace(
                 "\n", ""
             )
@@ -42,7 +41,7 @@ def send_news_email(app):
 
             # Fetch all portfolio data from every user that has notifications on
             portfolio_query = """
-                SELECT u.email, u.id as user_id, u.notification 
+                SELECT u.email, u.id as user_id, u.notification,
                 JSON_AGG(DISTINCT h.portfolio_name) AS portfolios, 
                 JSON_AGG(DISTINCT h.stock_ticker) AS stocks
                 FROM holdings h
