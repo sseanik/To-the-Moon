@@ -61,7 +61,7 @@ const noteActions = {
   toggleNoteList: () => ({
     type: noteConstants.TOGGLE_NOTELIST,
   }),
-  getUserNotes: () => async (dispatch: Dispatch) => {
+  getUserNotes: (): any => async (dispatch: Dispatch) => {
     dispatch(noteActions.getUserNotesPending());
     try {
       const res = await NoteAPI.getUserNotes();
@@ -70,7 +70,7 @@ const noteActions = {
       dispatch(noteActions.getUserNotesFailure(error.message));
     }
   },
-  getRelevantNotes: (payload: RelevantNewsPayload) => async (
+  getRelevantNotes: (payload: RelevantNewsPayload): any => async (
     dispatch: Dispatch
   ) => {
     dispatch(noteActions.getRelevantNotesPending());
