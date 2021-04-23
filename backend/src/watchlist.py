@@ -25,11 +25,11 @@ def publish_watchlist(user_id, portfolio_name, description):
     conn = create_DB_connection()
     cur = conn.cursor()
     investments_query = """
-        SELECT h.stock_ticker, h.purchase_price 
-        FROM holdings h, portfolios p 
-        WHERE p.user_id = h.user_id AND p.portfolio_name=%s
+        SELECT stock_ticker, purchase_price 
+        FROM holdings 
+        WHERE portfolio_name=%s AND user_id=%s;
     """
-    cur.execute(investments_query, (portfolio_name,))
+    cur.execute(investments_query, (portfolio_name, user_id))
     response = cur.fetchall()
     aggregate = {}
     for ticker, price in response:
@@ -65,7 +65,6 @@ def publish_watchlist(user_id, portfolio_name, description):
     return result
 
 
-# TEST this
 def subscribe(user_id, watchlist_id):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -85,7 +84,6 @@ def subscribe(user_id, watchlist_id):
     return result
 
 
-# TEST this
 def unsubscribe(user_id, watchlist_id):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -104,7 +102,6 @@ def unsubscribe(user_id, watchlist_id):
     return result
 
 
-# TEST this
 def get_user_subscriptions(user_id):
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -136,7 +133,6 @@ def delete_watchlist(user_id, watchlist_id):
     return {"message": "Watchlist removed"}
 
 
-# TEST this
 def get_all_watchlists():
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -184,7 +180,7 @@ def get_all_watchlists():
                     "proportion": Decimal(proportion),
                     "price": batch.latestPrice[company],
                     "price_change_percentage": batch.changePercent[company],
-                    "volume": batch.volume[company],
+                    "volume": batch.latestVolume[company],
                     "market_capitalization": batch.marketCap[company],
                     "PE_ratio": batch.peRatio[company],
                 }
@@ -235,7 +231,7 @@ def get_watchlist(watchlist_id):
                 "proportion": proportion,
                 "price": batch.latestPrice[company],
                 "price_change_percentage": batch.changePercent[company],
-                "volume": batch.volume[company],
+                "volume": batch.latestVolume[company],
                 "market_capitalization": batch.marketCap[company],
                 "PE_ratio": batch.peRatio[company],
             }
