@@ -22,6 +22,10 @@ from models import (
 )
 
 
+# ---------------------------------------------------------------------------- #
+#                              Global Declarations                             #
+# ---------------------------------------------------------------------------- #
+
 PORTFOLIO_NS = Namespace(
     "portfolio", "Stock Portfolio creation, publication and deletion"
 )
@@ -271,11 +275,10 @@ def get_portfolio_performance(user_id, portfolio_name):
     query_results = cur.fetchall()
     if not query_results:
         return {
-            "message": "There are no investments in a portfolio called '" + portfolio_name + "'.",
-            "data": {
-                "investments": [],
-                "portfolio_change": "N/A"
-            }
+            "message": "There are no investments in a portfolio called '"
+            + portfolio_name
+            + "'.",
+            "data": {"investments": [], "portfolio_change": "N/A"},
         }
 
     conn.close()
@@ -477,38 +480,3 @@ class Performance(Resource):
         portfolio_name = request.args.get("name")
         response = get_portfolio_performance(user_id, portfolio_name)
         return Response(dumps(response), status=200)
-
-
-############ Tests #############
-# create_portfolio('4', 'Austin\'s portfolio')
-# create_portfolio('4', 'Austi')
-# edit_portfolio('4', 'Austin\'s portfolio', 'Bob\'s portfolio')
-# delete_portfolio('4', 'Bob\'s portfolio')
-# delete_portfolio('4', 'Austi')
-# add_investment('7', 'Sally\'s portfolio', '50', 1611061200, 'BHP')
-# get_investment("2380756e-863c-11eb-af93-0a4e2d6dea13")
-# get_trending_investments('10')
-
-# print(total_stock_change("IBM", 100))
-# print(total_stock_change("BHP", 100))
-# print(total_stock_change("LIN", 100))
-# print(total_stock_change("JPM", 100))
-# print(total_stock_change("MA", 100))
-
-
-# stock = "IBM"
-# batch = Stock([stock])
-# batch = batch.get_quote()
-# print(batch.latestPrice[stock])
-# batch = pd.DataFrame(batch)
-# print(batch.loc[stock, "latestPrice"])
-# for key, value in batch.items():
-#     print(key, " : ", value)
-
-# create_portfolio("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test")
-# add TSLA, IBM
-# add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
-# add_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "ORCL")
-# dd_investment("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test", 1, time.time(), "IBM")
-# test
-# print(get_portfolio_performance("02708412-912d-11eb-a6dc-0a4e2d6dea13", "Portfolio Performance test"))
