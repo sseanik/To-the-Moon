@@ -34,8 +34,16 @@ PORTFOLIO_NS = Namespace(
 # ---------------------------------------------------------------------------- #
 
 
-# Create portfolio object in the database
 def create_portfolio(user_id, portfolio_name):
+    """Creates a portfolio with the given portfolio name.
+
+    Args:
+        user_id (uuid): user identifier.
+        portfolio_name (string): name of the new portfolio.
+
+    Returns:
+        dictionary: on success this dictionary hold a confirmation message that the portfolio has been created.
+    """    
     # Check name is within the max length
     if len(portfolio_name) >= 30:
         abort(400, "Portfolio name must be less than 30 characters.")
@@ -62,10 +70,19 @@ def create_portfolio(user_id, portfolio_name):
     return response
 
 
-# Edit portfolio (e.g. change name of portfolio) in database
-# Note: does not check whether old_portfolio_name actually exists.
-# If it does exist, it changes its name to newportfolio_name. Otherwise does noting.
+
 def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
+    """Allows user to change the name of a portfolio. Does not check whether old_portfolio_name actually exists.
+    If it does exist, it changes its name to newportfolio_name. Otherwise does noting.
+
+    Args:
+        user_id (uuid): user identifier.
+        old_portfolio_name (string): the old portfolio that is going to have its name changed.
+        new_portfolio_name (string): the portfolios new name.
+
+    Returns:
+        dictionary: on success this dictionary hold a confirmation message that the portfolio has been edited.
+    """    
     new_portfolio_name = new_portfolio_name.strip()
     # Check new name is within the max length
     if len(new_portfolio_name) >= 30:
@@ -105,10 +122,18 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
     return response
 
 
-# Delete portfolio object from the database
-# Note: this function does not check whether user_id or portfolio exists.
-# It just deletes them if they exist
+
 def delete_portfolio(user_id, portfolio_name):
+    """Deletes a given portfolio. This function does not check whether user_id or portfolio exists.
+    It just deletes them if they exist.
+
+    Args:
+        user_id (uuid): user identifier.
+        portfolio_name (string): name of the portfolio to be deleted.
+
+    Returns:
+        dictionary: on success this dictionary hold a confirmation message that the portfolio has been deleted.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     # Delete from portfolio table
@@ -127,6 +152,15 @@ def delete_portfolio(user_id, portfolio_name):
 
 ############# Investment helper functions #################
 def total_stock_change(stock_ticker, purchase_price):
+    """total stock change given a purchase price.
+
+    Args:
+        stock_ticker (string): the target stock.
+        purchase_price (float): price the stock was purchased at.
+
+    Returns:
+        float: percentage of total change.
+    """    
     # Get investment current price
     batch = Stock(stock_ticker)
     batch = batch.get_quote()
@@ -134,9 +168,20 @@ def total_stock_change(stock_ticker, purchase_price):
     return (current_price - purchase_price) * 100 / purchase_price
 
 
-# Add investments to portfolio object in database
-# Note: this assumes portfolio_name and all the other inputs are of the correct size and data type
 def add_investment(user_id, portfolio_name, num_shares, timestamp, stock_ticker):
+    """Add investments to portfolio object in database.
+    This assumes portfolio_name and all the other inputs are of the correct size and data type.
+
+    Args:
+        user_id (uuid): user identifier
+        portfolio_name (string): portfolio to add the investment to.
+        num_shares (integer): number of shares purchased
+        timestamp (date): date that the shares were purchased.
+        stock_ticker (string): company purchased.
+
+    Returns:
+        dictionary: on success this dictionary holds a confirmation message that the investment has been created.
+    """    
     # Validate date
     purchase_date = datetime.fromtimestamp(timestamp)
     if purchase_date > datetime.now():
@@ -204,10 +249,18 @@ def get_investment_tc(investment_id):
     return {"data": {"id": investment_id, "total_change": total_change}}
 
 
-# Get the 'trendiness' of each invested stock symbol
 
 
 def get_trending_investments(num):
+    """Gets the most popular stocks by the number of investors holding that stock.
+
+    Args:
+        num (integer): the number of trending investments.
+
+    Returns:
+        dictionary: dictionary holding a list of trending stocks dictionaries. These trending stocks
+        dictionaries holds the stock ticker and the number of user invested in them.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = (
