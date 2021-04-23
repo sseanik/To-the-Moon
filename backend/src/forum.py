@@ -520,15 +520,17 @@ def remove_vote_comment(user_id, comment_id, upvote=True):
     # Pick the execution query based off upvote boolean
     if upvote:
         execute_query = """
-            SELECT *, ARRAY_REMOVE(upvote_user_ids, %s)
-            FROM forum_comment
+            UPDATE forum_comment 
+            SET upvote_user_ids = ARRAY_REMOVE(upvote_user_ids, %s)
             WHERE comment_id = %s
+            RETURNING *
         """
     else:
         execute_query = """
-            SELECT *, ARRAY_REMOVE(downvote_user_ids, %s)
-            FROM forum_comment
+            UPDATE forum_comment 
+            SET downvote_user_ids = ARRAY_REMOVE(downvote_user_ids, %s)
             WHERE comment_id = %s
+            RETURNING *
         """
     try:
         cur.execute(execute_query, (user_id, comment_id))
@@ -543,7 +545,6 @@ def remove_vote_comment(user_id, comment_id, upvote=True):
         # Remove columns that contain exposed user ids
         del voted_comment["upvote_user_ids"]
         del voted_comment["downvote_user_ids"]
-        del voted_comment["array_remove"]
     # If the user attempts to vote on a deleted comment
     except psycopg2.errors.InternalError:
         conn.close()
@@ -568,15 +569,17 @@ def remove_vote_reply(user_id, comment_id, upvote=True):
     # Pick the execution query based off upvote boolean
     if upvote:
         execute_query = """
-            SELECT *, ARRAY_REMOVE(upvote_user_ids, %s)
-            FROM forum_reply
+            UPDATE forum_reply 
+            SET upvote_user_ids = ARRAY_REMOVE(upvote_user_ids, %s)
             WHERE reply_id = %s
+            RETURNING *
         """
     else:
         execute_query = """
-            SELECT *, ARRAY_REMOVE(downvote_user_ids, %s)
-            FROM forum_reply
+            UPDATE forum_reply 
+            SET downvote_user_ids = ARRAY_REMOVE(downvote_user_ids, %s)
             WHERE reply_id = %s
+            RETURNING *
         """
     try:
         cur.execute(execute_query, (user_id, comment_id))
