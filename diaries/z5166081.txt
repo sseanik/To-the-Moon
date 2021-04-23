@@ -26,7 +26,7 @@ Week 4
 
 Set up frontend with Karim.
 Worked on Login/Signup screens, including form validation and submission.
-Developed a working Header navigation bar.
+Developed a Header navigation bar.
 
 Week 5
 
@@ -56,4 +56,8 @@ Added portfolio performance to Portfolios Page to show individual performance of
 Implemented the schema for the Dashboards table and relevant API endpoints to CRUD dashboards and their blocks.
 
 Week 9
-Finalised dashboard backend and implemented frontend to display, create and delete dashboard blocks such as Portfolios, News and Stocks.
+Finalised dashboard backend and implemented frontend to display, create and delete dashboard blocks such as Portfolios.
+
+Week 10
+Furthered the support for dashboard blocks by adding Stock News and Stock Graph blocks.
+Cleaned up frontend code and resolved bugs with the team.
