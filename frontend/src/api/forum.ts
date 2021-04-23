@@ -74,23 +74,15 @@ const forumAPI = {
     };
     return Utils.getJSON(`${url}${endpoint}`, options);
   },
-  upvoteComment: (comment_id: string, reply_id?: string, remove = false) => {
-    const endpoint = `/forum/${reply_id ? "reply" : "comment"}/upvote`;
-    const options = {
-      method: remove ? "DELETE" : "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: Utils.getToken(),
-      },
-      body: JSON.stringify({
-        reply_id,
-        comment_id,
-      }),
-    };
-    return Utils.getJSON(`${url}${endpoint}`, options);
-  },
-  downvoteComment: (comment_id: string, reply_id?: string, remove = false) => {
-    const endpoint = `/forum/${reply_id ? "reply" : "comment"}/downvote`;
+  voteComment: (
+    comment_id: string,
+    reply_id?: string,
+    remove = false,
+    upvote = true
+  ) => {
+    const endpoint = `/forum/${reply_id ? "reply" : "comment"}/${
+      upvote ? "upvote" : "downvote"
+    }`;
     const options = {
       method: remove ? "DELETE" : "PUT",
       headers: {
