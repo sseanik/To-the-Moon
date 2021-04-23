@@ -116,7 +116,7 @@ def get_dashboard_blocks(dashboard_id):
     return response
 
 
-def create_dashboard_block(dashboard_id, block_type, meta):
+def create_dashboard_block(dashboard_id, user_id, block_type, meta):
     conn = create_DB_connection()
     cur = conn.cursor()
 
@@ -149,7 +149,12 @@ def create_dashboard_block(dashboard_id, block_type, meta):
     )
     values = ()
     for col in cols:
-        values += (block_type,) if col == "type" else (meta[col],)
+        if col == "type":
+            values += (block_type,)
+        elif col == "user_id":
+            values += (user_id,)
+        else:
+            values += (meta[col],)
 
     try:
         cur.execute(sql_query, values)
@@ -184,8 +189,10 @@ def create_dashboard_block(dashboard_id, block_type, meta):
 def get_block(block_id):
     conn = create_DB_connection()
     cur = conn.cursor()
+
+    # Get the type of the block
     sql_query = """
-        SELECT * FROM dashboard_blocks
+        SELECT type FROM dashboard_blocks
         WHERE id=%s
     """
     try:
@@ -196,7 +203,7 @@ def get_block(block_id):
     except:
         conn.close()
         abort(500, "Error occurred while retrieving from store")
-    block_type = query_results[0][1]
+    block_type = query_results[0][0]
     table = TYPE_TABLE_MAPPING[block_type]
 
     # Get the meta columns of the block table corresponding to the block type
@@ -213,7 +220,7 @@ def get_block(block_id):
 
     cols = []
     for result in query_results:
-        if result[0] != "id" and result[0] != "type":
+        if result[0] != "id" and result[0] != "type" and result[0] != "user_id":
             cols.append(result[0])
 
     # Get the metadata
@@ -336,12 +343,18 @@ class UserDashboard(Resource):
     @DASHBOARD_NS.doc(
         description="Create a new dashboard block. Currently supported types are portfolio, news and stock."
     )
-    @DASHBOARD_NS.expect(create_dashboard_block_model(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.expect(
+        token_parser(DASHBOARD_NS),
+        create_dashboard_block_model(DASHBOARD_NS),
+        validate=True,
+    )
     @DASHBOARD_NS.response(201, "Successfully created dashboard block")
     @DASHBOARD_NS.response(400, "Invalid data was provided")
     def post(self, id):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
         data = request.get_json()
-        response = create_dashboard_block(id, data["type"], data["meta"])
+        response = create_dashboard_block(id, user_id, data["type"], data["meta"])
         return Response(dumps(response), status=201)
 
     @DASHBOARD_NS.doc(description="Remove a dashboard")

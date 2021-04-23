@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS dashboard_blocks (
     id UUID NOT NULL DEFAULT UUID_GENERATE_V1() PRIMARY KEY,
+    user_id UUID NOT NULL UNIQUE REFERENCES users(id),
     type VARCHAR(20)
 );
 
