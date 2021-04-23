@@ -430,7 +430,6 @@ def get_stock_comments(user_id, stock_ticker):
             del query_results[i]["replies"][j]["upvote_user_ids"]
             del query_results[i]["replies"][j]["downvote_user_ids"]
 
-    # TODO: Sort Weighting
     query_results = sort_stock_comments(query_results)
 
     return {"message": "Comments Successfully Fetched", "comments": query_results}

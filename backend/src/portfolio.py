@@ -8,7 +8,6 @@ from flask import request, Response
 from flask_restx import Namespace, Resource, abort
 from database import create_DB_connection
 from token_util import get_id_from_token
-from helpers import TimeSeries
 from stock import retrieve_stock_price_at_date
 from iexfinance.stocks import Stock
 from models import (
