@@ -15,6 +15,10 @@ interface StateProps {
   childUpvoting: string[];
   parentDownvoting: string[];
   childDownvoting: string[];
+  parentUpvoteRemoving: string[];
+  childUpvoteRemoving: string[];
+  parentDownvoteRemoving: string[];
+  childDownvoteRemoving: string[];
 }
 
 interface DispatchProps {
@@ -36,6 +40,10 @@ const UpvoteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
     childUpvoting,
     parentDownvoting,
     childDownvoting,
+    parentUpvoteRemoving,
+    childUpvoteRemoving,
+    parentDownvoteRemoving,
+    childDownvoteRemoving,
     upvoteParent,
     upvoteChild,
     commentID,
@@ -51,12 +59,17 @@ const UpvoteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
           ? upvoteChild({ commentID, parentID }, isUpvoted)
           : upvoteParent({ commentID }, isUpvoted);
       }}
-      disabled={
-        parentUpvoting.includes(commentID) ||
-        childUpvoting.includes(commentID) ||
-        parentDownvoting.includes(commentID) ||
-        childDownvoting.includes(commentID)
-      }
+      disabled={parentUpvoting
+        .concat(
+          childUpvoting,
+          parentDownvoting,
+          childDownvoting,
+          parentUpvoteRemoving,
+          childUpvoteRemoving,
+          parentDownvoteRemoving,
+          childDownvoteRemoving
+        )
+        .includes(commentID)}
     >
       <FontAwesomeIcon icon={faThumbsUp} />
     </Button>
@@ -68,6 +81,10 @@ const mapStateToProps = (state: any) => ({
   childUpvoting: state.forumReducer.upvoteChild.upvoting,
   parentDownvoting: state.forumReducer.downvoteParent.downvoting,
   childDownvoting: state.forumReducer.downvoteChild.downvoting,
+  parentUpvoteRemoving: state.forumReducer.removeUpvoteParent.removing,
+  childUpvoteRemoving: state.forumReducer.removeUpvoteChild.removing,
+  parentDownvoteRemoving: state.forumReducer.removeDownvoteParent.removing,
+  childDownvoteRemoving: state.forumReducer.removeDownvoteChild.removing,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => {

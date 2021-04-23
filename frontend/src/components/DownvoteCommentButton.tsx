@@ -15,6 +15,10 @@ interface StateProps {
   childDownvoting: string[];
   parentUpvoting: string[];
   childUpvoting: string[];
+  parentUpvoteRemoving: string[];
+  childUpvoteRemoving: string[];
+  parentDownvoteRemoving: string[];
+  childDownvoteRemoving: string[];
 }
 
 interface DispatchProps {
@@ -36,6 +40,10 @@ const DeleteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
     childDownvoting,
     parentUpvoting,
     childUpvoting,
+    parentUpvoteRemoving,
+    childUpvoteRemoving,
+    parentDownvoteRemoving,
+    childDownvoteRemoving,
     downvoteParent,
     downvoteChild,
     commentID,
@@ -51,12 +59,17 @@ const DeleteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
           ? downvoteChild({ commentID, parentID }, isDownvoted)
           : downvoteParent({ commentID }, isDownvoted);
       }}
-      disabled={
-        parentDownvoting.includes(commentID) ||
-        childDownvoting.includes(commentID) ||
-        parentUpvoting.includes(commentID) ||
-        childUpvoting.includes(commentID)
-      }
+      disabled={parentUpvoting
+        .concat(
+          childUpvoting,
+          parentDownvoting,
+          childDownvoting,
+          parentUpvoteRemoving,
+          childUpvoteRemoving,
+          parentDownvoteRemoving,
+          childDownvoteRemoving
+        )
+        .includes(commentID)}
     >
       <FontAwesomeIcon icon={faThumbsDown} />
     </Button>
@@ -68,6 +81,10 @@ const mapStateToProps = (state: any) => ({
   childDownvoting: state.forumReducer.downvoteChild.downvoting,
   parentUpvoting: state.forumReducer.upvoteParent.upvoting,
   childUpvoting: state.forumReducer.upvoteChild.upvoting,
+  parentUpvoteRemoving: state.forumReducer.removeUpvoteParent.removing,
+  childUpvoteRemoving: state.forumReducer.removeUpvoteChild.removing,
+  parentDownvoteRemoving: state.forumReducer.removeDownvoteParent.removing,
+  childDownvoteRemoving: state.forumReducer.removeDownvoteChild.removing,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
