@@ -2,7 +2,7 @@ import { Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import screenerActions from "../redux/actions/screenerActions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSignInAlt } from "@fortawesome/free-solid-svg-icons";
+import { faInfo } from "@fortawesome/free-solid-svg-icons";
 
 import {
   ScreenerQuery,
@@ -42,7 +42,7 @@ const LoadScreenerParamsButton: React.FC<StateProps & DispatchProps & Props> = (
           getScreenerResults({ parameters });
         }}
       >
-        <FontAwesomeIcon icon={faSignInAlt} />
+        <FontAwesomeIcon icon={faInfo} />
       </Button>
     </Container>
   );
