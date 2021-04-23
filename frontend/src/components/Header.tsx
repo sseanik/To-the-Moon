@@ -1,4 +1,4 @@
-import { Navbar, Nav, Button, Image } from "react-bootstrap";
+import { Navbar, Nav, NavDropdown, Button, Image } from "react-bootstrap";
 import { connect } from "react-redux";
 import { useHistory } from "react-router-dom";
 import userActions from "../redux/actions/userActions";
@@ -24,14 +24,17 @@ const privateNavBarLinks: Array<LinkItem> = [
   { href: "/", name: "Home" },
   { href: "/dashboard", name: "Dashboard" },
   { href: "/portfolios", name: "My Portfolios" },
-  { href: "/stock", name: "Stocks" },
-  { href: "/watchlists", name: "Watchlists" },
-  { href: "/screeners", name: "Screeners" },
 ];
 
 const publicNavBarLinks: Array<LinkItem> = [
   { href: "/signup", name: "Sign up" },
   { href: "/login", name: "Login" },
+];
+
+const dropdownNavLinks: Array<LinkItem> = [
+  { href: "/stock", name: "Stocks" },
+  { href: "/watchlists", name: "Watchlists" },
+  { href: "/screeners", name: "Screeners" },
 ];
 
 interface StateProps {
@@ -68,6 +71,13 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
             {link.name}
           </Nav.Link>
         ))}
+        <NavDropdown title="More" id="basic-nav-dropdown">
+          {dropdownNavLinks.map((link, idx) => (
+            <NavDropdown.Item key={idx} eventKey={link.href}>
+              {link.name}
+            </NavDropdown.Item>
+          ))}
+        </NavDropdown>
       </Nav>
     </Navbar.Collapse>
   );
