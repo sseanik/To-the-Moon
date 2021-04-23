@@ -261,74 +261,90 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         <h1>{stockNameText}</h1>
         {loadingSpinnerComponent}
       </Row>
-      <Row className="justify-content-center align-items-center">
-        <Col>
-          <Container>
-            <Tabs
-              className="justify-content-center mt-2"
-              defaultActiveKey="summary"
-              id="sec-view-info-selector"
-            >
-              <Tab eventKey="summary" title="Summary" className="bg-dark">
-                <DataSummary />
-              </Tab>
-              <Tab eventKey="statistics" title="Statistics" className="bg-dark">
-                <DataFundamentals />
-              </Tab>
-              <Tab eventKey="financials" title="Financials" className="bg-dark">
-                <Tabs
-                  className="justify-content-center mt-2"
-                  defaultActiveKey="incomestatement"
-                  id="sec-view-financials"
+      {!loading && !company ? (
+        <h5>
+          To The Moon doesn't currently support this stock yet! You can still
+          discuss it below, or view your notes related to it.
+        </h5>
+      ) : (
+        <Row className="justify-content-center align-items-center">
+          <Col>
+            <Container>
+              <Tabs
+                className="justify-content-center mt-2"
+                defaultActiveKey="summary"
+                id="sec-view-info-selector"
+              >
+                <Tab eventKey="summary" title="Summary" className="bg-dark">
+                  <DataSummary />
+                </Tab>
+                <Tab
+                  eventKey="statistics"
+                  title="Statistics"
+                  className="bg-dark"
                 >
-                  <Tab
-                    eventKey="incomestatement"
-                    title="Income Statement"
-                    className="bg-dark"
+                  <DataFundamentals />
+                </Tab>
+                <Tab
+                  eventKey="financials"
+                  title="Financials"
+                  className="bg-dark"
+                >
+                  <Tabs
+                    className="justify-content-center mt-2"
+                    defaultActiveKey="incomestatement"
+                    id="sec-view-financials"
                   >
-                    <DataIncomeStatement symbol={symbol} />
-                  </Tab>
-                  <Tab
-                    eventKey="balancesheet"
-                    title="Balance Sheet"
-                    className="bg-dark"
-                  >
-                    <DataBalanceSheet symbol={symbol} />
-                  </Tab>
-                  <Tab
-                    eventKey="cashflow"
-                    title="Cash Flow Statement"
-                    className="bg-dark"
-                  >
-                    <DataCashFlow symbol={symbol} />
-                  </Tab>
-                </Tabs>
-              </Tab>
-              <Tab
-                eventKey="prediction"
-                title="Market Prediction"
-                className="bg-dark"
-              >
-                <PredictionController
-                  symbol={symbol}
-                  durChoice={durChoice}
-                  setdurChoice={setdurChoice}
-                  preChoice={preChoice}
-                  setPreChoice={setPreChoice}
-                />
-              </Tab>
-              <Tab
-                eventKey="paperTrading"
-                title="Paper Trading"
-                className="bg-dark"
-              >
-                <PaperTradeController symbol={symbol} />
-              </Tab>
-            </Tabs>
-          </Container>
-        </Col>
-        <Col>{loading ? loadingSpinnerComponent : graphComponent}</Col>
-      </Row>
+                    <Tab
+                      eventKey="incomestatement"
+                      title="Income Statement"
+                      className="bg-dark"
+                    >
+                      <DataIncomeStatement symbol={symbol} />
+                    </Tab>
+                    <Tab
+                      eventKey="balancesheet"
+                      title="Balance Sheet"
+                      className="bg-dark"
+                    >
+                      <DataBalanceSheet symbol={symbol} />
+                    </Tab>
+                    <Tab
+                      eventKey="cashflow"
+                      title="Cash Flow Statement"
+                      className="bg-dark"
+                    >
+                      <DataCashFlow symbol={symbol} />
+                    </Tab>
+                  </Tabs>
+                </Tab>
+                <Tab
+                  eventKey="prediction"
+                  title="Market Prediction"
+                  className="bg-dark"
+                >
+                  <PredictionController
+                    symbol={symbol}
+                    durChoice={durChoice}
+                    setdurChoice={setdurChoice}
+                    preChoice={preChoice}
+                    setPreChoice={setPreChoice}
+                  />
+                </Tab>
+                <Tab
+                  eventKey="paperTrading"
+                  title="Paper Trading"
+                  className="bg-dark"
+                >
+                  <PaperTradeController symbol={symbol} />
+                </Tab>
+              </Tabs>
+            </Container>
+          </Col>
+          <Col>{loading ? loadingSpinnerComponent : graphComponent}</Col>
+        </Row>
+      )}
+
       <Row>
         <Container>
           <Tabs className="justify-content-center mt-2" defaultActiveKey="news">
@@ -338,11 +354,13 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
               </Row>
               <StockNews stock={symbol} />
             </Tab>
-            <Tab eventKey="forum" title="Forum">
-              <Row className="justify-content-start my-2">
-                <Forum stockTicker={symbol} />
-              </Row>
-            </Tab>
+            {company ? (
+              <Tab eventKey="forum" title="Forum">
+                <Row className="justify-content-start my-2">
+                  <Forum stockTicker={symbol} />
+                </Row>
+              </Tab>
+            ) : null}
             <Tab eventKey="notes" title="Relevant Notes">
               <Row>
                 <NoteRelevant stock={[symbol]} />
