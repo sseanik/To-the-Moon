@@ -4,7 +4,7 @@
 
 ### Setup
 
-Backend and Frontend compile scripts exist in the root directory of our code. The Prediction Model and Backtesting Services can be run **either** using Docker or Flask.
+Backend and Frontend compile scripts exist in the root directory of our code. The Prediction Model and Backtesting Services can be run **either** using Docker or Flask. If Docker setup/running does not work, please try running the Prediction and Backtesting Services as Web Servers directly.
 
 #### Backend & Frontend
 1. Ensure you have python3 version >= 3.7.4 and pip3. Download the appropriate version, if needed, here: https://www.python.org/downloads/ and https://pip.pypa.io/en/stable/installing/ 
@@ -21,7 +21,6 @@ Backend and Frontend compile scripts exist in the root directory of our code. Th
 2. Download the docker images for the two services:
 - Prediction https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EczkCySKX_tLpcQTAO3o2YkBXn8ovaOdzwiJLRbMO_dAxA?e=7lj7Pl
 - Backtrading https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EaSEggHd90JKuGKusyYq80gBoAZIz2HiAzJLmSJJR0qikQ?e=Rk70g2 .
-4. Run `docker load < caps_prediction.tar.gz` and `docker load < backtrading.tar.gz` to load the images. Make sure you are using the relative path to the images.
 
 #### Prediction Model & Backtesting Services - as Web Server
 1. Ensure you have python3 version >= 3.7.4 and pip3. Download the appropriate version, if needed, here: https://www.python.org/downloads/ and https://pip.pypa.io/en/stable/installing/ 
@@ -38,7 +37,11 @@ Backend and Frontend compile scripts exist in the root directory of our code. Th
 2. Visit http://localhost:3000 to start using To The Moon.
 
 #### Prediction Model & Backtesting Services - with Docker
-1. Run `docker run -p 3001:5000 -it caps_prediction` to start the prediction model.
+In separate terminals:
+1. Run `docker load < caps_prediction.tar.gz` to load the image. Make sure you are using the relative path to the image.
+2. Run `docker run -p 3001:5000 -it caps_prediction_lstm` to start the prediction model.
+
+1. Run `docker load < backtrading.tar.gz` to load the image. Make sure you are using the relative path to the image.
 2. Run `docker run -p 3002:5000 -it backtrading` to start the backtrader.
 
 #### Prediction Model & Backtesting Services - as Web Server
