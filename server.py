@@ -24,10 +24,12 @@ from user import USER_NS
 from watchlist import WATCHLIST_NS
 from dashboard import DASHBOARD_NS
 
+
 # Create a custom Flask class to allow for initial thread
 class MyFlaskApp(Flask):
     def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
-        if not self.debug or os.getenv("WERKZEUG_RUN_MAIN") == "true":
+        # Only run the thread when the Flask App is running
+        if os.getenv("WERKZEUG_RUN_MAIN") == "true":
             # Create the Portfolio/News notification thread
             with self.app_context():
                 Thread(
@@ -72,7 +74,6 @@ MAIL_SETTINGS = {
 APP.config.update(MAIL_SETTINGS)
 MAIL = Mail(APP)
 APP.MAIL = MAIL
-
 
 ###################################
 # Please leave all functions here #
