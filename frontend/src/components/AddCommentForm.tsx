@@ -29,8 +29,8 @@ interface Props {
 
 const schema = Yup.object({
   content: Yup.string()
-    .required("Reply content is required.")
-    .max(5000, "Reply cannot exceed 5000 characters"),
+    .required("Content is required.")
+    .max(5000, "Content cannot exceed 5000 characters"),
 });
 
 const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
