@@ -1,6 +1,7 @@
-#######################
-#   Screener Module   #
-#######################
+# ---------------------------------------------------------------------------- #
+#                                Screener Module                               #
+# ---------------------------------------------------------------------------- #
+
 import time
 from flask import Blueprint, request, Response
 from json import dumps, loads
@@ -15,29 +16,37 @@ from better_profanity import profanity
 import psycopg2.extras
 from iexfinance.stocks import Stock
 
-
 from werkzeug.datastructures import ImmutableMultiDict
 from flask_restx import Namespace, Resource, abort
-from models import screeners_post_delete_data_parser, screeners_get_apply_screener_parser
+from models import (
+    screeners_post_delete_data_parser,
+    screeners_get_apply_screener_parser,
+)
 
-SCREENER_NS = Namespace("screener", "Search parameters for companies and stock offerings")
+# ---------------------------------------------------------------------------- #
+#                              GLOBAL DECLARATIONS                             #
+# ---------------------------------------------------------------------------- #
+
+SCREENER_NS = Namespace(
+    "screener", "Search parameters for companies and stock offerings"
+)
 
 
-###################################
-# Please leave all functions here #
-###################################
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 
 def screener_save(screener_name, user_id, parameters):
     """Save screeners by screener name and screener search parameters in string format.
-        Args:
-            screener_name (str): the name used to identify the screener.
-            user_id (str): unique user identifier from authentication system (string token).
-        Return (normal):
-            result (dict):
-                message (str): success message.
-        Return (error):
-            error (str): error message.
+    Args:
+        screener_name (str): the name used to identify the screener.
+        user_id (str): unique user identifier from authentication system (string token).
+    Return (normal):
+        result (dict):
+            message (str): success message.
+    Return (error):
+        error (str): error message.
     """
     if len(screener_name) > 30:
         abort(400, "Screener name cannot be more than 30 characters. Try a new name.")
@@ -70,16 +79,16 @@ def screener_save(screener_name, user_id, parameters):
 
 def screener_load_all(user_id):
     """Load all screeners created by and registered under user.
-        Args:
-            user_id (str): unique user identifier from authentication system (string token).
-        Return (normal):
-            result (dict):
-                message (str): success message.
-                data (list<dict>):
-                    name (str): Screener name.
-                    params (str): Screener parameters (serialised).
-        Return (error):
-            error (str): error message.
+    Args:
+        user_id (str): unique user identifier from authentication system (string token).
+    Return (normal):
+        result (dict):
+            message (str): success message.
+            data (list<dict>):
+                name (str): Screener name.
+                params (str): Screener parameters (serialised).
+    Return (error):
+        error (str): error message.
     """
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -88,7 +97,12 @@ def screener_load_all(user_id):
         cur.execute(sql_query, (user_id,))
         response = cur.fetchall()
         if not response:
-            rtrn = {"message" : "User with user_id '" + str(user_id) + "' does not have any screeners.", "data" : []}
+            rtrn = {
+                "message": "User with user_id '"
+                + str(user_id)
+                + "' does not have any screeners.",
+                "data": [],
+            }
         else:
             data = []
             for row in response:
@@ -104,14 +118,14 @@ def screener_load_all(user_id):
 
 def screener_delete(screener_name, user_id):
     """Delete screener by screener name.
-        Args:
-            screener_name (str): the name used to identify the screener.
-            user_id (str): unique user identifier from authentication system (string token).
-        Return (normal):
-            result (dict):
-                message (str): success message.
-        Return (error):
-            error (str): error message.
+    Args:
+        screener_name (str): the name used to identify the screener.
+        user_id (str): unique user identifier from authentication system (string token).
+    Return (normal):
+        result (dict):
+            message (str): success message.
+    Return (error):
+        error (str): error message.
     """
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -126,15 +140,15 @@ def screener_delete(screener_name, user_id):
 
 def screener_edit_parameters(screener_name, user_id, parameters):
     """Edit screener by name if it exists in the database.
-        Args:
-            screener_name (str): the name used to identify the screener.
-            user_id (str): unique user identifier from authentication system (string token).
-            parameters (str): Screener parameters (serialised).
-        Return (normal):
-            result (dict):
-                message (str): success message.
-        Return (error):
-            error (str): error message.
+    Args:
+        screener_name (str): the name used to identify the screener.
+        user_id (str): unique user identifier from authentication system (string token).
+        parameters (str): Screener parameters (serialised).
+    Return (normal):
+        result (dict):
+            message (str): success message.
+    Return (error):
+        error (str): error message.
     """
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -156,30 +170,30 @@ def screener_edit_parameters(screener_name, user_id, parameters):
 
 def screen_stocks(parameters):
     """Edit screener by name if it exists in the database.
-        Args:
-            parameters (dict): Screener parameters.
-                exchange (list): List of stock exchanges to query.
-                market_cap (list): Min-max range of company market capitalisation.
-                yearly_low (int/float): Intraday low for past 52 week stock price history.
-                yearly_high (int/float): Intraday high for past 52 week stock price history.
-                eps (list): Min-max range of company earnings per share ratio (EPS).
-                beta (list): Min-max range of company beta ratio.
-                payout ratio (list): Min-max range of company payout ratio.
-                sector (list): List of market sectors to query.
-                industry (list): List of industries to query.
-        Return (normal):
-            result (dict):
-                message (str): success message.
-                data (list<dict>):
-                    "stock ticker": Company stock symbol.
-                    "price": Current intraday (close) price.
-                    "price change": Change in price since last trading day.
-                    "price change percentage": Change in price since last trading day (percentage).
-                    "volume": Volume of shares traded in last trading day.
-                    "market capitalization": Company market capitalisation.
-                    "PE ratio": Company Price/Earnings ratio.
-        Return (error):
-            error (str): error message.
+    Args:
+        parameters (dict): Screener parameters.
+            exchange (list): List of stock exchanges to query.
+            market_cap (list): Min-max range of company market capitalisation.
+            yearly_low (int/float): Intraday low for past 52 week stock price history.
+            yearly_high (int/float): Intraday high for past 52 week stock price history.
+            eps (list): Min-max range of company earnings per share ratio (EPS).
+            beta (list): Min-max range of company beta ratio.
+            payout ratio (list): Min-max range of company payout ratio.
+            sector (list): List of market sectors to query.
+            industry (list): List of industries to query.
+    Return (normal):
+        result (dict):
+            message (str): success message.
+            data (list<dict>):
+                "stock ticker": Company stock symbol.
+                "price": Current intraday (close) price.
+                "price change": Change in price since last trading day.
+                "price change percentage": Change in price since last trading day (percentage).
+                "volume": Volume of shares traded in last trading day.
+                "market capitalization": Company market capitalisation.
+                "PE ratio": Company Price/Earnings ratio.
+    Return (error):
+        error (str): error message.
     """
     if not isinstance(parameters, dict):
         abort(400, "Parameters must be a dictionary.")
@@ -251,22 +265,23 @@ def screen_stocks(parameters):
     conn.close()
     return data
 
+
 def make_params_object(args):
     """Edit screener by name if it exists in the database.
-        Args:
-            args (werkzeug.datastructures.ImmutableMultiDict):
-                Screener parameters as URL args.
-        Return (normal):
-            result (dict):
-                exchange (list): List of stock exchanges to query.
-                market_cap (list): Min-max range of company market capitalisation.
-                yearly_low (int/float): Intraday low for past 52 week stock price history.
-                yearly_high (int/float): Intraday high for past 52 week stock price history.
-                eps (list): Min-max range of company earnings per share ratio (EPS).
-                beta (list): Min-max range of company beta ratio.
-                payout ratio (list): Min-max range of company payout ratio.
-                sector (list): List of market sectors to query.
-                industry (list): List of industries to query.
+    Args:
+        args (werkzeug.datastructures.ImmutableMultiDict):
+            Screener parameters as URL args.
+    Return (normal):
+        result (dict):
+            exchange (list): List of stock exchanges to query.
+            market_cap (list): Min-max range of company market capitalisation.
+            yearly_low (int/float): Intraday low for past 52 week stock price history.
+            yearly_high (int/float): Intraday high for past 52 week stock price history.
+            eps (list): Min-max range of company earnings per share ratio (EPS).
+            beta (list): Min-max range of company beta ratio.
+            payout ratio (list): Min-max range of company payout ratio.
+            sector (list): List of market sectors to query.
+            industry (list): List of industries to query.
     """
     result = {}
 
@@ -276,7 +291,9 @@ def make_params_object(args):
         market_cap[0] = float(market_cap[0]) if market_cap[0] else None
         market_cap[1] = float(market_cap[1]) if market_cap[1] else None
         yearly_low = float(args.get("yearly_low")) if args.get("yearly_low") else None
-        yearly_high = float(args.get("yearly_high")) if args.get("yearly_high") else None
+        yearly_high = (
+            float(args.get("yearly_high")) if args.get("yearly_high") else None
+        )
         eps = args.getlist("eps")[0:2]
         beta = args.getlist("beta")[0:2]
         payout_ratio = args.getlist("payout_ratio")[0:2]
@@ -307,14 +324,17 @@ def make_params_object(args):
         result = {"securities_overviews": {}}
     return result
 
-################################
-# Please leave all routes here #
-################################
+
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
 
 @SCREENER_NS.route("")
 class ScreenerApply(Resource):
-    @SCREENER_NS.doc(description="Apply screener parameters to query database and return list of matching companies. ")
+    @SCREENER_NS.doc(
+        description="Apply screener parameters to query database and return list of matching companies. "
+    )
     @SCREENER_NS.response(200, "Successfully fetched screener information")
     @SCREENER_NS.response(400, "Screener apply failed")
     @SCREENER_NS.response(404, "Screener API Not Available")
@@ -324,6 +344,7 @@ class ScreenerApply(Resource):
         parameters = make_params_object(screener_args)
         result = screen_stocks(parameters)
         return Response(dumps(result), status=200)
+
 
 @SCREENER_NS.route("/save")
 class ScreenerSave(Resource):
@@ -364,27 +385,3 @@ class Load(Resource):
         user_id = get_id_from_token(token)
         result = screener_load_all(user_id)
         return Response(dumps(result), status=200)
-
-test1 = {
-    "securities_overviews": {
-        "eps": (4, None),
-        "beta": (1, 3),
-        "payout_ratio": (None, 0.3),
-    }
-}
-# print(screener_save("new test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test1))
-# print(screener_save("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test1))
-# print(screener_load("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13"))
-# print(screener_delete("new test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13"))
-test2 = {
-    "securities_overviews": {
-        "eps": (4, 8),
-        "beta": (1, None),
-        "payout_ratio": (None, 0.3),
-    }
-}
-# print(screener_save("another test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test2))
-# print(screener_edit_parameters("test screener", "02708412-912d-11eb-a6dc-0a4e2d6dea13", test2))
-# print(screener_load_all("02708412-912d-11eb-a6dc-0a4e2d6dea13"))
-
-# print(screen_stocks(test))
