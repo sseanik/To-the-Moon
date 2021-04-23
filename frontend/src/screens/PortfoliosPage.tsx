@@ -1,9 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { CreatePortfolioForm } from "../components";
+import { CreatePortfolioForm, PortfolioInfo } from "../components";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Container, Row, Col } from "react-bootstrap";
-import PortfolioInfo from "../components/PortfolioInfo";
 import portfolioActions from "../redux/actions/portfolioActions";
 
 interface StateProps {
@@ -29,6 +28,9 @@ const PortfoliosPage: React.FC<StateProps & DispatchProps> = (props) => {
       </Row>
       <Row className="justify-content-center my-3">
         <CreatePortfolioForm />
+      </Row>
+      <Row className="justify-content-center mt-5">
+        <h5>Current Portfolios:</h5>
       </Row>
       <Row className="my-2 justify-content-center">
         {loading ? (

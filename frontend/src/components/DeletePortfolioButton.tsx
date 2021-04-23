@@ -1,4 +1,4 @@
-import { Alert, Button, Container } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { connect } from "react-redux";
 import portfolioActions from "../redux/actions/portfolioActions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,7 +13,6 @@ interface Props {
 }
 
 interface StateProps {
-  error: Object;
   deleting: Array<string>;
 }
 
@@ -24,11 +23,10 @@ interface DispatchProps {
 const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
   props
 ) => {
-  const { error, deleting, deletePortfolio, portfolioName } = props;
+  const { deleting, deletePortfolio, portfolioName } = props;
 
   return (
     <Container fluid className="deleteButton">
-      {error ? <Alert variant="danger">{error}</Alert> : null}
       <Button
         className="portfolio-controls"
         variant="danger"
@@ -42,7 +40,6 @@ const DeletePortfolioButton: React.FC<StateProps & DispatchProps & Props> = (
 };
 
 const mapStateToProps = (state: any) => ({
-  error: state.portfolioReducer.deletePortfolio.error,
   deleting: state.portfolioReducer.deletePortfolio.deleting,
 });
 

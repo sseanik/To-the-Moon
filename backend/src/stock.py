@@ -33,6 +33,21 @@ from models import stock_get_data_parser, stock_get_prediction_parser, stock_get
 
 # from definitions import local_storage_dir
 
+class StockPriceData:
+    def __init__(self):
+        self.daily = pd.DataFrame({})
+        self.daily_metadata = {}
+        self.daily_filename = ""
+        self.intraday = pd.DataFrame({})
+        self.intraday_metadata = {}
+        self.intraday_filename = ""
+
+def dict_to_pd_df(target):
+    result = pd.DataFrame.from_dict(target, orient="index").astype("float")
+    result = result.reindex(index=result.index[::-1])
+    result.index = pd.to_datetime(result.index)
+    return result
+
 MODELSRVURL = os.getenv("MODELSRVURL")
 MODELSRVPORT = os.getenv("MODELSRVPORT")
 BACKTRSRVURL = os.getenv("BACKTRSRVURL")
@@ -49,6 +64,8 @@ DEC2FLOAT = psycopg2.extensions.new_type(
 psycopg2.extensions.register_type(DEC2FLOAT)
 
 local_tz = pytz.timezone("Australia/Sydney")
+
+stock_price_data = StockPriceData()
 
 ###################################
 # Please leave all functions here #
@@ -68,7 +85,16 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
     filename = (
         get_local_storage_filepath(symbol + "_" + data_type + ".json") if symbol else ""
     )
-    if not os.path.isfile(filename):
+    stockmetadata = None
+    if data_type == "intraday" and not stock_price_data.intraday_metadata:
+        stockmetadata = stock_price_data.intraday_metadata
+    elif data_type == "daily_adjusted" and \
+        not stock_price_data.daily_metadata:
+        stockmetadata = stock_price_data.daily_metadata
+    elif os.path.isfile(filename):
+        _, stockmetadata = JSONLoader.load_json(filename)
+
+    if not stockmetadata:
         return True
     else:
         _, stockmetadata = JSONLoader.load_json(filename)
@@ -116,6 +142,7 @@ def retrieve_stock_data(symbol, data_type="daily_adjusted"):
             filename (str): name of file.
             data_type (str): time series interval offered by AlphaVantage (daily_adjusted, intraday).
     """
+    new_data, new_metadata = None, None
     try:
         ts = TimeSeries(key=AlphaVantageInfo.api_key)
         new_data, new_metadata = (
@@ -123,9 +150,24 @@ def retrieve_stock_data(symbol, data_type="daily_adjusted"):
             if data_type == "intraday"
             else ts.get_daily_adjusted(symbol, outputsize="full")
         )
-        JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
+        if data_type == "intraday":
+            stock_price_data.intraday = dict_to_pd_df(new_data)
+            stock_price_data.intraday_extended = new_metadata
+        else:
+            stock_price_data.daily = dict_to_pd_df(new_data)
+            stock_price_data.daily_metadata = new_metadata
     except ValueError as e:
-        print(f"Error encountered: {e}", file=sys.stderr)
+        print(f"Error encountered while fetching data: {e}", file=sys.stderr)
+
+    try:
+        save_filename = \
+        JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
+        if data_type == "intraday":
+            stock_price_data.intraday_filename = save_filename
+        else:
+            stock_price_data.daily_filename = save_filename
+    except Exception as e:
+        print(f"Error encountered while saving: {e}", file=sys.stderr)
 
 
 def retrieve_stock_price_at_date(symbol, purchase_date):
@@ -168,8 +210,8 @@ def retrieve_stock_price_at_date(symbol, purchase_date):
 
 
 def get_stock_value(filename, data_type="daily_adjusted"):
-    """Loads data for stock symbol. In future this will be from a DB or the API, for now this loads from file
-    so use the data's JSON filename instead
+    """Loads data for stock symbol from file
+    given the data's JSON filename instead
         Args:
             filename (str): name of file.
             data_type (str): time series interval offered by AlphaVantage (daily_adjusted, intraday).
@@ -179,9 +221,7 @@ def get_stock_value(filename, data_type="daily_adjusted"):
     """
     stockdata, stockmetadata = JSONLoader.load_json(filename)
 
-    result = pd.DataFrame.from_dict(stockdata, orient="index").astype("float")
-    result = result.reindex(index=result.index[::-1])
-    result.index = pd.to_datetime(result.index)
+    result = dict_to_pd_df(stockdata)
     return result, stockmetadata
 
 
@@ -388,35 +428,42 @@ class Stock(Resource):
         funds = get_fundamentals(symbol)
 
         if funds:
-            sample_df = {}
+            daily_df = {}
             sample_metadata = {}
             summary = {}
-            # TODO: Check that file exists
+            # Update data if needed, load locally or from storage if available
             if update_stock_required(symbol, data_type="daily_adjusted"):
                 retrieve_stock_data(symbol, data_type="daily_adjusted")
-            filename = (
-                get_local_storage_filepath(symbol + "_daily_adjusted" + ".json")
-                if symbol
-                else ""
-            )
-            if os.path.isfile(filename):
-                sample_df, sample_metadata = get_stock_value(filename)
-                summary = calculate_summary(sample_df)
+            if not stock_price_data.daily.empty:
+                daily_df, sample_metadata = (stock_price_data.daily,
+                    stock_price_data.daily_metadata)
+            elif os.path.isfile(symbol + "_daily_adjusted" + ".json"):
+                filename = (
+                    get_local_storage_filepath(symbol +
+                    "_daily_adjusted" + ".json") if symbol
+                    else ""
+                )
+                daily_df, sample_metadata = get_stock_value(filename)
 
+            summary = calculate_summary(daily_df)
+
+            intraday = {}
             if update_stock_required(symbol, data_type="intraday"):
                 retrieve_stock_data(symbol, data_type="intraday")
-            intr_filename = (
-                get_local_storage_filepath(symbol + "_intraday" + ".json")
-                if symbol
-                else ""
-            )
-            intraday = {}
-            if os.path.isfile(intr_filename):
-                intraday, _ = get_stock_value(intr_filename)
+            if not stock_price_data.intraday.empty:
+                intraday, _ = (stock_price_data.intraday,
+                    stock_price_data.intraday_metadata)
+            elif os.path.isfile(symbol + "_intraday" + ".json"):
+                intr_filename = (
+                    get_local_storage_filepath(symbol + "_intraday" + ".json")
+                    if symbol
+                    else ""
+                )
+                intraday, _ = get_stock_value(filename)
 
-            sample_data_close = convert_to_opairs(sample_df, label="4. close")
-            sample_data_high = convert_to_opairs(sample_df, label="2. high")
-            sample_data_low = convert_to_opairs(sample_df, label="3. low")
+            sample_data_close = convert_to_opairs(daily_df, label="4. close")
+            sample_data_high = convert_to_opairs(daily_df, label="2. high")
+            sample_data_low = convert_to_opairs(daily_df, label="3. low")
 
             intr_data_close = convert_to_opairs(intraday, label="4. close")
             stock_name = funds["stock_name"]
@@ -454,18 +501,20 @@ class Daily_Prediction(Resource):
         prediction_type = request.args.get("prediction_type")
         dispatch_data = {}
 
-        sample_df = {}
+        daily_df = {}
         sample_metadata = {}
         summary = {}
 
-        filename = (
-            get_local_storage_filepath(symbol + "_daily_adjusted" + ".json")
-            if symbol
-            else ""
-        )
-
-        if os.path.isfile(filename):
-            sample_df, sample_metadata = get_stock_value(filename)
+        if not stock_price_data.daily.empty:
+            daily_df, sample_metadata = (stock_price_data.daily,
+                stock_price_data.daily_metadata)
+        elif os.path.isfile(symbol + "_daily_adjusted" + ".json"):
+            filename = (
+                get_local_storage_filepath(symbol +
+                "_daily_adjusted" + ".json") if symbol
+                else ""
+            )
+            daily_df, sample_metadata = get_stock_value(filename)
         data_needed = 120 if prediction_type == "multistep_series" else 60
 
         if prediction_type is None or prediction_type not in [
@@ -474,12 +523,12 @@ class Daily_Prediction(Resource):
             "cnn",
         ]:
                 abort(500, f"Prediction type: {prediction_type} not supported")
-        elif data_needed > sample_df["4. close"].shape[0]:
-                abort(500, f"Not enough data available: sample has {sample_df['4. close'].shape[0]} but predictor needs {data_needed}")
+        elif data_needed > daily_df["4. close"].shape[0]:
+                abort(500, f"Not enough data available: sample has {daily_df['4. close'].shape[0]} but predictor needs {data_needed}")
         else:
-            close_data = sample_df["4. close"][-data_needed:].values
-            data_minimum = np.min(sample_df["4. close"][:].values)
-            data_maximum = np.max(sample_df["4. close"][:].values)
+            close_data = daily_df["4. close"][-data_needed:].values
+            data_minimum = np.min(daily_df["4. close"][:].values)
+            data_maximum = np.max(daily_df["4. close"][:].values)
             for i in np.where(np.isnan(close_data))[0]:
                 close_data[i] = (
                     close_data[i - 1] if not np.isnan(close_data[i - 1]) else 0
@@ -506,7 +555,7 @@ class Daily_Prediction(Resource):
                 if prediction_data.shape[0] > 60:
                     prediction_data = prediction_data[:60]
 
-                prediction_start = sample_df["4. close"][-1:].index
+                prediction_start = daily_df["4. close"][-1:].index
                 prediction_end = prediction_start + pd.tseries.offsets.BDay(60)
 
                 prediction_range = (

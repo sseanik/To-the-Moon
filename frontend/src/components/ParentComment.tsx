@@ -6,13 +6,14 @@ import {
   faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
-import ChildComment from "./ChildComment";
 import { connect } from "react-redux";
-import EditCommentForm from "./EditCommentForm";
-import DeleteCommentButton from "./DeleteCommentButton";
-import AddCommentForm from "./AddCommentForm";
-import UpvoteCommentButton from "./UpvoteCommentButton";
-import DownvoteCommentButton from "./DownvoteCommentButton";
+import {
+  AddCommentForm,
+  ChildComment,
+  DeleteCommentButton,
+  EditCommentForm,
+  VoteCommentButton,
+} from ".";
 
 interface StateProps {
   currentUsername: string;
@@ -102,24 +103,32 @@ const ParentComment: React.FC<StateProps & Props> = (props) => {
         {is_deleted ? null : (
           <Row className="justify-content-start mb-1 align-items-center">
             <Col md={1}>
-              <UpvoteCommentButton
+              <VoteCommentButton
                 commentID={comment_id}
                 isUpvoted={is_upvoted}
+                isDownvoted={is_downvoted}
+                voteType="upvote"
               />
             </Col>
             <Col md={1}>
               <p
                 className={
-                  vote_difference >= 0 ? "text-success m-0" : "text-danger m-0"
+                  vote_difference > 0
+                    ? "text-success m-0"
+                    : vote_difference < 0
+                    ? "text-danger m-0"
+                    : "m-0"
                 }
               >
                 {vote_difference}
               </p>
             </Col>
             <Col md={1}>
-              <DownvoteCommentButton
+              <VoteCommentButton
                 commentID={comment_id}
+                isUpvoted={is_upvoted}
                 isDownvoted={is_downvoted}
+                voteType="downvote"
               />
             </Col>
             {replying ? (

@@ -28,9 +28,9 @@ const AboutUsPage: React.FC = () => {
           </span>
         </Col>
         <Col lg={true}>
-          <h2>Contribute</h2>
+          <h2>Our Mission?</h2>
           <span>
-            TBD...
+            To reach the moon 🚀
           </span>
         </Col>
       </Row>

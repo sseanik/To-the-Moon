@@ -1,0 +1,25 @@
+{
+  "name": "capstone-project-3900-w18a-to-the-moon",
+  "version": "1.0.0",
+  "description": "A stock portfolio management web app built by UNSW students as part of the Capstone Project course COMP3900.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run build-frontend && npm run build-backend",
+    "build-frontend": "cd frontend && npm i && npm run build",
+    "build-backend": "cd backend && pip3 install -r requirements.txt",
+    "start": "concurrently \"serve -s -l 3000 frontend/build\" \"cd backend/src && FLASK_APP=server.py FLASK_ENV=\"production\" flask run --port=5000\" "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unsw-cse-comp3900-9900-21T1/capstone-project-3900-w18a-to-the-moon.git"
+  },
+  "author": "To The Moon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/unsw-cse-comp3900-9900-21T1/capstone-project-3900-w18a-to-the-moon/issues"
+  },
+  "homepage": "https://github.com/unsw-cse-comp3900-9900-21T1/capstone-project-3900-w18a-to-the-moon#readme",
+  "dependencies": {
+    "concurrently": "^6.0.2"
+  }
+}

@@ -1,22 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useParams } from "react-router-dom";
-import { Container, Row, Col, Tabs, Tab, Button } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
-
-import {
-  DataBalanceSheet,
-  DataCashFlow,
-  DataFundamentals,
-  DataIncomeStatement,
-  DataSummary,
-  Forum,
-  NoteRelevant,
-  PaperTradeController,
-  PredictionController,
-  StockNews,
-} from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
 import { durationOptionsObj } from "../helpers/PredictionHelpers";
@@ -39,32 +25,24 @@ interface graphOptionsT {
   series: Array<seriesT>;
 }
 
-interface RouteParams {
-  symbol: string;
-}
-
 interface getStockBasicParams {
   symbol: string;
-}
-
-interface getPredictionDailyParams {
-  symbol: string;
-  predictionType: string;
 }
 
 interface durChoiceParams {
   [key: string]: { dur: number; display: string; units: string };
 }
 
+interface Props {
+  stock?: string;
+}
+
 interface StateProps {
   loading: boolean;
-  error: string;
-  company: string;
   priceDataDaily: any;
   priceDataIntraday: any;
   predictionDaily: any;
   paperTradingResults: any;
-
   predictionDailyLoading: any;
   predictionDailyError: any;
   paperTradingLoading: any;
@@ -73,18 +51,16 @@ interface StateProps {
 
 interface DispatchProps {
   getStockBasic: (payload: getStockBasicParams) => void;
-  getPredictionDaily: (payload: getPredictionDailyParams) => void;
 }
 
 const graphBorderStyle = {
   border: "7px solid grey",
 };
 
-const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
+const StockGraph: React.FC<Props & StateProps & DispatchProps> = (props) => {
   const {
-    company,
+    stock,
     loading,
-    error,
     priceDataDaily,
     priceDataIntraday,
     predictionDaily,
@@ -93,8 +69,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
   } = props;
 
   const chartComponent = useRef<any | null>(null);
-  const params = useParams<RouteParams>();
-  const symbol = params.symbol;
+  const symbol = stock ? stock : "";
 
   const durOpts: durChoiceParams = useMemo(() => {
     return durationOptionsObj;
@@ -109,11 +84,12 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     series: [{ data: [] }],
     legend: { enabled: true, layout: "horizontal" },
   });
-  const [durChoice, setdurChoice] = useState<string>("durMonths3");
-  const [preChoice, setPreChoice] = useState<string>("lstm_wlf");
+  const [durChoice] = useState<string>("durMonths3");
 
   const fetchStock = useCallback(() => {
-    getStockBasic({ symbol });
+    if (symbol) {
+      getStockBasic({ symbol });
+    }
   }, [getStockBasic, symbol]);
 
   // TODO: predefined reset length
@@ -222,7 +198,7 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
 
   const graphComponent = (
     <Container>
-      <div style={graphBorderStyle}>
+      <div style={graphBorderStyle} className="dashboard-stock-graph">
         <HighchartsReact
           ref={chartComponent}
           highcharts={Highcharts}
@@ -252,123 +228,10 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     </Container>
   );
 
-  const stockNameText =
-    error || loading ? `${symbol}` : `${company} (${symbol})`;
-
   return (
     <Container>
-      <Row className="justify-content-center mt-2">
-        <h1>{stockNameText}</h1>
-        {loadingSpinnerComponent}
-      </Row>
-      {!loading && !company ? (
-        <h5>
-          To The Moon doesn't currently support this stock yet! You can still
-          discuss it below, or view your notes related to it.
-        </h5>
-      ) : (
-        <Row className="justify-content-center align-items-center">
-          <Col>
-            <Container>
-              <Tabs
-                className="justify-content-center mt-2"
-                defaultActiveKey="summary"
-                id="sec-view-info-selector"
-              >
-                <Tab eventKey="summary" title="Summary" className="bg-dark">
-                  <DataSummary />
-                </Tab>
-                <Tab
-                  eventKey="statistics"
-                  title="Statistics"
-                  className="bg-dark"
-                >
-                  <DataFundamentals />
-                </Tab>
-                <Tab
-                  eventKey="financials"
-                  title="Financials"
-                  className="bg-dark"
-                >
-                  <Tabs
-                    className="justify-content-center mt-2"
-                    defaultActiveKey="incomestatement"
-                    id="sec-view-financials"
-                  >
-                    <Tab
-                      eventKey="incomestatement"
-                      title="Income Statement"
-                      className="bg-dark"
-                    >
-                      <DataIncomeStatement symbol={symbol} />
-                    </Tab>
-                    <Tab
-                      eventKey="balancesheet"
-                      title="Balance Sheet"
-                      className="bg-dark"
-                    >
-                      <DataBalanceSheet symbol={symbol} />
-                    </Tab>
-                    <Tab
-                      eventKey="cashflow"
-                      title="Cash Flow Statement"
-                      className="bg-dark"
-                    >
-                      <DataCashFlow symbol={symbol} />
-                    </Tab>
-                  </Tabs>
-                </Tab>
-                <Tab
-                  eventKey="prediction"
-                  title="Market Prediction"
-                  className="bg-dark"
-                >
-                  <PredictionController
-                    symbol={symbol}
-                    durChoice={durChoice}
-                    setdurChoice={setdurChoice}
-                    preChoice={preChoice}
-                    setPreChoice={setPreChoice}
-                  />
-                </Tab>
-                <Tab
-                  eventKey="paperTrading"
-                  title="Paper Trading"
-                  className="bg-dark"
-                >
-                  <PaperTradeController symbol={symbol} />
-                </Tab>
-              </Tabs>
-            </Container>
-          </Col>
-          <Col>{loading ? loadingSpinnerComponent : graphComponent}</Col>
-        </Row>
-      )}
-
-      <Row>
-        <Container>
-          <Tabs className="justify-content-center mt-2" defaultActiveKey="news">
-            <Tab eventKey="news" title="News">
-              <Row>
-                <h2>{`News related to ${symbol.toUpperCase()}`}</h2>
-              </Row>
-              <StockNews stock={symbol} />
-            </Tab>
-            {company ? (
-              <Tab eventKey="forum" title="Forum">
-                <Row className="justify-content-start my-2">
-                  <Forum stockTicker={symbol} />
-                </Row>
-              </Tab>
-            ) : null}
-            <Tab eventKey="notes" title="Relevant Notes">
-              <Row>
-                <NoteRelevant stock={[symbol]} />
-              </Row>
-            </Tab>
-          </Tabs>
-        </Container>
-      </Row>
+      <h5>{stock}</h5>
+      <Row>{loading ? loadingSpinnerComponent : graphComponent}</Row>
     </Container>
   );
 };
@@ -377,8 +240,6 @@ const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.basic.loading,
   predictionDailyLoading: state.stockReducer.predictionDaily.loading,
   predictionDailyError: state.stockReducer.predictionDaily.error,
-  error: state.stockReducer.basic.error,
-  company: state.stockReducer.basic.data.fundamentals.stock_name,
   priceDataDaily: state.stockReducer.basic.data.data,
   priceDataIntraday: state.stockReducer.basic.data.data_intraday,
   predictionDaily: state.stockReducer.predictionDaily.data,
@@ -391,9 +252,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     getStockBasic: (payload: getStockBasicParams) =>
       dispatch(stockActions.getStockBasic(payload)),
-    getPredictionDaily: (payload: getPredictionDailyParams) =>
-      dispatch(stockActions.getPredictionDaily(payload)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(StockPage);
+export default connect(mapStateToProps, mapDispatchToProps)(StockGraph);

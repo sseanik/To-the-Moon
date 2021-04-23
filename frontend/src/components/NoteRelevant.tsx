@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { connect } from "react-redux";
 import noteActions from "../redux/actions/noteActions";
 import ClipLoader from "react-spinners/ClipLoader";
-import { Container, Row, Alert } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 import { Note, CreateNotePopover } from ".";
 
 export interface NoteEntry {
@@ -27,10 +27,7 @@ interface Props {
 interface StateProps {
   loading: boolean;
   notes: Array<NoteEntry>;
-  error: string;
   touched: boolean;
-  editError: string;
-  deleteError: string;
 }
 
 interface DispatchProps {
@@ -44,9 +41,6 @@ const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
     loading,
     notes,
     touched,
-    error,
-    editError,
-    deleteError,
     getRelevantNotes,
   } = props;
 
@@ -55,10 +49,6 @@ const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
       getRelevantNotes({ stock_symbols: stock, portfolio_names: portfolio });
     }
   }, [getRelevantNotes, touched, stock, portfolio]);
-
-  const errorComponent = (error: string) => (
-    <Alert variant="danger">{error}</Alert>
-  );
 
   const notesBody =
     notes.length > 0 ? (
@@ -75,9 +65,6 @@ const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
 
   return (
     <Container>
-      {error ? errorComponent(error) : null}
-      {editError ? errorComponent(editError) : null}
-      {deleteError ? errorComponent(deleteError) : null}
       {loading ? (
         <Row className="justify-content-center my-2">
           <ClipLoader color={"green"} loading={loading}>
@@ -97,10 +84,7 @@ const NoteRelevant: React.FC<Props & StateProps & DispatchProps> = (props) => {
 const mapStateToProps = (state: any) => ({
   loading: state.noteReducer.relevantNotes.loading,
   notes: state.noteReducer.relevantNotes.data,
-  error: state.noteReducer.relevantNotes.error,
   touched: state.noteReducer.touched.relevantNotes,
-  editError: state.noteReducer.editNote.error,
-  deleteError: state.noteReducer.deleteNote.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

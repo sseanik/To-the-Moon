@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
-import { Container, Col, Row, Alert, Button, Tabs, Tab } from "react-bootstrap";
+import { Container, Col, Row, Button, Tabs, Tab } from "react-bootstrap";
 import { useParams } from "react-router";
-import { NoteRelevant, PortfolioPerformance } from "../components";
-import AddInvestmentForm from "../components/AddInvestmentForm";
-import EditPortfolioForm from "../components/EditPortfolioForm";
-import StockInfo from "../components/StockInfo";
+import {
+  AddInvestmentForm,
+  EditPortfolioForm,
+  NoteRelevant,
+  PortfolioPerformance,
+  PublishPortfolioForm,
+  StockInfo,
+} from "../components";
 import ClipLoader from "react-spinners/ClipLoader";
 import investmentActions from "../redux/actions/investmentActions";
 import { connect } from "react-redux";
-import PublishPortfolioForm from "../components/PublishPortfolioForm";
 
-interface StockParams {
+export interface StockParams {
   investment_id: string;
   stock_ticker: string;
   num_shares: number;
@@ -20,9 +23,8 @@ interface StockParams {
 }
 
 interface StateProps {
-  loading: boolean;
-  error: Object;
-  stocks: Array<StockParams>;
+  loading: { [key: string]: boolean };
+  stocks: { [key: string]: Array<StockParams> };
 }
 
 interface DispatchProps {
@@ -35,11 +37,16 @@ interface RouteMatchParams {
 
 const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
   const { name } = useParams<RouteMatchParams>();
-  const { loading, error, stocks, getStocks } = props;
+  const { loading, stocks, getStocks } = props;
 
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
   const [publishing, setPublishing] = useState(false);
+
+  const portfolioLoading: boolean =
+    loading && loading.hasOwnProperty(name) ? loading[name] : false;
+  const portfolioStocks: Array<StockParams> =
+    stocks && stocks.hasOwnProperty(name) ? stocks[name] : [];
 
   useEffect(() => {
     getStocks(name);
@@ -61,11 +68,10 @@ const PortfolioPage: React.FC<StateProps & DispatchProps> = (props) => {
           <Col>Delete Stock</Col>
         </Row>
         <hr style={{ borderTop: "1px solid white" }} />
-        {error ? <Alert variant="danger">{error}</Alert> : null}
-        {loading ? (
-          <ClipLoader color="green" loading={loading} />
+        {portfolioLoading ? (
+          <ClipLoader color="green" loading={portfolioLoading} />
         ) : (
-          stocks.map((stockProps, idx: number) => (
+          portfolioStocks.map((stockProps, idx: number) => (
             <div key={idx}>
               <StockInfo {...stockProps} />
               <hr style={{ borderTop: "1px solid white" }} />

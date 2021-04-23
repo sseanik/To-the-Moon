@@ -38,6 +38,13 @@
 .watchlist-info {
   box-shadow: 3px 3px 8px #888888;
   margin: 10px;
+  
+}
+
+.portfolio-details {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 15vh;
 }
 
 .portfolio-controls,
@@ -77,4 +84,9 @@ div.financials-subhead-3 {
 
 .footer {
   box-shadow: 0px 0px 5px grey;
+}
+
+.dashboard-stock-graph > div {
+  max-height: 27vh;
+  overflow-y: auto!important;
 }

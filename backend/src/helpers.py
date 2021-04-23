@@ -30,6 +30,7 @@ class JSONLoader:
         )
         with open(filename, "w") as outfile:
             json.dump(data, outfile)
+        return filename
 
     @staticmethod
     def load_json(filename):
