@@ -31,6 +31,13 @@ TYPE_TABLE_MAPPING = {
 
 
 def get_user_dashboards(user_id):
+    """Gets the revelant dashboard for a specific user
+        Args:
+            user_id (str): user identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "SELECT id FROM dashboards WHERE user_id=%s"
