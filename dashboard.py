@@ -2,11 +2,11 @@
 #                                 Dashboard Module                             #
 # ---------------------------------------------------------------------------- #
 
-from database import create_DB_connection
 from json import dumps
 import psycopg2
-from flask import Blueprint, request, Response
+from flask import request, Response
 from flask_restx import Namespace, Resource, abort
+from database import create_DB_connection
 from token_util import get_id_from_token
 from models import token_parser, create_dashboard_block_model
 

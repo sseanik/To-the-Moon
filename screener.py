@@ -2,17 +2,12 @@
 #                                Screener Module                               #
 # ---------------------------------------------------------------------------- #
 
-import time
-from flask import Blueprint, request, Response
-from json import dumps, loads
+from json import dumps
+from flask import request, Response
 from database import create_DB_connection
 from token_util import get_id_from_token
-from datetime import datetime
 import psycopg2
-from stock import retrieve_stock_price_at_date
-import pandas as pd
 from psycopg2.extras import RealDictCursor
-from better_profanity import profanity
 import psycopg2.extras
 from iexfinance.stocks import Stock
 
@@ -360,9 +355,6 @@ class ScreenerSave(Resource):
         result = screener_save(screener_name, user_id, data)
         return Response(dumps(result), status=201)
 
-
-@SCREENER_NS.route("/delete")
-class ScreenerSave(Resource):
     @SCREENER_NS.doc(description="Delete screeners by name. ")
     @SCREENER_NS.response(200, "Successfully deleted screener")
     @SCREENER_NS.response(404, "Screener delete failed")

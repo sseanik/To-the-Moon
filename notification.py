@@ -3,11 +3,9 @@
 # ---------------------------------------------------------------------------- #
 
 from time import sleep
-from json import dumps
-from flask_restx import Namespace, Resource, abort
-from flask_mail import Mail, Message
-from flask import request, Response, render_template, current_app
-from token_util import get_id_from_token
+from flask_restx import Namespace, Resource
+from flask_mail import Message
+from flask import Response, render_template
 from database import create_DB_connection
 from news import get_portfolio_news
 from portfolio import get_portfolio_performance

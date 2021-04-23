@@ -3,13 +3,10 @@
 # ---------------------------------------------------------------------------- #
 
 import os
+import time
 import psycopg2
 from dotenv import load_dotenv
 from helpers import TimeSeries
-import time
-from helpers import TimeSeries, AlphaVantageAPI
-import os
-import json
 
 # ---------------------------------------------------------------------------- #
 #                             Environment Variables                            #
@@ -157,32 +154,32 @@ def fill_securities_overview_table(symbol):
     """
 
     # Convert "None" values to None so cur.execute converts it to NULL.
-    for key, value in Overview.items():
+    for key, value in overview.items():
         if value == "None":
-            Overview[key] = None
+            overview[key] = None
 
     cur.execute(
-        insertQuery,
+        insert_query,
         (
-            Overview["Symbol"],
-            Overview["Name"],
-            Overview["Description"],
-            Overview["Exchange"],
-            Overview["Currency"],
-            Overview["52WeekHigh"],
-            Overview["52WeekLow"],
-            Overview["MarketCapitalization"],
-            Overview["Beta"],
-            Overview["PERatio"],
-            Overview["EPS"],
-            Overview["DividendYield"],
-            Overview["Sector"],
-            Overview["Industry"],
-            Overview["BookValue"],
-            Overview["EBITDA"],
-            Overview["PayoutRatio"],
-            Overview["RevenueTTM"],
-            Overview["GrossProfitTTM"],
+            overview["Symbol"],
+            overview["Name"],
+            overview["Description"],
+            overview["Exchange"],
+            overview["Currency"],
+            overview["52WeekHigh"],
+            overview["52WeekLow"],
+            overview["MarketCapitalization"],
+            overview["Beta"],
+            overview["PERatio"],
+            overview["EPS"],
+            overview["DividendYield"],
+            overview["Sector"],
+            overview["Industry"],
+            overview["BookValue"],
+            overview["EBITDA"],
+            overview["PayoutRatio"],
+            overview["RevenueTTM"],
+            overview["GrossProfitTTM"],
         ),
     )
 
