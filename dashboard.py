@@ -19,10 +19,6 @@ DASHBOARD_NS = Namespace(
 )
 
 
-# ---------------------------------------------------------------------------- #
-#                               Helper Functions                               #
-# ---------------------------------------------------------------------------- #
-
 TYPE_TABLE_MAPPING = {
     "portfolio": "portfolio_block",
     "news": "news_block",
@@ -30,7 +26,19 @@ TYPE_TABLE_MAPPING = {
 }
 
 
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
+
+
 def get_user_dashboards(user_id):
+    """Gets the revelant dashboard for a specific user
+        Args:
+            user_id (str): user identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "SELECT id FROM dashboards WHERE user_id=%s"
@@ -51,6 +59,13 @@ def get_user_dashboards(user_id):
 
 # Limit to 1 per user now, but leave room for extendability
 def create_user_dashboard(user_id):
+    """Creates a dashboard for the specified user
+        Args:
+            user_id (str): user identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -74,6 +89,13 @@ def create_user_dashboard(user_id):
 
 
 def delete_user_dashboard(dashboard_id):
+    """Deletes a specified dashboard
+        Args:
+            dashboard_id (str): dashboard identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -96,6 +118,18 @@ def delete_user_dashboard(dashboard_id):
 
 
 def get_dashboard_blocks(dashboard_id):
+    """Gets all dashboard blocks for a specified dashboard
+    Dashboard blocks can take any of the following types
+        Type of blocks (str):
+            portfolio
+            stock
+            news
+        Args:
+            dashboard_id (str): dashboard identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -117,6 +151,17 @@ def get_dashboard_blocks(dashboard_id):
 
 
 def create_dashboard_block(dashboard_id, user_id, block_type, meta):
+    """Create an individual dashboard square which can have different types of content
+
+    Args:
+        dashboard_id (string): The ID of the dashboard related to the user
+        user_id (string): The string UUID related to the user
+        block_type (string): The content type of the block
+        meta (string): Extensible option
+
+    Returns:
+        dictionary: Success message and the created data of the dashboard block
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
 
@@ -187,6 +232,14 @@ def create_dashboard_block(dashboard_id, user_id, block_type, meta):
 
 
 def get_block(block_id):
+    """Get the block of a dashboard given the block id
+
+    Args:
+        block_id (string): The ID of the given block
+
+    Returns:
+        dictionary: Dictionary of the block data
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
 
@@ -250,6 +303,14 @@ def get_block(block_id):
 
 
 def delete_block(block_id):
+    """Given a block_id delete the block associated with it
+
+    Args:
+        block_id (string): The ID of the block
+
+    Returns:
+        dictionary: Success message and data related to the deleted block
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
 

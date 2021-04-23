@@ -5,6 +5,8 @@ from flask_restx.inputs import date_from_iso8601
 #                                    MODELS                                    #
 # ---------------------------------------------------------------------------- #
 
+# Models for payload validation detailing their structures for the Backend Swagger
+
 
 def login_model(namespace):
     return namespace.model(
@@ -194,6 +196,8 @@ def create_dashboard_block_model(namespace):
 # ---------------------------------------------------------------------------- #
 #                                    PARSERS                                   #
 # ---------------------------------------------------------------------------- #
+
+# Query parsers to validate any query parameters passed into the request
 
 
 def token_parser(namespace):
