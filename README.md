@@ -59,3 +59,18 @@ In separate terminals:
 - `$env:FLASK_RUN_PORT="3002"`
 - `flask run`
 - Note: Replace `$env:FLASK_APP=”run.py”` with `set FLASK_APP=”run.py”` and so on for the remaining variables if running in CMD. 
+
+### Config
+
+To change the port for running frontend, change the number in serve -s -l <port> in package.json on line 10.
+
+To change the port for running backend, change the number in flask run --port=<port> in package.json on line 10. Change the corresponding port number in frontend/src/config.json.
+
+To change the ports for running prediction and backtrading services, variables for the server URLs and endpoints can be found in backend/src/.env with the following default values: 
+```
+MODELSRVURL="127.0.0.1"
+MODELSRVPORT=3001
+BACKTRSRVURL="127.0.0.1"
+BACKTRSRVPORT=3002
+```
+
