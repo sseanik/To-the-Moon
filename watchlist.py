@@ -1,24 +1,31 @@
-########################
-#   Watchlist Module   #
-########################
+# ---------------------------------------------------------------------------- #
+#                               Watchlist Module                               #
+# ---------------------------------------------------------------------------- #
 
 from json import dumps
 from decimal import Decimal
 import psycopg2
+import simplejson
+
 from flask import request, Response
+from flask_restx import Namespace, Resource, abort
+from iexfinance.stocks import Stock
+
 from database import create_DB_connection
 from token_util import get_id_from_token
-from iexfinance.stocks import Stock
-import simplejson
-from flask_restx import Namespace, Resource, abort
+
+# ---------------------------------------------------------------------------- #
+#                              GLOBAL DECLARATIONS                             #
+# ---------------------------------------------------------------------------- #
+
+WATCHLIST_NS = Namespace(
+    "watchlist", "Watchlist content published and followed by users"
+)
 
 
-WATCHLIST_NS = Namespace("watchlist", "Watchlist content published and followed by users")
-
-
-###################################
-# Please leave all functions here #
-###################################
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 
 def publish_watchlist(user_id, portfolio_name, description):
@@ -245,11 +252,11 @@ def get_watchlist(watchlist_id):
     return result
 
 
-################################
-# Please leave all routes here #
-################################
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
-# delete
+
 @WATCHLIST_NS.route("")
 class Watchlist(Resource):
     def post(self):
@@ -266,7 +273,7 @@ class Watchlist(Resource):
         result = delete_watchlist(user_id, data["watchlist_id"])
         return Response(dumps(result), status=200)
 
-    # get a single watchlist
+    # Retrieve a single watchlist
     def get(self):
         watchlist_id = request.args.get("watchlist_id")
         result = get_watchlist(watchlist_id)
@@ -275,7 +282,6 @@ class Watchlist(Resource):
 
 @WATCHLIST_NS.route("/subscribe")
 class Subscribe(Resource):
-    # subscribe
     def post(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
@@ -283,7 +289,6 @@ class Subscribe(Resource):
         result = subscribe(user_id, data["watchlist_id"])
         return Response(dumps(result), status=201)
 
-    # unsubscribe
     def delete(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
@@ -292,7 +297,6 @@ class Subscribe(Resource):
         return Response(dumps(result), status=200)
 
 
-# get all watchlists
 @WATCHLIST_NS.route("/get_all")
 class AllWatchlists(Resource):
     def get(self):
@@ -300,7 +304,6 @@ class AllWatchlists(Resource):
         return Response(simplejson.dumps(result), status=200)
 
 
-# get users watchlists
 @WATCHLIST_NS.route("/userslist", methods=["GET"])
 class Userlists(Resource):
     def get(self):
