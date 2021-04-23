@@ -39,6 +39,9 @@ def create_DB_connection():
         print("Database connection failed due to {}".format(e))
 
 
+# Each table utilises the Table schema and creates the Database table
+
+
 def create_portfolios_table():
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -416,6 +419,7 @@ def fill_all_companies():
 
 
 if __name__ == "__main__":
+    pass
     # create_portfolios_table()
     # create_holdings_table()
     # create_user_table()
