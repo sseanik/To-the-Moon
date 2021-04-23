@@ -1,41 +1,69 @@
 Week 1 
 
-Got initial group together and advertised remaining spots on the WebCMS forums. We got together and discussed our preferences on which project we were interested in. After a few days we narrowed it down to the Ecommerce app, Eskills app and the stock portfolio. We then decided on the stock portfolio and did research into relevant APIs and potential novel features. We further discussed our capabilities and what we could primarily work on, for myself it was the REST API and backend functionality.
+ - Got initial group together and advertised remaining spots on the WebCMS forums. 
+ - We got together and discussed our preferences on which project we were interested in. 
+ - After a few days we narrowed it down to the Ecommerce app, Eskills app and the stock portfolio. 
+ - We then decided on the stock portfolio and did research into relevant APIs and potential novel features. 
+ - We further discussed our capabilities and what we could primarily work on, for myself it was the REST API and backend functionality.
 
 Week 2
 
-I added to the ideas Google Doc and setup the Proposal Google Document with a table of contents and relevant headings/categories. I participated in the discussion of what features we could manage and create, where I had a greater focus with Austin on adding social features. I also had to upskill my knowledge in the financial world to understand the stock portfolio domain. In the proposal my main task was to work on the purpose and features.
+ - I added to the ideas Google Doc and setup the Proposal Google Document with a table of contents and relevant headings/categories. 
+ - I participated in the discussion of what features we could manage and create, where I had a greater focus with Austin on adding social features. 
+ - I also had to upskill my knowledge in the financial world to understand the stock portfolio domain. 
+ - In the proposal my main task was to work on the purpose and features.
 
 Week 3
 
-I shared my screen and 'pair programmed' some of the storyboarding to assist Karim and the team. I reviewed the entire proposal, focusing on improving the wording and sentence structure with the Problem Domain, statement and summary. I further added my thoughts on technologies we could use, as I had experience with Python, Flask and AWS RDS.
+ - I shared my screen and 'pair programmed' some of the storyboarding to assist Karim and the team. 
+ - I reviewed the entire proposal, focusing on improving the wording and sentence structure with the Problem Domain, statement and summary. 
+ - I further added my thoughts on technologies we could use, as I had experience with Python, Flask and AWS RDS.
 
 Week 4
 
-I set up the database on AWS RDS and created example functions with psycopg2, so it would be easier to have ready examples for creating tables, or selecting or inserting into the database. I also created the .env file to store protected credentials. I set the layout as create tables in their own folder, psycopg2 functions that would call them in a database.py file and updated the requirements.txt and .gitignore.
+ - I set up the database on AWS RDS and created example functions with psycopg2, so it would be easier to have ready examples for creating tables, or selecting or inserting into the database. 
+ - I also created the .env file to store protected credentials. 
+ - I set the layout as create tables in their own folder, psycopg2 functions that would call them in a database.py file and updated the requirements.txt and .gitignore.
 
 ### I had a serious medical issue occur this week and was admitted to Hospital on the 14th, so my designated tasks were delayed.
 
 Week 5
 
-After being discharged and a few days into my recovery, I worked on the News related tasks by connecting the Finnhub API to the backend, to provide stock related news, overall portfolio news and general finance news. I reviewed several PRs from my other team members. As I was not granted any specific special consideration, I worked at the cost of my own health to meet deadlines and finish my designated tasks.
+ - After being discharged and a few days into my recovery, I worked on the News related tasks by connecting the Finnhub API to the backend, to provide stock related news, overall portfolio news and general finance news. 
+ - I reviewed several PRs from my other team members. 
+ - As I was not granted any specific special consideration, I worked at the cost of my own health to meet deadlines and finish my designated tasks.
 
 Week 6
 
-I worked with Austin brainstorming the backend functionality for the Forum feature looking at examples of Youtube, Reddit and Facebook, as well as current stock apps. We 'pair programmed' forum mockups by sharing screens and agreeing on potential UI features. We then worked on the forum tables focussing on a parent comment and child comment structure. We split the forum tasks between each other, as I added the routes and functions dealing with fetching all comments, adding new comments and voting on them.
+ - I worked with Austin brainstorming the backend functionality for the Forum feature looking at examples of Youtube, Reddit and Facebook, as well as current stock apps. 
+ - We 'pair programmed' forum mockups by sharing screens and agreeing on potential UI features. 
+ - We then worked on the forum tables focussing on a parent comment and child comment structure. 
+ - We split the forum tasks between each other, as I added the routes and functions dealing with fetching all comments, adding new comments and voting on them.
 
 Week 7
 
-I did research into creating a structured and documented backend as code was currently messy and unreadable. I found Flask Rest x and decided to write up all doc strings and potential errors into a document, which would later be added to code. Frontend did not handle return responses that were errors, so finding the 'abort' function was important. I worked on slowly changing the backend, but could not push until until the week 8 progressive demo was completed.
+ - I did research into creating a structured and documented backend as code was currently messy and unreadable. 
+ - I found Flask Rest x and decided to write up all doc strings and potential errors into a document, which would later be added to code. 
+ - Frontend did not handle return responses that were errors, so finding the 'abort' function was important. 
+ - I worked on slowly changing the backend, but could not push until until the week 8 progressive demo was completed.
 
 Week 8
 
-Completely changed Flask into Flask Rest with swagger documentation on the backend URL. Added docstrings, models, parsers and proper error HTTP Execution error handling to the entire backend. Linted several files and added comments to code. Changed the Frontend api calls to work with the new backend changes.
+ - Completely changed Flask into Flask Rest with swagger documentation on the backend URL. 
+ - Added docstrings, models, parsers and proper error HTTP Execution error handling to the entire backend. 
+ - Linted several files and added comments to code. 
+ - Changed the Frontend api calls to work with the new backend changes.
 
 Week 9
 
-Added a notification system to the backend with no frontend due to time constraints. Researched websockets, server send requests, polling and Flask-mail. Decided on Flask mail and added threading to the system. Created Email HTML templates that would render using Flask's render_template. Created a singular route to deal with unsubscribing.
+ - Added a notification system to the backend with no frontend due to time constraints. 
+ - Researched websockets, server send requests, polling and Flask-mail. 
+ - Decided on Flask mail and added threading to the system. Created Email HTML templates that would render using Flask's render_template. 
+ - Created a singular route to deal with unsubscribing.
 
 Week 10
 
-Finished off the Notification system with Emails resulting in Register notification, forum reply notifications and daily news and portfolio performance notifications. Worked on the final demo presentation slides and performed in a dry run before the final demo. Performmed Quality Assurance on the application, focussing on features I primarily worked on. Worked on the final report focussing on features I primarily worked on.
+ - Finished off the Notification system with Emails resulting in Register notification, forum reply notifications and daily news and portfolio performance notifications. 
+ - Worked on the final demo presentation slides and performed in a dry run before the final demo. 
+ - Performmed Quality Assurance on the application, focussing on features I primarily worked on. 
+ - Worked on the final report focussing on features I primarily worked on.
