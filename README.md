@@ -19,7 +19,7 @@ Backend and Frontend compile scripts exist in the root directory of our code. Th
 #### Prediction Model & Backtesting Services - with Docker
 1. Ensure you have docker installed. Download it here: https://docs.docker.com/get-docker/ . Open the Docker application once it is installed.
 2. Download the docker images for the two services:
-- Prediction https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EczkCySKX_tLpcQTAO3o2YkBXn8ovaOdzwiJLRbMO_dAxA?e=7lj7Pl
+- Prediction https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EQMuLROLmaxKoIzu5-1cLesBD6MuUtwNePDqoFwjneAdBw?e=UarW27
 - Backtrading https://unsw-my.sharepoint.com/:u:/g/personal/z5112826_ad_unsw_edu_au/EaSEggHd90JKuGKusyYq80gBoAZIz2HiAzJLmSJJR0qikQ?e=Rk70g2 .
 
 #### Prediction Model & Backtesting Services - as Web Server
@@ -34,6 +34,8 @@ Backend and Frontend compile scripts exist in the root directory of our code. Th
 
 #### Backend & Frontend
 1. In the root directory, run `npm run start` to concurrently run the frontend and backend.
+2. Alternatively, you can also run the frontend and backend separately. Frontend: `serve -s -l 3000 frontend/build`. Backend: `cd backend/src` and then `FLASK_APP="server.py" FLASK_ENV="production" flask run --port=5000`
+
 2. Visit http://localhost:3000 to start using To The Moon.
 
 #### Prediction Model & Backtesting Services - with Docker
