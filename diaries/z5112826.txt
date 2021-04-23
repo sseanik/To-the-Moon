@@ -70,3 +70,15 @@ Implemented:
 - Backtesting - wrap in server endpoint, parametrise initial cash, commissions and other settings
 - Backtesting frontend - parameter form, refactor into separate component
 - Screeners frontend - display save, delete and list results
+
+Todo: 
+- Document remaining endpoints
+- Efficiency refactors
+
+Week 10 
+=======
+Implemented: 
+- Documentation on prediction and backtesting services
+- Local storage and strategy overhaul 
+
+Delivered presentation at week 10 demonstration. 
