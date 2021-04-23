@@ -18,6 +18,10 @@ from models import (
     notes_delete_parser,
 )
 
+# ---------------------------------------------------------------------------- #
+#                              Global Declarations                             #
+# ---------------------------------------------------------------------------- #
+
 NOTES_NS = Namespace(
     "notes", "Note taking feature that a User can access from any page"
 )
@@ -339,20 +343,3 @@ class RelevantNotes(Resource):
         portfolio_names = request.args.getlist("portfolio")
         response = get_relevant_notes(user_id, stock_symbols, portfolio_names)
         return Response(dumps(response), status=200)
-
-
-################################
-# TESTING
-################################
-# """
-# insert into Notes (user_id, title, content, stock_symbols, portfolio_names, external_references, internal_references)
-# values ('0ee69cfc-83ce-11eb-8620-0a4e2d6dea13', 'Austin''s note', 'Random content', ARRAY['IBM', 'TSLA']::TEXT[], ARRAY['Austin''s portfolio']::TEXT[], ARRAY['https://www.google.com/']::TEXT[], ARRAY[]::TEXT[]);
-# """
-# print(add_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-# print(edit_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s new note', 'Testing edit function', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-# print(edit_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s notez', 'Austin\'s test note', 'Random content', ['IBM', 'TSLA'], ['Austin\'s portfolio'], ['https://www.google.com/'], []))
-# print(delete_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Testing edit function'))
-
-# print(get_note('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', 'Austin\'s test note'))
-# print(get_all_notes('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19'))
-# print(get_relevant_notes('0ee69cfc-83ce-11eb-8620-0a4e2d6dea19', ['IBM'], []))
