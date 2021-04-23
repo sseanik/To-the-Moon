@@ -194,8 +194,8 @@ const forumActions = {
     const { commentID } = payload;
     dispatch(forumActions.upvoteParentPending(commentID));
     try {
-      dispatch(forumActions.upvoteParentSuccess({ commentID }));
       await forumAPI.upvoteComment(commentID);
+      dispatch(forumActions.upvoteParentSuccess({ commentID }));
     } catch (error) {
       dispatch(forumActions.upvoteParentFailure(error.message));
     }
@@ -218,8 +218,8 @@ const forumActions = {
     const { commentID, parentID } = payload;
     dispatch(forumActions.upvoteChildPending(commentID));
     try {
-      dispatch(forumActions.upvoteChildSuccess(payload));
       await forumAPI.upvoteComment(parentID!, commentID);
+      dispatch(forumActions.upvoteChildSuccess(payload));
     } catch (error) {
       dispatch(forumActions.upvoteChildFailure(error.message));
     }
@@ -242,8 +242,8 @@ const forumActions = {
     const { commentID } = payload;
     dispatch(forumActions.downvoteParentPending(commentID));
     try {
-      dispatch(forumActions.downvoteParentSuccess({ commentID }));
       await forumAPI.downvoteComment(commentID);
+      dispatch(forumActions.downvoteParentSuccess({ commentID }));
     } catch (error) {
       dispatch(forumActions.downvoteParentFailure(error.message));
     }
@@ -266,8 +266,8 @@ const forumActions = {
     const { commentID, parentID } = payload;
     dispatch(forumActions.downvoteChildPending(commentID));
     try {
-      dispatch(forumActions.downvoteChildSuccess(payload));
       await forumAPI.downvoteComment(commentID, parentID!);
+      dispatch(forumActions.downvoteChildSuccess(payload));
     } catch (error) {
       dispatch(forumActions.downvoteChildFailure(error.message));
     }
@@ -290,8 +290,8 @@ const forumActions = {
     const { commentID } = payload;
     dispatch(forumActions.removeUpvoteParentPending(commentID));
     try {
-      dispatch(forumActions.removeUpvoteParentSuccess({ commentID }));
       await forumAPI.upvoteComment(commentID, undefined, true);
+      dispatch(forumActions.removeUpvoteParentSuccess({ commentID }));
     } catch (error) {
       dispatch(forumActions.removeUpvoteParentFailure(error.message));
     }
@@ -314,8 +314,8 @@ const forumActions = {
     const { commentID, parentID } = payload;
     dispatch(forumActions.removeUpvoteChildPending(commentID));
     try {
-      dispatch(forumActions.removeUpvoteChildSuccess(payload));
       await forumAPI.upvoteComment(commentID, parentID!, true);
+      dispatch(forumActions.removeUpvoteChildSuccess(payload));
     } catch (error) {
       dispatch(forumActions.removeUpvoteChildFailure(error.message));
     }
@@ -338,8 +338,8 @@ const forumActions = {
     const { commentID } = payload;
     dispatch(forumActions.removeDownvoteParentPending(commentID));
     try {
-      dispatch(forumActions.removeDownvoteParentSuccess({ commentID }));
       await forumAPI.downvoteComment(commentID, undefined, true);
+      dispatch(forumActions.removeDownvoteParentSuccess({ commentID }));
     } catch (error) {
       dispatch(forumActions.removeDownvoteParentFailure(error.message));
     }
@@ -362,8 +362,8 @@ const forumActions = {
     const { commentID, parentID } = payload;
     dispatch(forumActions.removeDownvoteChildPending(commentID));
     try {
-      dispatch(forumActions.removeDownvoteChildSuccess(payload));
       await forumAPI.downvoteComment(commentID, parentID!, true);
+      dispatch(forumActions.removeDownvoteChildSuccess(payload));
     } catch (error) {
       dispatch(forumActions.removeDownvoteChildFailure(error.message));
     }

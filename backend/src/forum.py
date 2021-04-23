@@ -385,7 +385,7 @@ def get_stock_comments(user_id, stock_ticker):
         if user_id in query_results[i]["upvote_user_ids"]:
             query_results[i]["is_upvoted"] = True
         elif user_id in query_results[i]["downvote_user_ids"]:
-            query_results[i]["is_upvoted"] = True
+            query_results[i]["is_downvoted"] = True
 
         # Add upvote and downvote count fields
         query_results[i]["upvotes"] = len(query_results[i]["upvote_user_ids"])
