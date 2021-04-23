@@ -3,9 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faWindowClose } from "@fortawesome/free-solid-svg-icons";
 import { connect } from "react-redux";
 import { useState } from "react";
-import EditCommentForm from "./EditCommentForm";
-import DeleteCommentButton from "./DeleteCommentButton";
-import { VoteCommentButton } from ".";
+import { DeleteCommentButton, EditCommentForm, VoteCommentButton } from ".";
 
 interface StateProps {
   currentUsername: string;

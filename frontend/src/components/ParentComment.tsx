@@ -6,12 +6,14 @@ import {
   faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
-import ChildComment from "./ChildComment";
 import { connect } from "react-redux";
-import EditCommentForm from "./EditCommentForm";
-import DeleteCommentButton from "./DeleteCommentButton";
-import AddCommentForm from "./AddCommentForm";
-import { VoteCommentButton } from ".";
+import {
+  AddCommentForm,
+  ChildComment,
+  DeleteCommentButton,
+  EditCommentForm,
+  VoteCommentButton,
+} from ".";
 
 interface StateProps {
   currentUsername: string;
