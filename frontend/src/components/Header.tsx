@@ -48,7 +48,7 @@ const Header: React.FC<StateProps & DispatchProps> = (props) => {
 
   const handleLogout = () => {
     logout();
-    history.push("/");
+    history.push("/login");
   };
 
   const handleRedirect = (href: string | null) => {

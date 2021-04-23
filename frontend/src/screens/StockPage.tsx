@@ -1,20 +1,21 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Row, Col, Tabs, Tab, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Button } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
 import stockActions from "../redux/actions/stockActions";
 
 import {
-  DataSummary,
-  DataFundamentals,
-  DataIncomeStatement,
   DataBalanceSheet,
   DataCashFlow,
-  StockNews,
+  DataFundamentals,
+  DataIncomeStatement,
+  DataSummary,
+  Forum,
   NoteRelevant,
-  PredictionController,
   PaperTradeController,
+  PredictionController,
+  StockNews,
 } from "../components";
 
 import RangeSelectorOptions from "../helpers/RangeSelectorOptions";
@@ -22,7 +23,6 @@ import { durationOptionsObj } from "../helpers/PredictionHelpers";
 
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import Forum from "../components/Forum";
 require("highcharts/modules/annotations")(Highcharts);
 
 interface seriesT {
@@ -252,8 +252,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
     </Container>
   );
 
-  const alertComponent = <Alert variant="danger">{error}</Alert>;
-
   const stockNameText =
     error || loading ? `${symbol}` : `${company} (${symbol})`;
 
@@ -263,7 +261,6 @@ const StockPage: React.FC<StateProps & DispatchProps> = (props) => {
         <h1>{stockNameText}</h1>
         {loadingSpinnerComponent}
       </Row>
-      <Row>{error ? alertComponent : null}</Row>
       <Row className="justify-content-center align-items-center">
         <Col>
           <Container>

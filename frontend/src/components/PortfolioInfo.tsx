@@ -5,9 +5,7 @@ import { connect } from "react-redux";
 import { Col, Container, Row, Button } from "react-bootstrap";
 import investmentActions from "../redux/actions/investmentActions";
 import ClipLoader from "react-spinners/ClipLoader";
-import StockInfo from "../components/StockInfo";
-import DeletePortfolioButton from "./DeletePortfolioButton";
-import { PortfolioPerformance } from ".";
+import { DeletePortfolioButton, PortfolioPerformance, StockInfo } from ".";
 import { StockParams } from "../screens/PortfolioPage";
 
 interface Props {

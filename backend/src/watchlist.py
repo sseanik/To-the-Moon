@@ -13,7 +13,7 @@ import simplejson
 from flask_restx import Namespace, Resource, abort
 
 
-WATCHLIST_NS = Namespace("watchlist", "TODO")
+WATCHLIST_NS = Namespace("watchlist", "Watchlist content published and followed by users")
 
 
 ###################################

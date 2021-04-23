@@ -69,9 +69,10 @@ const userReducer = (state = initialState, action: UserAction) => {
       };
     // Logout
     case userConstants.LOGOUT:
+      window.localStorage.removeItem("Token");
       return {
-        ...state,
         ...initialState,
+        token: null,
       };
     // Username
     case userConstants.GET_USERNAME_PENDING:
@@ -81,7 +82,6 @@ const userReducer = (state = initialState, action: UserAction) => {
           ...state.user,
           loading: true,
         },
-        username: null,
       };
     case userConstants.GET_USERNAME_SUCCESS:
       return {
@@ -138,7 +138,7 @@ const initialState: InitialState = {
     error: "",
   },
   user: {
-    loading: true,
+    loading: false,
   },
   token: Utils.getToken(),
   username: "",

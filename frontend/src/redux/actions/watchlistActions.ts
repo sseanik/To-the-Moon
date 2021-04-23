@@ -18,7 +18,6 @@ const watchlistActions = {
     dispatch(watchlistActions.getWatchlistsPending());
     try {
       const { data } = await watchlistAPI.getWatchlists();
-      console.log(data);
       dispatch(watchlistActions.getWatchlistsSuccess(data));
     } catch (error) {
       dispatch(watchlistActions.getWatchlistsFailure(error.message));

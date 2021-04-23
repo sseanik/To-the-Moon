@@ -1,10 +1,8 @@
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
-import { Container, Row, Col, Alert } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 
-import {
-  fundamentalsFormatter as formatMap
-} from "../helpers/ObjectFormatRules";
+import { fundamentalsFormatter as formatMap } from "../helpers/ObjectFormatRules";
 
 export interface fundamentalDataT {
   company_name: string;
@@ -30,14 +28,13 @@ export const defaultFundamentalData = {
   pe_ratio: 0,
   eps: 0,
   dividend_yield: 0,
-}
+};
 
 interface StateProps {
   loading: boolean;
   data: fundamentalDataT;
   error: string;
 }
-
 
 const DataFundamentals: React.FC<StateProps> = (props) => {
   const { loading, error, data } = props;
@@ -49,41 +46,38 @@ const DataFundamentals: React.FC<StateProps> = (props) => {
     </div>
   );
 
-  const alertComponent = (
-    <Alert variant="danger">
-      {error}
-    </Alert>
-  );
-
   const tableComponent = (
     <Container className="generic-container-scrolling">
       <Row>
         <Col>
           <hr />
-          {data ? Object.entries(data).map(([field, value], idx) => (
-            <div key={idx}>
-              <Row lg={6}>
-                <Col className="text-left font-weight-bold" lg={6}>
-                  <span>
-                    {formatMap.hasOwnProperty(field) && formatMap[field].hasOwnProperty("name") ? formatMap[field].name : field}
-                  </span>
-                </Col>
-                <Col className="text-right" lg={6}>
-                  <span>
-                    {value}
-                  </span>
-                </Col>
-              </Row>
-              <hr />
-            </div>
-          )) : null}
+          {data
+            ? Object.entries(data).map(([field, value], idx) => (
+                <div key={idx}>
+                  <Row lg={6}>
+                    <Col className="text-left font-weight-bold" lg={6}>
+                      <span>
+                        {formatMap.hasOwnProperty(field) &&
+                        formatMap[field].hasOwnProperty("name")
+                          ? formatMap[field].name
+                          : field}
+                      </span>
+                    </Col>
+                    <Col className="text-right" lg={6}>
+                      <span>{value}</span>
+                    </Col>
+                  </Row>
+                  <hr />
+                </div>
+              ))
+            : null}
         </Col>
       </Row>
     </Container>
   );
 
-  return loading ? loadingSpinnerComponent : (error ? alertComponent : tableComponent);
-}
+  return loading ? loadingSpinnerComponent : error ? <></> : tableComponent;
+};
 
 const mapStateToProps = (state: any) => ({
   loading: state.stockReducer.basic.loading,
