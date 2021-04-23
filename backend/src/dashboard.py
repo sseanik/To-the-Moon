@@ -58,6 +58,13 @@ def get_user_dashboards(user_id):
 
 # Limit to 1 per user now, but leave room for extendability
 def create_user_dashboard(user_id):
+    """Creates a dashboard for the specified user
+        Args:
+            user_id (str): user identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -81,6 +88,13 @@ def create_user_dashboard(user_id):
 
 
 def delete_user_dashboard(dashboard_id):
+    """Deletes a specified dashboard
+        Args:
+            dashboard_id (str): dashboard identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -103,6 +117,18 @@ def delete_user_dashboard(dashboard_id):
 
 
 def get_dashboard_blocks(dashboard_id):
+    """Gets all dashboard blocks for a specified dashboard
+    Dashboard blocks can take any of the following types
+        Type of blocks (str):
+            portfolio
+            stock
+            news
+        Args:
+            dashboard_id (str): dashboard identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
