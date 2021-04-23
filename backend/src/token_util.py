@@ -1,6 +1,6 @@
-####################
-#   Token Module   #
-####################
+# ---------------------------------------------------------------------------- #
+#                                 Token Module                                 #
+# ---------------------------------------------------------------------------- #
 
 
 import os
@@ -24,8 +24,3 @@ def get_id_from_token(token):
         return decoded_token["id"]
     except:
         abort(400, "Failed to decode token")
-        # raise Exception("Failed to decode token")
-
-
-# print(encoded_jwt)
-# print(get_id_from_token(encoded_jwt))

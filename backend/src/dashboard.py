@@ -2,16 +2,13 @@
 #                                 Dashboard Module                             #
 # ---------------------------------------------------------------------------- #
 
-from database import create_DB_connection
 from json import dumps
 import psycopg2
-from flask import Blueprint, request, Response
+from flask import request, Response
 from flask_restx import Namespace, Resource, abort
+from database import create_DB_connection
 from token_util import get_id_from_token
-from models import (
-    token_parser,
-    create_dashboard_block_model
-)
+from models import token_parser, create_dashboard_block_model
 
 # ---------------------------------------------------------------------------- #
 #                              Global Declarations                             #
@@ -22,39 +19,53 @@ DASHBOARD_NS = Namespace(
 )
 
 
+TYPE_TABLE_MAPPING = {
+    "portfolio": "portfolio_block",
+    "news": "news_block",
+    "stock": "stock_block",
+}
+
+
 # ---------------------------------------------------------------------------- #
 #                               Helper Functions                               #
 # ---------------------------------------------------------------------------- #
 
-TYPE_TABLE_MAPPING = {
-    "portfolio": "portfolio_block",
-    "news": "news_block",
-    "stock": "stock_block"
-}
 
 def get_user_dashboards(user_id):
+    """Gets the revelant dashboard for a specific user
+        Args:
+            user_id (str): user identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "SELECT id FROM dashboards WHERE user_id=%s"
     try:
-        cur.execute(sql_query, (user_id, ))
+        cur.execute(sql_query, (user_id,))
         query_results = cur.fetchall()
     except:
         abort(500, "Error occurred while retrieving from store")
     finally:
         conn.close()
-        
+
     data = []
     for result in query_results:
         data.append(result[0])
-    response = {
-        "data": data
-    }
+    response = {"data": data}
     return response
 
 
 # Limit to 1 per user now, but leave room for extendability
 def create_user_dashboard(user_id):
+    """Creates a dashboard for the specified user
+        Args:
+            user_id (str): user identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -62,7 +73,7 @@ def create_user_dashboard(user_id):
         RETURNING id
     """
     try:
-        cur.execute(sql_query, (user_id, ))
+        cur.execute(sql_query, (user_id,))
         conn.commit()
         query_results = cur.fetchall()
         if not query_results:
@@ -73,16 +84,18 @@ def create_user_dashboard(user_id):
         abort(500, "Error occurred while inserting into store")
     finally:
         conn.close()
-    response = {
-        "message" : "Dashboard created",
-        "data": {
-            "id": query_results[0][0]
-        }
-    }
+    response = {"message": "Dashboard created", "data": {"id": query_results[0][0]}}
     return response
 
 
 def delete_user_dashboard(dashboard_id):
+    """Deletes a specified dashboard
+        Args:
+            dashboard_id (str): dashboard identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -91,7 +104,7 @@ def delete_user_dashboard(dashboard_id):
         RETURNING id
     """
     try:
-        cur.execute(sql_query, (dashboard_id, ))
+        cur.execute(sql_query, (dashboard_id,))
         conn.commit()
         query_result = cur.fetchall()
         if not query_result:
@@ -100,16 +113,23 @@ def delete_user_dashboard(dashboard_id):
         abort(500, "Error occurred while deleting from store")
     finally:
         conn.close()
-    response = {
-        "message" : "Dashboard deleted",
-        "data": {
-            "id": query_result[0][0]
-        }
-    }
+    response = {"message": "Dashboard deleted", "data": {"id": query_result[0][0]}}
     return response
 
 
 def get_dashboard_blocks(dashboard_id):
+    """Gets all dashboard blocks for a specified dashboard
+    Dashboard blocks can take any of the following types
+        Type of blocks (str):
+            portfolio
+            stock
+            news
+        Args:
+            dashboard_id (str): dashboard identifier
+        
+        Returns:
+            dashboard_id for the dashboard
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -117,7 +137,7 @@ def get_dashboard_blocks(dashboard_id):
         WHERE dashboard_id=%s
     """
     try:
-        cur.execute(sql_query, (dashboard_id, ))
+        cur.execute(sql_query, (dashboard_id,))
         query_results = cur.fetchall()
     except:
         abort(500, "Error occurred while retrieving from store")
@@ -126,13 +146,22 @@ def get_dashboard_blocks(dashboard_id):
     data = []
     for result in query_results:
         data.append(result[0])
-    response = {
-        "data": data
-    }
+    response = {"data": data}
     return response
 
 
 def create_dashboard_block(dashboard_id, user_id, block_type, meta):
+    """Create an individual dashboard square which can have different types of content
+
+    Args:
+        dashboard_id (string): The ID of the dashboard related to the user
+        user_id (string): The string UUID related to the user
+        block_type (string): The content type of the block
+        meta (string): Extensible option
+
+    Returns:
+        dictionary: Success message and the created data of the dashboard block
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
 
@@ -143,7 +172,7 @@ def create_dashboard_block(dashboard_id, user_id, block_type, meta):
         WHERE table_name=%s
     """
     try:
-        cur.execute(sql_query, (table, ))
+        cur.execute(sql_query, (table,))
         query_results = cur.fetchall()
     except:
         conn.close()
@@ -158,15 +187,19 @@ def create_dashboard_block(dashboard_id, user_id, block_type, meta):
     sql_query = """
         INSERT INTO {} ({}) VALUES ({})
         RETURNING id
-    """.format(table, "".join(str(e) + ", " for e in cols)[:-2], "".join("%s, " for e in cols)[:-2])
+    """.format(
+        table,
+        "".join(str(e) + ", " for e in cols)[:-2],
+        "".join("%s, " for e in cols)[:-2],
+    )
     values = ()
     for col in cols:
         if col == "type":
-            values += (block_type, )
+            values += (block_type,)
         elif col == "user_id":
-            values += (user_id, )
+            values += (user_id,)
         else:
-            values += (meta[col], )
+            values += (meta[col],)
 
     try:
         cur.execute(sql_query, values)
@@ -194,16 +227,19 @@ def create_dashboard_block(dashboard_id, user_id, block_type, meta):
         abort(500, "Error occurred while inserting into store")
     finally:
         conn.close()
-    response = {
-        "message" : "Dashboard block created",
-        "data": {
-            "id": block_id
-        }
-    }
+    response = {"message": "Dashboard block created", "data": {"id": block_id}}
     return response
 
 
 def get_block(block_id):
+    """Get the block of a dashboard given the block id
+
+    Args:
+        block_id (string): The ID of the given block
+
+    Returns:
+        dictionary: Dictionary of the block data
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
 
@@ -213,7 +249,7 @@ def get_block(block_id):
         WHERE id=%s
     """
     try:
-        cur.execute(sql_query, (block_id, ))
+        cur.execute(sql_query, (block_id,))
         query_results = cur.fetchall()
         if not query_results:
             abort(404, "No block identified by the given id")
@@ -229,7 +265,7 @@ def get_block(block_id):
         WHERE table_name=%s
     """
     try:
-        cur.execute(sql_query, (table, ))
+        cur.execute(sql_query, (table,))
         query_results = cur.fetchall()
     except:
         conn.close()
@@ -244,9 +280,11 @@ def get_block(block_id):
     sql_query = """
         SELECT {} from {}
         WHERE id=%s
-    """.format("".join(str(e) + ", " for e in cols)[:-2], table)
+    """.format(
+        "".join(str(e) + ", " for e in cols)[:-2], table
+    )
     try:
-        cur.execute(sql_query, (block_id, ))
+        cur.execute(sql_query, (block_id,))
         query_results = cur.fetchall()
         if not query_results:
             abort(404, "No block identified by the given id in its meta store")
@@ -258,19 +296,21 @@ def get_block(block_id):
     meta = {}
     for i in range(len(cols)):
         meta[cols[i]] = query_results[0][i]
-    
-    data = {
-        "id": block_id,
-        "type": block_type,
-        "meta": meta
-    }
-    response = {
-        "data": data
-    }
+
+    data = {"id": block_id, "type": block_type, "meta": meta}
+    response = {"data": data}
     return response
 
 
 def delete_block(block_id):
+    """Given a block_id delete the block associated with it
+
+    Args:
+        block_id (string): The ID of the block
+
+    Returns:
+        dictionary: Success message and data related to the deleted block
+    """
     conn = create_DB_connection()
     cur = conn.cursor()
 
@@ -281,7 +321,7 @@ def delete_block(block_id):
         RETURNING id
     """
     try:
-        cur.execute(sql_query, (block_id, ))
+        cur.execute(sql_query, (block_id,))
         conn.commit()
         query_result = cur.fetchall()
         if not query_result:
@@ -298,7 +338,7 @@ def delete_block(block_id):
         RETURNING id
     """
     try:
-        cur.execute(sql_query, (block_id, ))
+        cur.execute(sql_query, (block_id,))
         conn.commit()
         query_result = cur.fetchall()
         if not query_result:
@@ -307,13 +347,8 @@ def delete_block(block_id):
         abort(500, "Error occurred while deleting from store")
     finally:
         conn.close()
-    
-    response = {
-        "message" : "Block deleted",
-        "data": {
-            "id": deleted_block_id
-        }
-    }
+
+    response = {"message": "Block deleted", "data": {"id": deleted_block_id}}
     return response
 
 
@@ -333,12 +368,14 @@ class Dashboard(Resource):
         user_id = get_id_from_token(token)
         response = get_user_dashboards(user_id)
         return Response(dumps(response), status=200)
-    
+
     @DASHBOARD_NS.doc(description="Create a new dashboard")
     @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), validate=True)
     @DASHBOARD_NS.response(201, "Successfully created dashboard")
     @DASHBOARD_NS.response(400, "Invalid data was provided")
-    @DASHBOARD_NS.response(409, "Conflict with existing resource, user already has a dashboard")
+    @DASHBOARD_NS.response(
+        409, "Conflict with existing resource, user already has a dashboard"
+    )
     def post(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
@@ -364,8 +401,14 @@ class UserDashboard(Resource):
     #      - stock_ticker: string
     #   - stock:
     #      - stock_ticker: string
-    @DASHBOARD_NS.doc(description="Create a new dashboard block. Currently supported types are portfolio, news and stock.")
-    @DASHBOARD_NS.expect(token_parser(DASHBOARD_NS), create_dashboard_block_model(DASHBOARD_NS), validate=True)
+    @DASHBOARD_NS.doc(
+        description="Create a new dashboard block. Currently supported types are portfolio, news and stock."
+    )
+    @DASHBOARD_NS.expect(
+        token_parser(DASHBOARD_NS),
+        create_dashboard_block_model(DASHBOARD_NS),
+        validate=True,
+    )
     @DASHBOARD_NS.response(201, "Successfully created dashboard block")
     @DASHBOARD_NS.response(400, "Invalid data was provided")
     def post(self, id):

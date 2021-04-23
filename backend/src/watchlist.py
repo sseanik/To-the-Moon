@@ -1,27 +1,47 @@
-########################
-#   Watchlist Module   #
-########################
+# ---------------------------------------------------------------------------- #
+#                               Watchlist Module                               #
+# ---------------------------------------------------------------------------- #
 
 from json import dumps
 from decimal import Decimal
 import psycopg2
+import simplejson
+
 from flask import request, Response
+from flask_restx import Namespace, Resource, abort
+from iexfinance.stocks import Stock
+
 from database import create_DB_connection
 from token_util import get_id_from_token
-from iexfinance.stocks import Stock
-import simplejson
-from flask_restx import Namespace, Resource, abort
+
+# ---------------------------------------------------------------------------- #
+#                              GLOBAL DECLARATIONS                             #
+# ---------------------------------------------------------------------------- #
+
+WATCHLIST_NS = Namespace(
+    "watchlist", "Watchlist content published and followed by users"
+)
 
 
-WATCHLIST_NS = Namespace("watchlist", "Watchlist content published and followed by users")
-
-
-###################################
-# Please leave all functions here #
-###################################
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 
 def publish_watchlist(user_id, portfolio_name, description):
+    """Transforms a portfolio into a watchlist. Watchlists have the same name as the original portfolio.
+    Watchlists only store the stock tickers from the original portfolios, and its proportion of the
+    portfolio's invested capital.
+
+    Args:
+        user_id (uuid): Identifies the user
+        portfolio_name (string): [description]
+        description (string): [description]
+
+    Returns:
+        dictionary: On success this function returns a message that the watchlist was created.
+    """    
+
     conn = create_DB_connection()
     cur = conn.cursor()
     investments_query = """
@@ -66,6 +86,15 @@ def publish_watchlist(user_id, portfolio_name, description):
 
 
 def subscribe(user_id, watchlist_id):
+    """Implements backend functionality for following a watchlist. 
+
+    Args:
+        user_id (uuid): user identifier.
+        watchlist_id (uuid): user identifier.
+
+    Returns:
+        dictionary: On success this function returns a message that the user has been subscribed.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -85,6 +114,15 @@ def subscribe(user_id, watchlist_id):
 
 
 def unsubscribe(user_id, watchlist_id):
+    """Implements backend functionality for unfollowing a watchlists.
+
+    Args:
+        user_id (uuid): user identifier.
+        watchlist_id (uuid): user identifier.
+
+    Returns:
+        dictionary: On success this function returns a message that the user has been unsubscribed.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -103,6 +141,14 @@ def unsubscribe(user_id, watchlist_id):
 
 
 def get_user_subscriptions(user_id):
+    """Fetches a users followed watchlists.
+
+    Args:
+        user_id (uuid): user identifier.
+
+    Returns:
+        dictionary: contains a confirmation message and a list of watchlist_id's that the user is following.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -123,6 +169,15 @@ def get_user_subscriptions(user_id):
 
 
 def delete_watchlist(user_id, watchlist_id):
+    """Removes a watchlist from the database so it is no longer a watchlist
+
+    Args:
+        user_id (uuid): user identifier.
+        watchlist_id (uuid): user identifier.
+
+    Returns:
+        dictionary: On success this function returns a message that the watchlist has been removed.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """DELETE FROM subscriptions WHERE user_id=%s AND watchlist_id=%s;
@@ -134,6 +189,13 @@ def delete_watchlist(user_id, watchlist_id):
 
 
 def get_all_watchlists():
+    """Fetches all the watchlists available.
+
+    Returns:
+        list of dictionaries: each list item holds a watchlist dictionary. Watchlist dictionaries contain information on
+        the watchlist, and a list of stock dictionaries. Stock dictionaries hold info about that stock position and the
+        stocks company.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -196,6 +258,15 @@ def get_all_watchlists():
 
 
 def get_watchlist(watchlist_id):
+    """Fetches a specific watchlist.
+
+    Args:
+        watchlist_id (uuid): user identifier.
+
+    Returns:
+        dictionary: returns a watchlist dictionary holding information about the watchlist. Also holds a list of stock dictionaries.
+        Each of these stock dictionaries holds information about that stock position and the stocks company. 
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -245,11 +316,11 @@ def get_watchlist(watchlist_id):
     return result
 
 
-################################
-# Please leave all routes here #
-################################
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
-# delete
+
 @WATCHLIST_NS.route("")
 class Watchlist(Resource):
     def post(self):
@@ -266,7 +337,7 @@ class Watchlist(Resource):
         result = delete_watchlist(user_id, data["watchlist_id"])
         return Response(dumps(result), status=200)
 
-    # get a single watchlist
+    # Retrieve a single watchlist
     def get(self):
         watchlist_id = request.args.get("watchlist_id")
         result = get_watchlist(watchlist_id)
@@ -275,7 +346,6 @@ class Watchlist(Resource):
 
 @WATCHLIST_NS.route("/subscribe")
 class Subscribe(Resource):
-    # subscribe
     def post(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
@@ -283,7 +353,6 @@ class Subscribe(Resource):
         result = subscribe(user_id, data["watchlist_id"])
         return Response(dumps(result), status=201)
 
-    # unsubscribe
     def delete(self):
         token = request.headers.get("Authorization")
         user_id = get_id_from_token(token)
@@ -292,7 +361,6 @@ class Subscribe(Resource):
         return Response(dumps(result), status=200)
 
 
-# get all watchlists
 @WATCHLIST_NS.route("/get_all")
 class AllWatchlists(Resource):
     def get(self):
@@ -300,7 +368,6 @@ class AllWatchlists(Resource):
         return Response(simplejson.dumps(result), status=200)
 
 
-# get users watchlists
 @WATCHLIST_NS.route("/userslist", methods=["GET"])
 class Userlists(Resource):
     def get(self):

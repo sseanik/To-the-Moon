@@ -1,10 +1,8 @@
 import os
-import sys
-import pathlib
 import json
+import pathlib
 from datetime import date
 import requests
-
 from definitions import local_storage_dir
 
 
@@ -152,33 +150,3 @@ class TimeSeries:
     def get_quick_quote(self, symbol, **kwargs):
         url = TimeSeries._construct_global_quote(symbol, **kwargs)
         return AlphaVantageAPI._get_query(url)
-
-
-if __name__ == "__main__":
-    # Test the wrapper
-    ts = TimeSeries()
-    # gme = ts.get_intraday("GME", "5min", outputsize="full")
-    # AlphaVantageAPI.save_json("GME", gme, label="intraday")
-
-    # ibm = ts.get_intraday("IBM", "5min", outputsize="full")
-    # AlphaVantageAPI.save_json("IBM", ibm, label="intraday")
-
-    # aeo = ts.get_intraday("AEO", "5min", outputsize="full")
-    # AlphaVantageAPI.save_json("AEO", aeo, label="intraday")
-
-    """
-    ibm = ts.get_quick_quote("IBM")
-    AlphaVantageAPI.save_json("IBM", ibm, label="quick_quote")
-
-    ibm = ts.get_company_overview("IBM")
-    AlphaVantageAPI.save_json("IBM", ibm, label="overview")
-
-    ibm = ts.get_income_statement("IBM")
-    AlphaVantageAPI.save_json("IBM", ibm, label="income_statement")
-
-    ibm = ts.get_balance_sheet("IBM")
-    AlphaVantageAPI.save_json("IBM", ibm, label="balance_sheet")
-
-    ibm = ts.get_cash_flow("IBM")
-    AlphaVantageAPI.save_json("IBM", ibm, label="cash_flow")
-    """
