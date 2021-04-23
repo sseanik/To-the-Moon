@@ -84,6 +84,12 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
         # update holdings table
         sql_query = "UPDATE Holdings SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
         cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
+        # update notes table
+        sql_query = "UPDATE Notes SET portfolio_names=ARRAY_REPLACE(portfolio_names, %s, %s) WHERE user_id=%s"
+        cur.execute(sql_query, (old_portfolio_name, new_portfolio_name, user_id))
+        # update portfolio_block table
+        sql_query = "UPDATE portfolio_block SET portfolio_name=%s WHERE portfolio_name=%s AND user_id=%s"
+        cur.execute(sql_query, (new_portfolio_name, old_portfolio_name, user_id))
         response = {
             "message": "'"
             + old_portfolio_name
@@ -91,8 +97,6 @@ def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
             + new_portfolio_name
             + "'.",
         }
-        # TODO: update notes table
-        # TODO: update dashboard_blocks table
     else:
         abort(400, "Already a portfolio named" + new_portfolio_name + ".")
     # Commit changes, close connection and return response to user
