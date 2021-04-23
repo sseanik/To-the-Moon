@@ -1,3 +1,7 @@
+# ---------------------------------------------------------------------------- #
+#                              Notification Module                             #
+# ---------------------------------------------------------------------------- #
+
 from time import sleep
 from json import dumps
 from flask_restx import Namespace, Resource, abort
@@ -10,7 +14,15 @@ from portfolio import get_portfolio_performance
 from psycopg2.extras import RealDictCursor
 
 
+# ---------------------------------------------------------------------------- #
+#                              Global Declarations                             #
+# ---------------------------------------------------------------------------- #
+
 NOTIFICATION_NS = Namespace("notification", "Email notification service")
+
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 
 def send_news_email(app):
@@ -251,6 +263,11 @@ def unsubscribe(user_id):
     conn.close()
 
     return result, status
+
+
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
 
 @NOTIFICATION_NS.route("/unsubscribe/<string:user_id>")
