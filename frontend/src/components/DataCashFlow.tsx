@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 import { connect } from "react-redux";
-import { Container, Row, Col, Alert } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import stockActions from "../redux/actions/stockActions";
 import { cashFlowStatementFormatter as formatMap } from "../helpers/ObjectFormatRules";
 
@@ -54,47 +54,43 @@ const DataCashFlow: React.FC<Props & StateProps & DispatchProps> = (props) => {
     </div>
   );
 
-  const alertComponent = <Alert variant="danger">{error}</Alert>;
-
   const tableComponent = (
     <Container className="financials-container-scrolling">
       <Row>
-        {data ? data.map((entry: CashFlowEntry, idx) => (
-          <Col key={idx}>
-            <hr />
-            {Object.entries(entry).map(([field, value], idx) => (
-              <div key={idx}>
-                <Row lg={6}>
-                  <Col className="text-left" lg={6}>
-                    <span>
-                      <b>
-                        {formatMap.hasOwnProperty(field) &&
-                        formatMap[field].hasOwnProperty("name")
-                          ? formatMap[field].name
-                          : field}
-                      </b>
-                    </span>
-                  </Col>
-                  <Col className="text-right" lg={6}>
-                    <span>
-                      {typeof value === "string" ? value : value / 1000}
-                    </span>
-                  </Col>
-                </Row>
+        {data
+          ? data.map((entry: CashFlowEntry, idx) => (
+              <Col key={idx}>
                 <hr />
-              </div>
-            ))}
-          </Col>
-        )) : null}
+                {Object.entries(entry).map(([field, value], idx) => (
+                  <div key={idx}>
+                    <Row lg={6}>
+                      <Col className="text-left" lg={6}>
+                        <span>
+                          <b>
+                            {formatMap.hasOwnProperty(field) &&
+                            formatMap[field].hasOwnProperty("name")
+                              ? formatMap[field].name
+                              : field}
+                          </b>
+                        </span>
+                      </Col>
+                      <Col className="text-right" lg={6}>
+                        <span>
+                          {typeof value === "string" ? value : value / 1000}
+                        </span>
+                      </Col>
+                    </Row>
+                    <hr />
+                  </div>
+                ))}
+              </Col>
+            ))
+          : null}
       </Row>
     </Container>
   );
 
-  return loading
-    ? loadingSpinnerComponent
-    : error
-    ? alertComponent
-    : tableComponent;
+  return loading ? loadingSpinnerComponent : error ? <></> : tableComponent;
 };
 
 const mapStateToProps = (state: any) => ({

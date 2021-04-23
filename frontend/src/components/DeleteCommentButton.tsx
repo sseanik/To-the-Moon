@@ -1,6 +1,5 @@
 import { connect } from "react-redux";
 import forumActions from "../redux/actions/forumActions";
-import ClipLoader from "react-spinners/ClipLoader";
 import { Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -39,17 +38,12 @@ const DeleteCommentButton: React.FC<StateProps & DispatchProps & Props> = (
     parentID,
   } = props;
 
-  return parentDeleting.includes(commentID) ||
-    childDeleting.includes(commentID) ? (
-    <ClipLoader
-      color={"green"}
-      loading={
-        parentDeleting.includes(commentID) || childDeleting.includes(commentID)
-      }
-    />
-  ) : (
+  return (
     <Button
       variant="light"
+      disabled={
+        parentDeleting.includes(commentID) || childDeleting.includes(commentID)
+      }
       onClick={() =>
         parentID
           ? deleteChild({ commentID, parentID })

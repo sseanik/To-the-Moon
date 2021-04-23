@@ -1,19 +1,20 @@
 import dashboardAPI from "../../api/dashboard";
 import dashboardConstants from "../constants/dashboardConstants";
+import { Dispatch } from "redux";
 
 const dashboardActions = {
   getDashboardsPending: () => ({
     type: dashboardConstants.GET_DASHBOARDS_PENDING,
   }),
-  getDashboardsSuccess: (response) => ({
+  getDashboardsSuccess: (response: Array<string>) => ({
     type: dashboardConstants.GET_DASHBOARDS_SUCCESS,
     payload: response,
   }),
-  getDashboardsFailure: (error) => ({
+  getDashboardsFailure: (error: string) => ({
     type: dashboardConstants.GET_DASHBOARDS_FAILURE,
     payload: error,
   }),
-  getDashboards: () => async (dispatch) => {
+  getDashboards: () => async (dispatch: Dispatch) => {
     dispatch(dashboardActions.getDashboardsPending());
     try {
       const { data } = await dashboardAPI.getUserDashboards();
@@ -25,15 +26,15 @@ const dashboardActions = {
   createDashboardPending: () => ({
     type: dashboardConstants.CREATE_DASHBOARD_PENDING,
   }),
-  createDashboardSuccess: (response) => ({
+  createDashboardSuccess: (response: IdRes) => ({
     type: dashboardConstants.CREATE_DASHBOARD_SUCCESS,
     payload: response,
   }),
-  createDashboardFailure: (error) => ({
+  createDashboardFailure: (error: string) => ({
     type: dashboardConstants.CREATE_DASHBOARD_FAILURE,
     payload: error,
   }),
-  createDashboard: () => async (dispatch) => {
+  createDashboard: () => async (dispatch: Dispatch) => {
     dispatch(dashboardActions.createDashboardPending());
     try {
       const { data } = await dashboardAPI.createUserDashboard();
@@ -48,16 +49,18 @@ const dashboardActions = {
   deleteDashboardSuccess: () => ({
     type: dashboardConstants.DELETE_DASHBOARD_SUCCESS,
   }),
-  deleteDashboardFailure: (error) => ({
+  deleteDashboardFailure: (error: string) => ({
     type: dashboardConstants.DELETE_DASHBOARD_FAILURE,
     payload: error,
   }),
-  deleteDashboard: (payload) => async (dispatch) => {
+  deleteDashboard: (payload: DeleteDashboardParams) => async (
+    dispatch: Dispatch
+  ) => {
     dispatch(dashboardActions.deleteDashboardPending());
     try {
       const { dashboardId } = payload;
-      const { data } = await dashboardAPI.deleteDashboard(dashboardId);
-      dispatch(dashboardActions.deleteDashboardSuccess(data));
+      await dashboardAPI.deleteDashboard(dashboardId);
+      dispatch(dashboardActions.deleteDashboardSuccess());
     } catch (error) {
       dispatch(dashboardActions.createDashboardFailure(error.message));
     }
@@ -65,15 +68,15 @@ const dashboardActions = {
   getBlocksPending: () => ({
     type: dashboardConstants.GET_DASHBOARD_BLOCKS_PENDING,
   }),
-  getBlocksSuccess: (response) => ({
+  getBlocksSuccess: (response: Array<string>) => ({
     type: dashboardConstants.GET_DASHBOARD_BLOCKS_SUCCESS,
     payload: response,
   }),
-  getBlocksFailure: (error) => ({
+  getBlocksFailure: (error: string) => ({
     type: dashboardConstants.GET_DASHBOARD_BLOCKS_FAILURE,
     payload: error,
   }),
-  getBlocks: (payload) => async (dispatch) => {
+  getBlocks: (payload: GetBlocksParams) => async (dispatch: Dispatch) => {
     dispatch(dashboardActions.getBlocksPending());
     try {
       const { dashboardId } = payload;
@@ -83,19 +86,19 @@ const dashboardActions = {
       dispatch(dashboardActions.getBlocksFailure(error.message));
     }
   },
-  getBlockMetaPending: (blockId) => ({
+  getBlockMetaPending: (blockId: string) => ({
     type: dashboardConstants.GET_BLOCK_META_PENDING,
     payload: { blockId },
   }),
-  getBlockMetaSuccess: (blockId, response) => ({
+  getBlockMetaSuccess: (blockId: string, response: BlockMetaRes) => ({
     type: dashboardConstants.GET_BLOCK_META_SUCCESS,
     payload: { blockId, response },
   }),
-  getBlockMetaFailure: (blockId, error) => ({
+  getBlockMetaFailure: (blockId: string, error: string) => ({
     type: dashboardConstants.GET_BLOCK_META_FAILURE,
     payload: { blockId, error },
   }),
-  getBlockMeta: (payload) => async (dispatch) => {
+  getBlockMeta: (payload: GetBlockMetaParams) => async (dispatch: Dispatch) => {
     const { blockId } = payload;
     dispatch(dashboardActions.getBlockMetaPending(blockId));
     try {
@@ -108,15 +111,15 @@ const dashboardActions = {
   createBlockPending: () => ({
     type: dashboardConstants.CREATE_BLOCK_PENDING,
   }),
-  createBlockSuccess: (response) => ({
+  createBlockSuccess: (response: IdRes) => ({
     type: dashboardConstants.CREATE_BLOCK_SUCCESS,
     payload: response,
   }),
-  createBlockFailure: (error) => ({
+  createBlockFailure: (error: string) => ({
     type: dashboardConstants.CREATE_BLOCK_FAILURE,
     payload: error,
   }),
-  createBlock: (payload) => async (dispatch) => {
+  createBlock: (payload: CreateBlockParams) => async (dispatch: Dispatch) => {
     dispatch(dashboardActions.createBlockPending());
     try {
       const { dashboardId, type, meta } = payload;
@@ -133,15 +136,15 @@ const dashboardActions = {
   deleteBlockPending: () => ({
     type: dashboardConstants.DELETE_BLOCK_PENDING,
   }),
-  deleteBlockSuccess: (response) => ({
+  deleteBlockSuccess: (response: IdRes) => ({
     type: dashboardConstants.DELETE_BLOCK_SUCCESS,
     payload: response,
   }),
-  deleteBlockFailure: (error) => ({
+  deleteBlockFailure: (error: string) => ({
     type: dashboardConstants.DELETE_BLOCK_FAILURE,
     payload: error,
   }),
-  deleteBlock: (payload) => async (dispatch) => {
+  deleteBlock: (payload: DeleteBlockParams) => async (dispatch: Dispatch) => {
     dispatch(dashboardActions.deleteBlockPending());
     try {
       const { blockId } = payload;
@@ -152,5 +155,30 @@ const dashboardActions = {
     }
   },
 };
+
+interface DashboardIdParam {
+  dashboardId: string;
+}
+
+interface BlockIdParam {
+  blockId: string;
+}
+
+interface BlockMeta {
+  type: string;
+  meta: { [key: string]: any };
+}
+
+interface IdRes {
+  id: string;
+}
+
+type DeleteDashboardParams = DashboardIdParam;
+type GetBlocksParams = DashboardIdParam;
+type GetBlockMetaParams = BlockIdParam;
+type CreateBlockParams = DashboardIdParam & BlockMeta;
+type DeleteBlockParams = BlockIdParam;
+type BlockMetaRes = IdRes & BlockMeta;
+
 
 export default dashboardActions;

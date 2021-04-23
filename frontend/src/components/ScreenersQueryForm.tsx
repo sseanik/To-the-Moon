@@ -1,4 +1,4 @@
-import { Container, Col, Row, Button, Form, Alert } from "react-bootstrap";
+import { Alert, Container, Col, Row, Button, Form } from "react-bootstrap";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { connect } from "react-redux";
@@ -72,26 +72,20 @@ const schema = Yup.object({
   payoutRatioUpper: Yup.number().nullable(true),
 });
 
-// Add Props
-
-// Add StateProps
 interface StateProps {
   resultsLoading: boolean;
   resultsData: Array<any>;
-  resultsError: string;
   saveLoading: boolean;
   saveData: Array<any>;
-  saveError: string;
 }
 
-// Add DispatchProps
 interface DispatchProps {
   getScreenerResults: (payload: getScreenerResultsParams) => void;
   saveScreener: (payload: saveScreenerParams) => void;
 }
 
 const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
-  const { saveData, saveError, getScreenerResults, saveScreener } = props;
+  const { saveData, getScreenerResults, saveScreener } = props;
 
   const formToParamsObj = (values: ScreenerFormValues) => {
     const yrLow = values.intradayLower;
@@ -140,7 +134,11 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
   };
 
   return (
-    <Formik onSubmit={doSubmit} initialValues={initialValues} schema={schema}>
+    <Formik
+      onSubmit={doSubmit}
+      initialValues={initialValues}
+      validationSchema={schema}
+    >
       {({
         handleSubmit,
         handleChange,
@@ -440,10 +438,26 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
                   </Form.Group>
                 </Col>
               </Row>
+              <Row className="justify-content-center">
+                <Col xs lg="2">
+                  <Button
+                    disabled={false}
+                    size="lg"
+                    variant="success"
+                    onClick={() => {
+                      doSubmit(values);
+                    }}
+                  >
+                    Filter
+                  </Button>
+                </Col>
+              </Row>
             </Container>
-            <Container>
+            <Container className="my-3 w-75">
               <Form.Group controlId="payoutRatio">
-                <Form.Label>Screener Name</Form.Label>
+                <Form.Label>
+                  Want to save this screener? <br /> Give it a name:
+                </Form.Label>
                 <Form.Control
                   className="mr-sm-2"
                   name="screenerName"
@@ -466,18 +480,6 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
               <Row className="justify-content-md-center">
                 <Col xs lg="2">
                   <Button
-                    disabled={false}
-                    size="lg"
-                    variant="success"
-                    onClick={() => {
-                      doSubmit(values);
-                    }}
-                  >
-                    Filter
-                  </Button>
-                </Col>
-                <Col xs lg="2">
-                  <Button
                     disabled={!values.screenerName}
                     size="lg"
                     variant="primary"
@@ -493,14 +495,10 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
             <Container>
               <Row className="justify-content-center p-2">
                 <Col xs lg="6">
-                  {saveError ? (
-                    <Alert variant="danger">
-                      {`Save failed: ${saveError}`}
-                    </Alert>
-                  ) : !saveError && saveData ? (
+                  {saveData ? (
                     <Alert variant="success">{`Save succeeded`}</Alert>
                   ) : (
-                    ""
+                    <></>
                   )}
                 </Col>
               </Row>
@@ -512,19 +510,13 @@ const ScreenersQueryForm: React.FC<StateProps & DispatchProps> = (props) => {
   );
 };
 
-// Add mapStateToProps
 const mapStateToProps = (state: any) => ({
   resultsLoading: state.screenerReducer.results.loading,
-  resultsError: state.screenerReducer.results.error,
   resultsData: state.screenerReducer.results.data,
   saveLoading: state.screenerReducer.saveStatus.loading,
-  saveError: state.screenerReducer.saveStatus.error,
   saveData: state.screenerReducer.saveStatus.data,
 });
 
-// Add mapDispatchToProps
-// getScreenerResults
-// saveScreener - separate state, separate page
 const mapDispatchToProps = (dispatch: any) => {
   return {
     getScreenerResults: (payload: getScreenerResultsParams) =>

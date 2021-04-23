@@ -88,10 +88,7 @@ def screener_load_all(user_id):
         cur.execute(sql_query, (user_id,))
         response = cur.fetchall()
         if not response:
-            abort(
-                400,
-                "User with user_id '" + str(user_id) + "' does not have any screeners.",
-            )
+            rtrn = {"message" : "User with user_id '" + str(user_id) + "' does not have any screeners.", "data" : []}
         else:
             data = []
             for row in response:

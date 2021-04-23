@@ -298,21 +298,20 @@ def delete_comment(user_id, comment_id, parent_id=None):
     conn.close()
     return response
 
+
 def sort_stock_comments(comments):
     # Sort the parent comments by vote_difference (descending order)
     sorted_parents = sorted(
-        comments, 
-        key=lambda comment : comment["vote_difference"], 
-        reverse=True
+        comments, key=lambda comment: comment["vote_difference"], reverse=True
     )
     # Sort the parent's child comments by vote_difference (descending order)
     for i in range(len(sorted_parents)):
         sorted_parents[i]["replies"] = sorted(
-            sorted_parents[i]["replies"], 
-            key=lambda reply : reply["vote_difference"], 
-            reverse=True
+            sorted_parents[i]["replies"],
+            key=lambda reply: reply["vote_difference"],
+            reverse=True,
         )
-        
+
     return sorted_parents
 
 
@@ -386,7 +385,7 @@ def get_stock_comments(user_id, stock_ticker):
         if user_id in query_results[i]["upvote_user_ids"]:
             query_results[i]["is_upvoted"] = True
         elif user_id in query_results[i]["downvote_user_ids"]:
-            query_results[i]["is_upvoted"] = True
+            query_results[i]["is_downvoted"] = True
 
         # Add upvote and downvote count fields
         query_results[i]["upvotes"] = len(query_results[i]["upvote_user_ids"])
@@ -511,6 +510,100 @@ def vote_on_reply(user_id, reply_id, upvote=True):
     conn.close()
 
     return {"message": "Submitted successfully", "comment": voted_comment}
+
+
+def remove_vote_comment(user_id, comment_id, upvote=True):
+    # Open database connection
+    conn = create_DB_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Pick the execution query based off upvote boolean
+    if upvote:
+        execute_query = """
+            UPDATE forum_comment 
+            SET upvote_user_ids = ARRAY_REMOVE(upvote_user_ids, %s)
+            WHERE comment_id = %s
+            RETURNING *
+        """
+    else:
+        execute_query = """
+            UPDATE forum_comment 
+            SET downvote_user_ids = ARRAY_REMOVE(downvote_user_ids, %s)
+            WHERE comment_id = %s
+            RETURNING *
+        """
+    try:
+        cur.execute(execute_query, (user_id, comment_id))
+        # Function returns the edited row
+        voted_comment = dict(cur.fetchall()[0])
+        # Calculate the new amount of upvotes and downvotes
+        voted_comment["upvotes"] = len(voted_comment["upvote_user_ids"])
+        voted_comment["downvotes"] = len(voted_comment["downvote_user_ids"])
+        voted_comment["vote_difference"] = (
+            voted_comment["upvotes"] - voted_comment["downvotes"]
+        )
+        # Remove columns that contain exposed user ids
+        del voted_comment["upvote_user_ids"]
+        del voted_comment["downvote_user_ids"]
+    # If the user attempts to vote on a deleted comment
+    except psycopg2.errors.InternalError:
+        conn.close()
+        abort(400, "Cannot vote on a deleted comment")
+    # If the data provided is invalid
+    except:
+        conn.close()
+        abort(400, "Invalid data provided to the database")
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {"message": "Submitted removed vote from comment", "comment": voted_comment}
+
+
+def remove_vote_reply(user_id, comment_id, upvote=True):
+    # Open database connection
+    conn = create_DB_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Pick the execution query based off upvote boolean
+    if upvote:
+        execute_query = """
+            UPDATE forum_reply 
+            SET upvote_user_ids = ARRAY_REMOVE(upvote_user_ids, %s)
+            WHERE reply_id = %s
+            RETURNING *
+        """
+    else:
+        execute_query = """
+            UPDATE forum_reply 
+            SET downvote_user_ids = ARRAY_REMOVE(downvote_user_ids, %s)
+            WHERE reply_id = %s
+            RETURNING *
+        """
+    try:
+        cur.execute(execute_query, (user_id, comment_id))
+        # Function returns the edited row
+        voted_comment = dict(cur.fetchall()[0])
+        # Calculate the new amount of upvotes and downvotes
+        voted_comment["upvotes"] = len(voted_comment["upvote_user_ids"])
+        voted_comment["downvotes"] = len(voted_comment["downvote_user_ids"])
+        voted_comment["vote_difference"] = (
+            voted_comment["upvotes"] - voted_comment["downvotes"]
+        )
+        # Remove columns that contain exposed user ids
+        del voted_comment["upvote_user_ids"]
+        del voted_comment["downvote_user_ids"]
+    # If the data provided is invalid
+    except:
+        conn.close()
+        abort(400, "Invalid data provided to the database")
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {"message": "Successfully removed vote from reply", "comment": voted_comment}
 
 
 # ---------------------------------------------------------------------------- #
@@ -647,6 +740,19 @@ class UpvoteComment(Resource):
         result = vote_on_comment(user_id, data["comment_id"])
         return Response(dumps(result), status=200)
 
+    @FORUM_NS.doc(description="Remove a comment's upvote given the Comment ID.")
+    @FORUM_NS.expect(
+        token_parser(FORUM_NS), comment_vote_model(FORUM_NS), validate=True
+    )
+    @FORUM_NS.response(200, "Successfully removed comment upvote")
+    @FORUM_NS.response(400, "No comment with the Comment ID was found")
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = remove_vote_comment(user_id, data["comment_id"])
+        return Response(dumps(result), status=200)
+
 
 @FORUM_NS.route("/comment/downvote")
 class DownvoteComment(Resource):
@@ -663,6 +769,19 @@ class DownvoteComment(Resource):
         result = vote_on_comment(user_id, data["comment_id"], upvote=False)
         return Response(dumps(result), status=200)
 
+    @FORUM_NS.doc(description="Remove Downvote from a Comment given the Comment ID.")
+    @FORUM_NS.expect(
+        token_parser(FORUM_NS), comment_vote_model(FORUM_NS), validate=True
+    )
+    @FORUM_NS.response(200, "Successfully removed downvote from comment")
+    @FORUM_NS.response(404, "No comment with the Comment ID was found")
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = remove_vote_comment(user_id, data["comment_id"], upvote=False)
+        return Response(dumps(result), status=200)
+
 
 @FORUM_NS.route("/reply/upvote")
 class UpvoteReply(Resource):
@@ -677,6 +796,17 @@ class UpvoteReply(Resource):
         result = vote_on_reply(user_id, data["reply_id"])
         return Response(dumps(result), status=200)
 
+    @FORUM_NS.doc(description="Removed upvote from a Reply given the Reply ID.")
+    @FORUM_NS.expect(token_parser(FORUM_NS), reply_vote_model(FORUM_NS), validate=True)
+    @FORUM_NS.response(200, "Successfully removed upvote from reply")
+    @FORUM_NS.response(404, "No reply with the Reply ID was found")
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = remove_vote_reply(user_id, data["reply_id"])
+        return Response(dumps(result), status=200)
+
 
 @FORUM_NS.route("/reply/downvote")
 class DownvoteReply(Resource):
@@ -689,4 +819,15 @@ class DownvoteReply(Resource):
         user_id = get_id_from_token(token)
         data = request.get_json()
         result = vote_on_reply(user_id, data["reply_id"], upvote=False)
+        return Response(dumps(result), status=200)
+
+    @FORUM_NS.doc(description="Remove downvote from a Reply given the Reply ID.")
+    @FORUM_NS.expect(token_parser(FORUM_NS), reply_vote_model(FORUM_NS), validate=True)
+    @FORUM_NS.response(200, "Successfully removed downvote from reply")
+    @FORUM_NS.response(404, "No reply with the Reply ID was found")
+    def delete(self):
+        token = request.headers.get("Authorization")
+        user_id = get_id_from_token(token)
+        data = request.get_json()
+        result = remove_vote_reply(user_id, data["reply_id"], upvote=False)
         return Response(dumps(result), status=200)

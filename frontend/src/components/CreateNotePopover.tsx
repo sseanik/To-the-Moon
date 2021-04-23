@@ -1,4 +1,4 @@
-import { OverlayTrigger, Popover, Button, Alert } from "react-bootstrap";
+import { Alert, OverlayTrigger, Popover, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
 import noteActions from "../redux/actions/noteActions";
@@ -32,7 +32,6 @@ const createNoteButtonStyle = {
 interface StateProps {
   loading: boolean;
   message: string;
-  error: string;
 }
 
 interface DispatchProps {
@@ -40,7 +39,7 @@ interface DispatchProps {
 }
 
 const CreateNotePopover: React.FC<StateProps & DispatchProps> = (props) => {
-  const { loading, message, error, createNote } = props;
+  const { loading, message, createNote } = props;
 
   const handleCreate = (values: NoteFormValues) => {
     const {
@@ -70,7 +69,6 @@ const CreateNotePopover: React.FC<StateProps & DispatchProps> = (props) => {
     internalReferences: "",
   };
 
-  const errorComponent = <Alert variant="danger">{error}</Alert>;
   const messageComponent = <Alert variant="success">{message}</Alert>;
 
   const loadingSpinnerComponent = (
@@ -87,7 +85,6 @@ const CreateNotePopover: React.FC<StateProps & DispatchProps> = (props) => {
     >
       <Popover.Title as="h3">Create a new note</Popover.Title>
       <Popover.Content>
-        {error ? errorComponent : null}
         {message ? messageComponent : null}
         {loading ? (
           loadingSpinnerComponent
@@ -114,7 +111,6 @@ const CreateNotePopover: React.FC<StateProps & DispatchProps> = (props) => {
 const mapStateToProps = (state: any) => ({
   loading: state.noteReducer.createNote.loading,
   message: state.noteReducer.createNote.message,
-  error: state.noteReducer.createNote.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

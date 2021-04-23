@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import forumActions from "../redux/actions/forumActions";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { Alert, Button, Col, Form } from "react-bootstrap";
+import { Button, Col, Form } from "react-bootstrap";
 import ClipLoader from "react-spinners/ClipLoader";
 
 interface AddCommentFormParams {
@@ -13,9 +13,7 @@ interface AddCommentFormParams {
 }
 
 interface StateProps {
-  parentError: string;
   parentLoading: boolean;
-  childError: string;
   childAdding: string[];
 }
 
@@ -31,15 +29,13 @@ interface Props {
 
 const schema = Yup.object({
   content: Yup.string()
-    .required("Reply content is required.")
-    .max(5000, "Reply cannot exceed 5000 characters"),
+    .required("Content is required.")
+    .max(5000, "Content cannot exceed 5000 characters"),
 });
 
 const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
   const {
-    parentError,
     parentLoading,
-    childError,
     childAdding,
     addParent,
     addChild,
@@ -70,8 +66,6 @@ const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
       }) => {
         return (
           <Form noValidate onSubmit={handleSubmit} className="w-100 mt-2">
-            {parentError ? <Alert variant="danger">{parentError}</Alert> : null}
-            {childError ? <Alert variant="danger">{childError}</Alert> : null}
             <Form.Row className="justify-content-between">
               <Col md={8}>
                 <Form.Control
@@ -118,9 +112,7 @@ const AddChildForm: React.FC<StateProps & DispatchProps & Props> = (props) => {
 };
 
 const mapStateToProps = (state: any) => ({
-  parentError: state.forumReducer.addParent.error,
   parentLoading: state.forumReducer.addParent.loading,
-  childError: state.forumReducer.addChild.error,
   childAdding: state.forumReducer.addChild.adding,
 });
 
