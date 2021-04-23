@@ -594,7 +594,6 @@ def remove_vote_reply(user_id, comment_id, upvote=True):
         # Remove columns that contain exposed user ids
         del voted_comment["upvote_user_ids"]
         del voted_comment["downvote_user_ids"]
-        del voted_comment["array_remove"]
     # If the data provided is invalid
     except:
         conn.close()
