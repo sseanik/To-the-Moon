@@ -29,9 +29,14 @@ from constants.stock_db_schema import (
     summary_bs_columns,
     revised_bs_order,
 )
-from models import stock_get_data_parser, stock_get_prediction_parser, stock_get_paper_trade_parser
+from models import (
+    stock_get_data_parser,
+    stock_get_prediction_parser,
+    stock_get_paper_trade_parser,
+)
 
 # from definitions import local_storage_dir
+
 
 class StockPriceData:
     def __init__(self):
@@ -42,11 +47,13 @@ class StockPriceData:
         self.intraday_metadata = {}
         self.intraday_filename = ""
 
+
 def dict_to_pd_df(target):
     result = pd.DataFrame.from_dict(target, orient="index").astype("float")
     result = result.reindex(index=result.index[::-1])
     result.index = pd.to_datetime(result.index)
     return result
+
 
 MODELSRVURL = os.getenv("MODELSRVURL")
 MODELSRVPORT = os.getenv("MODELSRVPORT")
@@ -88,8 +95,7 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
     stockmetadata = None
     if data_type == "intraday" and not stock_price_data.intraday_metadata:
         stockmetadata = stock_price_data.intraday_metadata
-    elif data_type == "daily_adjusted" and \
-        not stock_price_data.daily_metadata:
+    elif data_type == "daily_adjusted" and not stock_price_data.daily_metadata:
         stockmetadata = stock_price_data.daily_metadata
     elif os.path.isfile(filename):
         _, stockmetadata = JSONLoader.load_json(filename)
@@ -108,8 +114,12 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
 
         date_today = datetime.today()
         date_today_aware = local_tz.localize(date_today).astimezone(reference_tz)
-        time_constraint = (date_today_aware.hour >= 4 and date_today_aware.hour < 20) or (date_ref_aware.hour < 20)
-        dow_constraint = date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
+        time_constraint = (
+            date_today_aware.hour >= 4 and date_today_aware.hour < 20
+        ) or (date_ref_aware.hour < 20)
+        dow_constraint = (
+            date_today_aware.weekday() >= 0 and date_today_aware.weekday() <= 4
+        )
 
         # If not inside trading hours move to close of last trading day
         if not (time_constraint and dow_constraint):
@@ -138,9 +148,9 @@ def update_stock_required(symbol, data_type="daily_adjusted"):
 
 def retrieve_stock_data(symbol, data_type="daily_adjusted"):
     """Fetches stock data from AlphaVantage and saves it in storage.
-        Args:
-            filename (str): name of file.
-            data_type (str): time series interval offered by AlphaVantage (daily_adjusted, intraday).
+    Args:
+        filename (str): name of file.
+        data_type (str): time series interval offered by AlphaVantage (daily_adjusted, intraday).
     """
     new_data, new_metadata = None, None
     try:
@@ -160,8 +170,9 @@ def retrieve_stock_data(symbol, data_type="daily_adjusted"):
         print(f"Error encountered while fetching data: {e}", file=sys.stderr)
 
     try:
-        save_filename = \
-        JSONLoader.save_json(symbol, [new_data, new_metadata], label=data_type)
+        save_filename = JSONLoader.save_json(
+            symbol, [new_data, new_metadata], label=data_type
+        )
         if data_type == "intraday":
             stock_price_data.intraday_filename = save_filename
         else:
@@ -172,16 +183,16 @@ def retrieve_stock_data(symbol, data_type="daily_adjusted"):
 
 def retrieve_stock_price_at_date(symbol, purchase_date):
     """Fetches the stock price given a stock symbol and purchase date.
-        Args:
-            symbol (str): the company's stock ticker.
-            purchase_date (datetime): date the stock was purchased.
-        Return:
-            price (float): floating point number of the stock price at that moment on that purchase_date,
-            otherwise just closing price for the dat of purchase_date, otherwise just the latest price.
+    Args:
+        symbol (str): the company's stock ticker.
+        purchase_date (datetime): date the stock was purchased.
+    Return:
+        price (float): floating point number of the stock price at that moment on that purchase_date,
+        otherwise just closing price for the dat of purchase_date, otherwise just the latest price.
     """
-    ts = TimeSeries(key=AlphaVantageInfo.api_key, output_format='csv')
-    rounded_datetime = purchase_date.strftime('%Y-%m-%d %H:%M:00')
-    rounded_date = purchase_date.strftime('%Y-%m-%d')
+    ts = TimeSeries(key=AlphaVantageInfo.api_key, output_format="csv")
+    rounded_datetime = purchase_date.strftime("%Y-%m-%d %H:%M:00")
+    rounded_date = purchase_date.strftime("%Y-%m-%d")
     delta = datetime.today() - purchase_date
     year = delta.days / 365 + 1
     month = delta.days % 365 / 30 + 1
@@ -227,11 +238,11 @@ def get_stock_value(filename, data_type="daily_adjusted"):
 
 def get_fundamentals(symbol):
     """Fetches summary data from the securities_overviews table.
-        Args:
-            symbol (str): the company's stock ticker.
-        Returns:
-            dict: dictionary containing summary data from the securities overview table (keys = columns listed
-            in revised_fs_fields, values = corresponding securities_overview entries).
+    Args:
+        symbol (str): the company's stock ticker.
+    Returns:
+        dict: dictionary containing summary data from the securities overview table (keys = columns listed
+        in revised_fs_fields, values = corresponding securities_overview entries).
     """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
@@ -241,7 +252,18 @@ def get_fundamentals(symbol):
     cur.execute(select_query, (symbol,))
     query_result = cur.fetchone()
     result = OrderedDict(query_result) if query_result else None
-    revised_fs_fields = ['stock_name', 'exchange', 'currency', 'yearly_low', 'yearly_high', 'market_cap', 'beta', 'pe_ratio', 'eps', 'dividend_yield']
+    revised_fs_fields = [
+        "stock_name",
+        "exchange",
+        "currency",
+        "yearly_low",
+        "yearly_high",
+        "market_cap",
+        "beta",
+        "pe_ratio",
+        "eps",
+        "dividend_yield",
+    ]
     result = OrderedDict((k, result[k]) for k in revised_fs_fields)
 
     conn.close()
@@ -250,12 +272,12 @@ def get_fundamentals(symbol):
 
 def get_income_statement(symbol, num_entries=1):
     """Fetches the income statement from the database.
-        Args:
-            symbol (str): the company's stock ticker.
-            num_entries (int): the amount of fiscal years that should be returned.
-        Returns:
-            list (dict): list of dictionaries of annual income statements (keys = table columns,
-            values = table entries).
+    Args:
+        symbol (str): the company's stock ticker.
+        num_entries (int): the amount of fiscal years that should be returned.
+    Returns:
+        list (dict): list of dictionaries of annual income statements (keys = table columns,
+        values = table entries).
     """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
@@ -307,7 +329,12 @@ def get_balance_sheet(symbol, num_entries=1):
     for entry in query_results:
         record = OrderedDict(entry)
         for column in summary_bs_columns:
-            record[column] = sum([float(record[x]) if isinstance(record[x], int) else 0 for x in summary_bs_components[column]])
+            record[column] = sum(
+                [
+                    float(record[x]) if isinstance(record[x], int) else 0
+                    for x in summary_bs_components[column]
+                ]
+            )
 
         record = OrderedDict((k, record[k]) for k in revised_bs_order)
         record["fiscal_date_ending"] = str(record["fiscal_date_ending"].isoformat())
@@ -319,12 +346,12 @@ def get_balance_sheet(symbol, num_entries=1):
 
 def get_cash_flow(symbol, num_entries=1):
     """Fetches the cashflow statement from the database.
-        Args:
-            symbol (str): the company's stock ticker.
-            num_entries (int): the amount of fiscal years that should be returned.
-        Returns:
-            list (dict): list of dictionaries of annual cashflow statements (keys = table columns,
-            values = table entries).
+    Args:
+        symbol (str): the company's stock ticker.
+        num_entries (int): the amount of fiscal years that should be returned.
+    Returns:
+        list (dict): list of dictionaries of annual cashflow statements (keys = table columns,
+        values = table entries).
     """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
@@ -342,17 +369,18 @@ def get_cash_flow(symbol, num_entries=1):
     query_results = cur.fetchall()
     result = [OrderedDict(record) for record in query_results]
     for record in result:
-        record['fiscal_date_ending'] = str(record['fiscal_date_ending'].isoformat())
+        record["fiscal_date_ending"] = str(record["fiscal_date_ending"].isoformat())
     conn.close()
     return result
 
-def convert_to_opairs(df, label='4. close'):
+
+def convert_to_opairs(df, label="4. close"):
     """Converts a dataframe into a single column (the 'label' column) where the index is a unix timestamp.
-        Args:
-            df (pd.DataFrame): dataframe containing all the price data on a stock.
-            label (str): the column from the dataframe to be converted into a unix timestamp indexed list.
-        Returns:
-            list: list of [unix timestamp, label data entry] lists, formatted this way for Highcharts display.
+    Args:
+        df (pd.DataFrame): dataframe containing all the price data on a stock.
+        label (str): the column from the dataframe to be converted into a unix timestamp indexed list.
+    Returns:
+        list: list of [unix timestamp, label data entry] lists, formatted this way for Highcharts display.
     """
     series = df[label].reset_index()
     series["index"] = (
@@ -363,10 +391,10 @@ def convert_to_opairs(df, label='4. close'):
 
 def calculate_summary(df):
     """Construct a summary of the dataframe by returning stats from the most recent day, and the min/max/ave. volume for the previous year.
-        Args:
-            df (pd.DataFrame): dataframe containing price history.
-        Returns:
-            result (dict) : dictionary containing summary statistics.
+    Args:
+        df (pd.DataFrame): dataframe containing price history.
+    Returns:
+        result (dict) : dictionary containing summary statistics.
     """
     result = {}
     if type(df) == pd.core.frame.DataFrame and df.shape[0] > 0:
@@ -396,13 +424,13 @@ def calculate_summary(df):
 
 def get_financials_data(symbol, func):
     """Fetches the financial data for a given stock symbol.
-        Args:
-            symbol (str): the company's stock ticker.
-            func (function): function for fetching financial data (get_cash_flow,
-            get_balance_sheet, get_income_statement).
-        Returns:
-            list (dict): list of dictionaries of financial data (keys = table columns,
-            values = table entries). Each dictionary corresponds to a fiscal year.
+    Args:
+        symbol (str): the company's stock ticker.
+        func (function): function for fetching financial data (get_cash_flow,
+        get_balance_sheet, get_income_statement).
+    Returns:
+        list (dict): list of dictionaries of financial data (keys = table columns,
+        values = table entries). Each dictionary corresponds to a fiscal year.
     """
     income_statement = func(symbol)
     if symbol and income_statement:
@@ -411,13 +439,16 @@ def get_financials_data(symbol, func):
         abort(400, "Financials data not found")
     return data
 
+
 ################################
 # Please leave all routes here #
 ################################
 @STOCK_NS.route("")
 class Stock(Resource):
     # def get_stock_data():
-    @STOCK_NS.doc(description="Fetch company stock price data based on Stock Symbol provided. ")
+    @STOCK_NS.doc(
+        description="Fetch company stock price data based on Stock Symbol provided. "
+    )
     @STOCK_NS.expect(stock_get_data_parser(STOCK_NS), validate=True)
     @STOCK_NS.response(200, "Successfully fetched stock information")
     @STOCK_NS.response(404, "Stock API Not Available")
@@ -435,12 +466,14 @@ class Stock(Resource):
             if update_stock_required(symbol, data_type="daily_adjusted"):
                 retrieve_stock_data(symbol, data_type="daily_adjusted")
             if not stock_price_data.daily.empty:
-                daily_df, sample_metadata = (stock_price_data.daily,
-                    stock_price_data.daily_metadata)
+                daily_df, sample_metadata = (
+                    stock_price_data.daily,
+                    stock_price_data.daily_metadata,
+                )
             elif os.path.isfile(symbol + "_daily_adjusted" + ".json"):
                 filename = (
-                    get_local_storage_filepath(symbol +
-                    "_daily_adjusted" + ".json") if symbol
+                    get_local_storage_filepath(symbol + "_daily_adjusted" + ".json")
+                    if symbol
                     else ""
                 )
                 daily_df, sample_metadata = get_stock_value(filename)
@@ -451,8 +484,10 @@ class Stock(Resource):
             if update_stock_required(symbol, data_type="intraday"):
                 retrieve_stock_data(symbol, data_type="intraday")
             if not stock_price_data.intraday.empty:
-                intraday, _ = (stock_price_data.intraday,
-                    stock_price_data.intraday_metadata)
+                intraday, _ = (
+                    stock_price_data.intraday,
+                    stock_price_data.intraday_metadata,
+                )
             elif os.path.isfile(symbol + "_intraday" + ".json"):
                 intr_filename = (
                     get_local_storage_filepath(symbol + "_intraday" + ".json")
@@ -492,7 +527,9 @@ class Stock(Resource):
 @STOCK_NS.route("/get_prediction_daily")
 class Daily_Prediction(Resource):
     # def get_prediction_daily():
-    @STOCK_NS.doc(description="Fetch stock price prediction data based on Stock Symbol and Model Name (Prediction Type) provided. ")
+    @STOCK_NS.doc(
+        description="Fetch stock price prediction data based on Stock Symbol and Model Name (Prediction Type) provided. "
+    )
     @STOCK_NS.expect(stock_get_prediction_parser(STOCK_NS), validate=True)
     @STOCK_NS.response(200, "Successfully fetched stock information")
     @STOCK_NS.response(404, "Stock API Not Available")
@@ -506,12 +543,14 @@ class Daily_Prediction(Resource):
         summary = {}
 
         if not stock_price_data.daily.empty:
-            daily_df, sample_metadata = (stock_price_data.daily,
-                stock_price_data.daily_metadata)
+            daily_df, sample_metadata = (
+                stock_price_data.daily,
+                stock_price_data.daily_metadata,
+            )
         elif os.path.isfile(symbol + "_daily_adjusted" + ".json"):
             filename = (
-                get_local_storage_filepath(symbol +
-                "_daily_adjusted" + ".json") if symbol
+                get_local_storage_filepath(symbol + "_daily_adjusted" + ".json")
+                if symbol
                 else ""
             )
             daily_df, sample_metadata = get_stock_value(filename)
@@ -522,9 +561,12 @@ class Daily_Prediction(Resource):
             "multistep_series",
             "cnn",
         ]:
-                abort(500, f"Prediction type: {prediction_type} not supported")
+            abort(500, f"Prediction type: {prediction_type} not supported")
         elif data_needed > daily_df["4. close"].shape[0]:
-                abort(500, f"Not enough data available: sample has {daily_df['4. close'].shape[0]} but predictor needs {data_needed}")
+            abort(
+                500,
+                f"Not enough data available: sample has {daily_df['4. close'].shape[0]} but predictor needs {data_needed}",
+            )
         else:
             close_data = daily_df["4. close"][-data_needed:].values
             data_minimum = np.min(daily_df["4. close"][:].values)
@@ -539,7 +581,7 @@ class Daily_Prediction(Resource):
                 "data": close_data.tolist(),
                 "orig_data_min": data_minimum,
                 "orig_data_max": data_maximum,
-                }
+            }
             headers = {
                 "Content-Type": "application/json",
             }
@@ -589,7 +631,9 @@ class Daily_Prediction(Resource):
 @STOCK_NS.route("/income_statement")
 class Income_Statement(Resource):
     # def get_income_statement_data():
-    @STOCK_NS.doc(description="Fetch company income statement data based on Stock Symbol provided. ")
+    @STOCK_NS.doc(
+        description="Fetch company income statement data based on Stock Symbol provided. "
+    )
     @STOCK_NS.expect(stock_get_data_parser(STOCK_NS), validate=True)
     @STOCK_NS.response(200, "Successfully fetched stock information")
     @STOCK_NS.response(404, "Stock API Not Available")
@@ -602,7 +646,9 @@ class Income_Statement(Resource):
 @STOCK_NS.route("/balance_sheet")
 class Balance_Sheet(Resource):
     # def get_balance_sheet_data():
-    @STOCK_NS.doc(description="Fetch company balance sheet data based on Stock Symbol provided. ")
+    @STOCK_NS.doc(
+        description="Fetch company balance sheet data based on Stock Symbol provided. "
+    )
     @STOCK_NS.expect(stock_get_data_parser(STOCK_NS), validate=True)
     @STOCK_NS.response(200, "Successfully fetched stock information")
     @STOCK_NS.response(404, "Stock API Not Available")
@@ -615,7 +661,9 @@ class Balance_Sheet(Resource):
 @STOCK_NS.route("/cash_flow_statement")
 class Cash_Flow_Statement(Resource):
     # def get_cash_flow_data():
-    @STOCK_NS.doc(description="Fetch company cash flow statement data based on Stock Symbol provided. ")
+    @STOCK_NS.doc(
+        description="Fetch company cash flow statement data based on Stock Symbol provided. "
+    )
     @STOCK_NS.expect(stock_get_data_parser(STOCK_NS), validate=True)
     @STOCK_NS.response(200, "Successfully fetched stock information")
     @STOCK_NS.response(404, "Stock API Not Available")
@@ -624,35 +672,42 @@ class Cash_Flow_Statement(Resource):
         result = get_financials_data(symbol, get_cash_flow)
         return Response(dumps(result), status=200)
 
-@STOCK_NS.route('/get_backtest', methods=['GET'])
+
+@STOCK_NS.route("/get_backtest", methods=["GET"])
 class Paper_Trade_Results(Resource):
-    @STOCK_NS.doc(description="Run a trading strategy for the selected company and parameters. ")
+    @STOCK_NS.doc(
+        description="Run a trading strategy for the selected company and parameters. "
+    )
     @STOCK_NS.expect(stock_get_paper_trade_parser(STOCK_NS), validate=False)
     @STOCK_NS.response(200, "Successfully fetched paper trade")
     @STOCK_NS.response(404, "Paper Trade API Not Available")
     def get(self):
-        symbol = request.args.get('symbol')
-        initial_cash = request.args.get('initial_cash')
-        commission = request.args.get('commission')
-        strategy = request.args.get('strategy')
-        fromdate = request.args.get('fromdate')
-        todate = request.args.get('todate')
+        symbol = request.args.get("symbol")
+        initial_cash = request.args.get("initial_cash")
+        commission = request.args.get("commission")
+        strategy = request.args.get("strategy")
+        fromdate = request.args.get("fromdate")
+        todate = request.args.get("todate")
         # import pdb; pdb.set_trace()
         status = 200
         dispatch_data = {}
         data = {
-            'tickers': [symbol],
-            'timeframes': { '1D': 1, },
-            'timeframe_units': "Days",
-            'initial_cash': float(initial_cash),
-            'commission': float(commission),
-            'timezone': "US/Eastern",
-            'strategy': strategy,
-            'fromdate': fromdate,
-            'todate': todate,
+            "tickers": [symbol],
+            "timeframes": {
+                "1D": 1,
+            },
+            "timeframe_units": "Days",
+            "initial_cash": float(initial_cash),
+            "commission": float(commission),
+            "timezone": "US/Eastern",
+            "strategy": strategy,
+            "fromdate": fromdate,
+            "todate": todate,
         }
 
-        headers = { "Content-Type": "application/json", }
+        headers = {
+            "Content-Type": "application/json",
+        }
         url = BACKTRSRVURL
         port = BACKTRSRVPORT
         endpoint = f"http://{url}:{port}/get_backtest"
@@ -664,4 +719,4 @@ class Paper_Trade_Results(Resource):
         except Exception as e:
             abort(500, "")
 
-        return Response(dumps({'data': dispatch_data}), status=200)
+        return Response(dumps({"data": dispatch_data}), status=200)

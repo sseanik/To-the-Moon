@@ -38,6 +38,14 @@ FORUM_NS = Namespace("forum", "User discussion on Stock Pages")
 
 
 def validate_timestamp(timestamp):
+    """Check if the timestamp is between 24 hours from the current time, past and future
+
+    Args:
+        timestamp (int): UNIX time since Epoch
+
+    Returns:
+        Boolean: True if timestamp is valid, otherwise False for invalid
+    """
     # Validate the timestamp by checking if post time is within 1 day's timeframe
     now_milliseconds = time.time() * 1000
     day_milliseconds = 86400000
@@ -300,6 +308,14 @@ def delete_comment(user_id, comment_id, parent_id=None):
 
 
 def sort_stock_comments(comments):
+    """Given a list of comments sort them based on their vote weighting
+
+    Args:
+        comments (list): list of comments and their replies
+
+    Returns:
+        list: Sorted list of comments with sorted replies
+    """
     # Sort the parent comments by vote_difference (descending order)
     sorted_parents = sorted(
         comments, key=lambda comment: comment["vote_difference"], reverse=True
@@ -316,6 +332,15 @@ def sort_stock_comments(comments):
 
 
 def get_stock_comments(user_id, stock_ticker):
+    """[summary]
+
+    Args:
+        user_id (stock): The UUID user_id requesting comments
+        stock_ticker (string): The Stock ticker symbol
+
+    Returns:
+        Dictionary: Success Message and a list of comments and their replies
+    """
     # Open database connection
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -430,13 +455,22 @@ def get_stock_comments(user_id, stock_ticker):
             del query_results[i]["replies"][j]["upvote_user_ids"]
             del query_results[i]["replies"][j]["downvote_user_ids"]
 
-    # TODO: Sort Weighting
     query_results = sort_stock_comments(query_results)
 
     return {"message": "Comments Successfully Fetched", "comments": query_results}
 
 
 def vote_on_comment(user_id, comment_id, upvote=True):
+    """Process adding a vote on a comment providing the comment ID
+
+    Args:
+        user_id (string): The UUID string of the user adding a vote
+        comment_id (string): The comment ID of the comment they are voting on
+        upvote (bool, optional): Default setting is upvote. Defaults to True.
+
+    Returns:
+        dictionary: success message, the comment with the new vote
+    """
     # Open database connection
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -477,6 +511,17 @@ def vote_on_comment(user_id, comment_id, upvote=True):
 
 
 def vote_on_reply(user_id, reply_id, upvote=True):
+    """Process adding a vote on a reply proving the reply ID
+
+    Args:
+        user_id (string): The UUID string of the user adding a vote
+        reply_id (string): The UUID of the reply that the user is voting on
+        upvote (bool, optional): Default setting is upvote. Defaults to True.
+
+    Returns:
+        dictionary: success message, the reply with the new vote
+    """
+
     # Open database connection
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -513,6 +558,16 @@ def vote_on_reply(user_id, reply_id, upvote=True):
 
 
 def remove_vote_comment(user_id, comment_id, upvote=True):
+    """Process removing a vote on a comment providing the comment ID
+
+    Args:
+        user_id (string): The UUID string of the user removing their vote
+        comment_id (string): The comment ID of the comment they are removing their vote on
+        upvote (bool, optional): Default setting is upvote. Defaults to True.
+
+    Returns:
+        dictionary: success message, the comment with the new vote
+    """
     # Open database connection
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -562,6 +617,16 @@ def remove_vote_comment(user_id, comment_id, upvote=True):
 
 
 def remove_vote_reply(user_id, comment_id, upvote=True):
+    """Process removing a vote on a reply proving the reply ID
+
+    Args:
+        user_id (string): The UUID string of the user removing a vote
+        reply_id (string): The UUID of the reply that the user removing their vote on
+        upvote (bool, optional): Default setting is upvote. Defaults to True.
+
+    Returns:
+        dictionary: success message, the reply with the new vote
+    """
     # Open database connection
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)

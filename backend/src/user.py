@@ -4,14 +4,13 @@
 
 from json import dumps
 import re
+from threading import Thread
 import bcrypt
 from flask import request, Response, current_app
 from database import create_DB_connection
 from token_util import generate_token, get_id_from_token
 from flask_restx import Namespace, Resource, abort
-from flask_mail import Message
 from notification import send_async_register_email
-from threading import Thread
 from models import login_model, register_model, token_parser
 
 # ---------------------------------------------------------------------------- #
@@ -26,6 +25,18 @@ USER_NS = Namespace("user", "Authentication and Authorisation of Users")
 
 
 def register_user(first_name, last_name, email, username, password):
+    """Register a new user provided their details from the frontend
+
+    Args:
+        first_name (string): First name of the user
+        last_name (string): Surname of the user
+        email (string): Provided email the user wishes to sign up with
+        username (string): Provided username the user wishes to sign up with
+        password (string): Provided password the user wishes to sign up with
+
+    Returns:
+        dictionary: username of the user, generated user token and success message
+    """
     # open database connection
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -101,6 +112,15 @@ def register_user(first_name, last_name, email, username, password):
 
 
 def login_user(email, password):
+    """Process a user's given email and password to allow them to login
+
+    Args:
+        email (string): the provided email of the user wishing to login
+        password (string): the provided password of the user wishing to login
+
+    Returns:
+        dictionary: username of the user, generated user token and success message
+    """
     # open database connection
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -134,6 +154,14 @@ def login_user(email, password):
 
 
 def get_username(user_id):
+    """Given a UUID user_id, find the username associated with it
+
+    Args:
+        user_id (string): The UUID of the user
+
+    Returns:
+        dictionary: username of the user, generated user token and success message
+    """
     # open database connection
     conn = create_DB_connection()
     cur = conn.cursor()
