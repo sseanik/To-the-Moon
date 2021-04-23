@@ -58,13 +58,19 @@ Week 8:
 - Implimented backend functionality for saving a users screener to the screeners table in the database. Added a load function which fetches a users screens. Also added a delete function so users can remove saved screeners from the database. Routes added for each function.
 - Junji agreed to do screeners frontend. We had discussion about screeners input's and output's, screeners UI, and the screeners functionality options. We decided against letting users edit their saved screeners. Instead they must delete the old screener and recreate then save the new screener.
 
-
 Week 9:
-watchlist backend functions
-watchlist schema's
-commented and edited stock.py
+- Created watchlist sql schema (watchlist.sql, subscriptions.sql
+- Added all watchlist backend functionality 
+- Commented, tested, and edited stock.py
+- Further development to SVM model. Predictions consistently inadequate. After much development we decided to omit the SVM model in favour of the LSTM model.
+
+Week 10:
+- Wrote presentation script for Sean and I. Created slides for Sean and I.
+- Worked on final report (overview, feature objectivesm descriptionm and exposition)
+- Testing app functionality (found issues in portfolios, votes, screener, and watchlists). Merged all fixes.
+- Added add sort comments functionality, sorting on highest vote difference to lowest vote difference.
 
 
-going to add SVM model to the backend stock prediction functionality
+
 
 
