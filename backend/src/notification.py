@@ -1,23 +1,40 @@
+# ---------------------------------------------------------------------------- #
+#                              Notification Module                             #
+# ---------------------------------------------------------------------------- #
+
 from time import sleep
-from json import dumps
-from flask_restx import Namespace, Resource, abort
-from flask_mail import Mail, Message
-from flask import request, Response, render_template, current_app
-from token_util import get_id_from_token
+from flask_restx import Namespace, Resource
+from flask_mail import Message
+from flask import Response, render_template
 from database import create_DB_connection
 from news import get_portfolio_news
 from portfolio import get_portfolio_performance
 from psycopg2.extras import RealDictCursor
 
 
+# ---------------------------------------------------------------------------- #
+#                              Global Declarations                             #
+# ---------------------------------------------------------------------------- #
+
 NOTIFICATION_NS = Namespace("notification", "Email notification service")
+
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
 
 
 def send_news_email(app):
+    """Send a news overview and portfolio email notification daily
+
+    Args:
+        user_id (Flask_app): Flask app context
+    """
+    # Delay the initial Portfolio/News email by 30 seconds
     sleep(30)
-    # Delay the initial Portfolio/News email by 1 minute
+
+    # Boolean to check whether initial loop has been completed
     initial = True
-    # Work as an infinite loop, updating daily
+    # Infinitely loop, updating subscribed users daily
     while True:
         # Sleep for 1 day
         if not initial:
@@ -26,6 +43,7 @@ def send_news_email(app):
             # Connect to the Database
             conn = create_DB_connection()
             cur = conn.cursor(cursor_factory=RealDictCursor)
+
             # Get all unique stock tickers
             select_query = """
                 SELECT JSON_AGG(DISTINCT h.stock_ticker) as tickers
@@ -140,17 +158,30 @@ def send_news_email(app):
                 )
                 app.MAIL.send(message)
                 print(f"Portfolio/News email sent to {email}")
+            # Initial loop has been completed
             initial = False
 
 
 def send_async_register_email(app, email, first_name, last_name, username, user_id):
-    # Send a register email to the user
+    """Send a register email notification to the user
+
+    Args:
+        app (flask_app): The currently running Flask Application
+        email (string): provided email of the registered user
+        first_name (string): first name of the registered user
+        last_name (string): surname of the registered user
+        username (string): username handle of the registered user
+        user_id (string): UUID of the registered user
+    """
+
     with app.app_context():
+        # Construct a message with a Register Title and email of the registered user
         message = Message(
             "To the Moon - Successfully Registered",
             sender=app.config.get("MAIL_USERNAME"),
             recipients=[email],
         )
+        # Utilise the premade Register HTML template replacing the parameter values
         message.html = render_template(
             "register.html",
             name="Reset Password",
@@ -164,7 +195,15 @@ def send_async_register_email(app, email, first_name, last_name, username, user_
 
 
 def send_async_reply_email(app, stock_ticker, reply_id, reply_username, reply_content):
+    """Send a reply to the parent comment user
 
+    Args:
+        app (Flask_app): The Flask app context
+        stock_ticker (string): The Stock ticker where the reply was commented
+        reply_id (string): The UUID of the reply comment
+        reply_username (string): The username of the person submitting the reply
+        reply_content (string): The content of the reply comment
+    """
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -210,8 +249,20 @@ def send_async_reply_email(app, stock_ticker, reply_id, reply_username, reply_co
 
 
 def unsubscribe(user_id):
+    """Remove all future notifications for a user
+
+    Args:
+        user_id (string): The UUID of the user wishing to unsubscribe
+
+    Returns:
+        tuple: (result message, status code) relating to the success of the request
+    """
+
+    # Create a database connection
     conn = create_DB_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Find the user in the database requesting to unsubscribe
     select_query = "SELECT notification FROM users WHERE id = %s"
     try:
         cur.execute(select_query, (user_id,))
@@ -251,6 +302,11 @@ def unsubscribe(user_id):
     conn.close()
 
     return result, status
+
+
+# ---------------------------------------------------------------------------- #
+#                                    Routes                                    #
+# ---------------------------------------------------------------------------- #
 
 
 @NOTIFICATION_NS.route("/unsubscribe/<string:user_id>")

@@ -4,14 +4,13 @@
 
 from json import dumps
 import re
+from threading import Thread
 import bcrypt
 from flask import request, Response, current_app
 from database import create_DB_connection
 from token_util import generate_token, get_id_from_token
 from flask_restx import Namespace, Resource, abort
-from flask_mail import Message
 from notification import send_async_register_email
-from threading import Thread
 from models import login_model, register_model, token_parser
 
 # ---------------------------------------------------------------------------- #

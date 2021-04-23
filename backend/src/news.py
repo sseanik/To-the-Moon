@@ -24,12 +24,26 @@ DEFAULT_NUM_ARTICLES = 10
 #                               Helper Functions                               #
 # ---------------------------------------------------------------------------- #
 
-# Given a stock symbol, return a list of news articles related to that stock
+
 def get_stock_news(stock_symbol, article_count):
+    """Given a stock symbol, return a list of news articles related to that stock
+
+    Args:
+        stock_symbol (string): Stock ticker e.g. TSLA
+        article_count (int): Number of articles to fetch
+
+    Returns:
+        dictionary: An article list of news dictionaries with their text and image attributes
+    """
+
+    # News API
     url = "https://finnhub.io/api/v1/company-news"
+
     # Only gather stocks ranging from a week old
     todays_date = datetime.today().strftime("%Y-%m-%d")
     week_ago_date = (datetime.today() - timedelta(days=7)).strftime("%Y-%m-%d")
+
+    # Query the news API
     querystring = {
         "symbol": stock_symbol,
         "from": week_ago_date,
@@ -37,15 +51,29 @@ def get_stock_news(stock_symbol, article_count):
         "token": NEWS_API_TOKEN,
     }
     response = requests.request("GET", url, params=querystring)
+
+    # If the API returned a 200, successfully fetched articles
     if response.status_code == 200:
         return {"articles": response.json()[:article_count]}
+    # Otherwise the News API is down or the service is rate limiting
     else:
         abort(500, "Unable to fetch news")
 
 
-# Given a list of stock symbols, return a list of num_articles amount of related news articles
 def get_portfolio_news(stock_symbols, num_articles):
+    """Given a list of stock symbols, return a list of num_articles amount of related news articles
+
+    Args:
+        stock_symbol (string): Stock ticker e.g. TSLA
+        article_count (int): Number of articles to fetch
+
+    Returns:
+        dictionary: An article list of news dictionaries with their text and image attributes
+    """
+
+    # Ignore duplicate Stock tickers
     unique_stocks = set(stock_symbols)
+
     # Either have 1 news article related to each stock, or minimum num_articles in total
     article_count = (
         1
@@ -53,16 +81,27 @@ def get_portfolio_news(stock_symbols, num_articles):
         else round(num_articles / len(unique_stocks))
     )
     news_articles = []
+
+    # Fetch the news for each stock
     for symbol in unique_stocks:
         news_articles += get_stock_news(symbol, article_count)["articles"]
+
+    # If the desired amount was received, successfully fetched
     if len(news_articles) == article_count * len(unique_stocks):
         return {"articles": news_articles}
     else:
         abort(500, "Unable to fetch news")
 
 
-# Given a number of articles, return a list of general finance news articles
 def get_general_news(num_articles):
+    """Given a number of articles, return a list of general finance news articles
+
+    Args:
+        article_count (int): Number of articles to fetch
+
+    Returns:
+        dictionary: An article list of news dictionaries with their text and image attributes
+    """
     url = "https://finnhub.io/api/v1/news"
     querystring = {"category": "general", "token": NEWS_API_TOKEN}
     response = requests.request("GET", url, params=querystring)
