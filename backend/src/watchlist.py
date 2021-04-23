@@ -29,6 +29,19 @@ WATCHLIST_NS = Namespace(
 
 
 def publish_watchlist(user_id, portfolio_name, description):
+    """Transforms a portfolio into a watchlist. Watchlists have the same name as the original portfolio.
+    Watchlists only store the stock tickers from the original portfolios, and its proportion of the
+    portfolio's invested capital.
+
+    Args:
+        user_id (uuid): Identifies the user
+        portfolio_name (string): [description]
+        description (string): [description]
+
+    Returns:
+        dictionary: On success this function returns a message that the watchlist was created.
+    """    
+
     conn = create_DB_connection()
     cur = conn.cursor()
     investments_query = """
@@ -73,6 +86,15 @@ def publish_watchlist(user_id, portfolio_name, description):
 
 
 def subscribe(user_id, watchlist_id):
+    """Implements backend functionality for following a watchlist. 
+
+    Args:
+        user_id (uuid): user identifier.
+        watchlist_id (uuid): user identifier.
+
+    Returns:
+        dictionary: On success this function returns a message that the user has been subscribed.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -92,6 +114,15 @@ def subscribe(user_id, watchlist_id):
 
 
 def unsubscribe(user_id, watchlist_id):
+    """Implements backend functionality for unfollowing a watchlists.
+
+    Args:
+        user_id (uuid): user identifier.
+        watchlist_id (uuid): user identifier.
+
+    Returns:
+        dictionary: On success this function returns a message that the user has been unsubscribed.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -110,6 +141,14 @@ def unsubscribe(user_id, watchlist_id):
 
 
 def get_user_subscriptions(user_id):
+    """Fetches a users followed watchlists.
+
+    Args:
+        user_id (uuid): user identifier.
+
+    Returns:
+        dictionary: contains a confirmation message and a list of watchlist_id's that the user is following.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -130,6 +169,15 @@ def get_user_subscriptions(user_id):
 
 
 def delete_watchlist(user_id, watchlist_id):
+    """Removes a watchlist from the database so it is no longer a watchlist
+
+    Args:
+        user_id (uuid): user identifier.
+        watchlist_id (uuid): user identifier.
+
+    Returns:
+        dictionary: On success this function returns a message that the watchlist has been removed.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """DELETE FROM subscriptions WHERE user_id=%s AND watchlist_id=%s;
@@ -141,6 +189,13 @@ def delete_watchlist(user_id, watchlist_id):
 
 
 def get_all_watchlists():
+    """Fetches all the watchlists available.
+
+    Returns:
+        list of dictionaries: each list item holds a watchlist dictionary. Watchlist dictionaries contain information on
+        the watchlist, and a list of stock dictionaries. Stock dictionaries hold info about that stock position and the
+        stocks company.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -203,6 +258,15 @@ def get_all_watchlists():
 
 
 def get_watchlist(watchlist_id):
+    """Fetches a specific watchlist.
+
+    Args:
+        watchlist_id (uuid): user identifier.
+
+    Returns:
+        dictionary: returns a watchlist dictionary holding information about the watchlist. Also holds a list of stock dictionaries.
+        Each of these stock dictionaries holds information about that stock position and the stocks company. 
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
