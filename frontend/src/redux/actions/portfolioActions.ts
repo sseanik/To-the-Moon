@@ -1,6 +1,7 @@
 import portfolioConstants from "../constants/portfolioConstants";
 import portfolioAPI from "../../api/portfolio";
 import { Dispatch } from "redux";
+import noteActions from "./noteActions";
 
 const portfolioActions = {
   createPortfolioPending: () => ({
@@ -122,6 +123,13 @@ const portfolioActions = {
     try {
       await portfolioAPI.editPortfolio(oldName, newName);
       dispatch(portfolioActions.editPortfolioSuccess({ oldName, newName }));
+      dispatch(noteActions.getUserNotes());
+      dispatch(
+        noteActions.getRelevantNotes({
+          stock_symbols: [],
+          portfolio_names: [newName],
+        })
+      );
     } catch (error) {
       dispatch(portfolioActions.editPortfolioFailure(error.message));
     }
