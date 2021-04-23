@@ -1,11 +1,10 @@
-#####################
-#   Server Module   #
-#####################
+# ---------------------------------------------------------------------------- #
+#                                 Server Module                                #
+# ---------------------------------------------------------------------------- #
 
 import os
 import sys
 from json import dumps
-from definitions import local_storage_dir
 from threading import Thread
 
 from flask import Flask, Response
@@ -13,6 +12,7 @@ from flask_cors import CORS
 from flask_restx import Api, Namespace, Resource, abort
 from flask_mail import Mail
 
+from definitions import local_storage_dir
 from forum import FORUM_NS
 from news import NEWS_NS
 from notes import NOTES_NS
@@ -25,7 +25,7 @@ from watchlist import WATCHLIST_NS
 from dashboard import DASHBOARD_NS
 
 
-# Create a custom Flask class to allow for initial thread
+# Create a custom Flask class to allow for an initial thread to fire after running
 class MyFlaskApp(Flask):
     def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
         # Only run the thread when the Flask App is running
@@ -42,9 +42,8 @@ class MyFlaskApp(Flask):
 
 
 APP = MyFlaskApp(__name__)
-
-
 CORS(APP)
+# Create Flask Rest Swagger overall details
 API = Api(
     APP,
     title="To the Moon API 🌕",
@@ -63,6 +62,7 @@ API.add_namespace(SCREENER_NS)
 API.add_namespace(WATCHLIST_NS)
 API.add_namespace(NOTIFICATION_NS)
 
+# Configure Mail settings from a configured Gmail account
 MAIL_SETTINGS = {
     "MAIL_SERVER": "smtp.gmail.com",
     "MAIL_PORT": 465,
@@ -75,9 +75,9 @@ APP.config.update(MAIL_SETTINGS)
 MAIL = Mail(APP)
 APP.MAIL = MAIL
 
-###################################
-# Please leave all functions here #
-###################################
+# ---------------------------------------------------------------------------- #
+#                             Flask Error Handling                             #
+# ---------------------------------------------------------------------------- #
 
 
 def default_handler(err):
@@ -97,28 +97,14 @@ def default_handler(err):
     return response
 
 
-####################################
-# Please leave all blueprints here #
-####################################
-
-# APP.register_blueprint(FORUM_ROUTES)
-# APP.register_blueprint(NEWS_ROUTES)
-# APP.register_blueprint(PORTFOLIO_ROUTES)
-# APP.register_blueprint(SCREENER_ROUTES)
-# APP.register_blueprint(STOCK_ROUTES)
-# APP.register_blueprint(USER_ROUTES)
-# APP.register_blueprint(WATCHLIST_ROUTES)
-# APP.register_blueprint(NOTE_ROUTES)
-# APP.register_blueprint(DASHBOARD_ROUTES)
-
-#############################
-# Flask App setup and start #
-#############################
-
-
 APP.config["TRAP_HTTP_EXCEPTIONS"] = True
 APP.config["TEMPLATES_AUTO_RELOAD"] = True
 APP.register_error_handler(Exception, default_handler)
+
+
+# ---------------------------------------------------------------------------- #
+#                                  Dummy Route                                 #
+# ---------------------------------------------------------------------------- #
 
 DUMMY = Namespace("dummy", "Testing Endpoint")
 API.add_namespace(DUMMY)
