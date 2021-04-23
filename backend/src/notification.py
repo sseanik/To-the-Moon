@@ -14,8 +14,8 @@ NOTIFICATION_NS = Namespace("notification", "Email notification service")
 
 
 def send_news_email(app):
+    sleep(30)
     # Delay the initial Portfolio/News email by 1 minute
-    sleep(60)
     initial = True
     # Work as an infinite loop, updating daily
     while True:
