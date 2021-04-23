@@ -41,6 +41,20 @@ def add_note(
     external_references,
     internal_references,
 ):
+    """Creates a note in the database. 
+
+    Args:
+        user_id (uuid): user identifier.
+        title (string): title for the note.
+        content (string): content of the note.
+        stock_symbols (array of stings): list of stocks that the note is tagged too.
+        portfolio_names (array of stings): list of portfolios that the note is tagged too.
+        external_references (array of stings): list of URLs for the external references.
+        internal_references (array of stings): list of URLs for the internal references (our news articles).
+
+    Returns:
+        dictionary: on success the dictionary returns a confirmation message that the note has been created.
+    """    
     if len(title) >= 300 or len(title) == 0:
         abort(
             400,
@@ -107,6 +121,21 @@ def edit_note(
     external_references,
     internal_references,
 ):
+    """Allows the user to edit all the fields in the given note.
+
+    Args:
+        user_id ([type]): user identifier
+        old_title ([type]): the old title name. 
+        new_title ([type]): the new title name.
+        content (string): new content.
+        stock_symbols (array of stings): list of stocks that the note is tagged too.
+        portfolio_names (array of stings): list of portfolios that the note is tagged too.
+        external_references (array of stings): list of URLs for the external references.
+        internal_references (array of stings): list of URLs for the internal references (our news articles).
+
+    Returns:
+        dictionary: on success the dictionary returns a confirmation message that the note has been edited.
+    """    
     if len(new_title) >= 300 or len(new_title) == 0:
         abort(
             400,
@@ -171,6 +200,15 @@ def edit_note(
 
 
 def delete_note(user_id, title):
+    """Deletes the given note.
+
+    Args:
+        user_id (uuid): user identifier.
+        title (string): title of the note.
+
+    Returns:
+        dictionary: on success the dictionary returns a confirmation message that the note has been deleted.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "DELETE FROM notes WHERE user_id=%s AND title=%s"
@@ -181,6 +219,15 @@ def delete_note(user_id, title):
 
 
 def get_note(user_id, title):
+    """Fetches the note with the given title.
+
+    Args:
+        user_id (uuid): user identifier.
+        title (string): title of the note.
+
+    Returns:
+        dictionary: on success it returns a dictionary of the note.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "SELECT * FROM notes WHERE user_id=%s AND title=%s"
@@ -199,6 +246,16 @@ def get_note(user_id, title):
 
 
 def get_relevant_notes(user_id, stock_symbols, portfolio_names):
+    """Fetches the notes attached to a list of stock symbols and portfolios.
+
+    Args:
+        user_id (uuid): user identifier.
+        stock_symbols (list of strings): list of stock symbols that notes could be tagged to.
+        portfolio_names (list of strings): list of portfolios that notes could be tagged to.
+
+    Returns:
+        list of dictionaries: each dictionary in this list is a note that is related to these stocks or portfolios.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = """
@@ -223,6 +280,14 @@ def get_relevant_notes(user_id, stock_symbols, portfolio_names):
 
 
 def get_all_notes(user_id):
+    """Fetches all the notes that a given user has.
+
+    Args:
+        user_id (uuid): user identifier.
+
+    Returns:
+        list of dictionaries: each dictionary in this list is a note that belongs to this user.
+    """    
     conn = create_DB_connection()
     cur = conn.cursor()
     sql_query = "SELECT * FROM notes WHERE user_id=%s"
