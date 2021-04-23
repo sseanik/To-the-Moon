@@ -14,8 +14,8 @@ NOTIFICATION_NS = Namespace("notification", "Email notification service")
 
 
 def send_news_email(app):
+    sleep(30)
     # Delay the initial Portfolio/News email by 1 minute
-    sleep(60)
     initial = True
     # Work as an infinite loop, updating daily
     while True:
@@ -28,9 +28,8 @@ def send_news_email(app):
             cur = conn.cursor(cursor_factory=RealDictCursor)
             # Get all unique stock tickers
             select_query = """
-                SELECT JSON_AGG(DISTINCT s.stock_ticker) as tickers 
-                FROM securities_overviews s
-                JOIN holdings h ON (s.stock_ticker = h.stock_ticker)
+                SELECT JSON_AGG(DISTINCT h.stock_ticker) as tickers
+                FROM holdings h
             """.replace(
                 "\n", ""
             )
@@ -42,7 +41,7 @@ def send_news_email(app):
 
             # Fetch all portfolio data from every user that has notifications on
             portfolio_query = """
-                SELECT u.email, u.id as user_id, u.notification 
+                SELECT u.email, u.id as user_id, u.notification,
                 JSON_AGG(DISTINCT h.portfolio_name) AS portfolios, 
                 JSON_AGG(DISTINCT h.stock_ticker) AS stocks
                 FROM holdings h
@@ -69,7 +68,7 @@ def send_news_email(app):
 
                     # Portfolio name heading
                     overall_portfolio_html += f"""
-                        <div style="font-size:14pt">{portfolio}:</div>
+                        <div style="font-size:14pt;font-weight:500;text-decoration: underline;">{portfolio}:</div>
                     """
                     # For each stock in the portfolio
                     for stock_data in performance["data"]["investments"]:
@@ -140,7 +139,7 @@ def send_news_email(app):
                     user_id=user_id,
                 )
                 app.MAIL.send(message)
-                print("Portfolio/News email successfully sent")
+                print(f"Portfolio/News email sent to {email}")
             initial = False
 
 
@@ -161,7 +160,7 @@ def send_async_register_email(app, email, first_name, last_name, username, user_
             user_id=user_id,
         )
         app.MAIL.send(message)
-        print("Register email successfully sent")
+        print(f"Register email sent to {email}")
 
 
 def send_async_reply_email(app, stock_ticker, reply_id, reply_username, reply_content):
@@ -170,7 +169,7 @@ def send_async_reply_email(app, stock_ticker, reply_id, reply_username, reply_co
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     select_query = """
-        SELECT u.email, u.id as user_id, u.notification,
+        SELECT s.email, u.id as user_id, u.notification,
         s.username as parent_name, c.content as parent_comment
         FROM forum_comment c
         JOIN forum_reply r ON (r.comment_id = c.comment_id)
@@ -207,7 +206,7 @@ def send_async_reply_email(app, stock_ticker, reply_id, reply_username, reply_co
                 user_id=data["user_id"],
             )
             app.MAIL.send(message)
-            print("Forum email successfully sent")
+            print(f"Forum email sent to {data['email']}")
 
 
 def unsubscribe(user_id):

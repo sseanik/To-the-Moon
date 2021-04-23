@@ -63,6 +63,7 @@ def create_portfolio(user_id, portfolio_name):
 # Note: does not check whether old_portfolio_name actually exists.
 # If it does exist, it changes its name to newportfolio_name. Otherwise does noting.
 def edit_portfolio(user_id, old_portfolio_name, new_portfolio_name):
+    new_portfolio_name = new_portfolio_name.strip()
     # Check new name is within the max length
     if len(new_portfolio_name) >= 30:
         abort(400, "Portfolio name must be less than 30 characters.")
@@ -442,7 +443,7 @@ class Investment(Resource):
 class TotalChange(Resource):
     @PORTFOLIO_NS.doc(description="Get total change of an existing investment")
     @PORTFOLIO_NS.expect(delete_investment_parser(PORTFOLIO_NS), validate=True)
-    @PORTFOLIO_NS.response(200, "TODO")
+    @PORTFOLIO_NS.response(200, "Successfully retrieved total change for an investment")
     def get(self):
         investment_id = request.args.get("id")
         result = get_investment_tc(investment_id)
@@ -453,7 +454,7 @@ class TotalChange(Resource):
 class Trending(Resource):
     @PORTFOLIO_NS.doc(description="Get trending investments")
     @PORTFOLIO_NS.expect(trending_parser(PORTFOLIO_NS), validate=True)
-    @PORTFOLIO_NS.response(200, "TODO")
+    @PORTFOLIO_NS.response(200, "Successfully retrieved trending investments")
     def get(self):
         num = request.args.get("n")
         response = get_trending_investments(num)

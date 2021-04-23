@@ -22,7 +22,6 @@ const portfolioActions = {
       const { newName } = payload;
       await portfolioAPI.createPortfolio(newName);
       dispatch(portfolioActions.createPortfolioSuccess(payload));
-      dispatch(portfolioActions.getPortfolios());
     } catch (error) {
       dispatch(portfolioActions.createPortfolioFailure(error.message));
     }
@@ -100,7 +99,6 @@ const portfolioActions = {
     try {
       await portfolioAPI.deletePortfolio(portfolioName);
       dispatch(portfolioActions.deletePortfolioSuccess({ portfolioName }));
-      dispatch(portfolioActions.getPortfolios());
     } catch (error) {
       dispatch(portfolioActions.deletePortfolioFailure(error.message));
     }

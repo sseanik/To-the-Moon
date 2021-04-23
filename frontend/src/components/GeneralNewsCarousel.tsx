@@ -33,7 +33,7 @@ interface DispatchProps {
   getGeneralNews: () => void;
 }
 
-const NewsCarousel: React.FC<StateProps & DispatchProps> = (props) => {
+const GeneralNewsCarousel: React.FC<StateProps & DispatchProps> = (props) => {
   const { loading, articles, getGeneralNews } = props;
 
   useEffect(() => {
@@ -80,4 +80,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewsCarousel);
+export default connect(mapStateToProps, mapDispatchToProps)(GeneralNewsCarousel);

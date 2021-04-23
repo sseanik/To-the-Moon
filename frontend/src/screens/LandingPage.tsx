@@ -1,6 +1,6 @@
 import { Container, Row, Image } from "react-bootstrap";
 import logo from "../resources/shuttle.png";
-import { NewsCarousel, TrendingInvestments } from "../components";
+import { GeneralNewsCarousel, TrendingInvestments } from "../components";
 
 const logoStyles = {
   height: "10vw",
@@ -34,7 +34,7 @@ const LandingPage: React.FC = () => {
         <h2>Featured News</h2>
       </Row>
       <Row className="mb-3">
-        <NewsCarousel />
+        <GeneralNewsCarousel />
       </Row>
     </Container>
   );

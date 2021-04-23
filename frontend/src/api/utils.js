@@ -14,8 +14,6 @@ const Utils = {
       .then((res) => (res.ok ? res.json() : handleError(res)))
       .catch((err) => {
         console.warn(`API_ERROR: ${err}`);
-        toast.error(err.message);
-        throw err;
       }),
 };
 
