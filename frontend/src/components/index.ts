@@ -53,7 +53,7 @@ export { default as StockGraph } from "./StockGraph";
 export { default as StockNews } from "./StockNews";
 export { default as StockNewsCarousel } from "./StockNewsCarousel";
 export { default as TrendingInvestments } from "./TrendingInvestments";
-export { default as VoteCommentButton } from "./VoteCommentButton";
 export { default as Username } from "./Username";
 export { default as WatchlistInfo } from "./WatchlistInfo";
 export { default as WatchlistStockInfo } from "./WatchlistStockInfo";
+export { default as VoteCommentButton } from "./VoteCommentButton";
