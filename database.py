@@ -61,7 +61,7 @@ def create_holdings_table():
 def create_user_table():
     conn = create_DB_connection()
     cur = conn.cursor()
-    cur.execute(open("tables/users.sql", "r").read())
+    cur.execute(open("Tables/users.sql", "r").read())
     conn.commit()
     conn.close()
 
