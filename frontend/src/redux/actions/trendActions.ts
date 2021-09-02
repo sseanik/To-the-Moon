@@ -22,7 +22,7 @@ const trendActions = {
       const { n } = payload;
       const res = await investmentAPI.getTrendingStocks(n);
       dispatch(trendActions.getTrendingInvestmentsSuccess(res));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(trendActions.getTrendingInvestmentsFailure(error.message));
     }
   },

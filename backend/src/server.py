@@ -23,7 +23,6 @@ from stock import STOCK_NS
 from user import USER_NS
 from watchlist import WATCHLIST_NS
 from dashboard import DASHBOARD_NS
-from prediction import PREDICTION_DAILY_NS
 
 
 # Create a custom Flask class to allow for an initial thread to fire after running
@@ -62,7 +61,6 @@ API.add_namespace(NOTES_NS)
 API.add_namespace(SCREENER_NS)
 API.add_namespace(WATCHLIST_NS)
 API.add_namespace(NOTIFICATION_NS)
-API.add_namespace(PREDICTION_DAILY_NS)
 
 # Configure Mail settings from a configured Gmail account
 MAIL_SETTINGS = {
@@ -134,6 +132,6 @@ class ErrorResponse(Resource):
         return Response(dumps({"message": "This is an Error Message"}), status=500)
 
 
-# if __name__ == "__main__":
-#     # backend server will run on port 5000 unless otherwise specified
-#     APP.run(debug=True, port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5000))
+if __name__ == "__main__":
+    # backend server will run on port 5000 unless otherwise specified
+    APP.run(debug=True, port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5000))

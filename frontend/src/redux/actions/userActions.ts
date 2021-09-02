@@ -52,7 +52,7 @@ const userActions = {
       );
       window.localStorage.setItem("Token", res.token);
       dispatch(userActions.registerSuccess(res));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(userActions.registerFailure(error.message));
     }
   },
@@ -63,7 +63,7 @@ const userActions = {
       const res = await AuthAPI.login(email, password);
       window.localStorage.setItem("Token", res.token);
       dispatch(userActions.loginSuccess(res));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(userActions.loginFailure(error.message));
     }
   },
@@ -75,7 +75,7 @@ const userActions = {
     try {
       const res = await AuthAPI.getUsername();
       dispatch(userActions.getUsernameSuccess(res.username));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(userActions.getUsernameFailure(error.message));
       userActions.logout();
     }

@@ -31,7 +31,7 @@ const newsActions = {
     try {
       const res = await NewsAPI.getFeaturedNews();
       dispatch(newsActions.newsSuccess(res));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(newsActions.newsFailure(error.message));
     }
   },
@@ -40,7 +40,7 @@ const newsActions = {
     try {
       const res = await NewsAPI.getNewsByStock(stockSymbol);
       dispatch(newsActions.newsSuccess(res));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(newsActions.newsFailure(error.message));
     }
   },
@@ -49,7 +49,7 @@ const newsActions = {
     try {
       const res = await NewsAPI.getNewsByStock(stockSymbol);
       dispatch(newsActions.stockNewsSuccess(stockSymbol, res));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(newsActions.stockNewsFailure(stockSymbol, error.message));
     }
   },

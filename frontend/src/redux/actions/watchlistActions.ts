@@ -19,7 +19,7 @@ const watchlistActions = {
     try {
       const { data } = await watchlistAPI.getWatchlists();
       dispatch(watchlistActions.getWatchlistsSuccess(data));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(watchlistActions.getWatchlistsFailure(error.message));
     }
   },
@@ -39,7 +39,7 @@ const watchlistActions = {
       const { portfolioName, description } = payload;
       await watchlistAPI.addWatchlist(portfolioName, description);
       dispatch(watchlistActions.addWatchlistSuccess());
-    } catch (error: any) {
+    } catch (error) {
       dispatch(watchlistActions.addWatchlistFailure(error.message));
     }
   },
@@ -61,7 +61,7 @@ const watchlistActions = {
     try {
       await watchlistAPI.deleteWatchlist(watchlistID);
       dispatch(watchlistActions.deleteWatchlistSuccess(watchlistID));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(watchlistActions.deleteWatchlistFailure(error.message));
     }
   },
@@ -81,7 +81,7 @@ const watchlistActions = {
     try {
       const { data } = await watchlistAPI.getFollowing();
       dispatch(watchlistActions.getFollowingSuccess(data));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(watchlistActions.getFollowingFailure(error.message));
     }
   },
@@ -102,7 +102,7 @@ const watchlistActions = {
       const { watchlistID } = payload;
       await watchlistAPI.addFollowing(watchlistID);
       dispatch(watchlistActions.addFollowingSuccess(watchlistID));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(watchlistActions.addFollowingFailure(error.message));
     }
   },
@@ -123,7 +123,7 @@ const watchlistActions = {
       const { watchlistID } = payload;
       await watchlistAPI.deleteFollowing(watchlistID);
       dispatch(watchlistActions.deleteFollowingSuccess(watchlistID));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(watchlistActions.deleteFollowingFailure(error.message));
     }
   },
@@ -144,7 +144,7 @@ const watchlistActions = {
       const { watchlistID } = payload;
       const { data } = await watchlistAPI.getWatchlist(watchlistID);
       dispatch(watchlistActions.getWatchlistSuccess(data));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(watchlistActions.getWatchlistFailure(error.message));
     }
   },

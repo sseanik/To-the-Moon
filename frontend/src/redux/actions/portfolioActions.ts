@@ -23,7 +23,7 @@ const portfolioActions = {
       const { newName } = payload;
       await portfolioAPI.createPortfolio(newName);
       dispatch(portfolioActions.createPortfolioSuccess(payload));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(portfolioActions.createPortfolioFailure(error.message));
     }
   },
@@ -43,7 +43,7 @@ const portfolioActions = {
     try {
       const { data } = await portfolioAPI.getPortfolios();
       dispatch(portfolioActions.getPortfoliosSuccess(data));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(portfolioActions.getPortfoliosFailure(error.message));
     }
   },
@@ -75,7 +75,7 @@ const portfolioActions = {
       const { data } = await portfolioAPI.getPortfolioPerformance(name);
       resPayload[name] = data;
       dispatch(portfolioActions.getPortfolioPerfSuccess(name, resPayload));
-    } catch (error: any) {
+    } catch (error) {
       resPayload[name] = error.message;
       dispatch(portfolioActions.getPortfolioPerfFailure(name, resPayload));
     }
@@ -100,7 +100,7 @@ const portfolioActions = {
     try {
       await portfolioAPI.deletePortfolio(portfolioName);
       dispatch(portfolioActions.deletePortfolioSuccess({ portfolioName }));
-    } catch (error: any) {
+    } catch (error) {
       dispatch(portfolioActions.deletePortfolioFailure(error.message));
     }
   },
@@ -130,7 +130,7 @@ const portfolioActions = {
           portfolio_names: [newName],
         })
       );
-    } catch (error: any) {
+    } catch (error) {
       dispatch(portfolioActions.editPortfolioFailure(error.message));
     }
   },
