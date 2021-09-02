@@ -302,8 +302,6 @@ def fill_balance_sheets(symbol):
             if value == "None":
                 annual_report[key] = None
 
-        print(annual_report.keys())
-
         cur.execute(
             insert_query,
             (
@@ -317,7 +315,7 @@ def fill_balance_sheets(symbol):
                 annual_report["goodwill"],
                 annual_report["intangibleAssets"],
                 annual_report["longTermInvestments"],
-                annual_report["otherNonCurrentAssets"],
+                annual_report["otherNonCurrrentAssets"],
                 annual_report["currentAccountsPayable"],
                 annual_report["shortTermDebt"],
                 annual_report["otherCurrentLiabilities"],
