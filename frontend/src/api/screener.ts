@@ -2,7 +2,7 @@ import * as config from "../config.json";
 import { ScreenerQuery } from "../helpers/ScreenerQuery";
 import Utils from "./utils";
 
-const url = `http://localhost:${config.BACKEND_PORT}`;
+const url = config.API;
 
 const ScreenerAPI = {
   save: (name: string, parameters: ScreenerQuery) => {

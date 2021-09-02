@@ -1,7 +1,7 @@
 import * as config from "../config.json";
 import Utils from "./utils";
 
-const url = `http://localhost:${config.BACKEND_PORT}`;
+const url = config.API;
 
 const forumAPI = {
   addComment: (
