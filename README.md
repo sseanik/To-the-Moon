@@ -22,17 +22,19 @@ Customisable dashboard: The system will provide users with a highly customisable
 
 ## [Live Demo](https://career-fairs-connect.netlify.app/landing)
 
-The Frontend was built on the React framework. We used React’s Typescript flavour to enforce better code structure and minimise type errors by enforcing explicit data types at compile time.Our team also used React-Bootstrap to construct ready-made UI elements for its responsive performance, and Highcharts for visualising stock data due to its native support for graphing time-series financial data. For handling routing within our Single Page Application, we used React Router, which can easily handle nested views and the progressive resolution of views. To predictably handle frontend state within our application, our team used React Redux to centralise state management.
+* The Frontend was built on the React framework. We used React’s Typescript flavour to enforce better code structure and minimise type errors by enforcing explicit data types at compile time.
+* Our team also used React-Bootstrap to construct ready-made UI elements for its responsive performance, and Highcharts for visualising stock data due to its native support for graphing time-series financial data. 
+* For handling routing within our Single Page Application, we used React Router, which can easily handle nested views and the progressive resolution of views. To predictably handle frontend state within our application, our team used React Redux to centralise state management.
 
 ## [Backend Demo](https://tothemoon-api.herokuapp.com/)
 
-The project implements a Python-based backend. We opted for the Flask application framework due to its accessibility and greater flexibility compared to Django, a more rigid and resource-heavy framework. We opted to use the RestX framework to implement these schemas as it offers a comprehensive selection of data types and integrates well with Swagger, which can automatically generate documentation from the schemas read. The server endpoints and prediction and trading systems are also run as separate microservices to better support upscaling of the application for higher request volumes. Login and authentication functionality was implemented with RFC 7519 JSON web tokens (JWT) as a lightweight alternative to session based (OAuth) authentication. Both offer similar levels of security but JWT is easier to set up and implement for the volume of users intended for testing. 
-
-The data layer was implemented with a PostgreSQL database. PostgreSQL uses an object relational model which can suitably express the relationship between stocks, portfolios and user interactions and user profiles better than document models. 
-
-To implement prediction-based features, AI models were built with libraries appropriate to prototype a variety of model types, including ‘scikit-learn’ for traditional machine learning models (SVM regressor), ‘statstools’ for statistical models (ARIMA and derivatives) and ‘Tensorflow’ for deep learning models. 
-
-The trading simulation and strategy component was implemented with Backtrader using a broker account provided by Alpaca Markets. 
+* The project implements a Python-based backend and We opted for the Flask application framework due to its accessibility and greater flexibility compared to Django, a more rigid and resource-heavy framework. 
+* We opted to use the RestX framework to implement these schemas as it offers a comprehensive selection of data types and integrates well with Swagger, which can automatically generate documentation from the schemas read. 
+* The server endpoints and prediction and trading systems are also run as separate microservices to better support upscaling of the application for higher request volumes. 
+* Login and authentication functionality was implemented with RFC 7519 JSON web tokens (JWT) as a lightweight alternative to session based (OAuth) authentication. Both offer similar levels of security but JWT is easier to set up and implement for the volume of users intended for testing. 
+* The data layer was implemented with a PostgreSQL database. PostgreSQL uses an object relational model which can suitably express the relationship between stocks, portfolios and user interactions and user profiles better than document models. 
+* To implement prediction-based features, AI models were built with libraries appropriate to prototype a variety of model types, including ‘scikit-learn’ for traditional machine learning models (SVM regressor), ‘statstools’ for statistical models (ARIMA and derivatives) and ‘Tensorflow’ for deep learning models. 
+* The trading simulation and strategy component was implemented with Backtrader using a broker account provided by Alpaca Markets. 
 
 ### [Local Setup Guide can be found here](https://github.com/sseanik/To-the-Moon/blob/main/LOCAL_SETUP.md)
 
