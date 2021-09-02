@@ -48,6 +48,9 @@ Customisable dashboard: The system will provide users with a highly customisable
 ![Favourites](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Favourites.png)
 ![Screeners](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Screeners.png)
 ![Forum](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Forum.png)
+
+#### Email Screenshots
+
 ![Welcome Email](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Email.png)
 ![Email Update](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/EmailUpdate.png)
 
