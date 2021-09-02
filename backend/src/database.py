@@ -419,20 +419,19 @@ def fill_all_companies():
 
 
 if __name__ == "__main__":
-    pass
-    # create_portfolios_table()
-    # create_holdings_table()
-    # create_user_table()
-    # create_securities_overview_table()
-    # create_notes_table()
-    # create_watchlist_tables()
-    # create_comment_tables()
-    # create_screeners_table()
-    # create_vote_plpgsql_functions()
-    # create_dashboard_tables()
-    # create_income_statements_table()
-    # create_balance_sheets_table()
-    # create_cashflow_statements_table()
+    create_portfolios_table()
+    create_holdings_table()
+    create_user_table()
+    create_securities_overview_table()
+    create_notes_table()
+    create_watchlist_tables()
+    create_comment_tables()
+    create_screeners_table()
+    create_vote_plpgsql_functions()
+    create_dashboard_tables()
+    create_income_statements_table()
+    create_balance_sheets_table()
+    create_cashflow_statements_table()
 
     # Basic materials sector
     # Consumer defence sector
@@ -444,11 +443,10 @@ if __name__ == "__main__":
     # Healthcare sector
     # Communication services sector
     # Industrials sector
+    fill_all_companies()
 
     # fill_securities_overview_table(symbol)
     # fill_income_statements(symbol)
     # fill_balance_sheets(symbol)
     # fill_cashflow_statements(symbol)
     # fill_overview_and_financial_tables(symbol)
-
-    # fill_all_companies()

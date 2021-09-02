@@ -76,7 +76,7 @@ const stockActions = {
         const { symbol } = payload;
         const res = await StockAPI.getBasic(symbol);
         dispatch(stockActions.getStockBasicSuccess(res));
-      } catch (error) {
+      } catch (error: any) {
         dispatch(stockActions.getStockBasicFailure(error.message));
       }
     };
@@ -88,7 +88,7 @@ const stockActions = {
         const { symbol } = payload;
         const res = await StockAPI.getIncome(symbol);
         dispatch(stockActions.getStockIncomeSuccess(res));
-      } catch (error) {
+      } catch (error: any) {
         dispatch(stockActions.getStockIncomeFailure(error.message));
       }
     };
@@ -100,7 +100,7 @@ const stockActions = {
         const { symbol } = payload;
         const res = await StockAPI.getBalance(symbol);
         dispatch(stockActions.getStockBalanceSuccess(res));
-      } catch (error) {
+      } catch (error: any) {
         dispatch(stockActions.getStockBalanceFailure(error.message));
       }
     };
@@ -112,7 +112,7 @@ const stockActions = {
         const { symbol } = payload;
         const res = await StockAPI.getCashFlow(symbol);
         dispatch(stockActions.getStockCashFlowSuccess(res));
-      } catch (error) {
+      } catch (error: any) {
         dispatch(stockActions.getStockCashFlowFailure(error.message));
       }
     };
@@ -124,7 +124,7 @@ const stockActions = {
         const { symbol, predictionType } = payload;
         const res = await StockAPI.getPredictionDaily(symbol, predictionType);
         dispatch(stockActions.getPredictionDailySuccess(res));
-      } catch (error) {
+      } catch (error: any) {
         dispatch(stockActions.getPredictionDailyFailure(error.message));
       }
     };
@@ -150,7 +150,7 @@ const stockActions = {
           todate
         );
         dispatch(stockActions.getPaperTradingResultsSuccess(res));
-      } catch (error) {
+      } catch (error: any) {
         dispatch(stockActions.getPaperTradingResultsFailure(error.message));
       }
     };

@@ -19,7 +19,7 @@ const dashboardActions = {
     try {
       const { data } = await dashboardAPI.getUserDashboards();
       dispatch(dashboardActions.getDashboardsSuccess(data));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(dashboardActions.getDashboardsFailure(error.message));
     }
   },
@@ -39,7 +39,7 @@ const dashboardActions = {
     try {
       const { data } = await dashboardAPI.createUserDashboard();
       dispatch(dashboardActions.createDashboardSuccess(data));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(dashboardActions.createDashboardFailure(error.message));
     }
   },
@@ -61,7 +61,7 @@ const dashboardActions = {
       const { dashboardId } = payload;
       await dashboardAPI.deleteDashboard(dashboardId);
       dispatch(dashboardActions.deleteDashboardSuccess());
-    } catch (error) {
+    } catch (error: any) {
       dispatch(dashboardActions.createDashboardFailure(error.message));
     }
   },
@@ -82,7 +82,7 @@ const dashboardActions = {
       const { dashboardId } = payload;
       const { data } = await dashboardAPI.getDashboardBlocks(dashboardId);
       dispatch(dashboardActions.getBlocksSuccess(data));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(dashboardActions.getBlocksFailure(error.message));
     }
   },
@@ -104,7 +104,7 @@ const dashboardActions = {
     try {
       const { data } = await dashboardAPI.getBlockMeta(blockId);
       dispatch(dashboardActions.getBlockMetaSuccess(blockId, data));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(dashboardActions.getBlockMetaFailure(blockId, error.message));
     }
   },
@@ -129,7 +129,7 @@ const dashboardActions = {
         meta
       );
       dispatch(dashboardActions.createBlockSuccess(data));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(dashboardActions.createDashboardFailure(error.message));
     }
   },
@@ -150,7 +150,7 @@ const dashboardActions = {
       const { blockId } = payload;
       const { data } = await dashboardAPI.deleteBlock(blockId);
       dispatch(dashboardActions.deleteBlockSuccess(data));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(dashboardActions.deleteBlockFailure(error.message));
     }
   },

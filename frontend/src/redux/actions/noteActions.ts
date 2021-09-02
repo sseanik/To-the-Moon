@@ -66,7 +66,7 @@ const noteActions = {
     try {
       const res = await NoteAPI.getUserNotes();
       dispatch(noteActions.getUserNotesSuccess(res));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(noteActions.getUserNotesFailure(error.message));
     }
   },
@@ -81,7 +81,7 @@ const noteActions = {
         portfolio_names
       );
       dispatch(noteActions.getRelevantNotesSuccess(res));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(noteActions.getRelevantNotesFailure(error.message));
     }
   },
@@ -105,7 +105,7 @@ const noteActions = {
         internal_references
       );
       dispatch(noteActions.createNoteSuccess(res));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(noteActions.createNoteFailure(error.message));
     }
   },
@@ -131,7 +131,7 @@ const noteActions = {
         internal_references
       );
       dispatch(noteActions.editNoteSuccess());
-    } catch (error) {
+    } catch (error: any) {
       dispatch(noteActions.editNoteFailure(error.message));
     }
   },
@@ -141,7 +141,7 @@ const noteActions = {
       const { title } = payload;
       await NoteAPI.deleteNote(title);
       dispatch(noteActions.deleteNoteSuccess());
-    } catch (error) {
+    } catch (error: any) {
       dispatch(noteActions.deleteNoteFailure(error.message));
     }
   },
