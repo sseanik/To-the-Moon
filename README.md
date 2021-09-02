@@ -2,25 +2,21 @@
 
 ## Background
 
-Career Fairs Connect is a web platform that allows universities to create an interactive online careers fair that connects employers who are advertising their graduate and internship roles with students. 
+A
 
 ### Goals
 
-* Provide a platform where universities can organize a virtual careers fair space for employers and students.
-* Allow employers to provide information about themselves and list their available graduate and internship roles for students to apply.
-* Allow employers to schedule and host live event presentations.
-* Connect students with employers via Q&A functionality.
-* Allow students to maintain profiles with contactable details, work experience, project experience, academic achievements and technical competencies.
+* A
 
 ## [Live Demo](https://career-fairs-connect.netlify.app/landing)
 
-The Frontend was built ontop of React with create-react-app and Redux Toolkit. A [happy path](https://github.com/sseanik/Career-Fairs-Connect/blob/main/HAPPY_PATH.md) set of steps is provided to help explore the entire functionality of the application.
+A
 
 ## [Backend Demo](https://tothemoon-api.herokuapp.com/)
 
+A
 
-
-### [Local Setup](https://github.com/sseanik/To-the-Moon/blob/main/LOCAL_SETUP.md)
+## [Local Setup](https://github.com/sseanik/To-the-Moon/blob/main/LOCAL_SETUP.md)
 
 
 
@@ -30,4 +26,4 @@ The Frontend was built ontop of React with create-react-app and Redux Toolkit. A
 
 ## Credit
 
-This application was collaborated in a CS9323 course with myself, [Max](https://github.com/Youps22), [Wanchen](https://github.com/WanchenZhao), [Arthur](https://github.com/af-af), [Thornton](https://github.com/ThorntonChan) and [Yulia](https://github.com/YuliaRodionov). Our tech stack primarily consists of React for frontend and Django for backend. I primarily contributed towards the Frontend component of this application, focusing on library integration (data tables, calendars, dynamic colourisation), design and responsiveness.
+This application was collaborated in a CS3900 course with myself, [Austin](https://github.com/AJLandry1000000000), [Karim](https://github.com/karim-saad), [Sarah](https://github.com/serahtan) and [Junji](https://github.com/pul-s4r). Our tech stack primarily consists of React for the frontend, Flask for the backend and PostgreSQL for the database. I primarily contributed towards the backend and data layers of this application, focusing on swagger documentation, database management and news related endpoints.
