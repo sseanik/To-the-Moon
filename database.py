@@ -45,7 +45,7 @@ def create_DB_connection():
 def installExtension():
     conn = create_DB_connection()
     cur = conn.cursor()
-    cur.execute('CREATE EXTENSION "uuid-ossp";')
+    cur.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     conn.commit()
     conn.close()
 
