@@ -217,6 +217,9 @@ def fill_income_statements(symbol):
     conn = create_DB_connection()
     cur = conn.cursor()
     statement = TimeSeries().get_income_statement(symbol)
+
+    print(statement.keys())
+
     for annual_report in statement["annualReports"]:
         insert_query = """INSERT INTO income_statements (
             stock_ticker,
