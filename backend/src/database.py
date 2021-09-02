@@ -423,7 +423,7 @@ def fill_all_companies():
     for company in companies:
         fill_overview_and_financial_tables(company)
         print("Inserted ", company)
-        time.sleep(60)
+        time.sleep(10)
 
 
 if __name__ == "__main__":
