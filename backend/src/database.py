@@ -5,20 +5,20 @@
 import os
 import time
 import psycopg2
-from dotenv import load_dotenv
 from helpers import TimeSeries
+import urllib.parse as urlparse
 
 # ---------------------------------------------------------------------------- #
 #                             Environment Variables                            #
 # ---------------------------------------------------------------------------- #
 
-load_dotenv()
-ENDPOINT = os.getenv("DBENDPOINT")
-PORT = os.getenv("DBPORT")
-REGION = os.getenv("DBREGION")
-DBNAME = os.getenv("DBNAME")
-USER = os.getenv("DBUSER")
-PASS = os.getenv("DBPASS")
+
+url = urlparse.urlparse(os.environ["DATABASE_URL"])
+dbname = url.path[1:]
+user = url.username
+password = url.password
+host = url.hostname
+port = url.port
 
 
 def create_DB_connection():
@@ -31,7 +31,7 @@ def create_DB_connection():
     """
     try:
         conn = psycopg2.connect(
-            host=ENDPOINT, port=PORT, database=DBNAME, user=USER, password=PASS
+            dbname=dbname, user=user, password=password, host=host, port=port
         )
         return conn
 

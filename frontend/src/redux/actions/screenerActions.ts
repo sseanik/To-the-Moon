@@ -61,7 +61,7 @@ const screenerActions = {
         const res = await ScreenerAPI.save(name, parameters);
         dispatch(screenerActions.saveScreenerSuccess(res));
         dispatch(screenerActions.loadScreeners());
-      } catch (error) {
+      } catch (error: any) {
         dispatch(screenerActions.saveScreenerFailure(error.message));
       }
     };
@@ -74,7 +74,7 @@ const screenerActions = {
         const { parameters } = payload;
         const res = await ScreenerAPI.getData(parameters);
         dispatch(screenerActions.getScreenerResultsSuccess(res));
-      } catch (error) {
+      } catch (error: any) {
         dispatch(screenerActions.getScreenerResultsFailure(error.message));
       }
     };
@@ -86,7 +86,7 @@ const screenerActions = {
       try {
         const res = await ScreenerAPI.load();
         dispatch(screenerActions.loadScreenersSuccess(res));
-      } catch (error) {
+      } catch (error: any) {
         dispatch(screenerActions.loadScreenersFailure(error.message));
       }
     };
@@ -100,7 +100,7 @@ const screenerActions = {
         const res = await ScreenerAPI.delete(name);
         dispatch(screenerActions.deleteScreenerSuccess(res));
         dispatch(screenerActions.loadScreeners());
-      } catch (error) {
+      } catch (error: any) {
         dispatch(screenerActions.deleteScreenerFailure(error.message));
       }
     };

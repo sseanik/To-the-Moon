@@ -134,6 +134,6 @@ class ErrorResponse(Resource):
         return Response(dumps({"message": "This is an Error Message"}), status=500)
 
 
-if __name__ == "__main__":
-    # backend server will run on port 5000 unless otherwise specified
-    APP.run(debug=True, port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5000))
+# if __name__ == "__main__":
+#     # backend server will run on port 5000 unless otherwise specified
+#     APP.run(debug=True, port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5000))

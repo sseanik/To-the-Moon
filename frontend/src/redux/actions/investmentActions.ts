@@ -31,7 +31,7 @@ const investmentActions = {
       );
       dispatch(investmentActions.createStockSuccess());
       dispatch(investmentActions.getStocks(portfolioName));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(investmentActions.createStockFailure(error.message));
     }
   },
@@ -52,7 +52,7 @@ const investmentActions = {
     try {
       const { data } = await investmentAPI.getStocks(portfolioName);
       dispatch(investmentActions.getStocksSuccess(portfolioName, data));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(
         investmentActions.getStocksFailure(portfolioName, error.message)
       );
@@ -77,7 +77,7 @@ const investmentActions = {
       const { data } = await investmentAPI.deleteStock(investmentID);
       dispatch(investmentActions.deleteStockSuccess(data));
       dispatch(investmentActions.getStocks(portfolioName));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(investmentActions.deleteStockFailure(error.message));
     }
   },
