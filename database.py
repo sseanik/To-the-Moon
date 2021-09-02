@@ -302,6 +302,8 @@ def fill_balance_sheets(symbol):
             if value == "None":
                 annual_report[key] = None
 
+        print(annual_report.keys())
+
         cur.execute(
             insert_query,
             (
