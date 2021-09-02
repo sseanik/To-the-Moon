@@ -218,8 +218,6 @@ def fill_income_statements(symbol):
     cur = conn.cursor()
     statement = TimeSeries().get_income_statement(symbol)
 
-    print(statement)
-
     for annual_report in statement["annualReports"]:
         insert_query = """INSERT INTO income_statements (
             stock_ticker,
@@ -426,7 +424,7 @@ def fill_all_companies():
     for company in companies:
         fill_overview_and_financial_tables(company)
         print("Inserted ", company)
-        time.sleep(10)
+        time.sleep(60)
 
 
 if __name__ == "__main__":
