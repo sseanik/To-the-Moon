@@ -42,6 +42,14 @@ def create_DB_connection():
 # Each table utilises the Table schema and creates the Database table
 
 
+def installExtension():
+    conn = create_DB_connection()
+    cur = conn.cursor()
+    cur.execute('CREATE EXTENSION "uuid-ossp";')
+    conn.commit()
+    conn.close()
+
+
 def create_portfolios_table():
     conn = create_DB_connection()
     cur = conn.cursor()
@@ -419,6 +427,7 @@ def fill_all_companies():
 
 
 if __name__ == "__main__":
+    installExtension()
     create_portfolios_table()
     create_holdings_table()
     create_user_table()
