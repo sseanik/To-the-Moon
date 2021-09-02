@@ -40,7 +40,16 @@ Customisable dashboard: The system will provide users with a highly customisable
 
 ## Screenshots
 
-
+![Trending](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Trending.png)
+![Share Graph](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/SharePrice.png)
+![Notes](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Notes.png)
+![Portfolio](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Portfolio.png)
+![News](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/News.png)
+![Favourites](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Favourites.png)
+![Screeners](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Screeners.png)
+![Forum](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Forum.png)
+![Welcome Email](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/Email.png)
+![Email Update](https://github.com/sseanik/To-the-Moon/blob/main/screenshots/EmailUpdate.png)
 
 ## Credit
 
