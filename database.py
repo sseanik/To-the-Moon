@@ -400,7 +400,7 @@ def fill_overview_and_financial_tables(symbol):
 
 def fill_all_companies():
     companies = [
-        "BHP",
+        # "BHP",
         "LIN",
         "JPM",
         "MA",
