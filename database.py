@@ -93,9 +93,9 @@ def create_notes_table():
 def create_watchlist_tables():
     conn = create_DB_connection()
     cur = conn.cursor()
-    cur.execute(open("Tables/subscriptions.sql", "r").read())
-    conn.commit()
     cur.execute(open("Tables/watchlists.sql", "r").read())
+    conn.commit()
+    cur.execute(open("Tables/subscriptions.sql", "r").read())
     conn.commit()
     conn.close()
 
