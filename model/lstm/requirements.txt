@@ -1,5 +1,5 @@
 absl-py==0.12.0
-aiohttp==3.7.4.post0
+aiohttp==3.7.4
 alpha-vantage==2.3.1
 amqp==5.0.6
 aniso8601==9.0.1
