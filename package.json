@@ -1,7 +1,7 @@
 {
   "name": "capstone-project-3900-w18a-to-the-moon",
   "version": "1.0.0",
-  "description": "A stock portfolio management web app built by UNSW students as part of the Capstone Project course COMP3900.",
+  "description": "A stock portfolio management web app built by UNSW students as part of the Capstone Project course Computer Science Project.",
   "main": "index.js",
   "scripts": {
     "build": "npm run build-frontend && npm run build-backend",
