@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/unsw-cse-comp3900-9900-21T1/capstone-project-3900-w18a-to-the-moon#readme",
   "dependencies": {
-    "concurrently": "^6.0.2"
+    "concurrently": "^6.0.2",
+    "path-parse": "^1.0.7"
   }
 }
