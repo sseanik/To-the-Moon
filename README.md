@@ -2,25 +2,21 @@
 
 ## Background
 
-“To The Moon” (TTM) is a web application for stock portfolio management which features machine learning predictive models, social features, news and automated trading. The platform provides users with an intuitive, all-in-one investment application. 
-
-### Aim
-
-“To develop a web application which leverages machine learning methods, social forums, and intuitive UI features, to aid our users in researching, managing, and initiating new investment portfolios.”
+“To The Moon” (TTM) is a web application for stock portfolio management which features machine learning predictive models, social features, news and automated trading. The platform provides users with an intuitive, all-in-one investment application. Aim: “To develop a web application which leverages machine learning methods, social forums, and intuitive UI features, to aid our users in researching, managing, and initiating new investment portfolios.”
 
 ### Objectives
 
-* **User profiles**: The system will allow sellers to create user profiles to store personalised content and preferences generated from the use of the system. Users can register for a profile and login to the system with one to use the full selection of the system’s features. 
-* **Portfolio management**: The system will allow the creation of portfolios to let users aggregate their investments into a list and monitor their performance. Users can create portfolios and add, edit, delete and view investments. 
+* **User profiles**: The system will allow sellers to create user profiles to store personalised content and preferences generated from the use of the system
+* **Portfolio management**: The system will allow the creation of portfolios to let users aggregate their investments into a list and monitor their performance
 * **Visualisation of share information**: The system will display visualisations of share price data that is both interactive and rich.
 * **Stock information**: The system will display information related to a stock such as company statistics, company financials and share price/value data. 
 * **Investment news and current affairs**: The system will provide financial-related news items for general consumption and for use in analysing a specific company or investment. 
-* **Opportunities to find new potential investments**: The system will provide opportunities for users to explore investments that may not be currently held in the user’s portfolio by providing recommendations for new potential investments.  Investment predictions and online trading: The system will allow users to submit stock price data and receive predictions on the future stock price for a selected company. Users will be able to select models to use during prediction and request predictions with provided parameters.
+* **Opportunities to find new potential investments**: The system will provide opportunities for users to explore investments that may not be currently held in the user’s portfolio by providing recommendations for new potential investments.  
+* **Investment predictions and online trading**: The system will allow users to submit stock price data and receive predictions on the future stock price for a selected company.
 * **Social interaction**: The system will allow users to interact with each other to facilitate meaningful discussion and build knowledge on investing within the community.
-Customisable dashboard: The system will provide users with a highly customisable dashboard to track the content that they most care about. The dashboard should support viewing of personal investments, stock graphs and financial news.
+* **Customisable dashboard**: The system will provide users with a highly customisable dashboard to track the content that they most care about
 
-
-## [Live Demo](https://career-fairs-connect.netlify.app/landing)
+## [Live Demo](https://ttm.vercel.app/)
 
 * The Frontend was built on the React framework. We used React’s Typescript flavour to enforce better code structure and minimise type errors by enforcing explicit data types at compile time.
 * Our team also used React-Bootstrap to construct ready-made UI elements for its responsive performance, and Highcharts for visualising stock data due to its native support for graphing time-series financial data. 
