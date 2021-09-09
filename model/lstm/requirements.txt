@@ -23,7 +23,7 @@ distlib==0.3.0
 distro==1.4.0
 Flask==1.1.2
 Flask-Cors==3.0.10
-flask-restx==0.3.0
+flask-restx==0.5.1
 flatbuffers==1.12
 gast==0.3.3
 google-auth==1.28.0
